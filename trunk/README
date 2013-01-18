@@ -25,18 +25,12 @@ Folder with test files for 'run_tests.sh' and the results or running it.
 ### 'misc'
 
 Any other files. Do **not** place files relevant for creating or testing the 
-package within this folder.
+package within this folder, and do not put them under version control.
 
 
 ### 'opm_in'
 
 Input package, converted to a novel 'opm' directory when running 'build.sh'.
-
-
-### 'opm'
-
-Package directory created for checking, source-archive generation etc. via
-a run of 'build.sh', so do **not** modify files within this directory.
 
 
 ### 'opm.Rcheck'
@@ -69,7 +63,8 @@ Directory 'external_tests'
 
 ### 'failed_files'
 
-Folder with failed test cases (deviating files).
+Folder with failed test cases (deviating files). Do not put them under version
+control.
 
 
 ### 'tests.err', 'tests.out'
