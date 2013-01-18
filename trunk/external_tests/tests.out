@@ -1,0 +1,56 @@
+
+TESTING tests/Example_Johannes_1.csv => tests/Example_Johannes_1.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Johannes_2.csv => tests/Example_Johannes_2.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Johannes_3.csv => tests/Example_Johannes_3.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Microstation_ECO.csv => tests/Example_Microstation_ECO.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Microstation_GN2.csv => tests/Example_Microstation_GN2.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Multiline_Johannes_1.csv => tests/Example_Multiline_Johannes_1.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Multiline_Johannes_2.csv => tests/Example_Multiline_Johannes_2.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Multiline_Johannes_3.csv => tests/Example_Multiline_Johannes_3.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Multiline_Johannes_4.csv => tests/Example_Multiline_Johannes_4.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Old_Style_Anne_1.csv => tests/Example_Old_Style_Anne_1.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Old_Style_Nora_1.csv => tests/Example_Old_Style_Nora_1.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Old_Style_Nora_2.csv => tests/Example_Old_Style_Nora_2.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Example_Old_Style_Nora_3.csv => tests/Example_Old_Style_Nora_3.yml ...
+	<<<SUCCESS>>>
+
+
+TESTING tests/Nora_Roseobacter_1.csv => tests/Nora_Roseobacter_1.yml ...
+	<<<SUCCESS>>>
+
