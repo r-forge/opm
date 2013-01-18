@@ -223,7 +223,11 @@ Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --modify --preprocess --S4methods \
   --good well-map.R,substrate-info.R,plate-map.R "$OPM_DIR"
 
-mkdir -p pkg && mv "${OPM_DIR%_in}" pkg
+if [ -d "${OPM_DIR%_in}" ]; then
+  target=../pkg/${OPM_DIR%_in}
+  mkdir -p "$target" && cp -r -u "${OPM_DIR%_in}"/* "$target" &&
+    rm -r "${OPM_DIR%_in}"
+fi
 
 for file in opm_*.tar.gz; do
   [ -s "$file" ] || break
