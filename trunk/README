@@ -1,0 +1,208 @@
+
+
+Structure of the `opm` code directory
+=====================================
+
+
+********************************************************************************
+
+
+Top level
+---------
+
+
+### 'build.sh'
+
+Build shell script, depending on 'docu.R' from the `pkgutils` R package, which
+needs Ruby >= 1.9.0 installed.
+
+
+### 'external_tests'
+
+Folder with test files for 'run_tests.sh' and the results or running it.
+
+
+### 'misc'
+
+Any other files. Do **not** place files relevant for creating or testing the 
+package within this folder.
+
+
+### 'opm_in'
+
+Input package, converted to a novel 'opm' directory when running 'build.sh'.
+
+
+### 'opm'
+
+Package directory created for checking, source-archive generation etc. via
+a run of 'build.sh', so do **not** modify files within this directory.
+
+
+### 'opm.Rcheck'
+
+Created when running `R CMD check` (called by 'build.sh' if requested).
+See help output of 'docu.R' for details, obtained by either calling 
+`Rscript "$path_to_docu_R_script" --help` (replace the variable with what is
+appropriate on your system) or `./built.sh --help`, and see the documentation
+of pkgutils::run_R_CMD(). For instance, `-o as-cran,no-examples` would call
+`R CMD check --as-cran --no-examples` etc.
+
+
+### 'README'
+
+This file (in Markdown syntax, by the way).
+
+
+### 'run\_external_tests.sh'
+
+Bash script that tests the package via the 'run_opm.R' script.
+
+
+
+********************************************************************************
+
+
+Directory 'external_tests'
+--------------------------
+
+
+### 'failed_files'
+
+Folder with failed test cases (deviating files).
+
+
+### 'tests.err', 'tests.out'
+
+STDERR and STDOUT output of 'run_tests.sh'.
+
+
+
+********************************************************************************
+
+
+Directory 'opm_in'
+------------------
+
+
+### 'COPYING', 'ChangeLog', 'DESCRIPTION', 'NAMESPACE', 'NEWS', 'R', 'data',
+### 'vignettes'
+
+As usual.
+  
+
+### 'inst'
+
+* 'CITATION', 'doc': as usual
+
+* 'scripts': contains the `Rscript` scripts for non-interative usage of `opm`.
+
+* 'tests' and 'testdata': for `testthat`-based testing.
+
+
+### 'tests'
+
+Currently only refers to 'inst/tests', no tests are directly placed there.
+
+
+********************************************************************************
+
+
+Structure of R code
+-------------------
+
+For each generic function, the order is as follows:
+
+1. separator (80 '#' signs)
+
+2. `roxygen2`-style documentation; note the usual order within this
+   documentation
+
+3. definition of generic function (unless imported)
+
+4. definition of methods
+
+
+********************************************************************************
+
+
+Files within the 'opm_in/R' subdirectory
+----------------------------------------
+
+### Special files
+
+* 'well-map.R', 'plate-map.R', 'substrate-info.R': 
+  Large database-like files with information on substrates and plates. They are
+  automatically generated (overwritten) when running 'build.sh', so do **not**
+  place code within these files yourself.
+  
+* 'imports.R':
+  `Roxygen2` tags causing functions to be imported (modifying 'NAMESPACE'). All
+  functions not defined within opm should be found here.
+
+* 'constants.R':
+  All internal package variables (used effectively as constants but there is 
+  also `opm_opt()` which modifies settings).
+
+* 'package.R':
+  `roxygen2` documentation of the opm package.
+
+* 'data.R':
+  Documentation of the datasets available via `data()` that come with the 
+  package.
+
+
+### Normal files
+
+Definitions of classes, functions, generic functions and methods that belong
+to a certain family as indicated by the `@family` tag, which causes crosslinks
+to be inserted. There is a **1:1 relationship** between the affiliation to a
+family and the placement within a file. Exceptions are internal functions,
+which are also placed according to the topic they belong to, but have no
+`@family` tag.
+
+
+### Relationship to files in 'opm_in/inst/tests' subdirectory
+
+Each file in 'opm\_in/R' has a counterpart in 'opm\_in/inst/tests', and all
+methods, functions and even package-wide variables should be listed there. The
+'build.sh' script checks this. Unit tests must be annotated with the name of
+the item they test. Not all items are, or need ot be, tested. They can simply
+be annotated as untested.
+
+
+********************************************************************************
+
+
+Coding style
+------------
+
+Please see
+
+* `check_R_code()` from the `pkgutils` package and its options
+
+* the last chapter in the [manual](http://www.goeker.org/mg/rcourse/Course.pdf)
+  of the DSMZ R programming course
+
+
+********************************************************************************
+
+
+Files within the 'misc' directory
+---------------------------------
+
+
+### 'docu_opm.log'
+
+Log file from build process.
+
+
+### 'built_packages'
+
+Package source archives optionally created when running 'build.sh'.
+
+
+### 'code'
+
+R code snippets not in use in the package.
+
