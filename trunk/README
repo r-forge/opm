@@ -1,7 +1,7 @@
 
 
-Structure of the `opm` code directory
-=====================================
+Structure of the `opm/trunk` code directory
+===========================================
 
 
 ********************************************************************************
@@ -14,7 +14,8 @@ Top level
 ### 'build.sh'
 
 Build shell script, depending on 'docu.R' from the `pkgutils` R package, which
-needs Ruby >= 1.9.0 installed.
+needs Ruby >= 1.9.0 installed. This script also copies the files to the 'pkg'
+directory.
 
 
 ### 'external_tests'
@@ -25,7 +26,8 @@ Folder with test files for 'run_tests.sh' and the results or running it.
 ### 'misc'
 
 Any other files. Do **not** place files relevant for creating or testing the 
-package within this folder, and do not put them under version control.
+package within this folder, and do not put them under version control. Calling
+this folder 'misc' is thus just a convention, but why not.
 
 
 ### 'opm_in'
@@ -43,6 +45,13 @@ of pkgutils::run_R_CMD(). For instance, `-o as-cran,no-examples` would call
 `R CMD check --as-cran --no-examples` etc.
 
 
+### 'opmdata_in'
+
+Input package, should be manually converted to a novel 'pkg/opmdata' directory.
+This is seldom necessary and can be done by hand. We might create a build script
+later on.
+
+
 ### 'README'
 
 This file (in Markdown syntax, by the way).
@@ -50,7 +59,8 @@ This file (in Markdown syntax, by the way).
 
 ### 'run\_external_tests.sh'
 
-Bash script that tests the package via the 'run_opm.R' script.
+Bash script that tests the package via the 'run_opm.R' script (which needs to
+be installed beforehand).
 
 
 
@@ -61,6 +71,12 @@ Directory 'external_tests'
 --------------------------
 
 
+### tests
+
+The tests. Need to updated regularly, if something changes. A currently unsolved
+problem is the silly error message if just the opm version has changed.
+
+
 ### 'failed_files'
 
 Folder with failed test cases (deviating files). Do not put them under version
@@ -69,8 +85,8 @@ control.
 
 ### 'tests.err', 'tests.out'
 
-STDERR and STDOUT output of 'run_tests.sh'.
-
+STDERR and STDOUT output of 'run_tests.sh'. Do not put them under version
+control.
 
 
 ********************************************************************************
@@ -97,7 +113,8 @@ As usual.
 
 ### 'tests'
 
-Currently only refers to 'inst/tests', no tests are directly placed there.
+Currently only refers to 'inst/tests', no tests are directly placed there (and
+should not if we stick to testthat, which seems preferable)
 
 
 ********************************************************************************
@@ -179,12 +196,18 @@ Please see
 * the last chapter in the [manual](http://www.goeker.org/mg/rcourse/Course.pdf)
   of the DSMZ R programming course
 
+* the description of the testing appraoch above
+
 
 ********************************************************************************
 
 
 Files within the 'misc' directory
 ---------------------------------
+
+
+This folder should not be put under version control. The build script puts
+some stuff there, which might be of interest, but should not be uploaded.
 
 
 ### 'docu_opm.log'
@@ -194,10 +217,12 @@ Log file from build process.
 
 ### 'built_packages'
 
-Package source archives optionally created when running 'build.sh'.
+Package source archives optionally created when running 'build.sh'. (That's
+just an example.)
 
 
 ### 'code'
 
-R code snippets not in use in the package.
+Optional R code snippets not in use in the package. (That's just an example.)
+
 

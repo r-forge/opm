@@ -1,0 +1,27 @@
+opmdata 0.4-0
+-------------
+
+- updated aggregation and discretization settings to the new style; as this
+  causes incompatibilities, opmdata >= 0.4-0 should only be used in
+  conjunction with opm > 0.7-0
+
+
+opmdata 0.3-0
+-------------
+
+- some aesthetical improvements of the documentation
+
+
+opmdata 0.2-0
+-------------
+
+- included discretized values
+- improved documentation
+- nicer package URL
+
+
+opmdata 0.1-0
+-------------
+
+- initial release on CRAN
+
