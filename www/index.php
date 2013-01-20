@@ -33,6 +33,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <!-- get project title  -->
 <!-- own website starts here, the following may be changed as you like -->
 
+<!--
 <?php if ($handle=fopen('http://'.$domain.'/export/projtitl.php?group_name='.$group_name,'r')){
 $contents = '';
 while (!feof($handle)) {
@@ -40,6 +41,7 @@ while (!feof($handle)) {
 }
 fclose($handle);
 echo $contents; } ?>
+-->
 
 <!-- end of project description -->
 
