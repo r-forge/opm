@@ -29,7 +29,7 @@ setMethod("update_settings_list", "list", function(x) {
     x[[VERSION]] <- version <- if (software == opm_string())
       opm_string(version = TRUE)[2L]
     else
-      "0.0-0"
+      UNKNOWN_VERSION
     warning(sprintf("inserting '%s' as '%s' entry", version, VERSION))
   }
   if (m <- match(PROGRAM, names(x), nomatch = 0L)) {
@@ -521,7 +521,7 @@ setAs(from = "list", to = OPMD, function(from) {
 #'   plate.
 #'
 #' @note As a rule, OPMS has the same methods as the \code{\link{OPM}} class,
-#'   but adapted to a collection of more than one \code{\link{OPM}} object. 
+#'   but adapted to a collection of more than one \code{\link{OPM}} object.
 #'   Also, OPMS can hold \code{\link{OPMD}} and \code{\link{OPMA}} as well as
 #'   \code{\link{OPM}} objects, even though this is not indicated for all its
 #'   methods in this manual.
