@@ -1,6 +1,6 @@
 
 
-.onLoad <- function(...) {
+.onAttach <- function(...) {
   opm.version <- utils::packageVersion("opm")
   opmdata.version <- utils::packageVersion("opmdata")
   opm.wanted <- package_version("0.7-28")
