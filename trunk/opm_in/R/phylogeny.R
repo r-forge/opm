@@ -599,7 +599,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   \sQuote{a} and \sQuote{e} within substrate names should be converted to the
 #'   corresponding Greek letters.
 #' @param css.file Character vector indicating the name of one to several
-#'   \acronym{CSS} files to link. Emptry strings and empty vectors are ignored.
+#'   \acronym{CSS} files to link. Empty strings and empty vectors are ignored.
 #'   It is no error if the file does not exist, but the page will then probably
 #'   not be displayed as intended. Under Windows it is recommended to convert a
 #'   filename \code{f} beforehand using \code{normalizePath(f, winslash = "/")}.
