@@ -1,0 +1,46 @@
+
+pkgutils 0.3-0
+---------------
+
+Bug fixes:
+
+- fixed bug in check_keywords()
+
+- fixed bug in pack_desc() in 'source' mode
+
+New features:
+
+- novel flatten() function
+
+- extensions of pack_desc(), check_R_code(), listing() and pkg_files()
+
+- improved behaviour of 'docu.R' and 'merge.R' scripts
+
+- more command-line switches for 'docu.R' and 'merge.R' scripts
+
+- improved syntax highlighting for gedit
+
+Other user-visible changes:
+
+- removed 'sweave.R' script
+
+- renamed some switches of 'docu.R' script
+
+
+pkgutils 0.2-0
+---------------
+
+New features:
+
+- novel listing() and max_rgb_contrast() functions
+
+- more checks in check_R_code()
+
+- more options for scripts docu.R and merge.R
+
+
+pkgutils 0.1-56
+---------------
+
+- initial release on CRAN
+
