@@ -1,0 +1,92 @@
+2012-XX-XX (4th release on CRAN)
+
+- fixed bug in repair_S4_docu.rb script that caused a wrong error message if
+  documentation files were not found
+
+- fixed bug in check_R_code() that caused removal of quoted sections of a line
+  of code to remove too much
+
+- listing() gets a hf.collapse argument
+
+- 'merge.R' now repairs empty column names (which would cause merge() to 
+  crash)
+
+
+2012-12-19 (3rd release on CRAN)
+
+- more robust approach in check_keywords() to find the KEYWORDS.db file (bug
+  submitted by Benjamin Hofner)
+
+- pack_desc() now requires all dependencies in 'source' mode
+
+- list method of flatten() moved from opm package to pkgutils
+
+- pack_desc() gets an 'envir' argument
+
+- check_R_code() gets new 'encoding', 'what' and 'accept.tabs' arguments and
+  a check for the usage of ':::'
+
+- the 'style' argument of listing() can now be also set to 'm4' or 'M4'
+
+- pkg_files() now uses 'winslash = "/"' in 'installed = TRUE' mode
+
+- 'docu.R' now also checks test files and scripts if located within
+  inst/scripts, inst/tests, scripts or tests
+  
+- 'docu.R' now also copies hidden files (such as '.Rbuildignore') if requested
+
+- 'docu.R' now updates the DESCRIPTION of an input directory, too, if it is 
+  distinct from the output directory
+
+- the '-g' argument of 'docu.R' is replaced by '-G' to omit Rscript's buggy
+  warning message; the '--s4methods' argument is renamed to '--S4methods'
+
+- 'docu.R' gets new switches '-B'/'--buildopts', '-I'/'--installopts',
+  '-F'/'--folder', '-E'/'--encoding', '-T'/'--tabs' and '-S'/'--Sweave'; the
+  'sweave.R' script is removed accordingly
+
+- in 'docu.R', the default behaviour of '-y'/'--yes' is changed (restored by
+  applying '-F'/'--folder')
+
+- 'merge.R' now better preserves input row order (if requested)
+
+- 'merge.R' gets a '-e'/'--encoding' argument
+
+- syntax highlighting for gedit now matches dollar operators followed or
+  preceded by backquoted names
+
+
+2012-10-12 (2nd release on CRAN)
+
+- novel listing() function (moved here from opm to pkgutils and made
+  generic)
+
+- novel max_rgb_contrast() function (moved here from opm to pkgutils and made
+  generic)
+
+- mypdf() made generic
+
+- improved documentation of paper_size() and logfile()
+
+- integrated 'check_code.R' into 'docu.R' script
+
+- expanded command-line arguments of 'docu.R' script
+
+- removed duplicate example dataset ("xyplot_docu" in addition to 
+  "xyplot.docu")
+
+- included check for '=' at end of line in check_R_code(), as well as
+  checks for closing parentheses or brackets preceded by space; result now 
+  returned invisibly (better for interactive checking)
+
+- problem messages from check_R_code() set to singular throughout
+
+- 'merge.R' gains options for dealing with files without headers, for
+  deleting non-matching columns of the first file, and for turning sorting
+  of columns off
+
+
+2012-09-23 (the initial release on CRAN)
+
+- well, put everything together
+
