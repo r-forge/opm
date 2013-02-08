@@ -203,7 +203,7 @@ check_R_tests()
 
 OPM_DIR=opm_in
 
-DOCU=`find_docu_script`
+DOCU=`find_docu_script || :`
 
 if [ "$DOCU" ]; then
   echo "using script '$DOCU'" >&2
