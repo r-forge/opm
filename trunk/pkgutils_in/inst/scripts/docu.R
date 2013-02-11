@@ -406,7 +406,7 @@ for (i in seq_along(package.dirs)) {
     errs <- errs + build.err
     if (!opt$folder) {
       pkg.file <- sprintf("%s_%s.tar.gz", out.dir,
-        pack_desc(out.dir)[[1L]][, "Version"])
+        pack_desc(out.dir)[[1L]]$Version)
       msg <- sprintf(" archive file '%s'...", pkg.file)
     }
   }
