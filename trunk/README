@@ -15,12 +15,12 @@ Top level
 
 Build shell script, depending on 'docu.R' from the `pkgutils` R package, which
 needs Ruby >= 1.9.0 installed. This script also copies the files to the 'pkg'
-directory.
+directory. It only cares about opm_in, but not about opmdata_in and pkgutils_in.
 
 
 ### 'external_tests'
 
-Folder with test files for 'run_tests.sh' and the results or running it.
+Folder with test files for 'run_tests.sh' and the results of running it.
 
 
 ### 'misc'
@@ -47,7 +47,14 @@ of pkgutils::run_R_CMD(). For instance, `-o as-cran,no-examples` would call
 
 ### 'opmdata_in'
 
-Input package, should be manually converted to a novel 'pkg/opmdata' directory.
+Input package, should manually be converted to a novel 'pkg/opmdata' directory.
+This is seldom necessary and can be done by hand. We might create a build script
+later on.
+
+
+### 'pkgutils_in'
+
+Input package, should manually be converted to a novel 'pkg/pkgutils' directory.
 This is seldom necessary and can be done by hand. We might create a build script
 later on.
 
@@ -73,8 +80,8 @@ Directory 'external_tests'
 
 ### tests
 
-The tests. Need to updated regularly, if something changes. A currently unsolved
-problem is the silly error message if just the opm version has changed.
+The tests. Need to be updated regularly, if something changes. A currently
+unsolved problem is the silly error message if just the opm version has changed.
 
 
 ### 'failed_files'
@@ -100,7 +107,7 @@ Directory 'opm_in'
 ### 'vignettes'
 
 As usual.
-  
+
 
 ### 'inst'
 
