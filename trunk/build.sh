@@ -201,6 +201,63 @@ check_R_tests()
 ################################################################################
 
 
+# Check "@family" tag entries in Roxygen comments (they must be present in the
+# documentation of exported functions with normal names, and must refer to the
+# filename).
+#
+check_roxygen_tags()
+{
+  awk '
+    BEGIN {
+      no_family["datasets"]++
+      no_family["internal"]++
+      no_family["package"]++
+    }
+    FILENAME != oldfilename {
+      basename = oldfilename = FILENAME
+      sub(/^.*\//, "", basename)
+      sub(/\.[^.]+$/, "", basename)
+    }
+    /^#'"'"'/ {
+      if (!comment) {
+        if ($2 ~ /^@/)
+          title = ""
+        else
+          title = substr($0, index($0, $2))
+        position = FNR
+        comment = 1
+      }
+      if ($2 ~ /^@/)
+        value[$2] = $3
+      next
+    }
+    /^#~/ {
+      next
+    }
+    comment {
+      if (title) {
+        if ("@family" in value) {
+          sub(/-functions$/, "", value["@family"])
+          if (value["@family"] != basename)
+            printf "wrong @family entry in \"%s\" (line %i in file \"%s\")\n",
+              title, position, FILENAME
+        } else if (!(value["@keywords"] in no_family) &&
+            !("@exportMethod" in value)) {
+          printf "missing @family tag in \"%s\" (line %i in file \"%s\")\n",
+            title, position, FILENAME
+        }
+      }
+      title = ""
+      delete value
+      comment = 0
+    }  
+  ' "$@"
+}
+
+
+################################################################################
+
+
 OPM_DIR=opm_in
 
 DOCU=`find_docu_script || :`
@@ -218,6 +275,8 @@ fi
 check_vignettes "$OPM_DIR" || true
 
 check_R_tests "$OPM_DIR"/R/*
+
+check_roxygen_tags "$OPM_DIR"/R/*
 
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --modify --preprocess --S4methods \
