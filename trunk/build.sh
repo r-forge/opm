@@ -209,6 +209,7 @@ check_roxygen_tags()
 {
   awk '
     BEGIN {
+      problems = 0
       no_family["datasets"]++
       no_family["internal"]++
       no_family["package"]++
@@ -238,19 +239,25 @@ check_roxygen_tags()
       if (title) {
         if ("@family" in value) {
           sub(/-functions$/, "", value["@family"])
-          if (value["@family"] != basename)
+          if (value["@family"] != basename) {
             printf "wrong @family entry in \"%s\" (line %i in file \"%s\")\n",
               title, position, FILENAME
+            problems++
+          }
         } else if (!(value["@keywords"] in no_family) &&
             !("@exportMethod" in value)) {
           printf "missing @family tag in \"%s\" (line %i in file \"%s\")\n",
             title, position, FILENAME
+          problems++
         }
       }
       title = ""
       delete value
       comment = 0
-    }  
+    }
+    END {
+      exit(problems)
+    }
   ' "$@"
 }
 
@@ -258,7 +265,7 @@ check_roxygen_tags()
 ################################################################################
 
 
-OPM_DIR=opm_in
+PKG_DIR=opm_in
 
 DOCU=`find_docu_script || :`
 
@@ -272,23 +279,30 @@ fi
 
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 
-check_vignettes "$OPM_DIR" || true
+check_vignettes "$PKG_DIR" || true
 
-check_R_tests "$OPM_DIR"/R/*
+if ! check_R_tests "$PKG_DIR"/R/*; then
+  echo "something wrong with the tests in '$PKG_DIR', exiting now" >&2
+  exit 1
+fi
 
-check_roxygen_tags "$OPM_DIR"/R/*
+if ! check_roxygen_tags "$PKG_DIR"/R/*; then
+  echo "something wrong with the Roxygen tags in '$PKG_DIR', exiting now" >&2
+  exit 1
+fi
 
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --modify --preprocess --S4methods \
-  --good well-map.R,substrate-info.R,plate-map.R "$OPM_DIR"
+  --good well-map.R,substrate-info.R,plate-map.R "$PKG_DIR"
 
-if [ -d "${OPM_DIR%_in}" ]; then
-  target=../pkg/${OPM_DIR%_in}
-  mkdir -p "$target" && cp -r -u "${OPM_DIR%_in}"/* "$target" &&
-    rm -r "${OPM_DIR%_in}"
+OUT_DIR=${PKG_DIR%_in}
+if [ -d "$OUT_DIR" ]; then
+  target=../pkg/$OUT_DIR
+  mkdir -p "$target" && cp -r -u "$OUT_DIR"/* "$target" &&
+    rm -r "$OUT_DIR"
 fi
 
-for file in opm_*.tar.gz; do
+for file in "$OUT_DIR"_*.tar.gz; do
   [ -s "$file" ] || break
   mkdir -p "$BUILT_PACKAGES" && mv -v "$file" "$BUILT_PACKAGES"
 done
