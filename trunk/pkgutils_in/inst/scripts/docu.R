@@ -290,6 +290,7 @@ if (opt$Rcheck) { # R style check only
 if (length(package.dirs)) {
   if (length(bad <- package.dirs[!is_pkg_dir(package.dirs)]))
     stop("not a package directory: ", bad[1L])
+  package.dirs <- dirname(sprintf("%s/.", package.dirs))
 } else {
   package.dirs <- list.files()
   package.dirs <- package.dirs[is_pkg_dir(package.dirs)]
@@ -304,8 +305,7 @@ if (length(package.dirs)) {
 if (opt$verbatim) {
   out.dirs <- package.dirs
 } else {
-  out.dirs <- sub(sprintf("_in%s?$", .Platform$file.sep), "", package.dirs,
-    perl = TRUE)
+  out.dirs <- sub("_in$", "", package.dirs, perl = TRUE)
   ok <- package.dirs != out.dirs
   ok[!ok][!package.dirs[!ok] %in% out.dirs[ok]] <- TRUE
   package.dirs <- package.dirs[ok]
