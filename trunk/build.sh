@@ -28,11 +28,12 @@ else
   R_LIBRARIES="
     /usr/local/lib/R/library
     /usr/local/lib64/R/library
+    /usr/lib64/R/library
+    /usr/lib/R/library
     /usr/share/R/library
     $HOME/R/x86_64-pc-linux-gnu-library/2.15
   "
 fi
-
 
 # 'docu.R' creates a logfile itself, which contains, e.g., information on style
 # checks and according modifications of R source files.
@@ -137,6 +138,16 @@ check_R_tests()
               if (!(item in items)) {
                 item_names[++fcnt] = item
                 items[item] = -1
+              }
+            } else if ($0 ~ /^`[^`]+`[ \t]*<-[ \t]*function/) {
+              # this should collect backtick-enclosed functions and S3 methods
+              # they require special care because "<-" might be part of the name
+              sub(/^`/, "", $1)
+              sub(/`.*/, "", $1)
+              sub(/\.[^<]*/, "", $1)
+              if (!($1 in items)) {
+                item_names[++fcnt] = $1
+                items[$1] = -1
               }
             } else if ($0 ~ /^[^ \t<]+[ \t]*<-[ \t]*function/) {
               # this should collect functions and S3 methods
