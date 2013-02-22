@@ -15,7 +15,7 @@ NULL
 #'
 NULL
 
-#' @importFrom stats aggregate optimize kmeans heatmap update
+#' @importFrom stats aggregate optimize kmeans heatmap update reshape
 #'
 NULL
 
@@ -46,5 +46,7 @@ NULL
 #' @importFrom yaml as.yaml yaml.load yaml.load_file
 #'
 NULL
+
+
 
 

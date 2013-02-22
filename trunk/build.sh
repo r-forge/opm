@@ -124,6 +124,7 @@ check_R_tests()
         BEGIN {
           fcnt = 0
           while((getline < rfile) > 0) {
+            sub(/\r$/, "") # repair Windows/DOS line breaks
             if ($0 ~ /^setMethod[ \t]*\(/) {
               # this should collect S4 methods
               sub(/[^"]+"/, "")
@@ -169,9 +170,13 @@ check_R_tests()
           }
           close(rfile)
         }
+        {
+          sub(/\r$/, "") # repair Windows/DOS line breaks
+        }
         $1 == "##" {
           item = $2
           getline
+          sub(/\r$/, "") # repair Windows/DOS line breaks
           if (!(item in items)) {
             printf "WARNING: unknown name \"%s\" in file %s, line %i\n", item,
               FILENAME, FNR - 1 > "/dev/stderr"
@@ -230,6 +235,9 @@ check_roxygen_tags()
       sub(/^.*\//, "", basename)
       sub(/\.[^.]+$/, "", basename)
     }
+    {
+      sub(/\r$/, "") # repair Windows/DOS line breaks
+    }
     /^#'"'"'/ {
       if (!comment) {
         if ($2 ~ /^@/)
@@ -276,10 +284,22 @@ check_roxygen_tags()
 ################################################################################
 
 
+# 'full build' means we copy the code from trunk/opm to pkg/opm, which, after 
+# committing to SVN, would cause R-Forge to (attempt to) build the next package
+#
+if [ $# -gt 0 ] && [ "$1" = full ]; then
+  shift
+  full_build=yes
+else
+  full_build=
+fi
+
+
+# set up package input directory, name of logfile, and location of 'docu.R'
+#
 PKG_DIR=opm_in
-
+[ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 DOCU=`find_docu_script || :`
-
 if [ "$DOCU" ]; then
   echo "using script '$DOCU'" >&2
   echo >&2
@@ -288,31 +308,44 @@ else
   exit 1
 fi
 
-[ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 
+# checks defined in this file
+#
 check_vignettes "$PKG_DIR" || true
-
 if ! check_R_tests "$PKG_DIR"/R/*; then
   echo "something wrong with the tests in '$PKG_DIR', exiting now" >&2
   exit 1
 fi
-
 if ! check_roxygen_tags "$PKG_DIR"/R/*; then
   echo "something wrong with the Roxygen tags in '$PKG_DIR', exiting now" >&2
   exit 1
 fi
 
+
+# checks defined in 'docu.R', as far as requested
+#
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --modify --preprocess --S4methods \
   --good well-map.R,substrate-info.R,plate-map.R "$PKG_DIR"
 
+
+# copying the package file to pkg/opm, if requested
+#
 OUT_DIR=${PKG_DIR%_in}
-if [ -d "$OUT_DIR" ]; then
-  target=../pkg/$OUT_DIR
-  mkdir -p "$target" && cp -r -u "$OUT_DIR"/* "$target" &&
-    rm -r "$OUT_DIR"
+if [ "$full_build" ]; then
+  if [ -d "$OUT_DIR" ]; then
+    target=../pkg/$OUT_DIR
+    mkdir -p "$target" && cp -r -u "$OUT_DIR"/* "$target" &&
+      rm -r "$OUT_DIR"
+  fi
+else
+  echo "NOTE: no full build, '$OUT_DIR' not copied" >&2
+  echo >&2
 fi
 
+
+# moving the generated archive files, if any, into their directory
+#
 for file in "$OUT_DIR"_*.tar.gz; do
   [ -s "$file" ] || break
   mkdir -p "$BUILT_PACKAGES" && mv -v "$file" "$BUILT_PACKAGES"
