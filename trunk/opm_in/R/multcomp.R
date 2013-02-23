@@ -73,85 +73,79 @@
 #' @examples
 #'
 #' ## OPMS method
-#' data("vaas_4")
+#' data(vaas_4)
 #'
 #' # Without computation of multiple comparisons of means
-#' (xx <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
+#' summary(x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
 #'   per.mcp = FALSE))
-#' (stopifnot(dim(xx) == c(384L, 6L)))
+#' stopifnot(is.data.frame(x), dim(x) == c(384L, 6L))
 #'
 #' # comparison with specified model
-#' (xx <- opm_mcp(vaas_4, as.labels = list("Species"), m.type = "lm"))
-#' (stopifnot(class(xx) == "glht"))
-#'
+#' (x <- opm_mcp(vaas_4, as.labels = list("Species"), m.type = "lm"))
+#' stopifnot(inherits(x, "glht"))
 #'
 #' # comparisons of Species pooled over complete plates
-#' (xx <- opm_mcp(vaas_4, as.labels = list("Species"), m.type ="lm",
+#' (x <- opm_mcp(vaas_4, as.labels = list("Species"), m.type ="lm",
 #'   mcp.def = mcp(Species = "Dunnett")))
-#' (stopifnot(class(xx) == "glht", length(coef(x)) == 1)) 
+#' stopifnot(inherits(x, "glht"), length(coef(x)) == 1)
 #'
-#'  # plot-method is available
-#' op <- par(no.readonly = TRUE) # default plotting settings
-#' par(mar = c(3, 15, 3, 2))
-#' plot(xx)
-#' par(op) # reset plotting settings
-#'
-#'
-#' # comparison of only A01 - A04 against the intercept
-#' (xx <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
-#'   sub.list = c(1:4), model = "Value ~ Well + Species", m.type = "lm"))
-#' (stopifnot(class(xx) == "glht", length(coef(x)) == 5))
-#' 
 #' # plot-method is available
 #' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 15, 3, 2))
-#' plot(xx)
+#' plot(x)
 #' par(op) # reset plotting settings
 #'
-#' 
-#' # user defined a contrastmatrix
+#' # comparison of only A01 - A04 against the intercept
+#' (x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
+#'   sub.list = c(1:4), model = "Value ~ Well + Species", m.type = "lm"))
+#' stopifnot(inherits(x, "glht"), length(coef(x)) == 5)
+#'
+#' # plot-method is available
+#' op <- par(no.readonly = TRUE) # default plotting settings
+#' par(mar = c(3, 15, 3, 2))
+#' plot(x)
+#' par(op) # reset plotting settings
+#'
+#' # user-defined contrast matrix
 #' a <- mcp(Well = "Dunnett")
-#'   (xx <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
+#'   (x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
 #'   sub.list = c(1:4), m.type = "lm", mcp.def = a, model = "Value ~ Well"))
-#' (stopifnot(class(xx) == "glht", length(coef(x)) == 3))
-#' 
+#' stopifnot(inherits(x, "glht"), length(coef(x)) == 3)
+#'
 #' # plot method
 #' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 20, 3, 2))
-#' plot(xx)
+#' plot(x)
 #' par(op) # reset plotting settings
-#' 
 #'
-#' ## matrix method
+#' ## data-frame method
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"), subset = "A",
 #'   dataframe = TRUE)
-#'   
-#' (xx <- opm_mcp(x, as.labels = c("Species"), m.type = "lm"))
-#' (stopifnot(class(xx) == "glht", length(coef(xx)) == 2))
-#' 
+#'
+#' (y <- opm_mcp(x, as.labels = "Species", m.type = "lm"))
+#' stopifnot(inherits(y, "glht"), length(coef(y)) == 2)
+#'
 #' # plot method is available
 #' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 15, 3, 2))
-#' plot(xx)
+#' plot(y)
 #' par(op) # reset plotting settings
-#' 
-#' 
+#'
 #' # without performing the MCP
-#' xx <- opm_mcp(x, per.mcp = FALSE)
+#' (y <- opm_mcp(x, per.mcp = FALSE))
 #'
 #' # testing for subsets of object
-#' (xx <- opm_mcp(subset(x, Species == "Escherichia coli"),
-#'   mcp.def = mcp(Strain = "Dunnett"), as.labels = c("Strain"), m.type = "lm"))
-#' (stopifnot(class(xx) == "glht", length(coef(xx)) == 1))
-#' 
+#' (y <- opm_mcp(subset(x, x$Species == "Escherichia coli"),
+#'   mcp.def = mcp(Strain = "Dunnett"), as.labels = "Strain", m.type = "lm"))
+#' stopifnot(inherits(y, "glht"), length(coef(y)) == 1)
+#'
 #' # plot method available
 #' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 15, 3, 2))
-#' plot(xx)
+#' plot(y)
 #' par(op) # reset plotting settings
-#' 
-
-opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE, 
+#'
+opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
   m.type = c("glm", "lm", "aov"), sub.list = NULL) {
   ## TODO LEA: currently args without default AFTER args with default -- please
   ## fix (and see below)
@@ -169,7 +163,7 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
     object <- extract(object, as.labels = as.labels, subset = "A",
               dataframe = TRUE)
   }
- 
+
   param.pos <- which(colnames(object) == "Parameter")
 
   # Give error-message, if dataframe does not have the required structure
@@ -230,12 +224,12 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
 
   # factorial columns of 'result'
   result$Well <- as.factor(result$Well)
-  
+
   if (!per.mcp)
     return(result)
-  
+
   well.pos <- which(colnames(result) == "Well")
-  
+
   # count number of levels of the factors
   param.pos.re <- which(colnames(object) == "Parameter")
 
@@ -249,7 +243,7 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
   xnames <- colnames(result[, level.one])
 
   ## TODO LEA: where are these checks?
-  
+
   #check if as.labels has more than one factor
   if (length(as.labels)) {
     bad <- which(!as.labels %in% xnames)
@@ -262,11 +256,11 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
   fmla <- as.formula(paste("Value ~ ", paste(as.labels, collapse = "+")))
   ## TODO LEA: why not set this as argument default?
   # formel kann ja nur mit vlaue anfangen!
-  
-  
+
+
   # model-statement
   if (missing(model)) {
-    model <- fmla 
+    model <- fmla
     message("'model'is not specified; all variables in 'as.labels' are used")
     ## TODO LEA: message necessary?
   }
@@ -277,7 +271,7 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
     aov = aov(model, data = result),
     glm = glm(model, data = result)
   )
-  
+
   # and compute the comparisons multiple testing
   mcp.result <- glht(lmmod, linfct = mcp.def)
 

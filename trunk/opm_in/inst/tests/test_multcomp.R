@@ -1,9 +1,5 @@
 
 library(testthat)
-library(pkgutils)
-
-pack_desc("C:\\Users\\lea\\Documents\\biolog 2013\\svn-next-try\\opm_in", "source")
-
 context("Testing the multiple-testing functions of the OPM package")
 
 
@@ -29,8 +25,8 @@ test_that("mcp without mcp", {
 test_that("mcp with specific model", {
   #   Without computation of multiple comparisons of means
   x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm")
-  expect_is(x,"glht") 
-  expect_equal(x$type,NULL)
+  expect_is(x, "glht")
+  expect_equal(x$type, NULL)
   expect_true(is.list(x))
   expect_equal(length(x), 8)
   expect_equal(length(coef(x)), 2)
@@ -38,23 +34,23 @@ test_that("mcp with specific model", {
 
 ## opm_mcp
 test_that("comparisons of Species pooled over complete plates", {
-  x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm", 
-               mcp.def = mcp(run = "Dunnett"))
-  expect_is(x,"glht")
-  expect_equal(x$type,"Dunnett")
+  x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm",
+    mcp.def = mcp(run = "Dunnett"))
+  expect_is(x, "glht")
+  expect_equal(x$type, "Dunnett")
   expect_true(is.list(x))
   expect_equal(length(x), 9)
   expect_equal(length(coef(x)), 1)
-  
+
 })
 
 
 ## opm_mcp
 test_that("comparisons of only A01 - A04 against intercept", {
-  x <- opm_mcp(A_VALUES, as.labels = list("run"), 
+  x <- opm_mcp(A_VALUES, as.labels = list("run"),
     sub.list = c(1:4), model = "Value ~ Well + run", m.type = "lm")
-  expect_is(x,"glht")
-  expect_equal(x$type,NULL)
+  expect_is(x, "glht")
+  expect_equal(x$type, NULL)
   expect_true(is.list(x))
   expect_equal(length(x), 8)
   expect_equal(length(coef(x)), 5)
@@ -64,22 +60,22 @@ test_that("comparisons of only A01 - A04 against intercept", {
 ## opm_mcp
 test_that("user defined a contrastmatrix", {
   a <- mcp(Well = "Dunnett")
-  x <- opm_mcp(A_VALUES, as.labels = list("run"), sub.list = c(1:4), 
+  x <- opm_mcp(A_VALUES, as.labels = list("run"), sub.list = c(1:4),
     model = "Value ~ Well", m.type = "lm", mcp.def = a)
-  expect_is(x,"glht")
+  expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
   expect_true(is.list(x))
   expect_equal(length(x), 9)
   expect_equal(length(coef(x)), 3)
 })
 
-# TODO: lea hier weitermachen, erst markus fragen, ob es eine matrix in 
+# TODO: lea hier weitermachen, erst markus fragen, ob es eine matrix in
 # objects_for_testing() gibt
 
 # ## opm_mcp
 # test_that("matrix-method", {
-#   x 
-#  
+#   x
+#
 # })
 #'
 #' ## matrix method

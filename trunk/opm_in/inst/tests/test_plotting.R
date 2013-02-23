@@ -331,27 +331,27 @@ test_that("one cannot pass too many 'Parameter' columns to group_ci()", {
 
 
 
-# if (FALSE) {
+if (FALSE) {
 ################################################################################
 # ich brauche aber ein testobject mit mindestens sechs platten und aggregierten
-# daten, deshalb 
-  
+# daten, deshalb
+
 # testobject erzeugen:
-  
-# dazu subset aus vaas_et_al 
+
+# dazu subset aus vaas_et_al
 # TODO: muss in "objects_for_testing()" eingefuegt werden
 #
-  
+
 #   library(opmdata)
 #   x <- vaas_et_al [1:6, ,]
 #   summary(x)
 #   metadata(x)
-#   XX <- extract(x, as.labels = list("Species", "Slot"), subset = "A", 
+#   XX <- extract(x, as.labels = list("Species", "Slot"), subset = "A",
 #                 dataframe = TRUE)
 #   (stopifnot(is.data.frame(XX), identical (dim(XX), c(6L, 99L))))
-  
-################################################################################ 
-    
+
+################################################################################
+
 # der laueft jetzt:
 ## group_CI
 test_that("group_CI works with grouping and 'plate.rat' normalisation", {
@@ -370,7 +370,7 @@ test_that("group_CI works with grouping and 'plate.rat' normalisation", {
 
 
 
-# der geht auch  
+# der geht auch
 ## group_CI
 test_that("group_CI works with grouping and 'well.rat' normalisation", {
   # as.labels given directly as character-string
@@ -405,10 +405,9 @@ test_that("group_CI works with grouping and 'well.sub' normalisation", {
 test_that("group_CI gives correct error, if incorrect as.labels", {
   # wrong columns in 'as.labels'-argument
   expect_error(x <- group_CI(object = XX,
-    as.labels = c( "Slot", "Species",
-      "H06 (Acetoacetic Acid)"),
+    as.labels = c("Slot", "Species", "H06 (Acetoacetic Acid)"),
     norm.method = "well.sub", grouping = TRUE), silent = TRUE)
- 
+
   # ok. error occurs
   # Error in group_CI(object = A_VALUES,
   #   as.labels = c("Strain", "Experiment",  :
@@ -418,8 +417,8 @@ test_that("group_CI gives correct error, if incorrect as.labels", {
 # das hier ist der output
 # Error: Test failure in 'group_CI gives correct error, if incorrect as.labels'
 # unused argument(s) (silent = TRUE)
-# 1: expect_error(x <- group_CI(object = XX, 
-# as.labels = c("Slot", "Species", "H06 (Acetoacetic Acid)"), 
+# 1: expect_error(x <- group_CI(object = XX,
+# as.labels = c("Slot", "Species", "H06 (Acetoacetic Acid)"),
 # norm.method = "well.sub", grouping = TRUE), silent = TRUE)
 
 
@@ -427,14 +426,14 @@ test_that("group_CI gives correct error, if incorrect as.labels", {
 ## group_CI
 test_that("second test that Lea still must christen", {
   expect_warning(x <- group_CI(object = XX,
-    as.labels = c( "Slot", "Species", "Slot"),
+    as.labels = c("Slot", "Species", "Slot"),
     norm.method = "well.sub", grouping = TRUE), silent = TRUE)
   expect_is(x, "data.frame")
   expect_equal(dim(x), c(6L, 100L))
   expect_true(is_ci_plottable(x))
   message("plot #6")
   ci_plot(b[, 1L:10L])
-  
+
   # ok.
   # Warning message:
   # In group_CI(object = A_VALUES, as.labels = c("Strain", "Experiment",  :
@@ -442,7 +441,7 @@ test_that("second test that Lea still must christen", {
 })
 
 
-#}
+}
 
 
 
