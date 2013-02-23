@@ -331,15 +331,35 @@ test_that("one cannot pass too many 'Parameter' columns to group_ci()", {
 
 
 
-if (FALSE) {
-
+# if (FALSE) {
+################################################################################
+# ich brauche aber ein testobject mit mindestens sechs platten und aggregierten
+# daten, deshalb 
+  
+# testobject erzeugen:
+  
+# dazu subset aus vaas_et_al 
+# TODO: muss in "objects_for_testing()" eingefuegt werden
+#
+  
+#   library(opmdata)
+#   x <- vaas_et_al [1:6, ,]
+#   summary(x)
+#   metadata(x)
+#   XX <- extract(x, as.labels = list("Species", "Slot"), subset = "A", 
+#                 dataframe = TRUE)
+#   (stopifnot(is.data.frame(XX), identical (dim(XX), c(6L, 99L))))
+  
+################################################################################ 
+    
+# der laueft jetzt:
 ## group_CI
 test_that("group_CI works with grouping and 'plate.rat' normalisation", {
   # 'as.labels' given as character-string of the column-names
-  x <- group_CI(object = A_VALUES, as.labels = colnames(A_VALUES[, 1L:3L]),
+  x <- group_CI(object = XX, as.labels = colnames(XX[, 1L:3L]),
     norm.method = "plate.rat", x = 10L, grouping = TRUE)
   expect_is(x, "data.frame")
-  expect_equal(dim(x), c(12L, 100L))
+  expect_equal(dim(x), c(6L, 99L))
   expect_true(is_ci_plottable(x))
   #good
   message("plot #3")
@@ -348,17 +368,20 @@ test_that("group_CI works with grouping and 'plate.rat' normalisation", {
 })
 
 
+
+
+# der geht auch  
 ## group_CI
 test_that("group_CI works with grouping and 'well.rat' normalisation", {
   # as.labels given directly as character-string
-  x <- group_CI(object = A_VALUES, as.labels = c("Strain", "Slot"),
+  x <- group_CI(object = XX, as.labels = c("Species", "Slot"),
     norm.method = "well.rat", grouping = TRUE)
   expect_is(x, "data.frame")
-  expect_equal(dim(x), c(12L, 99L))
+  expect_equal(dim(x), c(6L, 99L))
   expect_true(is_ci_plottable(x))
   # good as well:
   message("plot #4")
-  ci_plot(x[, 1L:5L])
+  ci_plot(x[, 1L:10L])
   # note: the first three columns are factors, thus only seven plots
 })
 
@@ -366,39 +389,52 @@ test_that("group_CI works with grouping and 'well.rat' normalisation", {
 ## group_CI
 test_that("group_CI works with grouping and 'well.sub' normalisation", {
   # only one column in as.labels
-  x <- group_CI(object = A_VALUES, as.labels = c("Strain"),
+  x <- group_CI(object = XX, as.labels = c("Slot"),
     norm.method = "well.sub", grouping = TRUE)
   expect_is(x, "data.frame")
   expect_equal(dim(x), c(6L, 98L))
   expect_true(is_ci_plottable(x))
   message("plot #5")
-  ci_plot(x[, 1L:5L])
+  ci_plot(x[, 1L:10L])
   # good :)
   # note: the first two columns are factors, thus only eight plots
 })
 
-
+# ich bin mir nicht sicher, aber ich glaube der hier geht auch
 ## group_CI
-test_that("first test that Lea still must christen", {
+test_that("group_CI gives correct error, if incorrect as.labels", {
   # wrong columns in 'as.labels'-argument
-  expect_error(x <- group_CI(object = A_VALUES,
-    as.labels = c("Strain", "Experiment", "Slot", "Species",
+  expect_error(x <- group_CI(object = XX,
+    as.labels = c( "Slot", "Species",
       "H06 (Acetoacetic Acid)"),
     norm.method = "well.sub", grouping = TRUE), silent = TRUE)
-
+ 
   # ok. error occurs
   # Error in group_CI(object = A_VALUES,
   #   as.labels = c("Strain", "Experiment",  :
   #   cannot find column name: H06 (Acetoacetic Acid)
 })
 
+# das hier ist der output
+# Error: Test failure in 'group_CI gives correct error, if incorrect as.labels'
+# unused argument(s) (silent = TRUE)
+# 1: expect_error(x <- group_CI(object = XX, 
+# as.labels = c("Slot", "Species", "H06 (Acetoacetic Acid)"), 
+# norm.method = "well.sub", grouping = TRUE), silent = TRUE)
 
+
+# laueft jetzt auch
 ## group_CI
 test_that("second test that Lea still must christen", {
-  x <- group_CI(object = A_VALUES,
-    as.labels = c("Strain", "Experiment", "Slot", "Slot", "Species"),
-    norm.method = "well.sub", grouping = TRUE)
+  expect_warning(x <- group_CI(object = XX,
+    as.labels = c( "Slot", "Species", "Slot"),
+    norm.method = "well.sub", grouping = TRUE), silent = TRUE)
+  expect_is(x, "data.frame")
+  expect_equal(dim(x), c(6L, 100L))
   expect_true(is_ci_plottable(x))
+  message("plot #6")
+  ci_plot(b[, 1L:10L])
+  
   # ok.
   # Warning message:
   # In group_CI(object = A_VALUES, as.labels = c("Strain", "Experiment",  :
@@ -406,8 +442,8 @@ test_that("second test that Lea still must christen", {
 })
 
 
+#}
 
-}
 
 
 ################################################################################

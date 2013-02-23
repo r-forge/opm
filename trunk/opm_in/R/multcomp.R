@@ -5,7 +5,7 @@
 
 #' Multiple comparison of group means
 #'
-#' This function invokes funktionality from \code{glht} (from package
+#' This function invokes functionality from \code{glht} (from package
 #' \pkg{multcomp}) and thus provides linear hypothesis-testing and multiple
 #' comparisons for group means of curve parameters.
 #'
@@ -244,7 +244,9 @@ opm_mcp <- function(object, as.labels = NULL, per.mcp = TRUE, mcp.def, model,
   # default-model
   fmla <- as.formula(paste("Value ~ ", paste(as.labels, collapse = "+")))
   ## TODO LEA: why not set this as argument default?
-
+  # formel kann ja nur mit vlaue anfangen!
+  
+  
   # model-statement
   if (missing(model)) {
     model <- fmla 
@@ -268,6 +270,8 @@ opm_mcp <- function(object, as.labels = NULL, per.mcp = TRUE, mcp.def, model,
   ## TODO LEA: what's the problem with >20? No power anymore?
 
   ## TODO LEA: cat necessary?
+  # soll da ueberhaupt was ausgegeben werden?
+  # lieber in den beispielen zeigen, wie man an diese infos kommt
   cat("
       Resulting model from dataset", deparse(substitute(dataframe)),
       "is:", deparse(model), "
