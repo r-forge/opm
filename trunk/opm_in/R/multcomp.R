@@ -78,61 +78,80 @@
 #' # Without computation of multiple comparisons of means
 #' (xx <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
 #'   per.mcp = FALSE))
-#~ TODO LEA: include check; I can't see from the code what the result should be
+#' (stopifnot(dim(xx) == c(384L, 6L)))
 #'
 #' # comparison with specified model
 #' (xx <- opm_mcp(vaas_4, as.labels = list("Species"), m.type = "lm"))
-#~ TODO LEA: include check; I can't see from the code what the result should be
+#' (stopifnot(class(xx) == "glht"))
+#'
 #'
 #' # comparisons of Species pooled over complete plates
 #' (xx <- opm_mcp(vaas_4, as.labels = list("Species"), m.type ="lm",
 #'   mcp.def = mcp(Species = "Dunnett")))
-#' # plot-method is available
+#' (stopifnot(class(xx) == "glht", length(coef(x)) == 1)) 
+#'
+#'  # plot-method is available
+#' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 15, 3, 2))
 #' plot(xx)
-#~ TODO LEA: include check; I can't see from the code what the result should be
-#~ TODO LEA: shouldn't par() be reset?
+#' par(op) # reset plotting settings
+#'
 #'
 #' # comparison of only A01 - A04 against the intercept
 #' (xx <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
 #'   sub.list = c(1:4), model = "Value ~ Well + Species", m.type = "lm"))
-#~ TODO LEA: include check; I can't see from the code what the result should be
+#' (stopifnot(class(xx) == "glht", length(coef(x)) == 5))
+#' 
+#' # plot-method is available
+#' op <- par(no.readonly = TRUE) # default plotting settings
+#' par(mar = c(3, 15, 3, 2))
+#' plot(xx)
+#' par(op) # reset plotting settings
 #'
+#' 
 #' # user defined a contrastmatrix
 #' a <- mcp(Well = "Dunnett")
 #'   (xx <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
 #'   sub.list = c(1:4), m.type = "lm", mcp.def = a, model = "Value ~ Well"))
+#' (stopifnot(class(xx) == "glht", length(coef(x)) == 3))
+#' 
 #' # plot method
+#' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 20, 3, 2))
 #' plot(xx)
-#~ TODO LEA: include check; I can't see from the code what the result should be
-#~ TODO LEA: shouldn't par() be reset?
-#'
+#' par(op) # reset plotting settings
+#' 
 #'
 #' ## matrix method
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"), subset = "A",
 #'   dataframe = TRUE)
-#'
+#'   
 #' (xx <- opm_mcp(x, as.labels = c("Species"), m.type = "lm"))
+#' (stopifnot(class(xx) == "glht", length(coef(xx)) == 2))
+#' 
 #' # plot method is available
+#' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 15, 3, 2))
 #' plot(xx)
-#~ TODO LEA: include check; I can't see from the code what the result should be
-#~ TODO LEA: shouldn't par() be reset?
-#'
+#' par(op) # reset plotting settings
+#' 
+#' 
 #' # without performing the MCP
 #' xx <- opm_mcp(x, per.mcp = FALSE)
 #'
 #' # testing for subsets of object
 #' (xx <- opm_mcp(subset(x, Species == "Escherichia coli"),
 #'   mcp.def = mcp(Strain = "Dunnett"), as.labels = c("Strain"), m.type = "lm"))
+#' (stopifnot(class(xx) == "glht", length(coef(xx)) == 1))
+#' 
 #' # plot method available
+#' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 15, 3, 2))
 #' plot(xx)
-#~ TODO LEA: include check; I can't see from the code what the result should be
-#~ TODO LEA: shouldn't par() be reset?
-#'
-opm_mcp <- function(object, as.labels = NULL, per.mcp = TRUE, mcp.def, model,
+#' par(op) # reset plotting settings
+#' 
+
+opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE, 
   m.type = c("glm", "lm", "aov"), sub.list = NULL) {
   ## TODO LEA: currently args without default AFTER args with default -- please
   ## fix (and see below)
@@ -150,9 +169,7 @@ opm_mcp <- function(object, as.labels = NULL, per.mcp = TRUE, mcp.def, model,
     object <- extract(object, as.labels = as.labels, subset = "A",
               dataframe = TRUE)
   }
-  # from here object should be an dataframe
-
-  dim.start <- dim(object)
+ 
   param.pos <- which(colnames(object) == "Parameter")
 
   # Give error-message, if dataframe does not have the required structure
