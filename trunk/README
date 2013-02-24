@@ -14,8 +14,12 @@ Top level
 ### 'build.sh'
 
 Build shell script, depending on 'docu.R' from the `pkgutils` R package, which
-needs Ruby >= 1.9.0 installed. This script also copies the files to the 'pkg'
-directory. It only cares about opm_in, but not about opmdata_in and pkgutils_in.
+needs Ruby >= 1.9.0 installed. This script also copies the files from
+'trunk/opm' to the 'pkg/opm' if it is called with 'full' as first argument. All
+other arguments fot to 'docu.R'. Call 'build.sh -h' to get a complete list of
+options of 'docu.R', but note that some of them are already set by 'build.sh'.
+The build script only cares about 'opm\_in/', but not about 'opmdata\_in/' or
+'pkgutils\_in/'.
 
 
 ### 'external_tests'

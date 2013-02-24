@@ -9,6 +9,8 @@
 # script from the pkgutils R package and the 'Rscript' executable present in
 # the $PATH.
 #
+# Call this script with the -h option to get an overview of the options.
+#
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
 #
@@ -291,8 +293,8 @@ check_roxygen_tags()
 ################################################################################
 
 
-# 'full build' means we copy the code from trunk/opm to pkg/opm, which, after 
-# committing to SVN, would cause R-Forge to (attempt to) build the next package
+# A 'full build' means we copy the code from trunk/opm to pkg/opm, which, after
+# committing to SVN, would cause R-Forge to (attempt to) build the next package.
 #
 if [ $# -gt 0 ] && [ "$1" = full ]; then
   shift
@@ -302,7 +304,7 @@ else
 fi
 
 
-# set up package input directory, name of logfile, and location of 'docu.R'
+# Set up package input directory, name of logfile, and location of 'docu.R'.
 #
 PKG_DIR=opm_in
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
@@ -316,7 +318,7 @@ else
 fi
 
 
-# checks defined in this file
+# Conduct checks defined in this file (via shell functions).
 #
 check_vignettes "$PKG_DIR" || true
 if ! check_R_tests "$PKG_DIR"/R/*; then
@@ -329,14 +331,15 @@ if ! check_roxygen_tags "$PKG_DIR"/R/*; then
 fi
 
 
-# checks defined in 'docu.R', as far as requested
+# Conduct checks defined in 'docu.R', as far as requested, and build/check of
+# the package directory or archive, if requested.
 #
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --modify --preprocess --S4methods \
   --good well-map.R,substrate-info.R,plate-map.R "$PKG_DIR"
 
 
-# copying the package file to pkg/opm, if requested
+# Copy the package files to pkg/opm, if requested ('full' build).
 #
 OUT_DIR=${PKG_DIR%_in}
 if [ "$full_build" ]; then
@@ -351,7 +354,7 @@ else
 fi
 
 
-# moving the generated archive files, if any, into their directory
+# Move the generated archive files, if any, into their directory.
 #
 for file in "$OUT_DIR"_*.tar.gz; do
   [ -s "$file" ] || break
@@ -360,6 +363,5 @@ done
 
 
 ################################################################################
-
 
 
