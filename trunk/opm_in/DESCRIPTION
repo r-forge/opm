@@ -1,6 +1,6 @@
 Package: opm
-Version: 0.8.11
-Date: 2013-02-23
+Version: 0.8.12
+Date: 2013-02-24
 Title: Tools for analysing OmniLog(R) Phenotype Microarray data
 Author: Markus Goeker, with contributions by Lea A.I. Vaas, Benjamin
         Hofner, Johannes Sikorski, Nora Buddruhs and Anne Fiebig
@@ -24,6 +24,6 @@ Collate: 'substrate-info.R' 'well-map.R' 'plate-map.R' 'imports.R'
         'package.R' 'constants.R' 'classes.R' 'auxiliary.R' 'kmeans.R'
         'naming.R' 'metadata.R' 'getter.R' 'conversion.R'
         'combination.R' 'aggregation.R' 'discretization.R' 'plotting.R'
-        'io.R' 'phylogeny.R' 'data.R' 'testing.R'
+        'io.R' 'phylogeny.R' 'data.R' 'testing.R' 'multcomp.R'
 LazyData: yes
 LazyDataCompression: bzip2

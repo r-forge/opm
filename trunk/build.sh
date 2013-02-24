@@ -86,7 +86,7 @@ find_docu_script()
 #
 check_vignettes()
 {
-  local indir sweave_file pdf_file
+  local indir sweave_file pdf_file built_pdf_file
   local errs=0
   for indir; do
     for sweave_file in "$indir"/vignettes/*.Rnw; do
@@ -94,8 +94,15 @@ check_vignettes()
       pdf_file=$indir/inst/doc/${sweave_file##*/}
       pdf_file=${pdf_file%.*}.pdf
       if [ "$sweave_file" -nt "$pdf_file" ]; then
-        echo "WARNING: '$pdf_file' missing or older than '$sweave_file'" >&2
-        errs=$(($errs + 1))
+        built_pdf_file=${sweave_file%.*}.pdf
+        if [ "$built_pdf_file" -nt "$pdf_file" ]; then
+          cp -v "$built_pdf_file" "$pdf_file"
+          echo
+        else
+          echo "WARNING: '$pdf_file' missing or older than '$sweave_file'" >&2
+          echo >&2
+          errs=$(($errs + 1))
+        fi
       fi
     done
   done
