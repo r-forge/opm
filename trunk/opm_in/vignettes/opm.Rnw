@@ -186,6 +186,8 @@ In the \proglang{OPMS} class, data may have been obtained from distinct organism
 The function \code{read\_opm()} has an argument ``convert'' which controls how sets of plates with distinct types are treated; for instance, the function can return a list of  \proglang{OPMS} objects, one for each plate type encountered.
 The entire class hierarchy used by \pkg{opm} is shown in Figure~\ref{fig:class_hierarchy}.
 
+\subsection[Batch conversion of many files]{Batch conversion of many files}\label{methods batch}
+
 To process and store huge numbers of raw data files, the function \code{batch\_opm\_to\_yaml()} reads all OmniLog\textregistered \ CSV files (or \proglang{YAML} files previously generated with \pkg{opm}) within a given list of files and/or directories and converts them to \pkg{opm} \proglang{YAML} format.
 It is possible to let \pkg{opm} automatically include metadata and aggregated values (curve parameters) during this conversion.
 File selection and unselection using regular expressions or globbing patterns is integrated in the function.
@@ -936,7 +938,7 @@ opm_opt(css.file = "opm_styles.css")
 @
 
 The generated \proglang{HTML} would subsequently be linked to this file, and the two files could be distributed together.
-The same mechanism works for text generating using \code{listing()} (see \ref{application discrete-text}).
+The same mechanism works for text generation using \code{listing()} (see \ref{application discrete-text}).
 
 Users who want to define their own \proglang{CSS} files can start with modifying the file shipped with \pkg{opm}.
 Microsoft Windows users should consider that the path to the file must be provided in \proglang{UNIX} style, as obtained, e.g., using \code{normalizePath(x, winslash = "/")} if \code{x} is the path to the file.

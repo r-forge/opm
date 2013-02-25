@@ -102,6 +102,7 @@ check_vignettes()
           echo
         else
           echo "WARNING: '$pdf_file' missing or older than '$sweave_file'" >&2
+          echo "create or update '$built_pdf_file' to fix this" >&2
           echo >&2
           errs=$(($errs + 1))
         fi
@@ -334,8 +335,10 @@ fi
 # Conduct checks defined in 'docu.R', as far as requested, and build/check of
 # the package directory or archive, if requested.
 #
+delete_pat="(.*[.](css|bbl|blg|html|aux|yml|epf|R|gz|log|out|tex)|"
+delete_pat="vignettes/$delete_pat(Rplots|opm|.*-[0-9]{3,3})[.]pdf)\$"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
-  --modify --preprocess --S4methods \
+  --modify --preprocess --S4methods --junk "$delete_pat" \
   --good well-map.R,substrate-info.R,plate-map.R "$PKG_DIR"
 
 
