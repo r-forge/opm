@@ -15,11 +15,11 @@ NULL
 #'
 NULL
 
-#' @importFrom stats aggregate optimize kmeans heatmap update reshape
+#' @importFrom stats aggregate optimize kmeans heatmap update reshape var
 #'
 NULL
 
-#' @importFrom boot boot boot.ci
+#' @importFrom boot boot boot.ci norm.ci
 #'
 NULL
 

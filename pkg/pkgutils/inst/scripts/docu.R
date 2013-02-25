@@ -28,11 +28,13 @@ for (lib in c("utils", "methods", "pkgutils", "roxygen2", "optparse"))
 ################################################################################
 
 
-copy_dir <- function(from, to) {
-  LL(from, to)
+copy_dir <- function(from, to, delete) {
+  LL(from, to, delete)
   files <- list.files(from, recursive = TRUE, full.names = TRUE)
   files <- c(files, list.files(pattern = "\\.Rbuildignore", full.names = TRUE, 
     all.files = TRUE, recursive = TRUE))
+  if (nzchar(delete))
+    files <- files[!grepl(delete, files, perl = TRUE, ignore.case = TRUE)]
   dirs <- sub(from, to, unique.default(dirname(files)), fixed = TRUE)
   unlink(to, recursive = TRUE)
   vapply(dirs[order(nchar(dirs))], dir.create, logical(1L), recursive = TRUE)
@@ -149,7 +151,9 @@ option.parser <- OptionParser(option_list = list(
     help = paste("Number of spaces starting Roxygen-style comments",
     "[default: %default]"), metavar = "NUMBER"),
 
-  # J
+  make_option(c("-J", "--junk"), type = "character", default = "",
+    help = "Pattern of files to not copy with directory [default: %default]",
+    metavar = "PATTERN"),
 
   make_option(c("-k", "--keep"), action = "store_true", default = FALSE,
     help = "Keep the version number in DESCRIPTION files [default: %default]"),
@@ -360,7 +364,7 @@ for (i in seq_along(package.dirs)) {
     # directory arguments because due to a Roxygen2 bug this would result in
     # duplicated documentation for certain S4 methods.
     message(sprintf("Copying '%s' to '%s'...", in.dir, out.dir))
-    copy_dir(in.dir, out.dir)
+    copy_dir(in.dir, out.dir, opt$junk)
     if (length(opt$delete)) {
       message("Deleting specified subdirectories (if present) of", msg)
       unlink(file.path(out.dir, opt$delete), recursive = TRUE)
