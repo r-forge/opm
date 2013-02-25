@@ -47,6 +47,7 @@ NULL
 #'
 NULL
 
-
-
+#' @importFrom splines spline.des
+#'
+NULL
 

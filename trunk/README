@@ -19,7 +19,7 @@ needs Ruby >= 1.9.0 installed. This script also copies the files from
 other arguments fot to 'docu.R'. Call 'build.sh -h' to get a complete list of
 options of 'docu.R', but note that some of them are already set by 'build.sh'.
 The build script only cares about 'opm\_in/', but not about 'opmdata\_in/' or
-'pkgutils\_in/'.
+'pkgutils\_in/'. See /build.sh --help for details.
 
 
 ### 'external_tests'
