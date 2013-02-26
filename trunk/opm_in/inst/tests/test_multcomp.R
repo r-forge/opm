@@ -1,4 +1,5 @@
 
+
 library(testthat)
 context("Testing the multiple-testing functions of the OPM package")
 
@@ -8,60 +9,60 @@ if (!exists("TEST.DIR"))
   attach(objects_for_testing())
 
 
-A_VALUES <- extract(c(THIN.AGG, THIN.AGG),
+A.VALUES <- extract(c(THIN.AGG, THIN.AGG),
   as.labels = list("organism", "run"), subset = "A", dataframe = TRUE)
 
 
+################################################################################
+
 
 ## opm_mcp
-test_that("mcp without performance of mcp", {
-  #   Without computation of multiple comparisons of means
-  x <- opm_mcp(A_VALUES, as.labels = list("run", "organism"), per.mcp = FALSE)
+test_that("mcp without actually performing mcp", {
+  # Without computation of multiple comparisons of means
+  x <- opm_mcp(A.VALUES, as.labels = list("run", "organism"), per.mcp = FALSE)
   expect_is(x, "data.frame")
   expect_equal(dim(x), c(384L, 6L))
 })
 
 ## opm_mcp
 test_that("error mcp.def", {
-  #   Without computation of multiple comparisons of means
-  expect_error(x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm"))
-  })
+  # Without computation of multiple comparisons of means
+  expect_error(x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm"))
+})
 
 ## opm_mcp
 test_that("error missing as.labels", {
-  #   Without computation of multiple comparisons of means
-  expect_error(x <- opm_mcp(A_VALUES, m.type = "lm", 
+  # Without computation of multiple comparisons of means
+  expect_error(x <- opm_mcp(A.VALUES, m.type = "lm",
     mcp.def = mcp(run = "Dunnett")))
-  })
+})
 
-## opm_mcp 
+## opm_mcp
 test_that("mcp with specified m.type and with mcp.def", {
-    expect_message(x <- opm_mcp(A_VALUES, as.labels = list("run"), 
-      m.type = "lm", mcp.def = mcp(run = "Dunnett")))
-    expect_is(x, "glht")
-    expect_equal(x$type, "Dunnett")
-    expect_true(is.list(x))
-    expect_equal(length(x), 9)
-    expect_equal(length(coef(x)), 1)
-  })
+  expect_message(x <- opm_mcp(A.VALUES, as.labels = list("run"),
+    m.type = "lm", mcp.def = mcp(run = "Dunnett")))
+  expect_is(x, "glht")
+  expect_equal(x$type, "Dunnett")
+  expect_true(is.list(x))
+  expect_equal(length(x), 9)
+  expect_equal(length(coef(x)), 1)
+})
 
-
-## opm_mcp 
+## opm_mcp
 test_that("mcp with specified m.type, model and with mcp.def", {
-    x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm",
-      model = "Value ~ run", mcp.def = mcp(run = "Dunnett"))
-    expect_is(x, "glht")
-    expect_equal(x$type, "Dunnett")
-    expect_true(is.list(x))
-    expect_equal(length(x), 9)
-    expect_equal(length(coef(x)), 1)
-  })
-
+  x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
+    model = "Value ~ run", mcp.def = mcp(run = "Dunnett"))
+  expect_is(x, "glht")
+  expect_equal(x$type, "Dunnett")
+  expect_true(is.list(x))
+  expect_equal(length(x), 9)
+  expect_equal(length(coef(x)), 1)
+})
 
 ## opm_mcp
 test_that("no model, mcp.def and glht.arg specified", {
-  x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm",
-    model = "Value ~ run", mcp.def = mcp(run = "Dunnett"), 
+  x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
+    model = "Value ~ run", mcp.def = mcp(run = "Dunnett"),
     glht.arg = list(alternative = "less"))
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
@@ -70,11 +71,10 @@ test_that("no model, mcp.def and glht.arg specified", {
   expect_equal(length(coef(x)), 1)
 })
 
-
 ## opm_mcp
 test_that("with model, mcp.def and glht.arg specified", {
-  expect_message(x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm",
-    mcp.def = mcp(run = "Dunnett"), 
+  expect_message(x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
+    mcp.def = mcp(run = "Dunnett"),
     glht.arg = list(alternative = "less")))
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
@@ -83,10 +83,9 @@ test_that("with model, mcp.def and glht.arg specified", {
   expect_equal(length(coef(x)), 1)
 })
 
-
 ## opm_mcp
-test_that("subset of wells with directly defined contrastmatrix", {
-  x <- opm_mcp(A_VALUES, as.labels = list("run"), sub.list = c(1:4), 
+test_that("subset of wells with directly defined contrast matrix", {
+  x <- opm_mcp(A.VALUES, as.labels = list("run"), sub.list = c(1:4),
     mcp.def = mcp(Well = "Dunnett"), model = "Value ~ Well")
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
@@ -95,12 +94,10 @@ test_that("subset of wells with directly defined contrastmatrix", {
   expect_equal(length(coef(x)), 3)
 })
 
-
-
 ## opm_mcp
 test_that("mcp.def as predefined object", {
   a <- mcp(Well = "Dunnett")
-  x <- opm_mcp(A_VALUES, as.labels = list("run"), sub.list = c(1:4),
+  x <- opm_mcp(A.VALUES, as.labels = list("run"), sub.list = c(1:4),
     model = "Value ~ Well", m.type = "lm", mcp.def = a)
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
@@ -108,6 +105,10 @@ test_that("mcp.def as predefined object", {
   expect_equal(length(x), 9)
   expect_equal(length(coef(x)), 3)
 })
+
+
+################################################################################
+
 
 # TODO: lea hier weitermachen, erst markus fragen, ob es eine matrix in
 # objects_for_testing() gibt
@@ -141,3 +142,8 @@ test_that("mcp.def as predefined object", {
 #~ TODO LEA: include check; I can't see from the code what the result should be
 #~ TODO LEA: shouldn't par() be reset?
 #'
+
+
+################################################################################
+
+
