@@ -26,16 +26,13 @@
 #'   \code{as.labels} as factors and can be used for more complex model building
 #'   by the user user.
 #'
-#' @param model A character scalar for the symbolic description of model-formula 
+#' @param model A character scalar for the symbolic description of model-formula
 #'   to be fitted using \code{m.type}. See \code{formula} for details (in 
 #'   \pkg{stats} package).
 #'
 #' @param m.type Character scalar indicating which of the following model types
-#'   to use in model fitting: \sQuote{glm}, \sQuote{aov} or \sQuote{lm}.
-#'   
-#~ TODO LEA: describe the effect of this setting either or under details (then
-#~ link this here) using an itemized list. Otherwise clearly state where these
-#~ values are explained.
+#'   to use in model fitting: \sQuote{glm}, \sQuote{aov} or \sQuote{lm}. See 
+#'   \code{lm} (in \pkg{stats}) for details.
 #'
 #' @param mcp.def a specification of the linear hypotheses to be tested
 #'   analogously to \code{linfct} in \code{glht}: Linear functions can be
@@ -47,6 +44,10 @@
 #'   plates only a subset of substrates should be used for the comparisons. With
 #'   default \code{sub.list = NULL} complete plates are compared.
 #'
+#' @param glht.arg list of additional arguments for the multiple comparison 
+#'   procedure passed to \code{glht}. See \code{glht} in \pkg{multcomp} for 
+#'   details.
+#'   
 #' @return
 #'   An object of class \sQuote{glht} with \code{print}, \code{summary},
 #'   \code{confint}, \code{coef} and \code{vcov} methods being available. See
@@ -155,7 +156,7 @@
 #' 
 #' 
 
-opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
+opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
   m.type = c("glm", "lm", "aov"), sub.list = NULL, glht.arg = list()) {
   ## TODO LEA: currently args without default AFTER args with default -- please
   ## fix (and see below)
@@ -267,7 +268,6 @@ opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
     message("'model'is not specified; all variables in 'as.labels' are used")
   }
 
- # print(m.type)
   # fitting the linear model acording m.type
   lmmod <- case(match.arg(m.type),
     lm = lm(model, data = result),
@@ -279,7 +279,7 @@ opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
     stop("mcp.def must be given")
   }
   
-  glht.arg <-  c(list(model = lmmod, linfct = mcp.def), as.list(glht.arg))
+  glht.arg <- c(list(model = lmmod, linfct = mcp.def), as.list(glht.arg))
   mcp.result <- do.call(glht, glht.arg)
 
   # check the number of calculated tests
@@ -295,7 +295,6 @@ opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
       ")
   mcp.result
 }
-
 
 ################################################################################
 
