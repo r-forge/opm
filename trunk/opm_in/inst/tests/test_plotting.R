@@ -335,10 +335,10 @@ test_that("one cannot pass too many 'Parameter' columns to group_ci()", {
 
 
 ## group_CI
-test_that("group_CI works with grouping and 'plate.rat' normalisation", {
+test_that("group_CI works with grouping and 'plate.div' normalisation", {
   # 'grouping' given as character-string of the column-names
   x <- group_CI(object = A.VALUES, grouping = colnames(A.VALUES[, 1L:2L]),
-    norm.method = "plate.rat", norm.by = 10L)
+    norm.method = "plate.div", norm.by = 10L)
   expect_is(x, "data.frame")
   expect_equal(dim(x), c(6L, 99L))
   expect_true(is_ci_plottable(x))
@@ -348,10 +348,10 @@ test_that("group_CI works with grouping and 'plate.rat' normalisation", {
 
 
 ## group_CI
-test_that("group_CI works with grouping and 'well.rat' normalisation", {
+test_that("group_CI works with grouping and 'well.div' normalisation", {
   # grouping given directly as character-string
   x <- group_CI(object = A.VALUES, grouping = c("organism", "run"),
-    norm.method = "well.rat")
+    norm.method = "well.div")
   expect_is(x, "data.frame")
   expect_equal(dim(x), c(6L, 99L))
   expect_true(is_ci_plottable(x))

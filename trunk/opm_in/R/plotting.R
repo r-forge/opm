@@ -989,45 +989,43 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #' respective confidence intervals for user-defined experimental groups. Helper
 #' function for \code{\link{ci_plot}}.
 #'
-#' @param object Data frame, numeric matrix or \sQuote{OPMS} object (with
-#'   aggregated values).
-#' @param grouping Logical scalar determining whether data should be grouped
-#'   according to metadata columns given in \code{as.labels}.
-#' @param as.labels \code{NULL} or character vector specifying the
-#'   factor-variables which should be used for grouping. If \code{NULL} and
-#'   \code{grouping = TRUE}, all available factor-varialbes are used.
-#' @param norm.method character scalar to state the method for normalization.
-#'   See Details.
-#' @param x numerical vector for determining, which well(s)-means should be used
-#'   as denominator for normalisation with \code{norm.method = plate.rat}.
-#' @return An object of class \code{data.frame} with columns for metadata
-#'   specified in \code{as.labels}, one column \code{Parameter} and the
-#'   numerical part of 96 columns. If point estimators and the limits of
-#'   corresponding confidence- intervals were computed, the
-#'   \code{Parameter}-column harbours repetitively the specifier "A", "A CI95
-#'   low" and "A CI95 high". Accordingly, in each column of the numerical part
-#'   each point-estimator for a group mean is followed by its
-#'   conficence-interval limits.
-#'
+#' @param object Data frame with one column \code{Parameter}, columns with
+#'   factor variables before that column and colums with numeric vectors after
+#'   that column.
+#' @param grouping Logical, character or numeric scalar indicating according to
+#'   which columns (before the \sQuote{parameter} column) the data should be
+#'   aggregated by calculating means and confidence intervals. If \code{FALSE},
+#'   such an aggregation does not take place. If \code{TRUE}, all those columns
+#'   are used for grouping.
+#' @param norm.method character scalar indicating the normalization method.
+#'   See \sQuote{Details} section below.
+#' @param norm.by Vector indicating which wells (columns) or plates (rows) are
+#'   used to calculate means used for the normalization. By default, the mean is
+#'   calculated over all rows or columns if normalization is requested using
+#'   \code{norm.method}.
+#' @param dups Character scalar defining the action to conduct if
+#'   \code{grouping} contains duplicates.
+#' @return An object of class \code{data.frame} with the same column structure
+#'   as \code{object} and, if grouping was used, a triplet structure of the
+#'   rows, as indicated in the new \sQuote{Parameter} column: group mean and
+#'   group lower and upper boundary of the group confidence interval. It could
+#'   then be visualized using \code{\link{ci_plot}}.
 #~ @keywords htest
 #' @keywords internal
-#'
 #' @seealso boot::norm
-#'
 #' @details The function gives option to correct aggregated parameters
-#'   \itemize{
-#'   \item \code{none} applies no normalisations.
-#'   \item \code{plate.sub} substracts the mean of the complete plate(s) from
-#'     each single value
-#'   \item \code{plate.rat} divides each value by the value from one or more
-#'     wells, given by \code{x}.
-#'   \item \code{well.sub} substracts the mean of wells and \code{well.rat} each
-#'     value by well means.
+#'   \describe{
+#'   \item{none}{No normalisation.}
+#'   \item{plate.sub}{Substracts the mean of all or selected complete plate(s)
+#'     from each single value.}
+#'   \item{plate.div}{Divide each single value by the mean value from one or
+#'     more selected plates}.
+#'   \item{well.sub}{Substracts the mean of all or selected complete well(s)
+#'     from each single value.}
+#'   \item{well.div}{Divide each single value by the mean value from one or
+#'     more selected wells}.
 #'   }
-#'   The returned object is of class \code{data.frame} and if grouping was
-#'   executed, it can be visualized using \code{ci_plot()} (see examples).
-#'
-#'
+#'   
 #' @examples
 #'
 #' \dontrun{
@@ -1062,10 +1060,10 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #' # note: the first five columns are factors, thus only four wells plotted
 #'
 #' # with specified columns ('as.labels' given as character-string of the
-#' # column-names) for grouping (TRUE), normalisation by division ("plate.rat")
+#' # column-names) for grouping (TRUE), normalisation by division ("plate.div")
 #' # using well A10-values (positive control)
 #' x <- group_CI(object = vaas.test.A, grouping = TRUE,
-#'   as.labels = colnames(vaas.test.A[, 1L:3L]), norm.method = "plate.rat",
+#'   as.labels = colnames(vaas.test.A[, 1L:3L]), norm.method = "plate.div",
 #'   x = 10 )
 #' stopifnot(is.data.frame(x), identical(dim(x), c(12L, 100L)))
 #' stopifnot(is_ci_plottable(x))
@@ -1079,20 +1077,21 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #'
 #' }
 #'
-group_CI <- function(object, grouping = TRUE,
-      norm.method = c("plate.sub", "plate.rat", "well.sub", "well.rat", "none"),
-      norm.by = TRUE, dups = c("warn", "error", "ignore")) {
+setGeneric("group_CI", function(object, ...) standardGeneric("group_CI"))
+
+setMethod("group_CI", "data.frame", function(object, grouping = TRUE,
+    norm.method = c("plate.sub", "plate.div", "well.sub", "well.div", "none"),
+    norm.by = TRUE, dups = c("warn", "error", "ignore")) {
+  
   do_norm <- function(x, norm.method, norm.by) {
     case(norm.method,
       plate.sub = sweep(x, 1L, rowMeans(x[, norm.by, drop = FALSE]), "-"),
-      plate.rat = sweep(x, 1L, rowMeans(x[, norm.by, drop = FALSE]), "/"),
+      plate.div = sweep(x, 1L, rowMeans(x[, norm.by, drop = FALSE]), "/"),
       well.sub = sweep(x, 2L, colMeans(x[norm.by, , drop = FALSE]), "-"),
-      well.rat = sweep(x, 2L, colMeans(x[norm.by, , drop = FALSE]), "/"),
+      well.div = sweep(x, 2L, colMeans(x[norm.by, , drop = FALSE]), "/"),
       none = x
     )
   }
-
-  orig.dim <- dim(object)
 
   param.pos <- which(colnames(object) == "Parameter")
   if (length(param.pos) != 1L)
@@ -1108,7 +1107,7 @@ group_CI <- function(object, grouping = TRUE,
   if (!length(grouping) || identical(grouping, FALSE))
     return(object)
 
-  if (anyDuplicated(grouping))
+  if (!is.logical(grouping) && anyDuplicated(grouping))
     case(match.arg(dups),
       ignore = NULL,
       warn = warning("duplicated grouping values"),
@@ -1116,67 +1115,45 @@ group_CI <- function(object, grouping = TRUE,
     )
 
   # make list from the factorial column names and note its length
-  fac.pos <- seq.int(param.pos - 1L)
-  group.facs <- object[, fac.pos, drop = FALSE][, grouping, drop = FALSE]
-  gl <- length(group.facs <- unclass(group.facs))
+  group.facs <- object[, seq.int(param.pos - 1L), drop = FALSE]
+  gl <- length(group.facs <- unclass(group.facs[, grouping, drop = FALSE]))
 
-  # compute the means and variances concerning the stated grouping
+  # compute the means and CIs with respect to the stated grouping
   aggr.mean <- aggregate(object[, num.pos, drop = FALSE], by = group.facs,
     FUN = mean)
-  aggr.var <- aggregate(object[, num.pos, drop = FALSE], by = group.facs,
-    FUN = var)
-  aggr.CI <- norm.ci(
-    t0 = aggr.mean[, seq.int(gl + 1L, ncol(aggr.mean)), drop = FALSE],
-    var.t0 = aggr.var[, seq.int(gl + 1L, ncol(aggr.var)), drop = FALSE])
+  aggr.CI <- aggregate(object[, num.pos, drop = FALSE], by = group.facs,
+    FUN = var) # first the variances
 
-  # the output has to be organized in a certain structure:
-  # three rows per group: first the mean, second the lower CI-limit third
-  # the upper CI-limit
-
-  # triple each row of the factors
-  faccols <- as.data.frame(sapply(aggr.mean[, 1L:gl, drop = FALSE],
+  # The output has to be organized in a certain structure, three rows per group:
+  # first the mean, second the lower CI limit third the upper CI limit. This
+  # step creates the factor-data part up to the 'Parameter' column.
+  result <- as.data.frame(sapply(aggr.mean[, seq.int(gl), drop = FALSE],
     rep, each = 3L))
+  colnames(result) <- names(group.facs)
+  result$Parameter <- as.factor(unlist(map_grofit_names(
+    subset = as.character(object[1L, param.pos]), ci = TRUE)))
 
-  # add the column-names
-  #colnames(faccols) <- colnames(object[, grouping, drop = FALSE])
-  colnames(faccols) <- names(group.facs)
-
-  # add the new 'Parameter'-column required for the ci_plot()-function
-  faccols$Parameter <- paste(object[1L, param.pos],
-    c("", " CI95 low", " CI95 high"), sep = "")
-
-  # sort the numerical part of aggr_CI
-  # preparation: numerical part as a matrix without the 'conf' column
-  aggr.CInum <- data.matrix(aggr.CI[, 2L:ncol(aggr.CI), drop = FALSE])
-
-  # prepare the means as a matrix without the factorial part
-  aggr.mean.num <- data.matrix(aggr.mean[, (gl + 1L): ncol(aggr.mean),
+  # Reduce to numeric part and get CIs from means and variances.
+  aggr.mean <- as.matrix(aggr.mean[, seq.int(gl + 1L, ncol(aggr.mean)),
     drop = FALSE])
+  aggr.CI <- norm.ci(t0 = aggr.mean,
+    var.t0 = aggr.CI[, seq.int(gl + 1L, ncol(aggr.CI)), drop = FALSE])
+  aggr.CI <- as.matrix(aggr.CI[, -1L, drop = FALSE]) # remove the 'conf' column
 
-  # prepare the matrix for numerical results
-  outnum <- matrix(ncol = 3L * nrow(aggr.mean.num), nrow = ncol(aggr.mean.num))
+  # Prepare the numerical part of the results.
+  output <- matrix(ncol = 3L * nrow(aggr.mean), nrow = ncol(aggr.mean))
+  pos.1 <- ncol(aggr.CI)
+  pos.2 <- seq.int(pos.1 / 2L + 1L, pos.1)
+  pos.1 <- seq.int(pos.1 / 2L)
+  for (i in seq.int(nrow(aggr.mean)))
+    output[, seq.int(i * 3L - 2L, 3L * i)] <- c(aggr.mean[i, , drop = TRUE],
+      aggr.CI[i, pos.1, drop = TRUE], aggr.CI[i, pos.2, drop = TRUE])
+  output <- t(output)
+  colnames(output) <- colnames(aggr.mean)
 
-  # fill the matrix
-  for (i in 1L:nrow(aggr.mean))
-    outnum[, (i * 3L - 2L):(3L * i)] <- c(
-      aggr.mean.num[i, ],
-      aggr.CInum[i, 1L:(ncol(aggr.CInum) / 2L)],
-      aggr.CInum[i, (ncol(aggr.CInum) / 2L + 1L):ncol(aggr.CInum)]
-    )
-
-  # transpose matrix into required dimensions
-  outnum <- t(outnum)
-
-  # checking the result
-  ## TODO: remove this once certain
-  stopifnot(dim(outnum) == c(3L * nrow(aggr.mean.num), ncol(aggr.mean.num)))
-
-  # add the colnames
-  colnames(outnum) <- colnames(aggr.mean.num)
-  # add the factors
-  as.data.frame(cbind(faccols, outnum))
-
-}
+  # Done.
+  cbind(result, output)
+}, sealed = SEALED)
 
 
 ################################################################################
