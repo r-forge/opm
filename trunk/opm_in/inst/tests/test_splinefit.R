@@ -18,8 +18,20 @@
 ## get_data.psp_model
 ## UNTESTED
 
+## Predict
+## UNTESTED
+
 ## smooth
 ## UNTESTED
 
-## Predict
+## set_spline_options
+## UNTESTED
+
+## predict
+## UNTESTED
+
+## plot
+## UNTESTED
+
+## lines
 ## UNTESTED
