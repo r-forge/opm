@@ -32,6 +32,7 @@
 #'
 #' @param m.type Character scalar indicating which of the following model types
 #'   to use in model fitting: \sQuote{glm}, \sQuote{aov} or \sQuote{lm}.
+#'   
 #~ TODO LEA: describe the effect of this setting either or under details (then
 #~ link this here) using an itemized list. Otherwise clearly state where these
 #~ values are explained.
@@ -43,32 +44,41 @@
 #'   \pkg{multcomp} package.
 #'
 #' @param sub.list Numerical vector determining whether instead of complete
-#'   plates only a subset of substrates should be used for the comparisons.
-#~ TODO LEA: explain what to do if no subselection should happen; is 'ignored
-#~ if empty' correct?
+#'   plates only a subset of substrates should be used for the comparisons. With
+#'   default \code{sub.list = NULL} complete plates are compared.
 #'
 #' @return
 #'   An object of class \sQuote{glht} with \code{print}, \code{summary},
 #'   \code{confint}, \code{coef} and \code{vcov} methods being available. See
 #'   \code{glht} for details.
-#~ TODO LEA: explain what is returned if per.mcp is FALSE
-#'
+#'   If \code{per.mcp} is \code{FALSE}, no multiple comparison is performed but 
+#'   the return value is a dataframe containing the reshaped data with one 
+#'   column for the measured values, one factorial varible determining the well,
+#'   one factorial variable for the parameter and additional factorial 
+#'   variables, if labels had been selected.
+#'   
 #' @keywords htest
 #' @export
 #'
 #' @family multcomp-functions
 #' @seealso multcomp::glht stats::lm stats::formula
 #'
-#' @details This function provides suitably formatted data-matrix
-#'   (flat-file-format) to enable linear model building and user defined
+#' @details This function internally reshapes the opm-data into a 
+#'   (flat-file-formated) dataframe containing column for the measured values, 
+#'   one factorial variable determining the wells, one factorial variable for 
+#'   the parameter and additional factorial variables, if labels had been 
+#'   selected. By invoking function \code{glht} the user is then enabled to set 
+#'   up (general linear) models and, indicating an contrast-type,  user defined 
 #'   simultaneous multiple testing procedures.
-#~ TODO LEA: doesn't his depend on per.mcp?
-#'
-#~ hier beschreiben worauf man achten sollte
-#~ wie man die kontrastmatrix definiert
-#~ aufpassen bei der modellwahl -> bisher nur lineare modelle moeglich
-#~ nicht zu viele gruppen zulassen -> warnung einbauen
-#'
+#'   If \code{per.mcp = FALSE} no multiple comparisons are performed and only 
+#'   the reshaped dataframe is the return value.
+#'   Since this function makes use of \code{mcp}, we refer to the 
+#'   details-section from \code{glht}: The \code{mcp} function muss be used with
+#'   care when defining parameters of interest in two-way ANOVA or ANCOVA 
+#'   models. The definition of treatment differences migth be problem specific.
+#'   An automated determination of the parameters of interest is impossible and 
+#'   thus only comparisons for the main effects (ignoring covariates and 
+#'   interactions) are generated and a warning is given.
 #'
 #' @examples
 #'
@@ -144,9 +154,30 @@
 #' par(mar = c(3, 15, 3, 2))
 #' plot(y)
 #' par(op) # reset plotting settings
+#' 
+#' # argumente an eine in der opm_mcp-funktion aufgerufen wird, mit liste
+#' # ubergeben.
+#' # ABER da ich selber argumente definiert habe, die an glht uebergeben werden,
+#' # muessen diese in glht.arg als liste explizit benannt werden.
+#' # in der funktion dann 
+#' # do.call(glht, args = glht.arg)
+#' #
 #'
-opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
-  m.type = c("glm", "lm", "aov"), sub.list = NULL) {
+#' 
+#'
+
+# glht.arg <- c(list(model = x, linfct = y), glht.arg)
+# do.call(glht, glht.arg)
+# glht.arg <- c(list(model = x, linfct = y), as.list(glht.arg))
+# do.call(glht, glht.arg)
+# do.call braucht unbedingt eine liste!
+# wenn man formale argumente mehrfach uebergibt, gibt es immer eine 
+# fehlermeldung
+# glht.arg <- c(as.list(glht.arg), list(model = x, linfct = y))
+
+
+opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
+  m.type = c("glm", "lm", "aov"), sub.list = NULL, glht.arg = list()) {
   ## TODO LEA: currently args without default AFTER args with default -- please
   ## fix (and see below)
 
@@ -160,8 +191,8 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
     if (length(as.labels) < 1L) {
       stop("'as.labels'is missing")
     }
-    object <- extract(object, as.labels = as.labels, subset = "A",
-              dataframe = TRUE)
+    object <- extract(object, as.labels = as.labels, subset = "A", 
+      dataframe = TRUE)
   }
 
   param.pos <- which(colnames(object) == "Parameter")
@@ -227,7 +258,7 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
 
   if (!per.mcp)
     return(result)
-
+  
   well.pos <- which(colnames(result) == "Well")
 
   # count number of levels of the factors
@@ -252,6 +283,7 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
         paste(as.labels[bad[1L:length(bad)]], collapse = ","))
   }
   # model-fitting
+  
   # default-model
   fmla <- as.formula(paste("Value ~ ", paste(as.labels, collapse = "+")))
   ## TODO LEA: why not set this as argument default?
@@ -271,9 +303,17 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
     aov = aov(model, data = result),
     glm = glm(model, data = result)
   )
-
+  
+  #glht.arg <- c(as.list(glht.arg))
+  # glht.arg <- c(list(lmmod, linfct = mcp.def , as.list(glht.arg)))
+ # mcp.result <- do.call(glht, glht.arg)
+#   
+#   
+  glht.arg <- c(list(lmmod, mcp.def , as.list(glht.arg)))
+  mcp.result <- do.call(glht, glht.arg)
+# #   
   # and compute the comparisons multiple testing
-  mcp.result <- glht(lmmod, linfct = mcp.def)
+#   mcp.result <- glht(lmmod, linfct = mcp.def)
 
   # check the number of calculated tests
   if (length(confint(mcp.result)$confint[, 1L]) > 20L)
