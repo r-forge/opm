@@ -12,6 +12,7 @@ A_VALUES <- extract(c(THIN.AGG, THIN.AGG),
   as.labels = list("organism", "run"), subset = "A", dataframe = TRUE)
 
 
+
 ## opm_mcp
 test_that("mcp without mcp", {
   #   Without computation of multiple comparisons of means
@@ -22,20 +23,28 @@ test_that("mcp without mcp", {
 
 
 ## opm_mcp
-test_that("mcp with specific model", {
+test_that("mcp with specific model, but without mcp.def", {
   #   Without computation of multiple comparisons of means
-  x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm")
-  expect_is(x, "glht")
-  expect_equal(x$type, NULL)
-  expect_true(is.list(x))
-  expect_equal(length(x), 8)
-  expect_equal(length(coef(x)), 2)
-})
+   expect_error(x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm"))
+  })
+
+# 
+# test_that("mcp with specific model, but with mcp.def", {
+#   #   Without computation of multiple comparisons of means
+#  expect_message(x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm", 
+#    mcp.def = mcp(run = "Dunnett")))
+# expect_is(x, "glht")
+#   expect_equal(x$type, "Dunnett")
+#   expect_true(is.list(x))
+#   expect_equal(length(x), 9)
+#   expect_equal(length(coef(x)), 1)
+# })
+
 
 ## opm_mcp
 test_that("comparisons of Species pooled over complete plates", {
-  x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm",
-    mcp.def = mcp(run = "Dunnett"))
+  expect_message(x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm",
+    mcp.def = mcp(run = "Dunnett"), glht.arg = list()))
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
   expect_true(is.list(x))
@@ -47,8 +56,8 @@ test_that("comparisons of Species pooled over complete plates", {
 
 ## opm_mcp
 test_that("comparisons of only A01 - A04 against intercept", {
-  x <- opm_mcp(A_VALUES, as.labels = list("run"),
-    sub.list = c(1:4), model = "Value ~ Well + run", m.type = "lm")
+  x <- opm_mcp(A_VALUES, as.labels = list("run"), sub.list = c(1:4), 
+    model = "Value ~ Well")
   expect_is(x, "glht")
   expect_equal(x$type, NULL)
   expect_true(is.list(x))
