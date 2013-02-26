@@ -26,9 +26,9 @@
 #'   \code{as.labels} as factors and can be used for more complex model building
 #'   by the user user.
 #'
-#' @param model A symbolic description of the linear model to be fitted using
-#'   \code{lm}. See \code{formula} for details (both in the \pkg{stats}
-#'   package).
+#' @param model A character scalar for the symbolic description of model-formula 
+#'   to be fitted using \code{m.type}. See \code{formula} for details (in 
+#'   \pkg{stats} package).
 #'
 #' @param m.type Character scalar indicating which of the following model types
 #'   to use in model fitting: \sQuote{glm}, \sQuote{aov} or \sQuote{lm}.
@@ -90,36 +90,34 @@
 #'   per.mcp = FALSE))
 #' stopifnot(is.data.frame(x), dim(x) == c(384L, 6L))
 #'
-#' # comparison with specified model
-#' (x <- opm_mcp(vaas_4, as.labels = list("Species"), m.type = "lm"))
-#' stopifnot(inherits(x, "glht"))
-#'
-#' # comparisons of Species pooled over complete plates
-#' (x <- opm_mcp(vaas_4, as.labels = list("Species"), m.type ="lm",
+#' # comparison using specified model comparing 'Species' pooled over 
+#' # complete plates
+#' (x <- opm_mcp(vaas_4, as.labels = list("Species"), m.type = "lm", 
 #'   mcp.def = mcp(Species = "Dunnett")))
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 1)
 #'
 #' # plot-method is available
 #' op <- par(no.readonly = TRUE) # default plotting settings
-#' par(mar = c(3, 15, 3, 2))
+#' par(mar = c(3, 20, 3, 2))
 #' plot(x)
 #' par(op) # reset plotting settings
 #'
-#' # comparison of only A01 - A04 against the intercept
+#' # comparison of only A01 - A04 against each other
 #' (x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
-#'   sub.list = c(1:4), model = "Value ~ Well + Species", m.type = "lm"))
-#' stopifnot(inherits(x, "glht"), length(coef(x)) == 5)
+#'   sub.list = c(1:4), model = "Value ~ Well + Species", m.type = "lm", 
+#'   mcp.def = mcp(Well = "Tukey")))
+#' stopifnot(inherits(x, "glht"), length(coef(x)) == 6)
 #'
 #' # plot-method is available
 #' op <- par(no.readonly = TRUE) # default plotting settings
-#' par(mar = c(3, 15, 3, 2))
+#' par(mar = c(3, 18, 3, 2))
 #' plot(x)
 #' par(op) # reset plotting settings
 #'
 #' # user-defined contrast matrix
 #' a <- mcp(Well = "Dunnett")
-#'   (x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
-#'   sub.list = c(1:4), m.type = "lm", mcp.def = a, model = "Value ~ Well"))
+#' (x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
+#' sub.list = c(1:4), m.type = "lm", mcp.def = a, model = "Value ~ Well"))
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 3)
 #'
 #' # plot method
@@ -131,9 +129,9 @@
 #' ## data-frame method
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"), subset = "A",
 #'   dataframe = TRUE)
-#'
-#' (y <- opm_mcp(x, as.labels = "Species", m.type = "lm"))
-#' stopifnot(inherits(y, "glht"), length(coef(y)) == 2)
+#' (y <- opm_mcp(x, as.labels = "Species", m.type = "lm", 
+#'   mcp.def = mcp(Species = "Dunnett")))
+#' stopifnot(inherits(y, "glht"), length(coef(y)) == 1)
 #'
 #' # plot method is available
 #' op <- par(no.readonly = TRUE) # default plotting settings
@@ -142,7 +140,7 @@
 #' par(op) # reset plotting settings
 #'
 #' # without performing the MCP
-#' (y <- opm_mcp(x, per.mcp = FALSE))
+#' (y <- opm_mcp(x, per.mcp = FALSE, as.labels = list("Species", "Strain")))
 #'
 #' # testing for subsets of object
 #' (y <- opm_mcp(subset(x, x$Species == "Escherichia coli"),
@@ -155,26 +153,7 @@
 #' plot(y)
 #' par(op) # reset plotting settings
 #' 
-#' # argumente an eine in der opm_mcp-funktion aufgerufen wird, mit liste
-#' # ubergeben.
-#' # ABER da ich selber argumente definiert habe, die an glht uebergeben werden,
-#' # muessen diese in glht.arg als liste explizit benannt werden.
-#' # in der funktion dann 
-#' # do.call(glht, args = glht.arg)
-#' #
-#'
 #' 
-#'
-
-# glht.arg <- c(list(model = x, linfct = y), glht.arg)
-# do.call(glht, glht.arg)
-# glht.arg <- c(list(model = x, linfct = y), as.list(glht.arg))
-# do.call(glht, glht.arg)
-# do.call braucht unbedingt eine liste!
-# wenn man formale argumente mehrfach uebergibt, gibt es immer eine 
-# fehlermeldung
-# glht.arg <- c(as.list(glht.arg), list(model = x, linfct = y))
-
 
 opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
   m.type = c("glm", "lm", "aov"), sub.list = NULL, glht.arg = list()) {
@@ -204,7 +183,6 @@ opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
 
   # Give warning, if no numerical variables exist or the 'Parameter'-column
   # is not at the required position
-  ## TODO LEA: Would this crash later on? Then warning was unnecessary.
   if (param.pos == ncol(object))
     warning("no numerical data or 'Parameter'-column at wrong position")
 
@@ -219,11 +197,11 @@ opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
 
   # include like the what-argument
   cnames <- colnames(object[, 1L:param.pos])
-
-  # check, if 'as.labels' is specified; if not give warning and use all
-  # factorial variables for model-building
-
-  ## TODO LEA: where is this check?
+  
+  # check, if 'as.labels' is specified
+  if (missing(as.labels)) {
+    stop("no argument 'as.labels' given")
+  }
 
   # check if 'as.labels' has more than one level
   # give warning, if columns for grouping were stated double
@@ -269,12 +247,9 @@ opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
   for (i in 1L:ncol(result[, 1L:well.pos]))
     ma.level[i, ] <- nlevels(result [, i])
 
-  # check for one-level-factors
+  # print names of one-level-factors
   level.one <- which(ma.level > 1L)
   xnames <- colnames(result[, level.one])
-
-  ## TODO LEA: where are these checks?
-
   #check if as.labels has more than one factor
   if (length(as.labels)) {
     bad <- which(!as.labels %in% xnames)
@@ -282,21 +257,17 @@ opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
       stop("Only one level for factor-variable(s): ",
         paste(as.labels[bad[1L:length(bad)]], collapse = ","))
   }
-  # model-fitting
   
-  # default-model
-  fmla <- as.formula(paste("Value ~ ", paste(as.labels, collapse = "+")))
-  ## TODO LEA: why not set this as argument default?
-  # formel kann ja nur mit vlaue anfangen!
-
-
+  ## model-fitting
+  
   # model-statement
   if (missing(model)) {
-    model <- fmla
+    #default model
+    model <- as.formula(paste("Value ~", paste(as.labels, collapse = "+")))
     message("'model'is not specified; all variables in 'as.labels' are used")
-    ## TODO LEA: message necessary?
   }
 
+ # print(m.type)
   # fitting the linear model acording m.type
   lmmod <- case(match.arg(m.type),
     lm = lm(model, data = result),
@@ -304,21 +275,16 @@ opm_mcp <- function(object, model, mcp.def , as.labels = NULL, per.mcp = TRUE,
     glm = glm(model, data = result)
   )
   
-  #glht.arg <- c(as.list(glht.arg))
-  # glht.arg <- c(list(lmmod, linfct = mcp.def , as.list(glht.arg)))
- # mcp.result <- do.call(glht, glht.arg)
-#   
-#   
-  glht.arg <- c(list(lmmod, mcp.def , as.list(glht.arg)))
+  if (missing(mcp.def)) {
+    stop("mcp.def must be given")
+  }
+  
+  glht.arg <-  c(list(model = lmmod, linfct = mcp.def), as.list(glht.arg))
   mcp.result <- do.call(glht, glht.arg)
-# #   
-  # and compute the comparisons multiple testing
-#   mcp.result <- glht(lmmod, linfct = mcp.def)
 
   # check the number of calculated tests
   if (length(confint(mcp.result)$confint[, 1L]) > 20L)
-    warning("number of performed comparisons exceeds 20")
-  ## TODO LEA: what's the problem with >20? No power anymore?
+    message("number of performed comparisons exceeds 20")
 
   ## TODO LEA: cat necessary?
   # soll da ueberhaupt was ausgegeben werden?
