@@ -1,13 +1,13 @@
 Package: opm
-Version: 0.8.12
+Version: 0.8.14
 Date: 2013-02-26
 Title: Tools for analysing OmniLog(R) Phenotype Microarray data
 Author: Markus Goeker, with contributions by Lea A.I. Vaas, Benjamin
         Hofner, Johannes Sikorski, Nora Buddruhs and Anne Fiebig
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
-Depends: R (>= 2.10.0), grofit
+Depends: R (>= 2.10.0), grofit, mgcv
 Imports: methods, lattice, boot, hwriter, plotrix, pkgutils (>= 0.3-0),
-        Ckmeans.1d.dp, yaml (>= 2.1.5)
+        Ckmeans.1d.dp, yaml (>= 2.1.5), splines
 Suggests: multicore, optparse, gplots, opmdata (>= 0.4-0), testthat,
         multcomp
 Description: Tools for analysing OmniLog(R) and Microstation Phenotype
@@ -25,5 +25,6 @@ Collate: 'substrate-info.R' 'well-map.R' 'plate-map.R' 'imports.R'
         'naming.R' 'metadata.R' 'getter.R' 'conversion.R'
         'combination.R' 'aggregation.R' 'discretization.R' 'plotting.R'
         'io.R' 'phylogeny.R' 'data.R' 'testing.R' 'multcomp.R'
+        'splinefit.R'
 LazyData: yes
 LazyDataCompression: bzip2
