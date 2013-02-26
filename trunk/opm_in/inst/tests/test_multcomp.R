@@ -24,26 +24,26 @@ test_that("mcp without performance of mcp", {
 ## opm_mcp
 test_that("error mcp.def", {
   #   Without computation of multiple comparisons of means
-   expect_error(x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm"))
+  expect_error(x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm"))
   })
 
 ## opm_mcp
 test_that("error missing as.labels", {
   #   Without computation of multiple comparisons of means
-   expect_error(x <- opm_mcp(A_VALUES, m.type = "lm", 
-     mcp.def = mcp(run = "Dunnett")))
+  expect_error(x <- opm_mcp(A_VALUES, m.type = "lm", 
+    mcp.def = mcp(run = "Dunnett")))
   })
 
 ## opm_mcp 
 test_that("mcp with specified m.type and with mcp.def", {
-    expect_message(x <- opm_mcp(A_VALUES, as.labels = list("run"), m.type = "lm",
-      mcp.def = mcp(run = "Dunnett")))
+    expect_message(x <- opm_mcp(A_VALUES, as.labels = list("run"), 
+      m.type = "lm", mcp.def = mcp(run = "Dunnett")))
     expect_is(x, "glht")
     expect_equal(x$type, "Dunnett")
     expect_true(is.list(x))
     expect_equal(length(x), 9)
     expect_equal(length(coef(x)), 1)
- })
+  })
 
 
 ## opm_mcp 
@@ -55,7 +55,7 @@ test_that("mcp with specified m.type, model and with mcp.def", {
     expect_true(is.list(x))
     expect_equal(length(x), 9)
     expect_equal(length(coef(x)), 1)
- })
+  })
 
 
 ## opm_mcp
