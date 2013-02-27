@@ -51,3 +51,6 @@ NULL
 #'
 NULL
 
+#' @import mgcv
+#'
+NULL
