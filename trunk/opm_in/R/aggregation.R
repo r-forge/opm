@@ -64,15 +64,16 @@ setMethod("to_grofit_data", OPM, function(object) {
 #' Extract and rename estimated curve parameters.
 #'
 #' @param x Object of class \sQuote{grofit} or \sQuote{opm_model}.
+#' @param ... Additional arguments.
 #' @return Matrix.
 #' @keywords internal
 #'
-extract_curve_params <- function(x) UseMethod("extract_curve_params")
+extract_curve_params <- function(x, ...) UseMethod("extract_curve_params")
 
 #' @rdname extract_curve_params
 #' @method extract_curve_params grofit
 #'
-extract_curve_params.grofit <- function(x) {
+extract_curve_params.grofit <- function(x, ...) {
   settings <- c(x$control)
   x <- summary(x$gcFit)
   map <- map_grofit_names()
@@ -81,11 +82,12 @@ extract_curve_params.grofit <- function(x) {
 }
 
 #' @rdname extract_curve_params
+#' @param all Logic. Should
 #' @method extract_curve_params opm_model
 #'
-extract_curve_params.opm_model <- function(model) {
-  pred <- fitted(model)
-  x <- get_data(model)[, 1]
+extract_curve_params.opm_model <- function(x, all = FALSE, ...) {
+  pred <- fitted(x)
+  x <- get_data(x)[, 1]
   ## quick and dirty
   deriv <- diff(pred) / diff(x)
   slope <- max(deriv)
@@ -103,7 +105,10 @@ extract_curve_params.opm_model <- function(model) {
   maximum <- max(pred)
   ## AUC
   AUC <- AUC(x, pred)
-  c(mu = slope, lambda = lag, A = maximum, AUC = AUC)
+  if (all)
+      return(list(mu = slope, lambda = lag, A = maximum, AUC = AUC,
+        derivative = deriv, intercept = intercept))
+  return(c(mu = slope, lambda = lag, A = maximum, AUC = AUC))
 }
 
 
@@ -312,7 +317,7 @@ setMethod("do_aggr", OPM, function(object, boot = 100L, verbose = FALSE,
 
   run_mgcv <- function(x, y, data, options) {
     mod <- fit_spline(y = y, x = x, data = data, options = options)
-    extract_curve_params(mod)
+    list(params = extract_curve_params(mod), model = mod)
   }
 
   copy_A_param <- function(x) {
@@ -365,8 +370,10 @@ setMethod("do_aggr", OPM, function(object, boot = 100L, verbose = FALSE,
       },
       spline.fit = {
         ## change later:
-        warning("boot is internally set to zero for method = spline.fit")
-        boot <- 0
+        if (boot != 0) {
+          boot <- 0
+          warning("boot is internally set to zero for method = spline.fit")
+        }
         options <- insert(as.list(options), boot = boot)
         ## extract data
         data <- as.data.frame(measurements(object))
@@ -377,6 +384,18 @@ setMethod("do_aggr", OPM, function(object, boot = 100L, verbose = FALSE,
           fun = function(i) {
             run_mgcv(x = HOUR, y = wells[i], data = data, options = options)
           }, cores = cores)
+
+        if (options$save.models) {
+            opm_models <- lapply(result, function(x) x$model)
+            names(opm_models) <- wells
+            if (is.null(options$filename))
+              options$filename <- paste("opm_models_",
+                format(Sys.time(), "%Y-%m-%d_%H:%M:%S"), ".RData", sep = "")
+            save("opm_models", file = options$filename)
+            cat("Models saved as 'opm_models' on disk in file\n  ",
+              getwd(), "/", options$filename, "\n\n", sep = "")
+        }
+        result <- lapply(result, function(x) x$params)
         result <- do.call(cbind, result)
         result <- rbind(result,
           matrix(NA, nrow = 8L, ncol = ncol(result)))

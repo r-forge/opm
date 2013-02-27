@@ -14,13 +14,8 @@
 ########################################################
 ## TODO2:
 ##
-## 1) Make spline.fit work within the opm package (e.g., by defining
-## vectorized calls to spline.fit [along the experiements] using lapply)
-##
 ## 2) Implement functions to
 ## - extract e.g. the (beta) coefficients of the fitted curve,
-## - to compute the charackteristics of the curve such as lag,
-##   slope, max and AUC
 ##
 ## 3) Define further function-arguments, which should be easily
 ## specified by the user
@@ -125,15 +120,22 @@ fit_spline <- function (y, x = "Hour", data, options = set_spline_options()) {
 #'   \code{\link[mgcv]{s}} (see package \pkg{mgcv}). Note that the \code{mgcv}
 #'   options \code{k} and \code{bs} are specified using \code{type} and
 #'   \code{knots} in \pkg{opm}.
+#' @param save.models Should the models be saved (on the disk) for further
+#'   inspections and plotting?
+#' @param filename Filename of the models. Per default a name is auto-generated
+#'   based on date and time. The file is always generated in the current working
+#'   directory.
 #' @param ... Additional arguments to be passed to \code{\link[mgcv]{gam}} or
 #'   \code{\link{smooth.spline}}.
 #' @return List of options.
+#'
 #' @keywords misc
 #' @author Benjamin Hofner
 #' @export
 set_spline_options <- function(type = c("tp.spline",
       "p.spline", "smooth.spline"),
-    knots = NULL, gamma = 1, est.method = c("REML", "GCV"), s.par = NULL, ...) {
+    knots = NULL, gamma = 1, est.method = c("REML", "GCV"), s.par = NULL,
+    save.models = FALSE, filename = NULL, ...) {
 
   if (!missing(...))
     warning(sQuote("..."), " currently not passed to fitting functions")
@@ -145,8 +147,14 @@ set_spline_options <- function(type = c("tp.spline",
   if (type == "smoothing-splines" && !is.null(s.par))
     warning(sQuote("s.par"), " ignored if ",
       sQuote('type = "smoothing-splines"'))
+  if (!is.null(filename) && !save.models) {
+    save.models <- TRUE
+    warning(sQuote("filename"), " specified, ", sQuote("save.models"),
+      " set to TRUE")
+  }
   list(type = type, knots = knots, gamma = gamma, est.method = method,
-    s.par = s.par, class = class, ...)
+    s.par = s.par, save.models = save.models, filename = filename,
+    class = class, ...)
 }
 
 ################################################################################
@@ -161,10 +169,12 @@ set_spline_options <- function(type = c("tp.spline",
 #'   optional.
 #' @param ... additional options. Currently not used.
 #' @author Benjamin Hofner
+#'
 ## CURRENTLY INTERNAL
 #' @keywords internal methods
-#' @method predict smooth.spline_model
 #'
+#' @method predict smooth.spline_model
+#' @S3method predict smooth.spline_model
 predict.smooth.spline_model <- function(object, newdata = NULL, ...) {
     if (is.null(newdata)) {
         ## get data from fitted model
@@ -199,9 +209,12 @@ predict.smooth.spline_model <- function(object, newdata = NULL, ...) {
 #'   \code{\link{lines}}.
 #'
 #' @author Benjamin Hofner
+#'
 ## CURRENTLY NOT EXPORTED
 #' @keywords internal hplot methods
+#'
 #' @method plot opm_model
+#' @S3method plot opm_model
 plot.opm_model <- function(x, plot.data = TRUE, plot.spline = TRUE,
     col = rgb(0, 0, 0, 0.3), pch = 20, col.spline = "red",
     lty.spline = "solid", lwd.spline = 1, ...) {
@@ -227,9 +240,12 @@ plot.opm_model <- function(x, plot.data = TRUE, plot.spline = TRUE,
 #' @param lwd Line width of fitted spline. For details see \code{\link{par}}.
 #' @param ... Further arguments to be passed to \code{\link{lines}}
 #' @author Benjamin Hofner
+#'
 ## CURRENTLY NOT EXPORTED
 #' @keywords internal aplot methods
+#'
 #' @method lines opm_model
+#' @S3method lines opm_model
 lines.opm_model <- function(x, col = "red", lty = "solid", lwd = 1, ...) {
     pred <- predict(x)
     x <- get_data(x)[, 1]
@@ -258,47 +274,6 @@ AUC <- function(x, y, index = NULL) {
   sum(diff(x) * (0.5 * (y[-1L] + y[-n.obs])))
 }
 
-
-################################################################################
-
-
-## THESE FUNCTIONS ARE HELPER FUNCTIONS AND ARE NOT YET PROPERLY DOCUMENTED.
-
-
-## (internal) function used to generate the plot area and draw the raw data (if
-## plot.data = TRUE)
-plot_helper <- function(data, plot.data = TRUE, col = rgb(0, 0, 0, 0.3),
-                        pch = 20, ...) {
-    ## generate empty plot of appropriate size
-    plot(data[, 1], data[, 2],
-      ylab = names(data)[2],
-      xlab = names(data)[1],
-      type = "n", ...)
-    if (plot.data) {
-        points(data[, 1], data[, 2], col = col, pch = pch, ...)
-    }
-}
-
-## (internal) generic needed to extract the original data from various spline
-## estimates
-get_data <- function(x)
-    UseMethod("get_data")
-
-## (internal) function for psp and tp models (derived via mgcv)
-get_data.psp_model <- get_data.tp_model <- function(x) {
-    data <- x$model
-    data <- data[, c(2, 1)]
-    return(data)
-}
-
-## (internal) function for ss models (derived via smooth.spline)
-get_data.smooth.spline_model <- function(x) {
-    data <- as.data.frame(x$data)
-    names(data)[1:2] <- x$names
-    return(data)
-}
-
-
 ################################################################################
 ## make P-splines that allow predictions at or outside of the boundary knots
 ## modified version of mgcv's ps smooth.construct.ps.smooth.spec
@@ -319,8 +294,11 @@ get_data.smooth.spline_model <- function(x) {
 #'   \code{\link{smooth.construct.ps.smooth.spec}}.
 #' @return An object of class \code{psp.smooth}.
 #' @author Benjamin Hofner bases on work by Simon N. Wood
-#' @method smooth.construct psp.smooth.spec
+#'
 #' @keywords internal
+#'
+#' @method smooth.construct psp.smooth.spec
+#' @S3method smooth.construct psp.smooth.spec
 smooth.construct.psp.smooth.spec <- function (object, data, knots) {
     if (length(object$p.order) == 1)
         m <- rep(object$p.order, 2)
@@ -394,10 +372,115 @@ smooth.construct.psp.smooth.spec <- function (object, data, knots) {
 #' @return Matrix.
 #'
 #' @author Benjamin Hofner
-#' @method Predict.matrix psp.smooth
 #' @keywords internal
+#'
+#' @method Predict.matrix psp.smooth
+#' @S3method Predict.matrix psp.smooth
+#'
 Predict.matrix.psp.smooth <- function (object, data) {
     X <- spline.des(object$knots, data[[object$term]], object$m[1] + 2,
                     outer.ok = TRUE)$design
     X
+}
+
+################################################################################
+
+#' @title Add parameter estimates
+#' @description Add parameter estimates for an estimated spline model to the
+#' current plot.
+#'
+#' @param model Model fit.
+#' @param add.deriv Should the derivative be plotted?
+#' @param col Color for parameter estimates.
+#' @param deriv.col Color for first derivative.
+#' @param lty Line type.
+#' @param ... Additional graphical parameters that are passed to
+#'   \code{\link{lines}}, \code{\link{points}} and \code{\link{abline}}.
+#' @return NULL
+#' @keywords aplot
+#'
+#' @author Benjamin Hofner
+#' @export
+add_parameters <- function(model, add.deriv = FALSE, col = "red",
+  deriv.col = "grey", lty = "dashed", ...) {
+
+    x <- extract_curve_params.opm_model(model, all = TRUE)
+    data <- get_data(model)[, 1]
+    if (add.deriv) {
+        lines(data[-1], x$deriv, col = deriv.col, lty = lty, ...)
+        abline(h = 0, lty = lty, col = deriv.col)
+    }
+    abline(a = x$intercept, b = x$mu, col = col, lty = lty, ...)
+    points(x$lambda, 0, col = col, ...)
+    abline(h = x$A, col = col, lty = lty, ...)
+}
+
+
+################################################################################
+
+## (internal) function used to generate the plot area and draw the raw data (if
+## plot.data = TRUE)
+
+#' @title Helper function for plotting
+#' @description Helper function for plotting internally used by
+#'   \code{\link{plot.opm_model}}. Sets up a device and plots raw data if asked
+#'   to.
+#' @param data raw data.
+#' @param plot.data Logical. Should the raw data be plotted?
+#' @param col Color for plotting.
+#' @param pch Point symbols to be plotted.
+#' @param ... Further arguments to be passed to \code{\link{plot}} and
+#'   \code{\link{points}}.
+#' @return NULL
+#' @author Benjamin Hofner
+#' @keywords internal
+plot_helper <- function(data, plot.data = TRUE, col = rgb(0, 0, 0, 0.3),
+                        pch = 20, ...) {
+    ## generate empty plot of appropriate size
+    plot(data[, 1], data[, 2],
+      ylab = names(data)[2],
+      xlab = names(data)[1],
+      type = "n", ...)
+    if (plot.data) {
+        points(data[, 1], data[, 2], col = col, pch = pch, ...)
+    }
+}
+
+################################################################################
+
+## (internal) generic needed to extract the original data from various spline
+## estimates
+
+#' @title Extract data
+#' @description Extract data from various spline estimates
+#' @param x Model.
+#' @return data.frame
+#' @author Benjamin Hofner
+#' @keywords internal
+#'
+get_data <- function(x)
+    UseMethod("get_data")
+
+## (internal) function for psp and tp models (derived via mgcv)
+
+#' @rdname get_data
+#' @method get_data psp_model
+#' @S3method get_data psp_model
+#' @method get_data tp_model
+#' @S3method get_data tp_model
+get_data.psp_model <- get_data.tp_model <- function(x) {
+    data <- x$model
+    data <- data[, c(2, 1)]
+    return(data)
+}
+
+## (internal) function for ss models (derived via smooth.spline)
+
+#' @rdname get_data
+#' @method get_data smooth.spline_model
+#' @S3method get_data smooth.spline_model
+get_data.smooth.spline_model <- function(x) {
+    data <- as.data.frame(x$data)
+    names(data)[1:2] <- x$names
+    return(data)
 }
