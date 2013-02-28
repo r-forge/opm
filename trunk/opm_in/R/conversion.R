@@ -853,13 +853,17 @@ setMethod("rep", OPMS, function(x, ...) {
 #' @return Numeric matrix or data frame; always a numeric matrix for the
 #'   data-frame method.
 #' @family conversion-functions
-#' @seealso base::data.frame base::as.data.frame base::matrix base::as.matrix
+#' @seealso \code{\link{aggregated}} for the extraction of aggregated values
+#'   from a single \code{OPMA} objects.
+#'
+#'   base::data.frame base::as.data.frame base::matrix base::as.matrix
 #' @keywords manip dplot
 #' @examples
 #'
-#' # 'OPMS' method
+#' ## 'OPMS' method
 #' data(vaas_4)
-#' # Matrix
+#' opm_opt("curve.param")
+#' # Matrix (containing the parameter given above)
 #' (x <- extract(vaas_4, as.labels = list("Species", "Strain")))
 #' stopifnot(is.matrix(x), identical(dim(x), c(4L, 96L)), is.numeric(x))
 #' # Data frame
@@ -874,7 +878,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #' (x <- extract(vaas_4, subset = "disc", as.labels = list("Strain")))
 #' stopifnot(is.matrix(x), identical(dim(x), c(4L, 96L)), is.logical(x))
 #'
-#' # data-frame method
+#' ## data-frame method
 #' x <- data.frame(a = 1:26, b = letters, c = LETTERS)
 #' (y <- extract(x, as.labels = "b", what = "integer", as.groups = "c"))
 #' stopifnot(is.matrix(y), dim(y) == c(26, 1), rownames(y) == x$b)
