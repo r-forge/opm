@@ -1045,13 +1045,14 @@ setMethod("summary", OPMS, function(object, ...) {
 #' @param trim Character scalar. Parameter estimates from intrinsically negative
 #'   reactions (i.e., no respiration) are sometimes biologically unreasonable
 #'   because they are too large or too small. If \code{trim} is \sQuote{medium}
-#'   or \sQuote{full}, lambda estimates larger than \code{\link{hours}} are set
-#'   to that value. Negative lambda estimates smaller than \code{\link{hours}}
-#'   are set to this value if \code{trim} is \sQuote{medium}; this is a more
-#'   moderate treatment than setting all negative values to zero, which is done
-#'   if \code{trim} is \sQuote{full}. Currently the other parameters are not
-#'   checked, and all \code{NA} values also remain unchanged. If \code{trim} is
-#'   \sQuote{no}, lambda is not modified either.
+#'   or \sQuote{full}, lambda estimates larger than \code{\link{hours}(object)}
+#'   (i.e.,the maximum time value observed) are set to that value. Negative
+#'   lambda estimates smaller than \code{- hours(object)} are set to this value
+#'   (i.e., negative of maximum time) if \code{trim} is \sQuote{medium}; this is
+#'   a more moderate treatment than setting all negative values to zero, which
+#'   is done if \code{trim} is \sQuote{full}. Currently the other parameters are
+#'   not checked, and all \code{NA} values also remain unchanged. If \code{trim}
+#'   is \sQuote{no}, lambda is not modified either.
 #' @param ... Optional arguments passed between the methods.
 #' @note See \code{\link{do_aggr}} for generating aggregated data.
 #' @export
