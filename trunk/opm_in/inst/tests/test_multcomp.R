@@ -19,7 +19,7 @@ A.VALUES <- extract(c(THIN.AGG, THIN.AGG),
 ## opm_mcp
 test_that("mcp without actually performing mcp", {
   # Without computation of multiple comparisons of means
-  x <- opm_mcp(A.VALUES, as.labels = list("run", "organism"), per.mcp = FALSE)
+  x <- opm_mcp(A.VALUES, as.labels = list("run", "organism"), do.mcp = FALSE)
   expect_is(x, "data.frame")
   expect_equal(dim(x), c(384L, 6L))
 })
@@ -27,18 +27,21 @@ test_that("mcp without actually performing mcp", {
 ## opm_mcp
 test_that("error mcp.def", {
   # Without computation of multiple comparisons of means
+  # error missing mcp.def
   expect_error(x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm"))
 })
 
 ## opm_mcp
 test_that("error missing as.labels", {
   # Without computation of multiple comparisons of means
+  # error as.labels missing
   expect_error(x <- opm_mcp(A.VALUES, m.type = "lm",
     mcp.def = mcp(run = "Dunnett")))
 })
 
 ## opm_mcp
 test_that("mcp with specified m.type and with mcp.def", {
+  # when 'model' is missing -> defaul-model is used
   expect_message(x <- opm_mcp(A.VALUES, as.labels = list("run"),
     m.type = "lm", mcp.def = mcp(run = "Dunnett")))
   expect_is(x, "glht")
@@ -48,10 +51,48 @@ test_that("mcp with specified m.type and with mcp.def", {
   expect_equal(length(coef(x)), 1)
 })
 
+
 ## opm_mcp
-test_that("mcp with specified m.type, model and with mcp.def", {
-  x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
-    model = "Value ~ run", mcp.def = mcp(run = "Dunnett"))
+test_that("mcp with specified m.type and with mcp.def", {
+  # model is missing, op is stated
+  # wrong 'as.labels' is given
+  expect_error(x <- opm_mcp(A.VALUES, 
+    as.labels = list("run", "dummyColName"), op = "+", m.type = "lm", 
+    mcp.def = mcp(run = "Dunnett")))
+})
+
+## opm_mcp
+test_that("mcp with specified m.type and with mcp.def", {
+  # model is missing, op is stated, but will be ignored, no message!
+  expect_message(x <- opm_mcp(A.VALUES, as.labels = list("run"), 
+    op = "+", m.type = "lm", mcp.def = mcp(run = "Dunnett")))
+  expect_is(x, "glht")
+  expect_equal(x$type, "Dunnett")
+  expect_true(is.list(x))
+  expect_equal(length(x), 9)
+  expect_equal(length(coef(x)), 1)
+})
+
+
+
+## opm_mcp
+test_that("mcp with specified model", {
+  # simple model statement
+  x <- opm_mcp(A.VALUES, as.labels = list("run"),
+    model = ~ run, mcp.def = mcp(run = "Dunnett"))
+  expect_is(x, "glht")
+  expect_equal(x$type, "Dunnett")
+  expect_true(is.list(x))
+  expect_equal(length(x), 9)
+  expect_equal(length(coef(x)), 1)
+})
+
+
+## opm_mcp
+test_that("mcp with specified model as character-vector", {
+  # no op
+  x <- opm_mcp(A.VALUES, as.labels = list("run"),
+    model = c("run", "Well"), mcp.def = mcp(run = "Dunnett"))
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
   expect_true(is.list(x))
@@ -60,10 +101,10 @@ test_that("mcp with specified m.type, model and with mcp.def", {
 })
 
 ## opm_mcp
-test_that("no model, mcp.def and glht.arg specified", {
-  x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
-    model = "Value ~ run", mcp.def = mcp(run = "Dunnett"),
-    glht.arg = list(alternative = "less"))
+test_that("mcp with specified model as character-vector", {
+  # m.type = aov and op
+  x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "aov", op = "+",
+    model = c("run", "Well"), mcp.def = mcp(run = "Dunnett"))
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
   expect_true(is.list(x))
@@ -72,8 +113,19 @@ test_that("no model, mcp.def and glht.arg specified", {
 })
 
 ## opm_mcp
-test_that("with model, mcp.def and glht.arg specified", {
-  expect_message(x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
+test_that("stupid user", {
+  # Error in mcp2matrix(model, linfct = linfct) : 
+  # Variable(s) 'run' have been specified in 'linfct' 
+  # but cannot be found in 'model'! 
+  expect_error(x <- opm_mcp(A.VALUES, as.labels = list("run"), 
+    model = Value ~ Well, mcp.def = mcp(run = "Dunnett")))
+})
+
+
+## opm_mcp
+test_that("without model, mcp.def and glht.arg specified", {
+  # very simple
+  expect_message(x <- opm_mcp(A.VALUES, as.labels = list("run"),
     mcp.def = mcp(run = "Dunnett"),
     glht.arg = list(alternative = "less")))
   expect_is(x, "glht")
@@ -84,9 +136,23 @@ test_that("with model, mcp.def and glht.arg specified", {
 })
 
 ## opm_mcp
+test_that("with model, mcp.def and glht.arg specified", {
+  # number of performed comparisons exceeds 20
+  expect_message(x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
+    model = Value ~ Well, mcp.def = mcp(Well = "Dunnett"),
+    glht.arg = list(alternative = "less")))
+  expect_is(x, "glht")
+  expect_equal(x$type, "Dunnett")
+  expect_true(is.list(x))
+  expect_equal(length(x), 9)
+  expect_equal(length(coef(x)), 95)
+})
+
+## opm_mcp
 test_that("subset of wells with directly defined contrast matrix", {
+  # only three comparisons. quite fast.
   x <- opm_mcp(A.VALUES, as.labels = list("run"), sub.list = c(1:4),
-    mcp.def = mcp(Well = "Dunnett"), model = "Value ~ Well")
+    mcp.def = mcp(Well = "Dunnett"), model = Value ~ Well)
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
   expect_true(is.list(x))
@@ -96,9 +162,10 @@ test_that("subset of wells with directly defined contrast matrix", {
 
 ## opm_mcp
 test_that("mcp.def as predefined object", {
+  # see above
   a <- mcp(Well = "Dunnett")
   x <- opm_mcp(A.VALUES, as.labels = list("run"), sub.list = c(1:4),
-    model = "Value ~ Well", m.type = "lm", mcp.def = a)
+    model = Value ~ Well, m.type = "lm", mcp.def = a)
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
   expect_true(is.list(x))
@@ -107,43 +174,18 @@ test_that("mcp.def as predefined object", {
 })
 
 
-################################################################################
-
-
-# TODO: lea hier weitermachen, erst markus fragen, ob es eine matrix in
-# objects_for_testing() gibt
-
-# ## opm_mcp
-# test_that("matrix-method", {
-#   x
-#
-# })
-#'
-#' ## matrix method
-#' x <- extract(vaas_4, as.labels = list("Species", "Strain"), subset = "A",
-#'   dataframe = TRUE)
-#'
-#' (xx <- opm_mcp(x, as.labels = c("Species"), m.type = "lm"))
-#' # plot method is available
-#' par(mar = c(3, 15, 3, 2))
-#' plot(xx)
-#~ TODO LEA: include check; I can't see from the code what the result should be
-#~ TODO LEA: shouldn't par() be reset?
-#'
-#' # without performing the MCP
-#' xx <- opm_mcp(x, per.mcp = FALSE)
-#'
-#' # testing for subsets of object
-#' (xx <- opm_mcp(subset(x, Species == "Escherichia coli"),
-#'   mcp.def = mcp(Strain = "Dunnett"), as.labels = c("Strain"), m.type = "lm"))
-#' # plot method available
-#' par(mar = c(3, 15, 3, 2))
-#' plot(xx)
-#~ TODO LEA: include check; I can't see from the code what the result should be
-#~ TODO LEA: shouldn't par() be reset?
-#'
-
-
-################################################################################
-
-
+## opm_mcp
+test_that("mcp.def as predefined matrix-object", {
+  # see above 
+  contr <- rbind("A01 (Negative Control) - A02 (Dextrin)" = c(1, -1, 0, 0),
+              "A01 (Negative Control) - A03 (D-Maltose)" = c(-1, 0, 1, 0), 
+              "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1), 
+              "A03 (D-Maltose) - A04 (D-Trehalose)" = c(0, 0, 1, -1))
+  x <- opm_mcp(A.VALUES, as.labels = list("run"), sub.list = c(1:4),
+    model = Value ~ Well, m.type = "lm", mcp.def = contr)
+  expect_is(x, "glht")
+  expect_equal(x$type, NULL)
+  expect_true(is.list(x))
+  expect_equal(length(x), 8)
+  expect_equal(length(coef(x)), 4)
+})

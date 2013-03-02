@@ -20,16 +20,21 @@
 #'   \code{data.frame}, \code{as.labels} can be given as a character vector, and
 #'   by default all factor variables included in \code{object} are used.
 #'
-#' @param per.mcp Logical scalar that determines whether or not a multiple
+#' @param do.mcp Logical scalar that determines whether or not a multiple
 #'   comparison of groups means should be performed. If \code{FALSE}, a reshaped
 #'   data frame is returned which contains the variables given in
 #'   \code{as.labels} as factors and can be used for more complex model building
 #'   by the user user.
 #'
-#' @param model A character scalar for the symbolic description of model-formula
-#'   to be fitted using \code{m.type}. See \code{formula} for details (in
+#' @param model A model-formular or a character-vector or a list containing the
+#'   names of factors to be included in the model for fitting. The operator can
+#'   be specified usin \code{op}. See \code{formula} for further details (in
 #'   \pkg{stats} package).
-#'
+#' 
+#' @param op character scalar containing "+", "*", or ":", with "+" as default.
+#'   indicating the operator(s) between the variables in the right part of the 
+#'   formula. See description of \code{formula} for further details.
+#' 
 #' @param m.type Character scalar indicating which of the following model types
 #'   to use in model fitting: \sQuote{glm}, \sQuote{aov} or \sQuote{lm}. See
 #'   \code{lm} (in \pkg{stats}) for details.
@@ -87,7 +92,7 @@
 #'
 #' # Without computation of multiple comparisons of means
 #' summary(x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
-#'   per.mcp = FALSE))
+#'   do.mcp = FALSE))
 #' stopifnot(is.data.frame(x), dim(x) == c(384L, 6L))
 #'
 #' # comparison using specified model comparing 'Species' pooled over
@@ -104,7 +109,7 @@
 #'
 #' # comparison of only A01 - A04 against each other
 #' (x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
-#'   sub.list = c(1:4), model = "Value ~ Well + Species", m.type = "lm",
+#'   sub.list = c(1:4), model = Value ~ Well + Species, m.type = "lm",
 #'   mcp.def = mcp(Well = "Tukey")))
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 6)
 #'
@@ -117,7 +122,7 @@
 #' # user-defined contrast matrix
 #' a <- mcp(Well = "Dunnett")
 #' (x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
-#' sub.list = c(1:4), m.type = "lm", mcp.def = a, model = "Value ~ Well"))
+#' sub.list = c(1:4), m.type = "lm", mcp.def = a, model = Value ~ Well))
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 3)
 #'
 #' # plot method
@@ -154,11 +159,19 @@
 #' par(op) # reset plotting settings
 #'
 #'
-opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
+opm_mcp <- function(object, model = as.labels, mcp.def, op = c("+", ":", "*"), 
+  as.labels = NULL, one.way = NULL, do.mcp = TRUE, 
   m.type = c("glm", "lm", "aov"), sub.list = NULL, glht.arg = list()) {
-  ## TODO LEA: currently args without default AFTER args with default -- please
-  ## fix (and see below)
 
+  enforce_left_side <- function(f, what = as.name("Value")) {
+      if (!inherits(f, "formula"))
+        stop("'f' must be a formula")
+      if (length(f) < 3L)
+      f[[3L]] <- f[[2L]]
+      f[[2L]] <- what
+      f
+  }
+  
   if (!suppressWarnings(require(
       multcomp, quietly = TRUE, warn.conflicts = FALSE)))
     stop("package 'multcomp' must be available to run this function")
@@ -169,7 +182,7 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
     if (length(as.labels) < 1L) {
       stop("'as.labels'is missing")
     }
-    object <- extract(object, as.labels = as.labels, subset = "A",
+    object <- extract(object, as.labels = as.labels, subset = "A", 
       dataframe = TRUE)
   }
 
@@ -196,7 +209,7 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
 
   # include like the what-argument
   cnames <- colnames(object[, 1L:param.pos])
-
+  
   # check, if 'as.labels' is specified
   if (missing(as.labels)) {
     stop("no argument 'as.labels' given")
@@ -233,7 +246,7 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
   # factorial columns of 'result'
   result$Well <- as.factor(result$Well)
 
-  if (!per.mcp)
+  if (!do.mcp)
     return(result)
 
   well.pos <- which(colnames(result) == "Well")
@@ -256,14 +269,40 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
       stop("Only one level for factor-variable(s): ",
         paste(as.labels[bad[1L:length(bad)]], collapse = ","))
   }
+  
 
   ## model-fitting
-
+  op <- match.arg(op)
+  
   # model-statement
   if (missing(model)) {
+    model <- as.formula(paste("Value ~", paste(sprintf("`%s`", model), 
+      collapse = op)))
+    message("'model'is given as character; 
+      all variables in 'as.labels' are used")
+  }
+  else if (is.character(model)) {
     #default model
-    model <- as.formula(paste("Value ~", paste(as.labels, collapse = "+")))
-    message("'model'is not specified; all variables in 'as.labels' are used")
+    model <- as.formula(paste("Value ~", paste(sprintf("`%s`", model), 
+      collapse = op)))
+  }
+  else if (is.list(model)) {
+    #default model
+    model <- as.formula(paste("Value ~", paste(sprintf("`%s`", model), 
+      collapse = op)))
+    message("'model'is given as character; 
+      all variables in 'as.labels' are used")
+  }
+  else if (inherits(model, "formula")) {
+  # user defined model statement
+    model <- enforce_left_side(model)
+    # from here on, the model should be of class formula and is a real model
+    if (!inherits(enforce_left_side(model), "formula")) {
+      stop("error in character-string given in 'model'")
+    }
+  }
+  else {
+    stop("'model' must either be a list, a character vector or a formula")
   }
 
   # fitting the linear model acording m.type
@@ -284,13 +323,13 @@ opm_mcp <- function(object, model, mcp.def, as.labels = NULL, per.mcp = TRUE,
   if (length(confint(mcp.result)$confint[, 1L]) > 20L)
     message("number of performed comparisons exceeds 20")
 
-  ## TODO LEA: cat necessary?
-  # soll da ueberhaupt was ausgegeben werden?
-  # lieber in den beispielen zeigen, wie man an diese infos kommt
-  cat("
-      Resulting model from dataset", deparse(substitute(dataframe)),
-      "is:", deparse(model), "
-      ")
+#   ## TODO LEA: cat necessary?
+#   # soll da ueberhaupt was ausgegeben werden?
+#   # lieber in den beispielen zeigen, wie man an diese infos kommt
+#   cat("
+#       Resulting model from dataset", deparse(substitute(dataframe)),
+#       "is:", deparse(model), "
+#       ")
   mcp.result
 }
 
