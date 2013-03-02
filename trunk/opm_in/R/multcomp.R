@@ -57,7 +57,7 @@
 #'   An object of class \sQuote{glht} with \code{print}, \code{summary},
 #'   \code{confint}, \code{coef} and \code{vcov} methods being available. See
 #'   \code{glht} for details.
-#'   If \code{per.mcp} is \code{FALSE}, no multiple comparison is performed but
+#'   If \code{do.mcp} is \code{FALSE}, no multiple comparison is performed but
 #'   the return value is a dataframe containing the reshaped data with one
 #'   column for the measured values, one factorial varible determining the well,
 #'   one factorial variable for the parameter and additional factorial
@@ -75,7 +75,7 @@
 #'   the parameter and additional factorial variables, if labels had been
 #'   selected. By invoking function \code{glht} the user is then enabled to set
 #'   up (general linear) models and, indicating a contrast type, user-defined
-#'   simultaneous multiple testing procedures. If \code{per.mcp = FALSE} no
+#'   simultaneous multiple testing procedures. If \code{do.mcp = FALSE} no
 #'   multiple comparisons are performed and only the reshaped dataframe is the
 #'   return value. Since this function makes use of \code{mcp}, we refer to the
 #'   details-section from \code{glht}: The \code{mcp} function muss be used with
@@ -145,7 +145,7 @@
 #' par(op) # reset plotting settings
 #'
 #' # without performing the MCP
-#' (y <- opm_mcp(x, per.mcp = FALSE, as.labels = list("Species", "Strain")))
+#' (y <- opm_mcp(x, do.mcp = FALSE, as.labels = list("Species", "Strain")))
 #'
 #' # testing for subsets of object
 #' (y <- opm_mcp(subset(x, x$Species == "Escherichia coli"),
@@ -160,7 +160,7 @@
 #'
 #'
 opm_mcp <- function(object, model = as.labels, mcp.def, op = c("+", ":", "*"), 
-  as.labels = NULL, one.way = NULL, do.mcp = TRUE, 
+  as.labels = NULL, do.mcp = TRUE, 
   m.type = c("glm", "lm", "aov"), sub.list = NULL, glht.arg = list()) {
 
   enforce_left_side <- function(f, what = as.name("Value")) {
