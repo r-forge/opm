@@ -56,14 +56,14 @@ test_that("mcp with specified m.type and with mcp.def", {
 test_that("mcp with specified m.type and with mcp.def, version 2", {
   # model is missing, op is stated
   # wrong 'as.labels' is given
-  expect_error(x <- opm_mcp(A.VALUES,
-    as.labels = list("run", "dummyColName"), op = "+", m.type = "lm",
+  expect_error(x <- opm_mcp(A.VALUES, 
+    as.labels = list("run", "dummyColName"), op = "+", m.type = "lm", 
     mcp.def = mcp(run = "Dunnett")))
 })
 
 ## opm_mcp
 test_that("mcp with specified m.type and with mcp.def, version 3", {
-  x <- opm_mcp(A.VALUES, as.labels = list("run"),
+  x <- opm_mcp(A.VALUES, as.labels = list("run"), 
     op = "+", m.type = "lm", mcp.def = mcp(run = "Dunnett"))
   expect_is(x, "glht")
   expect_equal(x$type, "Dunnett")
@@ -113,10 +113,10 @@ test_that("mcp with specified model as character-vector", {
 
 ## opm_mcp
 test_that("stupid user", {
-  # Error in mcp2matrix(model, linfct = linfct) :
-  # Variable(s) 'run' have been specified in 'linfct'
-  # but cannot be found in 'model'!
-  expect_error(x <- opm_mcp(A.VALUES, as.labels = list("run"),
+  # Error in mcp2matrix(model, linfct = linfct) : 
+  # Variable(s) 'run' have been specified in 'linfct' 
+  # but cannot be found in 'model'! 
+  expect_error(x <- opm_mcp(A.VALUES, as.labels = list("run"), 
     model = Value ~ Well, mcp.def = mcp(run = "Dunnett")))
 })
 
@@ -179,11 +179,11 @@ test_that("mcp.def as predefined object", {
 
 ## opm_mcp
 test_that("mcp.def as predefined matrix-object", {
-  # see above
+  # see above 
   contr <- rbind(
     "A01 (Negative Control) - A02 (Dextrin)" = c(1, -1, 0, 0),
-    "A01 (Negative Control) - A03 (D-Maltose)" = c(-1, 0, 1, 0),
-    "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1),
+    "A01 (Negative Control) - A03 (D-Maltose)" = c(-1, 0, 1, 0), 
+    "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1), 
     "A03 (D-Maltose) - A04 (D-Trehalose)" = c(0, 0, 1, -1))
   rem <- -ncol(A.VALUES):-(ncol(A.VALUES) - 91L)
   x <- opm_mcp(A.VALUES[, rem], as.labels = list("run"), #sub.list = c(1:4),

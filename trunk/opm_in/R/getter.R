@@ -1275,14 +1275,6 @@ setGeneric("metadata", function(object, ...) standardGeneric("metadata"))
 setMethod("metadata", WMD, function(object, key = NULL, exact = TRUE,
     strict = FALSE) {
   LL(exact, strict)
-  create_names <- function(x) {
-    join <- function(x) vapply(x, paste, character(1L), collapse = ".")
-    if (is.null(labels <- names(x)))
-      names(x) <- join(x)
-    else
-      names(x)[bad] <- join(x[bad <- !nzchar(labels) | is.na(labels)])
-    x
-  }
   if (!length(key))
     return(object@metadata)
   fetch_fun <- if (strict)
