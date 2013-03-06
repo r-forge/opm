@@ -1962,7 +1962,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.7.43
+    version: 0.8.16
   discretized:
     A01: FALSE
     A02: FALSE
@@ -2066,7 +2066,7 @@
       cutoffs: 0.482
       datasets: 1
     software: opm
-    version: 0.7.43
+    version: 0.8.16
 - metadata:
     'Project #': 420
     Creator: NA
@@ -4030,7 +4030,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.7.43
+    version: 0.8.16
   discretized:
     A01: FALSE
     A02: FALSE
@@ -4134,7 +4134,7 @@
       cutoffs: 0.485
       datasets: 1
     software: opm
-    version: 0.7.43
+    version: 0.8.16
 - metadata:
     'Project #': 420
     Creator: NA
@@ -6098,7 +6098,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.7.43
+    version: 0.8.16
   discretized:
     A01: FALSE
     A02: FALSE
@@ -6202,7 +6202,7 @@
       cutoffs: 0.3335
       datasets: 1
     software: opm
-    version: 0.7.43
+    version: 0.8.16
 - metadata:
     'Project #': 420
     Creator: NA
@@ -8166,7 +8166,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.7.43
+    version: 0.8.16
   discretized:
     A01: FALSE
     A02: FALSE
@@ -8270,7 +8270,7 @@
       cutoffs: 0.3335
       datasets: 1
     software: opm
-    version: 0.7.43
+    version: 0.8.16
 - metadata:
     'Project #': 420
     Creator: NA
@@ -10234,7 +10234,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.7.43
+    version: 0.8.16
   discretized:
     A01: FALSE
     A02: TRUE
@@ -10338,7 +10338,7 @@
       cutoffs: 0.5095
       datasets: 1
     software: opm
-    version: 0.7.43
+    version: 0.8.16
 - metadata:
     'Project #': 420
     Creator: NA
@@ -12302,7 +12302,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.7.43
+    version: 0.8.16
   discretized:
     A01: FALSE
     A02: TRUE
@@ -12406,6 +12406,6 @@
       cutoffs: 0.5095
       datasets: 1
     software: opm
-    version: 0.7.43
+    version: 0.8.16
 
 

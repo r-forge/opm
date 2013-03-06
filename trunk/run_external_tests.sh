@@ -166,6 +166,32 @@ ____EOF
 }
 
 
+read_opm_version()
+{
+  awk '$1 == "Version:" {print $2; exit}' opm_in/DESCRIPTION
+}
+
+
+change_version()
+{
+  local version=$1 tempfile=`mktemp --tmpdir`
+  shift
+  local infile
+  for infile; do
+    if awk -v version="$version" '
+      $1 == "version:" {sub($2, version)}
+      {print}
+      ' "$infile" > "$tempfile"
+    then
+      mv "$tempfile" "$infile"
+    else
+      rm -f "$tempfile"
+      return 1
+    fi
+  done
+}
+
+
 ################################################################################
 
 
@@ -181,10 +207,23 @@ else
 fi
 
 
+if [ $# -eq 0 ]; then
+  version=`read_opm_version`
+else
+  version=$1
+fi
+
+
 tmpdir=`mktemp -d`
 
 
 cd "$TESTDIR"
+
+
+# Update the version to let the YAML tests pass the test irrespective of the
+# version.
+#
+change_version "$version" tests/*.yml
 
 
 FAILED_FILES=failed_files # within $TESTDIR, created if necessary
