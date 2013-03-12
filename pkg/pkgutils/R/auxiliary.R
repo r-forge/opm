@@ -581,17 +581,21 @@ logfile.character <- function(x) {
 #' @param ... Optional additional arguments passed to \code{fun}.
 #' @param .attr Character scalar. See description to \code{mapfun}.
 #' @param .encoding Passed to \code{readLines} as \sQuote{encoding} argument.
+#' @param .sep \code{NULL} or character scalar. If empty, ignored. Otherwise
+#'   used as output line separator, causing outfiles to always be written
+#'   unless \code{mapfun} returns \code{NULL}. Can be used to just change line
+#'   breaks if \code{mapfun} is \code{identity}.
 #' @details If \code{mapfun} returns \code{NULL}, it is ignored. Otherwise
 #'   is it an error if \code{mapfun} does not return a character vector. If
 #'   this vector is identical to the lines read from the file, it is not
-#'   printed to this file. Otherwise the file is attempted to be overwritten
-#'   with the result of \code{mapfun}.
+#'   printed to this file unless \code{sep} is non-empty. Otherwise the file
+#'   is attempted to be overwritten with the result of \code{mapfun}.
 #' @return Logical vector using \code{x} as names, with \code{TRUE} indicating
 #'   a successfully modified file, \code{FALSE} a file that yielded no errors
 #'   but needed not to be modified, and \code{NA} a filename that caused an
 #'   error. An attribute \sQuote{errors} is provided, containing a character
 #'   vector with error messages (empty strings if no error occurred).
-#' @seealso base::readLines
+#' @seealso base::readLines base::writeLines base::identity
 #' @family auxiliary-functions
 #' @export
 #' @keywords IO
@@ -600,6 +604,9 @@ logfile.character <- function(x) {
 #' write(letters, file = tmpfile)
 #' (x <- map_files(tmpfile, identity))
 #' stopifnot(!x)
+#' # now enforce other output line separator
+#' (x <- map_files(tmpfile, identity, .sep = "\n"))
+#' stopifnot(x)
 #' (x <- map_files(tmpfile, toupper))
 #' stopifnot(x)
 #' x <- readLines(tmpfile)
@@ -614,7 +621,7 @@ map_files <- function(x, ...) UseMethod("map_files")
 #' @export
 #'
 map_files.character <- function(x, mapfun, ..., .attr = ".filename",
-    .encoding = "") {
+    .encoding = "", .sep = NULL) {
   doit <- function(filename) tryCatch({
     add_attr <- function(x) {
       attr(x, .attr) <- filename
@@ -625,14 +632,30 @@ map_files.character <- function(x, mapfun, ..., .attr = ".filename",
     close(connection)
     if (is.null(y <- mapfun(add_attr(x), ...))) # shortcut
       return(list(FALSE, ""))
-    attributes(y) <- NULL
-    if (identical(x, y))
-      return(list(FALSE, ""))
+    if (optional.output) {
+      attributes(y) <- NULL
+      if (identical(x, y))
+        return(list(FALSE, ""))
+    }
     if (!is.character(y))
       stop("applying 'matchfun' did not yield a character vector")
-    write(x = y, file = filename)
+    writeLines(text = y, con = filename, sep = sep)
     list(TRUE, "")
   }, error = function(e) list(NA, conditionMessage(e)))
+  case(length(.sep),
+    {
+      optional.output <- TRUE
+      if (grepl("windows", .Platform$OS.type, ignore.case = TRUE, perl = TRUE))
+        sep <- "\r\n"
+      else
+        sep <- "\n"
+    },
+    {
+      optional.output <- FALSE
+      sep <- .sep
+    },
+    stop("'.sep' must be of length 0 or 1")
+  )
   mapfun <- match.fun(mapfun)
   if (!length(x))
     return(structure(logical(), .Names = character(), errors = character()))
