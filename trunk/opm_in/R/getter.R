@@ -168,7 +168,8 @@ setMethod("measurements", OPM, function(object, i) {
 #' }
 #' # see also oapply() for a more elegant approach
 #'
-setMethod("[", OPM, function(x, i, j, ..., drop = FALSE) {
+setMethod("[", c(OPM, "ANY", "ANY", "ANY"), function(x, i, j, ...,
+    drop = FALSE) {
   mat <- x@measurements[, -1L, drop = FALSE][i, j, ..., drop = FALSE]
   if (any(dim(mat) == 0L))
     stop("selection resulted in empty matrix")
@@ -179,7 +180,8 @@ setMethod("[", OPM, function(x, i, j, ..., drop = FALSE) {
   result
 }, sealed = SEALED)
 
-setMethod("[", OPMA, function(x, i, j, ..., drop = FALSE) {
+setMethod("[", c(OPMA, "ANY", "ANY", "ANY"), function(x, i, j, ...,
+    drop = FALSE) {
   result <- callNextMethod(x = x, i = i, j = j, ..., drop = drop)
   if (drop)
     return(as(result, OPM))
@@ -188,7 +190,8 @@ setMethod("[", OPMA, function(x, i, j, ..., drop = FALSE) {
   result
 }, sealed = SEALED)
 
-setMethod("[", OPMD, function(x, i, j, ..., drop = FALSE) {
+setMethod("[", c(OPMD, "ANY", "ANY", "ANY"), function(x, i, j, ...,
+    drop = FALSE) {
   result <- callNextMethod(x = x, i = i, j = j, ..., drop = drop)
   if (drop)
     return(result)
@@ -197,7 +200,8 @@ setMethod("[", OPMD, function(x, i, j, ..., drop = FALSE) {
   result
 }, sealed = SEALED)
 
-setMethod("[", OPMS, function(x, i, j, k, ..., drop = FALSE) {
+setMethod("[", c(OPMS, "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
+    drop = FALSE) {
   if (!missing(...))
     stop("incorrect number of dimensions")
   fetch <- function(obj, idx) obj[i = idx, j = k, drop = drop]
