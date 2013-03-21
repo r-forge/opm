@@ -38612,7 +38612,7 @@ aggr_settings:
   options:
     boot: 0
   software: opm
-  version: 0.8.17
+  version: 0.8.19
 discretized:
   A01: FALSE
   A02: FALSE
@@ -38716,6 +38716,6 @@ disc_settings:
     cutoffs: 131.5
     datasets: 1
   software: opm
-  version: 0.8.17
+  version: 0.8.19
 
 

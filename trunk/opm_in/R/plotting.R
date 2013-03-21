@@ -1025,7 +1025,7 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #'   \item{well.div}{Divide each single value by the mean value from one or
 #'     more selected wells}.
 #'   }
-#'   
+#'
 #' @examples
 #'
 #' \dontrun{
@@ -1082,7 +1082,7 @@ setGeneric("group_CI", function(object, ...) standardGeneric("group_CI"))
 setMethod("group_CI", "data.frame", function(object, grouping = TRUE,
     norm.method = c("plate.sub", "plate.div", "well.sub", "well.div", "none"),
     norm.by = TRUE, dups = c("warn", "error", "ignore")) {
-  
+
   do_norm <- function(x, norm.method, norm.by) {
     case(norm.method,
       plate.sub = sweep(x, 1L, rowMeans(x[, norm.by, drop = FALSE]), "-"),

@@ -3,6 +3,9 @@
 ################################################################################
 
 
+- fixed bug in aggregated()
+
+- file_pattern() now deals with input file names if 'literally' is TRUE
 - novel opm_mcp() function for multcomp-based tests
 - listing() methods return S3 objects with adapted print() and phylo_data()
   methods
@@ -10,6 +13,7 @@
 - improved print() methods for OPM(S/D)_Summary objects
 - substrate_info() gets new 'greek' and 'html' arguments
 - listing() gets 'html' argument
+- documentation of the YAML format was improved
 
 
 ################################################################################
