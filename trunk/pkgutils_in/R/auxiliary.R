@@ -3,6 +3,7 @@
 
 ################################################################################
 
+
 #' Modified switch function
 #'
 #' An altered \code{switch} statement for stricter flow control.
@@ -56,6 +57,7 @@ case.character <- function(EXPR, ...) {
 
 
 ################################################################################
+
 
 #' Convert warnings to errors
 #'
@@ -974,5 +976,6 @@ source_files.pack_desc <- function(x, demo = FALSE, ...) {
 
 
 ################################################################################
+
 
 
