@@ -20,10 +20,10 @@
 #'     single underscore.}
 #'     \item{rword}{Like \sQuote{word}, but using dots instead of underscores.}
 #'     \item{title}{Convert entire strings to title case.}
-#'     \item{revert}{Revert character in strings.}
+#'     \item{revert}{Revert characters in strings.}
 #'     \item{chars}{Reduce to unique characters and sort them.}
-#'     \item{capply}{Apply function \code{using} to vector separately containing
-#'     the single characters and join the result again.}
+#~     \item{capply}{Apply function \code{using} to vector separately containing
+#~     the single characters and join the result again.}
 #'     \item{echo}{Repeat entire strings, the number given by \code{using}.}
 #'     \item{cecho}{Repeat single characters, the number given by \code{using}.}
 #'     \item{rpad}{Pad with spaces on the right, either to the maximum number of
@@ -79,11 +79,11 @@
 #'   x[1:2] != y[1:2], x[3:4] == y[3:4], nchar(x) >= nchar(y),
 #'   identical(names(x), names(y)))
 #'
-#' # applying arbitrary function to single-character vector
-#' (y <- strcon(x, "capply", identity))
-#' stopifnot(identical(y, x))
-#' (y <- strcon(x, "capply", rev.default))
-#' stopifnot(identical(y, strcon(x, "revert")))
+#~ # applying arbitrary function to single-character vector
+#~ (y <- strcon(x, "capply", identity))
+#~ stopifnot(identical(y, x))
+#~ (y <- strcon(x, "capply", rev.default))
+#~ stopifnot(identical(y, strcon(x, "revert")))
 #'
 #' # repeat the strings several times
 #' (y <- strcon(x, "echo", 0))
@@ -139,7 +139,7 @@
 #'   nchar(y[1:4]) == max(nchar(y[1:4])), identical(names(x), names(y)))
 #' 
 strcon <- function(x,
-    how = c("space", "word", "rword", "title", "revert", "chars", "capply",
+    how = c("space", "word", "rword", "title", "revert", "chars", #"capply",
       "echo", "cecho", "rpad", "lpad", "bpad"),
     using) {
   copy_na <- function(x, y) {
@@ -188,7 +188,7 @@ strcon <- function(x,
     title = copy_attr(titlecase(x), x),
     revert = char_apply(x, rev.default),
     chars = char_apply(x, function(y) sort.int(unique.default(y))),
-    capply = char_apply(x, using),
+#     capply = char_apply(x, using),
     echo = copy_attr(rep_all(x, using), x),
     cecho = copy_attr(rep_each(x, using), x),
     lpad = copy_attr(do_pad(x, using, 1L), x),
@@ -229,9 +229,18 @@ strcon <- function(x,
 strscan <- function(x, pattern, ignore.case = FALSE, perl = TRUE,
     fixed = FALSE, useBytes = FALSE) {
   found <- gregexpr(pattern, x, ignore.case, perl, fixed, useBytes)
+  #found[isna <- is.na(x)] <- NA_character_
   mapply(function(y, m) {
-    mm <- attr(m, "match.length")[is.match <- m > 0L]
-    substr(rep.int(y, length(m <- m[is.match])), m, m + mm - 1L)
+    if (all(is.na(m)))
+      NA_character_
+    else if (any(f <- m > 0L))
+      substring(y, m[f], m[f] + attr(m, "match.length")[f] - 1L)
+    else
+      character()
+#     mm <- attr(m, "match.length")[is.match <- m > 0L]
+#     #substr(rep.int(y, length(m <- m[is.match])), m, m + mm - 1L)
+#     m <- m[is.match]
+#     substring(y, m, m + mm - 1L)
   }, x, found, SIMPLIFY = FALSE, USE.NAMES = TRUE)
 }
 
