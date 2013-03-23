@@ -56,6 +56,13 @@ HOUR <- "Hour"
 SPECIAL_PLATES <- c("Gen III", "ECO", "SF-N2", "SF-P2")
 names(SPECIAL_PLATES) <- c("gen.iii", "eco", "sf.n2", "sf.p2")
 
+# Pattern used for matching them
+#
+SP_PATTERN <- sub("^SF", "G", SPECIAL_PLATES, perl = TRUE, ignore.case = TRUE)
+SP_PATTERN <- unique(c(SP_PATTERN, SPECIAL_PLATES))
+SP_PATTERN <- toupper(gsub("\\W", "", SP_PATTERN, perl = TRUE))
+SP_PATTERN <- sprintf("^(%s)([A-Z]*)$", paste(SP_PATTERN, collapse = "|"))
+
 
 # Theoretically expected range of the OmniLog measurements (Bochner, pers.
 # comm.)
@@ -179,6 +186,7 @@ OPM_OPTIONS$split <- "/.-_"
 OPM_OPTIONS$digits <- 4L
 OPM_OPTIONS$file.encoding <- ""
 OPM_OPTIONS$curve.param <- "A"
+OPM_OPTIONS$key.join <- "."
 
 
 ################################################################################

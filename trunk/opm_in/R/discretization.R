@@ -350,7 +350,8 @@ setMethod("discrete", MOA, function(x, ...) {
 
 setMethod("discrete", "data.frame", function(x, as.labels = NULL, sep = " ",
     ...) {
-  discrete(extract(x, as.labels = as.labels, sep = sep, what = "numeric"), ...)
+  discrete(extract_columns(x, what = "numeric", as.labels = as.labels,
+    sep = sep, direct = FALSE), ...)
 }, sealed = SEALED)
 
 

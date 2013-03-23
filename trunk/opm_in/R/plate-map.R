@@ -16,6 +16,6 @@ structure(c("Anti-Cancer Agents", "Chemical Sensitivity", "Nutrient Supplements"
 "PM04", "PM15", "PM-M12", "PM-M01", "PM01", "Gen III", "PM09", 
 "PM20", "PM23", "PM02", "ECO", "PM17", "PM25", "PM18", "PM13", 
 "SF-N2", "SF-P2", "PM12", "PM19", "PM22", "PM-M06", "PM-M11", 
-"PM-M13", "PM-M TOX1", "PM03", "PM-M08", "PM-M02", "PM06", "PM08", 
+"PM-M13", "PM-M TOX01", "PM03", "PM-M08", "PM-M02", "PM06", "PM08", 
 "PM11", "PM-M05", "PM-M03", "PM-M04", "PM-M07", "PM07", "PM10"
 ))

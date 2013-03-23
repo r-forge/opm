@@ -287,7 +287,7 @@ setMethod("pick_from", "data.frame", function(object, selection) {
 #' Create names
 #'
 #' A helper function that treats lists passed as query to
-#' \code{\link{metadata}}.
+#' \code{\link{metadata}}. Other objects are returned unchanged.
 #'
 #' @param x List of character vectors.
 #' @return List with potentially modified names.
@@ -296,10 +296,17 @@ setMethod("pick_from", "data.frame", function(object, selection) {
 create_names <- function(x) UseMethod("create_names")
 
 #' @rdname create_names
+#' @method create_names default
+#'
+#'
+create_names.default <- function(x) x
+
+#' @rdname create_names
 #' @method create_names list
 #'
 create_names.list <- function(x) {
-  join <- function(x) vapply(x, paste, character(1L), collapse = ".")
+  join <- function(x) vapply(x, paste, character(1L),
+    collapse = OPM_OPTIONS$key.join)
   if (is.null(labels <- names(x)))
     names(x) <- join(x)
   else
@@ -1781,6 +1788,9 @@ setMethod("contains", c(OPMS, OPM), function(object, other, ...) {
 #'       type. If empty, nothing is changed.}
 #'     \item{html.attr}{Used by \code{\link{phylo_data}} for automatically
 #'       creating \acronym{HTML} \sQuote{title} and \sQuote{class} attributes.}
+#'     \item{key.join}{Used by \code{\link{metadata}} and some other functions
+#'       that must be in sync with it for joining metadata keys used in nested
+#'       queries (because the resulting object is \sQuote{flat}).}
 #'     \item{phylo.fmt}{Character scalar indicating the default output format
 #'       used by \code{\link{phylo_data}}.}
 #'     \item{split}{Character scalar indicating the default spliiting characters
@@ -1825,10 +1835,11 @@ setMethod("contains", c(OPMS, OPM), function(object, other, ...) {
 setGeneric("opm_opt", function(x, ...) standardGeneric("opm_opt"))
 
 setMethod("opm_opt", "list", function(x) {
-  old <- mget(keys <- names(x), envir = OPM_OPTIONS)
+  old <- mget(names(x), envir = OPM_OPTIONS)
   for (i in seq_along(x))
-    if (!all(inherits(x[[i]], class(old[[i]]))))
-      stop("new and old value have conflicting class(es) for key ", keys[[i]])
+    if (!all(inherits(x[[i]], class(old[[i]]), which = TRUE)))
+      stop(sprintf("new and old value have conflicting class(es) for key '%s'",
+        names(x)[i]))
   list2env(x, envir = OPM_OPTIONS)
   invisible(old)
 }, sealed = SEALED)
