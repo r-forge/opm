@@ -277,6 +277,28 @@ setMethod("pick_from", "data.frame", function(object, selection) {
 }, sealed = SEALED)
 
 
+#' Check presence of split column
+#'
+#' Check whether a certain column is present and not at the end of a data frame
+#' or matrix.
+#'
+#' @param x Data frame, matrix or array.
+#' @param split.at Names of columns at which \code{x} should be split.
+#' @return Integer scalar indicating the split position. An error is raised
+#'   if this is missing or non-unique.
+#' @keywords internal
+#'
+assert_splittable_matrix <- function(x, split.at) {
+  pos <- which(colnames(x) == split.at)
+  LL(pos, .msg = listing(sprintf("'%s'", split.at), style = "sentence",
+    prepend = FALSE, header = "need exactly one column name present among: ",
+    last.sep = "comma"))
+  if (pos == ncol(x))
+    stop("column given by 'split.at' must not be the last one")
+  pos
+}
+
+
 ################################################################################
 ################################################################################
 #
@@ -297,7 +319,6 @@ create_names <- function(x) UseMethod("create_names")
 
 #' @rdname create_names
 #' @method create_names default
-#'
 #'
 create_names.default <- function(x) x
 
@@ -955,20 +976,22 @@ setAs(from = "ANY", to = "ordered", function(from) as.ordered(from))
 #' \sQuote{character}. Reduce it to \sQuote{ANY} if \sQuote{ANY} is contained.
 #' See \code{\link{map_values}} for a use.
 #'
-#' @param object Character vector.
+#' @param x Character vector.
 #' @return Character vector.
 #' @keywords internal
 #'
-setGeneric("prepare_class_names",
-  function(object) standardGeneric("prepare_class_names"))
+prepare_class_names <- function(x) UseMethod("prepare_class_names")
 
-setMethod("prepare_class_names", "character", function(object) {
-  object <- unique(c("character", object))
-  if ("ANY" %in% object)
+#' @rdname prepare_class_names
+#' @method prepare_class_names character
+#'
+prepare_class_names.character <- function(x) {
+  x <- unique.default(c("character", x))
+  if ("ANY" %in% x)
     "ANY"
   else
-    object
-}, sealed = SEALED)
+    x
+}
 
 
 ################################################################################

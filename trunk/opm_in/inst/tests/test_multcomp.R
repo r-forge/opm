@@ -73,7 +73,6 @@ test_that("mcp with specified m.type and with mcp.def, version 3", {
 })
 
 
-
 ## opm_mcp
 test_that("mcp with specified model", {
   # simple model statement

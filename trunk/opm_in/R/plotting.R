@@ -1036,6 +1036,7 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #' @param ... Optional other arguments passed to \code{legend}, or arguments
 #'   passed from the \code{\link{OPMS}} method to the data frame method.
 #'
+#' @param split.at Character vector. See \code{\link{extract}}.
 #'
 #' @note \itemize{
 #'   \item The default placement of the legend is currently not necessarily
@@ -1071,7 +1072,7 @@ setGeneric("ci_plot", function(object, ...) standardGeneric("ci_plot"))
 setMethod("ci_plot", "data.frame", function(object, rowname.sep = " ",
     prop.offset = 0.04, align = "center", col = "blue", na.action = "warn",
     draw.legend = TRUE, legend.field = c(1, 1), x = "topleft", xpd = TRUE,
-    vline = 0, ...) {
+    vline = 0, split.at = "Parameter", ...) {
 
   single_plot <- function(col.pos) {
     plot(x = NULL, y = NULL, xlim = ranges[, col.pos], ylim = ylim,
@@ -1087,19 +1088,15 @@ setMethod("ci_plot", "data.frame", function(object, rowname.sep = " ",
     }, numeric(4L))
   }
 
+  # Determine the position used for splitting the data frame
+  param.pos <- assert_splittable_matrix(object, split.at)
+
   # Check the triplet structure and determine all triplet start positions
   if (nrow(object) %% 3L != 0L)
     stop("need data frame with 3 * n rows")
   chunk.pos <- seq.int(nrow(object))
   chunk.pos <- chunk.pos[chunk.pos %% 3L == 1L]
   row.names <- as.character(seq_along(chunk.pos))
-
-  # Determine the 'Parameter' position, used for splitting the data frame
-  param.pos <- which(colnames(object) == "Parameter")
-  if (length(param.pos) != 1L)
-    stop("need data frame with one column called 'Parameter'")
-  if (param.pos == ncol(object))
-    stop("the data columns are missing")
 
   # Reorder the matrix and construct the legend if necessary
   if (param.pos > 1L) {
@@ -1143,7 +1140,7 @@ setMethod("ci_plot", "data.frame", function(object, rowname.sep = " ",
 setMethod("ci_plot", OPMS, function(object, as.labels,
     subset = opm_opt("curve.param"), ...) {
   ci_plot(extract(object, as.labels = as.labels, subset = subset,
-    dataframe = TRUE, ci = TRUE), ...)
+    dataframe = TRUE, ci = TRUE), split.at = "Parameter", ...)
 }, sealed = SEALED)
 
 

@@ -5,47 +5,48 @@
 
 #' Multiple comparison of group means
 #'
-#' This function invokes functionality from \code{glht} (from package
-#' \pkg{multcomp}) and thus provides linear hypothesis-testing and multiple
-#' comparisons for group means of curve parameters. It is an error if this
-#' function is called and the package \pkg{multcomp} is unavailable (even though
-#' it is not formally a dependency of \pkg{opm}).
+#' This function invokes functionality coded in \code{glht} (from the
+#' \pkg{multcomp} package) and thus provides linear-hypothesis testing and
+#' multiple comparisons for group means of curve parameters. It is an error if
+#' this function is called and the package \pkg{multcomp} is unavailable (even
+#' though it is not formally a dependency of \pkg{opm}).
 #'
 #' @param object \code{\link{OPMS}} object or data frame derived via
-#'   \code{\link{extract}} with  specified labels (factor-variables) determining
-#'   experimental groups for multiple comparison of means.
+#'   \code{\link{extract}} containing factor variables that determine
+#'   experimental groups for multiple comparison of means and can be selected
+#'   using \code{as.labels}.
 #'
 #' @param as.labels List or character vector specifying the factor variables
 #'   which determine the experimental groups to be compared. If \code{object} is
 #'   of class \code{\link{OPMS}}, \code{as.labels} is passed to
-#'   \code{\link{extract}} and must not be \code{NULL}, but given as a list. If
+#'   \code{\link{extract}} and must not be \code{NULL} but given as a list. If
 #'   \code{object} is of class \code{data.frame}, \code{as.labels} can be given
 #'   as a character vector, and by default all factor variables included in
-#'   \code{object} are used.
+#'   \code{object} are used. A logical or numeric vector could also be passed in
+#'   that case and would be used to select from the column names.
 #'
-#' @param model A model formula or a character-vector or a list containing the
-#'   names of factors to be included in the model for fitting. The operator can
-#'   be specified usin \code{op}. See \code{formula} for further details (in
-#'   the \pkg{stats} package).
+#' @param model A model formula or a character vector or a list containing the
+#'   names of factors to be included in the model for fitting. If a numeric or
+#'   logical vector, used to select the names from \code{as.labels}. The
+#'   operator can be specified using \code{op}. See \code{formula} for further
+#'   details (in the \pkg{stats} package).
 #'
-#' @param op character scalar containing "+", "*", or ":", with "+" as default.
-#'   It indicates the operator(s) to insert between the variables in the right
-#'   part of the \code{model }formula. See description of \code{formula} for
-#'   further details. Ignored if \code{model} is given as a formula.
+#' @param op character scalar containing \sQuote{+}, \sQuote{*}, or \sQuote{:},
+#'   with \sQuote{+} as default. It indicates the operator(s) to insert between
+#'   the variables in the right part of the \code{model} formula. See
+#'   description of \code{formula} for further details (in the \pkg{stats}
+#'   package). \code{op} is ignored if \code{model} is directly given as a
+#'   formula.
 #'
 #' @param m.type Character scalar indicating which of the following model types
 #'   to use in model fitting: \sQuote{glm}, \sQuote{aov} or \sQuote{lm}. See
 #'   \code{lm} (in \pkg{stats}) for details.
 #'
 #' @param mcp.def Character scalar. A specification of the linear hypotheses to
-#'   be tested analogously to \code{linfct} in \code{glht}: Linear functions can
+#'   be tested analogously to \code{linfct} in \code{glht}. Linear functions can
 #'   be specified by either the matrix of coefficients or by symbolic
 #'   descriptions of one or more linear hypotheses. See also \code{contrMat}
 #'   from the \pkg{multcomp} package.
-#'
-#~ @param sub.list Numerical vector determining whether instead of complete
-#~   plates only a subset of substrates should be used for the comparisons. The
-#~   default, \code{NULL}, compares complete plates.
 #'
 #' @param glht.args List of additional arguments for the multiple comparison
 #'   procedure passed to \code{glht}. See \code{glht} in the \pkg{multcomp}
@@ -57,17 +58,19 @@
 #'   \code{as.labels} as factors and can be used for more complex model building
 #'   by the user user.
 #'
+#' @param split.at Character vector. See \code{\link{extract}}. Cannot be set in
+#'   the case of the \code{\link{OPMS}} method.
+#'
 #' @param ... Optional argument passed to \code{\link{extract}}.
 #'
-#' @return
-#'   Usually an object of class \sQuote{glht} with \code{print}, \code{summary},
-#'   \code{confint}, \code{coef} and \code{vcov} methods being available. See
-#'   \code{glht} in the \pkg{multcomp} package for details. As an exception, if
-#'   \code{do.mcp} is \code{FALSE}, no multiple comparison is performed but the
-#'   return value is a data frame containing the reshaped data with one column
-#'   for the measured values, one factorial variable determining the well, one
-#'   factorial variable for the parameter and additional factorial variables if
-#'   labels have been selected.
+#' @return Usually an object of class \sQuote{glht} with \code{print},
+#'   \code{summary}, \code{confint}, \code{coef} and \code{vcov} methods being
+#'   available. See \code{glht} in the \pkg{multcomp} package for details. As an
+#'   exception, if \code{do.mcp} is \code{FALSE}, no multiple comparison is
+#'   performed but the return value is a data frame containing the reshaped data
+#'   with one column for the measured values, one factorial variable determining
+#'   the well, one factorial variable for the parameter and additional factorial
+#'   variables if labels have been selected.
 #'
 #' @keywords htest
 #' @export
@@ -168,54 +171,103 @@
 setGeneric("opm_mcp",
   function(object, ...) standardGeneric("opm_mcp"))
 
-setMethod("opm_mcp", OPMS, function(object, as.labels, mcp.def,
-    op = "+", model = as.labels, m.type = "glm", #sub.list = NULL,
-    glht.args = list(), do.mcp = TRUE, ...) {
+setMethod("opm_mcp", OPMS, function(object, as.labels,
+    mcp.def = c(Dunnett = 1L),
+    model = as.labels, op = "+", m.type = "glm", glht.args = list(),
+    do.mcp = TRUE, ...) {
   opm_mcp(object = extract(object = object, as.labels = as.labels,
     dataframe = TRUE, ...), as.labels = as.labels, mcp.def = mcp.def,
-    op = op, model = model, m.type = m.type, #sub.list = sub.list,
+    op = op, model = model, m.type = m.type, split.at = "Parameter",
     glht.args = glht.args, do.mcp = do.mcp)
 }, sealed = SEALED)
 
-setMethod("opm_mcp", "data.frame", function(object, as.labels, mcp.def,
-    op = c("+", ":", "*"), model = as.labels, m.type = c("glm", "lm", "aov"),
-    #sub.list = NULL,
-    glht.args = list(), do.mcp = TRUE) {
+setMethod("opm_mcp", "data.frame", function(object, as.labels,
+    mcp.def = c(Dunnett = 1L),
+    model = as.labels, op = c("+", ":", "*"), m.type = c("glm", "lm", "aov"),
+    glht.args = list(), split.at = "Parameter", do.mcp = TRUE) {
 
   # helper functions and dependencies
-  enforce_left_side <- function(f, what = as.name("Value")) {
-    if (length(f) < 3L) # f must be a formula
-      f[[3L]] <- f[[2L]]
-    f[[2L]] <- what
-    f
-  }
-  create_formula <- function(model, op) {
+  convert_and_check_model <- function(model, op, as.labels) {
+    enforce_left_side <- function(f) {
+      if (length(f) < 3L) # f must be a formula
+        f[[3L]] <- f[[2L]]
+      f[[2L]] <- as.name("Value")
+      f
+    }
+    if (inherits(model, "formula")) # user-defined formula
+      return(enforce_left_side(model))
     if (!length(model))
       stop("'model' must not by empty")
+    if (is.list(model))
+      # convert the list to what would be expected if it had previously been
+      # passed to extract() because by default it is the same than 'as.labels';
+      model <- names(create_names(model)) # see metadata() for why this works
+    else if (is.numeric(model) || is.logical(model))
+      model <- as.labels[model]
+    else if (!is.character(model))
+      stop("'model' must either be a list, a vector or a formula")
     as.formula(paste("Value ~", paste(sprintf("`%s`", model), collapse = op)))
+  }
+  convert_and_check_labels <- function(as.labels, column.names) {
+    if (is.list(as.labels))
+      # convert a list to what would be expected if it had previously been
+      # passed to extract(); see metadata() for why this works
+      as.labels <- names(create_names(as.labels))
+    if (is.character(as.labels)) {
+      if (length(bad <- which(!as.labels %in% column.names)))
+        stop("cannot find column name: ", as.labels[bad[1L]])
+    } else
+      as.labels <- column.names[as.labels]
+    if (anyDuplicated(as.labels))
+      warning("'as.labels' entries are not unique")
+    as.labels
+  }
+  convert_hypothesis_spec <- function(mcp.def, as.labels) {
+    if (!length(mcp.def))
+      stop("hypothesis definition 'mcp.def' must not be empty")
+    # TODO Lea: the next line includes all kinds of objects that are used
+    # directly; check whether these and only these make sense
+    if (inherits(mcp.def, c("mcp", "matrix", "expression")))
+      return(mcp.def)
+    if (inherits(mcp.def, "AsIs")) # created using I()
+      return(if (is.list(mcp.def))
+          do.call(mcp, mcp.def)
+        else
+          mcp.def)
+    # TODO Lea: check whether additional kinds of conversions could make sense;
+    # we could also create a helper function -- the main idea is that the user
+    # should calculate mcp.def easily from as.labels.
+    if (is.list(mcp.def))
+      result <- mcp.def <- names(create_names(mcp.def))
+    else if (is.numeric(mcp.def) || is.logical(mcp.def))
+      result <- as.labels[mcp.def]
+    else if (is.character(mcp.def))
+      result <- mcp.def
+    else
+      stop("invalid object passed as 'mcp.def' argument")
+    names(result) <- if (is.null(names(mcp.def)))
+      # TODO Lea: ehck whether other defaults might make sense
+      rep.int("Dunnett", length(result))
+    else
+      names(mcp.def)
+    do.call(mcp, result)
+  }
+  assert_all_factors_are_variable <- function(x) {
+    pos <- seq.int(match("Well", colnames(x)))
+    bad <- !vapply(pos, function(i) anyDuplicated(x[, i]), integer(1L))
+    if (any(bad))
+      stop("constant factor(s) encountered: ",
+        paste(sprintf("'%s'", colnames(x)[pos][bad]), collapse = ", "))
+    NULL
   }
   if (!suppressWarnings(require(
       multcomp, quietly = TRUE, warn.conflicts = FALSE)))
     stop("package 'multcomp' must be available to run this function")
 
-  # check data-frame structure
-  param.pos <- which(colnames(object) == "Parameter")
-  if (length(param.pos) != 1L)
-    stop("need data frame with exactly one column called 'Parameter'")
-  if (param.pos == ncol(object))
-    stop("no numerical data or 'Parameter'-column at wrong position")
+  param.pos <- assert_splittable_matrix(object, split.at)
 
-  # convert and check 'as.labels'
-  if (is.list(as.labels))
-    # convert a list to what would be expected if it had previously been
-    # passed to extract(); see metadata() for why this works
-    as.labels <- names(create_names(as.labels))
-  # now check for duplicates and missing values
-  if (anyDuplicated(as.labels))
-    warning("'as.labels' entries are not unique")
-  bad <- which(!as.labels %in% colnames(object)[seq.int(param.pos)])
-  if (length(bad))
-    stop("cannot find column name: ", as.labels[bad[1L]])
+  as.labels <- convert_and_check_labels(as.labels,
+    colnames(object)[seq.int(param.pos)])
 
   # create reshaped data frame
   # set helper column to avoid non-unique values when setting 'row.names'
@@ -233,33 +285,19 @@ setMethod("opm_mcp", "data.frame", function(object, as.labels, mcp.def,
   if (!do.mcp)
     return(result)
 
-  # raise error if any of the factors is constant
-  bad <- !vapply(pos <- seq.int(match("Well", colnames(result))),
-    function(i) anyDuplicated(result[, i]), integer(1L))
-  if (any(bad))
-    stop("Only one level for factor variable(s): ",
-      paste(colnames(result)[pos][bad], collapse = ", "))
-  # TODO LEA: the last section has been extremely simplified; please check
-  # whether it still does what it should do
+  # TODO LEA: the next step has been extremely simplified; please check
+  # whether assert_all_factors_are_variable() still does what it should do
+  assert_all_factors_are_variable(result)
 
-  # set the model up
-  op <- match.arg(op)
-  if (is.character(model))
-    model <- create_formula(model, op)
-  else if (is.list(model))
-    # first convert the list to what would be expected if it had previously
-    # been passed to extract() (because by default it is the same than
-    # 'as.labels'); see metadata() for why this works
-    model <- create_formula(names(create_names(model)), op)
-  else if (inherits(model, "formula"))
-    model <- enforce_left_side(model) # user-defined model statement
-  else
-    stop("'model' must either be a list, a character vector or a formula")
+  model <- convert_and_check_model(model, match.arg(op), as.labels)
+  model <- do.call(match.arg(m.type), list(formula = model, data = result))
+
+  # TODO Lea: look this function up and once finished describe the mcp.def
+  # argument properly and introduce examples
+  mcp.def <- convert_hypothesis_spec(mcp.def, as.labels)
 
   # fitting the linear model according to 'm.type'
-  lmmod <- case(match.arg(m.type), lm = lm(model, data = result),
-    aov = aov(model, data = result), glm = glm(model, data = result))
-  glht.args <- c(list(model = lmmod, linfct = mcp.def), as.list(glht.args))
+  glht.args <- c(list(model = model, linfct = mcp.def), as.list(glht.args))
   result <- do.call(glht, glht.args)
 
   # check the number of calculated tests
