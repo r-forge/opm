@@ -1,5 +1,8 @@
 2012-XX-XX (4th release on CRAN)
 
+- check_R_code() gets a 'three.dots' argument, and the 'docu.R' script an
+  according '--dotsok/-D' switch
+
 - syntax highlighting for gedit now correctly displays indexing with '$' after
   indexing with brackets
 
@@ -7,7 +10,8 @@
   documentation files were not found
 
 - fixed bug in check_R_code() that caused removal of quoted sections of a line
-  of code to remove too much
+  of code to remove too much; fixed other bug causing false reports of missing
+  space between operators
 
 - listing() gets a hf.collapse argument
 

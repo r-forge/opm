@@ -48,8 +48,8 @@ do_style_check <- function(files, opt) {
   y <- check_R_code(x = files, lwd = opt$width, ops = !opt$opsoff,
     comma = !opt$commaoff, indention = opt$blank, roxygen.space = opt$jspaces,
     modify = opt$modify, ignore = opt$good, parens = !opt$parensoff,
-    assign = !opt$assignoff, accept.tabs = opt$tabs, what = subdirs,
-    encoding = opt$encoding)
+    assign = !opt$assignoff, accept.tabs = opt$tabs, three.dots = !opt$dotsok,
+    what = subdirs, encoding = opt$encoding)
   isna <- is.na(y)
   if (any(y & !isna))
     message(paste(sprintf("file '%s' has been modified", names(y)[y & !isna]),
@@ -109,7 +109,8 @@ option.parser <- OptionParser(option_list = list(
     help = "Subdirectories to delete, colon-separated list [default: %default]",
     metavar = "LIST"),
 
-  # D
+  make_option(c("-D", "--dotsok"), action = "store_true", default = FALSE,
+    help = "Ignore ::: when checking R style [default: %default]"),
 
   make_option(c("-e", "--exec"), type = "character", default = "ruby",
     help = "Ruby executable used if -p or -s is chosen [default: %default]",
