@@ -462,8 +462,8 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #' normally directly called by an \pkg{opm} user because \code{\link{extract}}
 #' is available, which uses this function, but can be used for testing the
 #' applied metadata selections beforehand. The data-frame method is partially
-#' trivial (extract the selected columns and join them to form a character 
-#' vector), partially more useful (extract columns with data of a specified 
+#' trivial (extract the selected columns and join them to form a character
+#' vector), partially more useful (extract columns with data of a specified
 #' class).
 #'
 #' @param object \code{\link{OPMS}} object or data frame.
@@ -514,7 +514,7 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #' x <- data.frame(a = 1:26, b = letters, c = LETTERS)
 #' (y <- extract_columns(x, c("a", "b"), sep = "-", direct = TRUE))
 #' stopifnot(grepl("^\\s*\\d+-[a-z]$", y))
-#' 
+#'
 #' # data-frame method, using class name
 #' (y <- extract_columns(x, as.labels = "b", what = "integer", as.groups = "c"))
 #' stopifnot(is.matrix(y), dim(y) == c(26, 1), rownames(y) == x$b)
@@ -848,13 +848,13 @@ setMethod("rep", OPMS, function(x, ...) {
 
 #' Extract aggregated values
 #'
-#' Extract selected aggregated or discretized values into common matrix or data 
+#' Extract selected aggregated or discretized values into common matrix or data
 #' frame. The data-frame method conducts normalisation and/or computes
 #' normalized point-estimates and respective confidence intervals for
-#' user-defined experimental groups. It is mainly a helper function for 
+#' user-defined experimental groups. It is mainly a helper function for
 #' \code{\link{ci_plot}}.
 #'
-#' @param object \code{\link{OPMS}} object or data frame with one column named 
+#' @param object \code{\link{OPMS}} object or data frame with one column named
 #'   as indicated by \code{split.at} (\sQuote{Parameter} by default), columns
 #'   with factor variables before that column and colums with numeric vectors
 #'   after that column.
@@ -868,9 +868,9 @@ setMethod("rep", OPMS, function(x, ...) {
 #' @param trim Character scalar. See \code{\link{aggregated}} for details.
 #' @param dataframe Logical scalar. Return data frame or matrix?
 #'
-#' @param as.groups List. Metadata to be joined and used as \sQuote{row.groups} 
-#'   attribute of the output matrix. See \code{\link{heat_map}} for its usage. 
-#'   Ignored if \code{NULL} and if \code{dataframe} is \code{FALSE}. For the 
+#' @param as.groups List. Metadata to be joined and used as \sQuote{row.groups}
+#'   attribute of the output matrix. See \code{\link{heat_map}} for its usage.
+#'   Ignored if \code{NULL} and if \code{dataframe} is \code{FALSE}. For the
 #'   data-frame method, a vector. For the data-frame method, a logical,
 #'   character or numeric vector indicating according to which columns (before
 #'   the \code{split.at} column) the data should be aggregated by calculating
@@ -925,7 +925,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #' @family conversion-functions
 #' @seealso \code{\link{aggregated}} for the extraction of aggregated values
 #'   from a single \code{OPMA} objects.
-#'  
+#'
 #'   boot::norm
 #'   base::data.frame base::as.data.frame base::matrix base::as.matrix
 #' @keywords manip dplot htest

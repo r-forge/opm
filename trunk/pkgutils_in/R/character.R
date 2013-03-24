@@ -228,20 +228,16 @@ strcon <- function(x,
 #'
 strscan <- function(x, pattern, ignore.case = FALSE, perl = TRUE,
     fixed = FALSE, useBytes = FALSE) {
-  found <- gregexpr(pattern, x, ignore.case, perl, fixed, useBytes)
-  #found[isna <- is.na(x)] <- NA_character_
-  mapply(function(y, m) {
-    if (all(is.na(m)))
-      NA_character_
-    else if (any(f <- m > 0L))
-      substring(y, m[f], m[f] + attr(m, "match.length")[f] - 1L)
-    else
-      character()
-#     mm <- attr(m, "match.length")[is.match <- m > 0L]
-#     #substr(rep.int(y, length(m <- m[is.match])), m, m + mm - 1L)
-#     m <- m[is.match]
-#     substring(y, m, m + mm - 1L)
-  }, x, found, SIMPLIFY = FALSE, USE.NAMES = TRUE)
+  y <- gregexpr(pattern, x, ignore.case, perl, fixed, useBytes)
+  y[isna <- is.na(x)] <- NA_character_
+  nomatch <- vapply(y, identical, logical(1L), GREGEXPR_NO_MATCH)
+  y[nomatch] <- list(character())
+  if (any(ok <- !(isna | nomatch)))
+    y[ok] <- mapply(function(a, b) {
+        substring(a, b, b + attr(b, "match.length") - 1L)
+      }, x[ok], y[ok], SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  attributes(y) <- attributes(x)
+  y
 }
 
 

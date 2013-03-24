@@ -448,6 +448,8 @@ delete_o_files.character <- function(x, ext = "o", ignore = NULL, ...) {
 #'   also the next argument).
 #' @param accept.tabs Logical scalar indicating whether tabulators are
 #'   accepted.
+#' @param three.dots Logical scalar indicating whether \code{:::} operators
+#'   should result in a warning.
 #' @param what Character vector naming the subdirectories to consider; passed
 #'   to \code{\link{pkg_files}}
 #' @param encoding Character scalar passed as \sQuote{.encoding} argument to
@@ -495,10 +497,10 @@ check_R_code <- function(x, ...) UseMethod("check_R_code")
 check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     roxygen.space = 1L, comma = TRUE, ops = TRUE, parens = TRUE,
     assign = TRUE, modify = FALSE, ignore = NULL, accept.tabs = FALSE,
-    what = "R", encoding = "", ...) {
+    three.dots = TRUE, what = "R", encoding = "", ...) {
   spaces <- function(n) paste(rep.int(" ", n), collapse = "")
   LL(lwd, indention, roxygen.space, modify, comma, ops, parens, assign,
-    accept.tabs)
+    accept.tabs, three.dots)
   roxygen.space <- sprintf("^#'%s", spaces(roxygen.space))
   check_fun <- function(x) {
     infile <- attr(x, ".filename")
@@ -512,13 +514,15 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     unquote <- function(x) {
       x <- gsub(QUOTED, "QUOTED", x, perl = TRUE)
       x <- sub(QUOTED_END, "QUOTED", x, perl = TRUE)
-      sub(QUOTED_BEGIN, "QUOTED", x, perl = TRUE)
+      x <- sub(QUOTED_BEGIN, "QUOTED", x, perl = TRUE)
+      gsub("%[^%]+%", "%%", x, perl = TRUE)
     }
     code_check <- function(x) {
       x <- sub("^\\s+", "", x, perl = TRUE)
       complain("semicolon contained", grepl(";", x, fixed = TRUE))
       complain("space followed by space", grepl("  ", x, fixed = TRUE))
-      complain("':::' operator used", grepl(":::", x, fixed = TRUE))
+      if (three.dots)
+        complain("':::' operator used", grepl(":::", x, fixed = TRUE))
       if (comma) {
         complain("comma not followed by space",
           grepl(",[^\\s]", x, perl = TRUE))
