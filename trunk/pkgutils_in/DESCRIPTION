@@ -1,5 +1,5 @@
 Package: pkgutils
-Version: 0.3.20
+Version: 0.3.21
 Date: 2013-03-24
 Title: pkgutils -- Utilities for creating R packages.
 Author: Markus Goeker <markus.goeker@dsmz.de>
@@ -17,7 +17,6 @@ Description: Tools for creating R packages, particularly for checking
 License: GPL (>= 2)
 URL: http://www.dsmz.de/
 Collate: 'constants.R' 'packages.R' 'auxiliary.R' 'class.R'
-        'character.R' 'directory.R' 'rd.R' 'data.R' 'plotting.R'
-        'imports.R'
+        'directory.R' 'rd.R' 'data.R' 'plotting.R' 'imports.R'
 LazyData: yes
 LazyDataCompression: bzip2

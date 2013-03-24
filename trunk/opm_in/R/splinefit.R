@@ -171,7 +171,8 @@ set_spline_options <- function(type = c("tp.spline",
 #' @author Benjamin Hofner
 #'
 ## CURRENTLY INTERNAL
-#' @keywords internal methods
+#' @keywords internal
+#~ @keywords methods
 #'
 #' @method predict smooth.spline_model
 #' @S3method predict smooth.spline_model
@@ -211,7 +212,8 @@ predict.smooth.spline_model <- function(object, newdata = NULL, ...) {
 #' @author Benjamin Hofner
 #'
 ## CURRENTLY NOT EXPORTED
-#' @keywords internal hplot methods
+#' @keywords internal
+#~ @keywords  hplot methods
 #'
 #' @method plot opm_model
 #' @S3method plot opm_model
@@ -242,7 +244,8 @@ plot.opm_model <- function(x, plot.data = TRUE, plot.spline = TRUE,
 #' @author Benjamin Hofner
 #'
 ## CURRENTLY NOT EXPORTED
-#' @keywords internal aplot methods
+#' @keywords internal
+#~ @keywords aplot methods
 #'
 #' @method lines opm_model
 #' @S3method lines opm_model

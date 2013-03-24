@@ -380,23 +380,20 @@ setMethod("flatten", OPM, function(object, include = NULL, fixed = NULL,
 
   # Convert to flat data frame
   well.names <- wells(object, full = full, ...)
-  use.reshape <- FALSE # the home-brewn solution was much faster
-  if (use.reshape) {
-    if (factors)
-      well.names <- as.factor(well.names)
-    result <- reshape(as.data.frame(object@measurements,
-      stringsAsFactors = factors), direction = "long", idvar = "Hour",
-      varying = wells(object), v.names = "Value", timevar = "Well",
-      times = well.names)
-    colnames(result)[1L] <- "Time"
-  } else {
-    times <- hours(object, "all")
-    rep.times <- rep.int(times, length(well.names))
-    rep.wells <- rep(well.names, each = length(times))
-    result <- data.frame(Time = rep.times, Well = rep.wells,
-      Value = as.vector(object@measurements[, -1L]), check.names = FALSE,
-      stringsAsFactors = factors)
-  }
+  ## the home-brewn solution was much faster than reshape():
+  # if (factors)
+  #   well.names <- as.factor(well.names)
+  # result <- reshape(as.data.frame(object@measurements,
+  #   stringsAsFactors = factors), direction = "long", idvar = "Hour",
+  #   varying = wells(object), v.names = "Value", timevar = "Well",
+  #   times = well.names)
+  # colnames(result)[1L] <- "Time"
+  times <- hours(object, "all")
+  rep.times <- rep.int(times, length(well.names))
+  rep.wells <- rep(well.names, each = length(times))
+  result <- data.frame(Time = rep.times, Well = rep.wells,
+    Value = as.vector(object@measurements[, -1L]), check.names = FALSE,
+    stringsAsFactors = factors)
 
   # Include fixed stuff
   if (length(fixed))
@@ -512,7 +509,7 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #'
 #' # data-frame method, 'direct' running mode
 #' x <- data.frame(a = 1:26, b = letters, c = LETTERS)
-#' (y <- extract_columns(x, c("a", "b"), sep = "-", direct = TRUE))
+#' (y <- extract_columns(x, I(c("a", "b")), sep = "-"))
 #' stopifnot(grepl("^\\s*\\d+-[a-z]$", y))
 #'
 #' # data-frame method, using class name
@@ -549,7 +546,8 @@ setMethod("extract_columns", OPMS, function(object, what, join = FALSE,
 }, sealed = SEALED)
 
 setMethod("extract_columns", "data.frame", function(object, what,
-    as.labels = NULL, as.groups = NULL, sep = " ", direct = FALSE) {
+    as.labels = NULL, as.groups = NULL, sep = " ",
+    direct = inherits(what, "AsIs")) {
   doit <- function(x, what, sep) {
     apply(x[, what, drop = FALSE], 1L, FUN = paste, collapse = sep)
   }
@@ -1073,7 +1071,7 @@ setMethod("extract", OPMS, function(object, as.labels,
 
 setMethod("extract", "data.frame", function(object, as.groups = TRUE,
     norm.per = c("row", "column", "none"), norm.by = TRUE, subtract = TRUE,
-    direct = FALSE, dups = c("warn", "error", "ignore"),
+    direct = inherits(norm.by, "AsIs"), dups = c("warn", "error", "ignore"),
     split.at = "Parameter") {
 
   do_norm <- function(x, row, by, direct, subtract) {
@@ -1089,13 +1087,10 @@ setMethod("extract", "data.frame", function(object, as.groups = TRUE,
   }
 
   LL(subtract, direct)
-  param.pos <- which(colnames(object) == split.at)
-  LL(param.pos, .msg = "need exactly one column name present in 'split.at'")
-  if (param.pos == ncol(object))
-    stop("column given by 'split.at' must not be the last one")
+  param.pos <- assert_splittable_matrix(object, split.at)
 
   num.pos <- seq.int(param.pos + 1L, ncol(object))
-  case(match.arg(norm.per), # compute the normalisation
+  case(match.arg(norm.per), # compute the normalisation if requested
     none = NULL,
     row = object[, num.pos] <- do_norm(object[, num.pos, drop = FALSE],
       TRUE, norm.by, direct, subtract),
