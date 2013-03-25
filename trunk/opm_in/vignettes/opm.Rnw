@@ -53,8 +53,8 @@ Raw measurements can be easily input into \proglang{R}, combined with relevant m
 The kinetics can be aggregated by estimating curve parameters using two distinct methods.
 Containers of \pkg{opm} data can easily be queried for and subset by using the integrated metadata and other information.
 The raw kinetic data can be displayed with customized plotting functions.
-The package includes, beside 95\% confidence plots and enhanced heat-map graphics for visual comparisons of the estimated curve parameters, functionality for multiple comparison of group-means.
-It is also possible to discretize these parameters and to export them for reconstructing character evolution or inferring phylogenies with external programs.
+In addition to 95\% confidence plots and enhanced heat-map graphics for visual comparisons of the estimated curve parameters the package includes functionality for multiple comparisons of group means.
+It is also possible to discretize the curve parameters and to export them for reconstructing character evolution or inferring phylogenies with external programs.
 Tabular and textual summaries suitable for, e.g., taxonomic journals can also be automatically created and customized.
 Export and import in the \proglang{YAML} markup language facilitates the data exchange among labs.
 All functionality is exemplified using real-world data sets that are part of the package.
@@ -84,7 +84,8 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+%% Please do NOT include the following line again, as it yields errors under Linux
+%\SweaveOpts{concordance=TRUE}
 
 \section[Introduction]{Introduction}
 The phenotype is regarded as the set of all types of traits of an organism \citep{mahner}.
@@ -125,7 +126,7 @@ These complex data bundles can then be exported in \proglang{YAML} format (http:
 The framework for data evaluation starts with several functions for the graphical display of the data, such as of the raw respiration curve kinetics or the confidence intervals of aggregated curve parameters.
 With sophisticated selection methods the user is able to sort, group and arrange the data according the specific experimental questions in the plotting and analysis framework.
 
-Hier absatz ueber statistische vergleiche einfuegen
+%% TODO Lea Hier absatz ueber statistische vergleiche einfuegen
 
 For further specific graphical or statistical analysis according to the needs of the user, the \pkg{opm} package organises and maintains the data such that any additional data exploration using other packages in the \proglang{R} environment are easily applicable.
 
@@ -151,7 +152,8 @@ It has to be emphasized that metadata can include all kind of describing charact
 Figure 1 presents an overview of the data assembly from an PM experiment.
 
 \begin{figure}
-\scalebox{1.225}{
+%\scalebox{1.225}{
+\scalebox{1.0}{
 \includegraphics{opm_fig_1}
 }
 \caption{\label{fig:data}
@@ -219,7 +221,8 @@ The amount of meta-information added and plates analysed is only limited by the 
 
 
 \begin{figure}
-\scalebox{1.225}{
+%\scalebox{1.225}{
+\scalebox{1.0}{
 \includegraphics{opm_fig_2}
 }
 \caption{\label{fig:work_flow}
@@ -242,7 +245,7 @@ Note particularly that \proglang{OPM}, which only contains raw data, csv data an
 \proglang{OPMD} inherits from \proglang{OPMA} and stores discretized curve parameters in addition to aggregated values.
 \proglang{OPMS} is a container class that holds \proglang{OPM}, \proglang{OPMA} and/or \proglang{OPMD} objects.
 The query functions \code{has\_aggr()} and \code{has\_disc()} are available for checking from which kinds of objects an \proglang{OPMS} is composed.
-Point also on Fig. 2. Explain the right part of the figure.
+%% TODO Lea: Point also on Fig. 2. Explain the right part of the figure.
 See the \pkg{opm} manual for further details.
 }
 \end{figure}
@@ -266,7 +269,7 @@ Attaching the aggregated data to an \proglang{OPM}  object yields an object of t
 
 After integration of additional metadata \textit{via} \code{include\_metadata()} and adding aggregated curve parameters \textit{via} \code{do\_aggr()}, an \proglang{OPMA} or \proglang{OPMS} object comprises basically three pieces of information: (i) the kinetic raw data; (ii) the aggregated data, i.e., the curve parameters $\lambda$, $\mu$, A, and AUC and optionally their corresponding 95\% confidence limits; and (iii) the metadata.
 
-Explanation of Figure 3.
+%%TODO Lea: Explanation of Figure 3.
 
 As usual, the data analysis starts with data exploration for which the user may now wish to subset and query using these pieces of information.
 As Figure~\ref{fig:overview} illustrates, the package provides methods for (i) querying and sub-setting \proglang{OPMS} objects, (ii) plotting the data in some customized manner, and (iii) converting the \proglang{OPM} or \proglang{OPMS} to other objects for an independent exploration by the user (discretization and exporting in some useful file formats is also possible).
@@ -307,7 +310,7 @@ This plot offers a display format which is especially powerful in uncovering gen
 For graphical representation of the aggregated data, namely point estimators and corresponding confidence limits for the curve parameters, the function \code{ci\_plot()} provides a framework to plot subsets of different parameters in a convenient and easily applicable manner.
 This straightforward assembly of different curves' characteristics in a single overview facilitates the interpretation and comparison of user-defined data subsets arranged according to the technical and/or biological repetition structure or other aspects of the experimental design \citep{vaas}.
 
-Explain the normalisation-method from \code{group\_CI90}
+%% TODO Lea Explain the normalisation method from extract()
 
 Additionally, the package offers the possibility of plotting the aggregated curve parameters as a heat map \textit{via} the function \code{heat\_map()}.
 Heat maps appear particularly powerful for visualizing the outcomes of PM experiment because dendrograms inferred from both the substrates and the plates can be used to rearrange the plot.
@@ -315,8 +318,9 @@ Since the user is free to define which metadata or strain information are of int
 For instance, the naming scheme of the individual plates can be devised by selecting associated metadata; it is also possible to automatically construct row groups by selecting the same or other meta-information.
 \code{heat\_map()} is mainly a wrapper for the \code{heatmap()} functions from either the \pkg{stats} or the \pkg{gplots} \proglang{R} package, but contains some useful adaptations to the PM data, facilitates the selection of a clustering algorithm and the construction of row and column groups, and provides more appropriate default solutions for row and column descriptions sizes (we suppose that in most situations the pictures produced by \code{heat\_map()} should not need manual adaptation in these respects).
 
-\subsection[statistical analysis of aggregated data]{statistical analysis of aggregated data}
-Introduce functionality of \code{opm\_mcp()} and \code{group\_CI()}
+\subsection[Statistical analysis of aggregated data]{Statistical analysis of aggregated data}
+
+%% TODO Lea Introduce functionality of \code{opm\_mcp()} and \code{extract()}
 
 \subsection[Discretizing and export for phylogenetic analysis]{Discretizing the aggregated data and export for phylogenetic analysis}\label{methods discrete-multistate}
 
@@ -859,8 +863,9 @@ Shown are the results on the three wells A01 (negative control), A02 (Dextrin) a
 
 \end{figure}
 
-\subsection[statistical comparison of aggregated data]{statistical comparison of aggregated data}\
-here the application of \code{opm\_mcp()} with example and output-graphics.
+\subsection[Statistical comparison of aggregated data]{Statistical comparison of aggregated data}
+
+%% TODO Lea: here the application of \code{opm\_mcp()} with example and output-graphics.
 
 \subsection[Discretization and phylogenetic data export]{Discretization and phylogenetic data export}\label{application discrete-phylogeny}
 

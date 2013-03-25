@@ -523,23 +523,23 @@ setGeneric("extract_columns",
 setMethod("extract_columns", OPMS, function(object, what, join = FALSE,
     sep = " ", dups = c("warn", "error", "ignore"), exact = TRUE,
     strict = TRUE) {
+  convert_factors <- function(x) if (is.factor(x))
+      as.character(x)
+    else
+      x
   result <- metadata(object, what, exact = exact, strict = strict)
   result <- if (is.list(result))
-    lapply(result, FUN = rapply, f = as.character)
+    lapply(result, FUN = rapply, f = convert_factors)
   else
-    as.list(as.character(result))
+    as.list(convert_factors(result))
   if (L(join)) {
     labels <- unlist(lapply(result, FUN = paste, collapse = sep))
     msg <- if (is.dup <- anyDuplicated(labels))
       paste("duplicated label:", labels[is.dup])
     else
       NULL
-    if (!is.null(msg))
-      case(match.arg(dups),
-        ignore = NULL,
-        warn = warning(msg),
-        error = stop(msg)
-      )
+    if (length(msg))
+      case(match.arg(dups), ignore = as.null, warn = warning, error = stop)(msg)
     labels
   } else
     must(as.data.frame(do.call(rbind, result)))
@@ -548,7 +548,7 @@ setMethod("extract_columns", OPMS, function(object, what, join = FALSE,
 setMethod("extract_columns", "data.frame", function(object, what,
     as.labels = NULL, as.groups = NULL, sep = " ",
     direct = inherits(what, "AsIs")) {
-  doit <- function(x, what, sep) {
+  join <- function(x, what, sep) {
     apply(x[, what, drop = FALSE], 1L, FUN = paste, collapse = sep)
   }
   find_stuff <- function(x, what) {
@@ -558,17 +558,17 @@ setMethod("extract_columns", "data.frame", function(object, what,
     stop(sprintf("no data of class '%s' found", what))
   }
   if (L(direct)) {
-    result <- doit(object, what, sep)
+    result <- join(object, what, sep)
     if (length(as.labels))
-      names(result) <- doit(object, what = as.labels, sep = sep)
+      names(result) <- join(object, what = as.labels, sep = sep)
   } else {
     result <- find_stuff(object, L(what))
     if (length(as.labels))
-      rownames(result) <- doit(object, what = as.labels, sep = sep)
+      rownames(result) <- join(object, what = as.labels, sep = sep)
   }
   if (length(as.groups))
-    attr(result, "row.groups") <- as.factor(doit(object,
-      what = as.groups, sep = sep))
+    attr(result, "row.groups") <- as.factor(
+      join(object, what = as.groups, sep = sep))
   result
 }, sealed = SEALED)
 

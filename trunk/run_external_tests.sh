@@ -271,6 +271,7 @@ rm -rf "$tmpdir"
 num_failed=`num_items \`ls "$FAILED_FILES"\``
 echo "OVERALL RESULT (number of failed files): $num_failed" >&2
 echo >&2
+echo >&2
 
 
 # Fix the version in the YAML files to avoid SVN updates.
