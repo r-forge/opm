@@ -224,7 +224,33 @@ test_that("OPMS objects including metadata can be flattened", {
 
 
 ## extract_columns
-## UNTESTED
+test_that("extract_columns() gets nested metadat right", {
+
+  x <- SMALL.WITH.MD
+  metadata(x) <- list(A = list(B = 63, C = 64), K = "N")
+  y <- SMALL.WITH.MD
+  metadata(y) <- list(A = list(F = 63, C = 64), K = "T", O = letters)
+  x <- c(x, y)
+
+  # 1
+  got <- extract_columns(x, list(c("A", "C"), "K"))
+  expect_equal(names(got), c("A.C", "K"))
+  #print(sapply(got, class))
+  #expect_equal(got[, 1L, drop = TRUE], c(64, 64))
+
+  # 2
+  got <- extract_columns(x, list(u = c("A", "C"), v = "K"))
+  expect_equal(names(got), c("u", "v"))
+
+  # 3
+  old <- opm_opt(key.join = "~")
+  on.exit(opm_opt(old))
+  got <- extract_columns(x, list(c("A", "C"), "K"))
+  expect_equal(names(got), c("A~C", "K"))
+
+})
+
+
 
 
 ## sort
