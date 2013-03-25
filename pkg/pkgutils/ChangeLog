@@ -1,5 +1,7 @@
 2012-XX-XX (4th release on CRAN)
 
+- pack_desc(..., "source") now suppresses package startup messages
+
 - check_R_code() gets a 'three.dots' argument, and the 'docu.R' script an
   according '--dotsok/-D' switch
 

@@ -187,6 +187,7 @@ OPM_OPTIONS$digits <- 4L
 OPM_OPTIONS$file.encoding <- ""
 OPM_OPTIONS$curve.param <- "A"
 OPM_OPTIONS$key.join <- "."
+OPM_OPTIONS$disc.param <- "A"
 
 
 ################################################################################

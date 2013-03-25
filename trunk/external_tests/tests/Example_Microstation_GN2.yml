@@ -1962,7 +1962,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.8.20
+    version: 0.0.0
   discretized:
     A01: FALSE
     A02: FALSE
@@ -2065,7 +2065,8 @@
     options:
       cutoffs: 0.0065
       datasets: 1
+      parameter: A
     software: opm
-    version: 0.8.20
+    version: 0.0.0
 
 

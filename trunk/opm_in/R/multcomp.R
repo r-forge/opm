@@ -260,8 +260,8 @@ setMethod("opm_mcp", "data.frame", function(object, as.labels,
         paste(sprintf("'%s'", colnames(x)[pos][bad]), collapse = ", "))
     NULL
   }
-  if (!suppressWarnings(require(
-      multcomp, quietly = TRUE, warn.conflicts = FALSE)))
+  if (!suppressWarnings(suppressPackageStartupMessages(require(
+      multcomp, quietly = TRUE, warn.conflicts = FALSE))))
     stop("package 'multcomp' must be available to run this function")
 
   param.pos <- assert_splittable_matrix(object, split.at)

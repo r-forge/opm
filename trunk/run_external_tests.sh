@@ -166,6 +166,12 @@ ____EOF
 }
 
 
+num_items()
+{
+  echo $#
+}
+
+
 read_opm_version()
 {
   awk '$1 == "Version:" {print $2; exit}' opm_in/DESCRIPTION
@@ -174,18 +180,18 @@ read_opm_version()
 
 change_version()
 {
-  local version=$1 tempfile=`mktemp --tmpdir`
+  local version=$1 tmpfile=`mktemp --tmpdir`
   shift
   local infile
   for infile; do
     if awk -v version="$version" '
       $1 == "version:" {sub($2, version)}
       {print}
-      ' "$infile" > "$tempfile"
+      ' "$infile" > "$tmpfile"
     then
-      mv "$tempfile" "$infile"
+      mv "$tmpfile" "$infile"
     else
-      rm -f "$tempfile"
+      rm -f "$tmpfile"
       return 1
     fi
   done
@@ -260,6 +266,17 @@ do_test -i csv -o yml -f "$tmpdir/%s.yml" -q "$FAILED_FILES" \
 
 
 rm -rf "$tmpdir"
+
+
+num_failed=`num_items \`ls "$FAILED_FILES"\``
+echo "OVERALL RESULT (number of failed files): $num_failed" >&2
+echo >&2
+
+
+# Fix the version in the YAML files to avoid SVN updates.
+#
+change_version 0.0.0 tests/*.yml 
+change_version 0.0.0 "$FAILED_FILES"/*.yml 2> /dev/null || true
 
 
 ################################################################################
