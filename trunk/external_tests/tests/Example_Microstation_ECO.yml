@@ -1962,7 +1962,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.8.20
+    version: 0.0.0
   discretized:
     A01: FALSE
     A02: FALSE
@@ -2065,8 +2065,9 @@
     options:
       cutoffs: 0.482
       datasets: 1
+      parameter: A
     software: opm
-    version: 0.8.20
+    version: 0.0.0
 - metadata:
     'Project #': 420
     Creator: NA
@@ -4030,7 +4031,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.8.20
+    version: 0.0.0
   discretized:
     A01: FALSE
     A02: FALSE
@@ -4133,8 +4134,9 @@
     options:
       cutoffs: 0.485
       datasets: 1
+      parameter: A
     software: opm
-    version: 0.8.20
+    version: 0.0.0
 - metadata:
     'Project #': 420
     Creator: NA
@@ -6098,7 +6100,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.8.20
+    version: 0.0.0
   discretized:
     A01: FALSE
     A02: FALSE
@@ -6201,8 +6203,9 @@
     options:
       cutoffs: 0.3335
       datasets: 1
+      parameter: A
     software: opm
-    version: 0.8.20
+    version: 0.0.0
 - metadata:
     'Project #': 420
     Creator: NA
@@ -8166,7 +8169,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.8.20
+    version: 0.0.0
   discretized:
     A01: FALSE
     A02: FALSE
@@ -8269,8 +8272,9 @@
     options:
       cutoffs: 0.3335
       datasets: 1
+      parameter: A
     software: opm
-    version: 0.8.20
+    version: 0.0.0
 - metadata:
     'Project #': 420
     Creator: NA
@@ -10234,7 +10238,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.8.20
+    version: 0.0.0
   discretized:
     A01: FALSE
     A02: TRUE
@@ -10337,8 +10341,9 @@
     options:
       cutoffs: 0.5095
       datasets: 1
+      parameter: A
     software: opm
-    version: 0.8.20
+    version: 0.0.0
 - metadata:
     'Project #': 420
     Creator: NA
@@ -12302,7 +12307,7 @@
     options:
       boot: 0
     software: opm
-    version: 0.8.20
+    version: 0.0.0
   discretized:
     A01: FALSE
     A02: TRUE
@@ -12405,7 +12410,8 @@
     options:
       cutoffs: 0.5095
       datasets: 1
+      parameter: A
     software: opm
-    version: 0.8.20
+    version: 0.0.0
 
 

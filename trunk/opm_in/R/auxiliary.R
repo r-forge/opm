@@ -224,7 +224,8 @@ setMethod("is_constant", CMAT, function(x, strict, digits = opm_opt("digits"),
 #' If a formula has length 3, the second element represents the left part (the
 #' first element is the tilde). Once extracted using \code{[[}, the left part
 #' can be a call, a name or a vector. These methods convert it to a vector,
-#' aiming at generating a valid key for indexing a list.
+#' aiming at generating a valid key for indexing a list. Other classes for the
+#' left part are possible but currently \strong{not} supported.
 #'
 #' @param object An object of class \sQuote{call}, \sQuote{name} or
 #'   \sQuote{vector} (S4-based).
@@ -1802,6 +1803,8 @@ setMethod("contains", c(OPMS, OPM), function(object, other, ...) {
 #'       extracted by \code{\link{collect_template}}.}
 #'     \item{curve.param}{Character scalar. Default \sQuote{subset} argument of
 #'       \code{\link{extract}} and the plotting functions.}
+#'     \item{disc.param}{Character scalar. Default \sQuote{subset} argument of
+#'       \code{\link{do_disc}}. It is usually not advisable to  change it.}
 #'     \item{digits}{Integer scalar. Number of digits used by some functions
 #'       generating output text.}
 #'     \item{file.encoding}{Character scalar. Character encoding in input files

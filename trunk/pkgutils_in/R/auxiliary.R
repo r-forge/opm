@@ -853,7 +853,8 @@ source_files.pack_desc <- function(x, demo = FALSE, ...) {
   if (L(demo))
     return(y)
   for (pkg in unlist(y[c("depends", "imports")]))
-    require(pkg, character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
+    suppressPackageStartupMessages(require(pkg, character.only = TRUE,
+      quietly = TRUE, warn.conflicts = FALSE))
   invisible(source_files(x = y$r.files, ...))
 }
 

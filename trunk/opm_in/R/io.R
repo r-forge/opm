@@ -36,11 +36,11 @@
 #' stopifnot(nchar(x) > nchar(y))
 #' # constructing pattern from existing files
 #' (files <- list.files(pattern = "[.]"))
-#' (x <- file_pattern(files, literally = TRUE))
+#' (x <- file_pattern(I(files))) # I() causes 'literally' to be TRUE
 #' stopifnot(grepl(x, files, ignore.case = TRUE))
 #'
 file_pattern <- function(type = c("both", "csv", "yaml", "any", "empty"),
-    compressed = TRUE, literally = FALSE) {
+    compressed = TRUE, literally = inherits(type, "AsIs")) {
   make_pat <- function(x, compressed, enclose = "\\.%s$") {
     if (compressed)
       x <- sprintf("%s(\\.(bz2|gz|lzma|xz))?", x)
@@ -1104,7 +1104,8 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'
 batch_process <- function(names, out.ext, io.fun, fun.args = list(), proc = 1L,
     outdir = NULL, overwrite = c("yes", "older", "no"), in.ext = "any",
-    compressed = TRUE, literally = FALSE, ..., verbose = TRUE, demo = FALSE) {
+    compressed = TRUE, literally = inherits(in.ext, "AsIs"), ...,
+    verbose = TRUE, demo = FALSE) {
   create_outfile_names <- function(infiles, outdir, out.ext) {
     if (length(outdir) == 0L || all(!nzchar(outdir)))
       outdir <- dirname(infiles)
