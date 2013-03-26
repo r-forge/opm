@@ -40,6 +40,14 @@ test_that("error missing as.labels", {
 })
 
 ## opm_mcp
+test_that("test on assert_all_factors_are_variable", {
+  # Without computation of multiple comparisons of means
+  # error 
+  expect_error(x <- opm_mcp(A.VALUES, m.type = "lm", as.labels = list("run", 
+    "organism"), mcp.def = mcp(organism = "Dunnett")))
+})
+
+## opm_mcp
 test_that("mcp with specified m.type and with mcp.def", {
   # when 'model' is missing -> defaul-model is used
   x <- opm_mcp(A.VALUES, as.labels = list("run"),
