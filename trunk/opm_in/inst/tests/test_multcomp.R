@@ -42,8 +42,8 @@ test_that("error missing as.labels", {
 ## opm_mcp
 test_that("test on assert_all_factors_are_variable", {
   # Without computation of multiple comparisons of means
-  # error 
-  expect_error(x <- opm_mcp(A.VALUES, m.type = "lm", as.labels = list("run", 
+  # error
+  expect_error(x <- opm_mcp(A.VALUES, m.type = "lm", as.labels = list("run",
     "organism"), mcp.def = mcp(organism = "Dunnett")))
 })
 
@@ -144,7 +144,7 @@ test_that("without model, mcp.def and glht.arg specified", {
 ## opm_mcp
 test_that("with model, mcp.def and glht.arg specified", {
   # number of performed comparisons exceeds 20
-  expect_message(x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
+  expect_warning(x <- opm_mcp(A.VALUES, as.labels = list("run"), m.type = "lm",
     model = ~ Well, mcp.def = mcp(Well = "Dunnett"),
     glht.arg = list(alternative = "less")))
   expect_is(x, "glht")

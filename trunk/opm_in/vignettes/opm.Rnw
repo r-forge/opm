@@ -130,7 +130,7 @@ With sophisticated selection methods the user is able to sort, group and arrange
 literature ins bibtex-file einpflegen
 Frank Bretz, Torsten Hothorn and Peter Westfall (2010), Multiple Comparisons Using R, CRC Press, Boca Raton.
 Shayle R. Searle (1971), Linear Models. John Wiley \& Sons, New York.
-Jason C. Hsu (1996), Multiple Comparisons. Chapman & Hall, London.
+Jason C. Hsu (1996), Multiple Comparisons. Chapman \& Hall, London.
 Torsten Hothorn, Frank Bretz and Peter Westfall (2008), Simultaneous Inference in General Parametric Models. Biometrical Journal, 50(3), 346-363; See vignette("generalsiminf", package = "multcomp").
 Schaarschmidt F, Vaas L (2009) Analysis of trials with complex treatment structure using multiple contrast tests, HortScience 44(1):188-195 }
 

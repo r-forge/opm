@@ -141,7 +141,7 @@ setGeneric("is_constant", function(x, ...) standardGeneric("is_constant"))
 setMethod("is_constant", "vector", function(x, na.rm = TRUE) {
   if (na.rm)
     x <- x[!is.na(x)]
-  length(x) < 2L || all(duplicated(x)[-1L])
+  length(x) < 2L || all(duplicated.default(x)[-1L])
 }, sealed = SEALED)
 
 setMethod("is_constant", "list", function(x, na.rm = TRUE) {
@@ -149,7 +149,7 @@ setMethod("is_constant", "list", function(x, na.rm = TRUE) {
     return(TRUE)
   if (na.rm)
     x <- lapply(x, na.exclude)
-  all(duplicated(x)[-1L])
+  all(duplicated.default(x)[-1L])
 }, sealed = SEALED)
 
 setMethod("is_constant", MOA, function(x, margin = 1L, na.rm = TRUE) {
