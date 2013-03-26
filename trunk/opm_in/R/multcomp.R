@@ -206,6 +206,7 @@ setMethod("opm_mcp", "data.frame", function(object, as.labels,
       model <- as.labels[model]
     else if (!is.character(model))
       stop("'model' must either be a list, a vector or a formula")
+    # TODO: currently only the first element of 'op' is included
     as.formula(paste("Value ~", paste(sprintf("`%s`", model), collapse = op)))
   }
   convert_and_check_labels <- function(as.labels, column.names) {
@@ -246,20 +247,20 @@ setMethod("opm_mcp", "data.frame", function(object, as.labels,
     else
       stop("invalid object passed as 'mcp.def' argument")
     names(result) <- if (is.null(names(mcp.def)))
-      # TODO Lea: ehck whether other defaults might make sense
+      # TODO Lea: check whether other defaults might make sense
       rep.int("Dunnett", length(result))
     else
       names(mcp.def)
     do.call(mcp, result)
   }
-  assert_all_factors_are_variable <- function(x) {
-    pos <- seq.int(match("Well", colnames(x)))
-    bad <- !vapply(pos, function(i) anyDuplicated(x[, i]), integer(1L))
-    if (any(bad))
-      stop("constant factor(s) encountered: ",
-        paste(sprintf("'%s'", colnames(x)[pos][bad]), collapse = ", "))
-    NULL
-  }
+#   assert_all_factors_are_variable <- function(x) {
+#     pos <- seq.int(match("Well", colnames(x)) - 2L)
+#     bad <- vapply(pos, is_constant, logical(1L))
+#     if (any(bad))
+#       stop("constant factor(s) encountered: ",
+#         paste(sprintf("'%s'", colnames(x)[pos][bad]), collapse = ", "))
+#     NULL
+#   }
   if (!suppressWarnings(suppressPackageStartupMessages(require(
       multcomp, quietly = TRUE, warn.conflicts = FALSE))))
     stop("package 'multcomp' must be available to run this function")
@@ -269,28 +270,31 @@ setMethod("opm_mcp", "data.frame", function(object, as.labels,
   as.labels <- convert_and_check_labels(as.labels,
     colnames(object)[seq.int(param.pos)])
 
-  # create reshaped data frame
-  # set helper column to avoid non-unique values when setting 'row.names'
-  object <- cbind(seq.int(nrow(object)), object)
-  result <- reshape(object,
+  # create reshaped data frame and set helper column '.ID' to avoid non-unique
+  # values when setting 'row.names'; note according shift of column positions!
+  object <- reshape(cbind(.ID = seq.int(nrow(object)), object),
     direction = "long",
-    idvar = colnames(object[, seq.int(param.pos)]),
-    varying = colnames(object[, seq.int(param.pos + 2L, ncol(object))]),
+    idvar = c(".ID", colnames(object)[seq.int(param.pos - 1L)]),
+    varying = colnames(object)[seq.int(param.pos + 1L, ncol(object))],
     v.names = "Value",
     timevar = "Well",
-    times = colnames(object[, seq.int(param.pos + 2L, ncol(object))]))
-  rownames(result) <- NULL
-  result$Well <- as.factor(result$Well)
+    times = colnames(object)[seq.int(param.pos + 1L, ncol(object))])
+  rownames(object) <- NULL
+  object$Well <- as.factor(object$Well)
 
   if (!do.mcp)
-    return(result)
+    return(object)
 
   # TODO LEA: the next step has been extremely simplified; please check
   # whether assert_all_factors_are_variable() still does what it should do
-  assert_all_factors_are_variable(result)
+  #
+  # TODO LEA: your own tests fail if the function really checks the non-
+  # uniqueness of the factors -- so what is it good for?
+  #
+  ##assert_all_factors_are_variable(object)
 
   model <- convert_and_check_model(model, match.arg(op), as.labels)
-  model <- do.call(match.arg(m.type), list(formula = model, data = result))
+  model <- do.call(match.arg(m.type), list(formula = model, data = object))
 
   # TODO Lea: look this function up and once finished describe the mcp.def
   # argument properly and introduce examples
@@ -302,8 +306,7 @@ setMethod("opm_mcp", "data.frame", function(object, as.labels,
 
   # check the number of calculated tests
   if (length(confint(result)$confint[, 1L]) > 20L)
-    ## TODO Lea: either this is worth a warning or it should be omitted
-    message("number of performed comparisons exceeds 20")
+    warning("number of performed comparisons exceeds 20")
 
   result
 }, sealed = SEALED)
