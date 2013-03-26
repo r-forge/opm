@@ -84,7 +84,6 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 %% Please do NOT include the following line again, as it yields errors under Linux
 %\SweaveOpts{concordance=TRUE}
 
