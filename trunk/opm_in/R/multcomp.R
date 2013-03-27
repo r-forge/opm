@@ -138,7 +138,7 @@
 #' par(mar = c(3, 20, 3, 2))
 #' plot(x)
 #' par(op) # reset plotting settings
-#' 
+#'
 #' # manually defined contrast matrix
 #' contr <- rbind(
 #'   "A01 (Negative Control) - A02 (Dextrin)" = c(1, -1, 0, 0),
@@ -146,7 +146,7 @@
 #'   "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1),
 #'   "A03 (D-Maltose) - A04 (D-Trehalose)" = c(0, 0, 1, -1))
 #' x <- opm_mcp(vaas_4[, , 1:4], as.labels = list("Species"),
-#'    model = ~ Well, m.type = "lm", mcp.def = contr)
+#'   model = ~ Well, m.type = "lm", mcp.def = contr)
 #' # creating an informative plot
 #' op <- par(no.readonly = TRUE) # default plotting settings
 #' par(mar = c(3, 20, 3, 2))

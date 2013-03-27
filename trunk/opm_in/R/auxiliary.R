@@ -278,6 +278,9 @@ setMethod("pick_from", "data.frame", function(object, selection) {
 }, sealed = SEALED)
 
 
+################################################################################
+
+
 #' Check presence of split column
 #'
 #' Check whether a certain column is present and not at the end of a data frame
