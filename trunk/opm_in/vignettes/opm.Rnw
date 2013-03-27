@@ -83,9 +83,9 @@ All functionality is exemplified using real-world data sets that are part of the
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
-\tableofcontents
-\newpage 
+%\SweaveOpts{concordance=TRUE}
+%\tableofcontents
+%\newpage 
 %% Please do NOT include the following line again, as it yields errors under Linux
 %\SweaveOpts{concordance=TRUE}
 
@@ -331,9 +331,9 @@ The function internally reshapes the data into a 'flat' data frame containing on
 TODO Lea Introduce functionality of \code{opm\_mcp()} and \code{extract()}; explain the implementation of how factors are merged to produce a pseudo-one-way-layout \citep{schaarschmidt}.
 
 Vorschlaege johannes:
-(1) Wir sollten erläutern, warum der User eventuell motiviert sein könnte, multiple Vergleiche zu machen. Viele user sind eventuell nur mit der Idee von paarweisen Vergleichen vertraut und kämen vielleicht von selber nicht auf die Idee, etwas multiples zu machen. Solche user würden wir dadurch konkret auf bestimmte Analysemöglichkeiten hinweisen, auf die er selber nicht käme.
-(2) Wir sollten erläutern, warum wir gerade multcomp nehmen. Was sind die Vorteile von multcomp, im Gegensatz zu anderen Vorgehensweisen, wie z.B. der doch viel bekannteren Anova und dann z.B. Bonferroni-Korrektur (solche Argumente können kommen: Nehmt doch das Bekannte)? Auch wenn so ein Absatz einigen sehr trivial erscheinen mag, wir müssen damit rechnen, dass viele Leser der Vignette von so etwas noch gar keine Ahnung haben, daher ist so ein kleiner Textbook-Absatz schon notwendig. Wir sollten die user da gleich richtig "einnorden".
-(3) Wir sollten das prinzipielle Vorgehen der multcomp-Methode erläutern (auch wenn es da schon haarig und anspruchsvoll wird), da ist aber die Art und Weise, wie du mir das unten beschrieben hast, schon sehr hilfreich.
+(1) Wir sollten erlaeutern, warum der User eventuell motiviert sein kuennte, multiple Vergleiche zu machen. Viele user sind eventuell nur mit der Idee von paarweisen Vergleichen vertraut und kaemen vielleicht von selber nicht auf die Idee, etwas multiples zu machen. Solche user wuerden wir dadurch konkret auf bestimmte Analysemoeglichkeiten hinweisen, auf die er selber nicht kaeme.
+(2) Wir sollten erlaeutern, warum wir gerade multcomp nehmen. Was sind die Vorteile von multcomp, im Gegensatz zu anderen Vorgehensweisen, wie z.B. der doch viel bekannteren Anova und dann z.B. Bonferroni-Korrektur (solche Argumente koennen kommen: Nehmt doch das Bekannte)? Auch wenn so ein Absatz einigen sehr trivial erscheinen mag, wir muessen damit rechnen, dass viele Leser der Vignette von so etwas noch gar keine Ahnung haben, daher ist so ein kleiner Textbook-Absatz schon notwendig. Wir sollten die user da gleich richtig "einnorden".
+(3) Wir sollten das prinzipielle Vorgehen der multcomp-Methode erlaeutern (auch wenn es da schon haarig und anspruchsvoll wird), da ist aber die Art und Weise, wie du mir das unten beschrieben hast, schon sehr hilfreich.
 (4) Und dann kauen wir ein paar Beispiele durch.
 }
 
