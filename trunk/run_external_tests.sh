@@ -68,7 +68,7 @@ find_run_opm_script()
 }
 
 
-# Run tests based on file comparison. Ths function originates from a larger
+# Run tests based on file comparison. This function originates from a larger
 # Shell library and thus contains a usage message, even though it is not
 # relevant here.
 #
@@ -174,7 +174,7 @@ num_items()
 
 read_opm_version()
 {
-  awk '$1 == "Version:" {print $2; exit}' opm_in/DESCRIPTION
+  awk '$1 == "Version:" {print $2; exit}' "$@"
 }
 
 
@@ -214,7 +214,7 @@ fi
 
 
 if [ $# -eq 0 ]; then
-  version=`read_opm_version`
+  version=`read_opm_version opm_in/DESCRIPTION`
 else
   version=$1
 fi
@@ -276,7 +276,7 @@ echo >&2
 
 # Fix the version in the YAML files to avoid SVN updates.
 #
-change_version 0.0.0 tests/*.yml 
+change_version 0.0.0 tests/*.yml
 change_version 0.0.0 "$FAILED_FILES"/*.yml 2> /dev/null || true
 
 
