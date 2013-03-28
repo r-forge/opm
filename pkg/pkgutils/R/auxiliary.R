@@ -368,7 +368,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #'
 #' Create a non-nested list.
 #'
-#' @param object List.
+#' @param object Usually a list. The default method just returns \code{object}.
 #' @inheritParams pack_desc
 #' @export
 #' @return A list.
@@ -382,8 +382,15 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #'   e = list(pi))
 #' (y <- flatten(x))
 #' stopifnot(is.list(y), length(y) == 4, !sapply(y, is.list))
+#' stopifnot(identical(letters, flatten(letters)))
 #'
 flatten <- function(object, ...) UseMethod("flatten")
+
+#' @rdname flatten
+#' @method flatten default
+#' @export
+#'
+flatten.default <- function(object, ...) object
 
 #' @rdname flatten
 #' @method flatten list

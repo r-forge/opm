@@ -887,7 +887,7 @@ TODO Lea: here the application of \code{opm\_mcp()} with example and output-grap
 reshaping the data
 <<results=hide, width=8>>=
 data(vaas_4)
-x <- opm_mcp(vaas_4, as.labels = list("Species", "Strain"),
+x <- opm_mcp(vaas_4, model = list("Species", "Strain"),
   do.mcp = FALSE)
 @
 
@@ -908,7 +908,7 @@ n <- c(10,20,30,40)
 
 comparison according metadata 'Species'
 <<results=hide, width=8>>=
-x <- opm_mcp(vaas_4, as.labels = list("Species"), m.type = "lm",
+x <- opm_mcp(vaas_4, model = list("Species"), m.type = "lm",
   mcp.def = mcp(Species = "Dunnett"))
 @
 
@@ -948,7 +948,7 @@ more sophisticated with maually defined set of contrast:
    "A01 (Negative Control) - A03 (D-Maltose)" = c(-1, 0, 1, 0),
   "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1),
    "A03 (D-Maltose) - A04 (D-Trehalose)" = c(0, 0, 1, -1))
- x <- opm_mcp(vaas_4[, , 1:4], as.labels = list("Species"),
+ x <- opm_mcp(vaas_4[, , 1:4],
     model = ~ Well, m.type = "lm", mcp.def = contr)
 @
 
