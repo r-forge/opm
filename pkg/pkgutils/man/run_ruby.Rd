@@ -62,7 +62,8 @@ if (nzchar(run_ruby(NULL))) {
 
   Other auxiliary-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},
-    \code{\link{flatten}},   \code{\link{listing}},       \code{\link{logfile}},   \code{\link{map_files}},
+    \code{\link{flatten}},   \code{\link{listing}},
+        \code{\link{logfile}},   \code{\link{map_files}},
   \code{\link{must}}
 }
 \keyword{interface}
