@@ -83,7 +83,7 @@ All functionality is exemplified using real-world data sets that are part of the
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-%\SweaveOpts{concordance=TRUE}
+\SweaveOpts{concordance=TRUE}
 %\tableofcontents
 %\newpage 
 %% Please do NOT include the following line again, as it yields errors under Linux
@@ -311,8 +311,10 @@ This plot offers a display format which is especially powerful in uncovering gen
 For graphical representation of the aggregated data, namely point estimators and corresponding confidence limits for the curve parameters, the function \code{ci\_plot()} provides a framework to plot subsets of different parameters in a convenient and easily applicable manner.
 This straightforward assembly of different curves' characteristics in a single overview facilitates the interpretation and comparison of user-defined data subsets arranged according to the technical and/or biological repetition structure or other aspects of the experimental design \citep{vaas}.
 
-{\color{red} TODO Lea Explain the normalisation method from extract()
-}
+{\color{red}
+Since an PM-experiment usually contains sets of plates, which might not be measured all in the same experimental run, it is important to consider possible systematic variations and control for those. In terms of an PM-experiment the purpose of such a normalization is to minimize systematic variations in the aggregated curve parameters, so that biological differences can be more easily distinguished, as well as to allow the comparison of parameters across plates processed in different experimental runs. The underlying ideas are mainly derived from DNA-microarray experiments for measuring gene expression levels \citep{quackenbush}. 
+
+With \code{extract()} the user is enabled not only to select certain aggregated or discetized values into common matrix- or dataframe-formats, but also to apply normalization-strategies before computing point estimates and respective confidence intervals for individually defined experimental groups. Although this function is intended mainly as a helper function for \code{ci_plot()}, it can be quite useful for specific normalization purposes, for example when data were derived before and after servicing the Omnilog\textregistered \ facility resulting in shifted results by a fixed value.}
 
 Additionally, the package offers the possibility of plotting the aggregated curve parameters as a heat map \textit{via} the function \code{heat\_map()}.
 Heat maps appear particularly powerful for visualizing the outcomes of PM experiment because dendrograms inferred from both the substrates and the plates can be used to rearrange the plot.
@@ -322,20 +324,23 @@ For instance, the naming scheme of the individual plates can be devised by selec
 
 {\color{red}\subsection[Statistical comparisons of group means]{Statistical comparisons of group means}
 
-Since most addressed experimental questions of an PM-approach desire to statistically compare not only single curves, but distinct groups of curves, the function \code{opm_mcp} provides fuctionality for performance of simultaneous multiple comparisons of group means by internally calling \code{glht} from \pkg{multcomp}. Using available metadata and/or the substrate-names the user is enabled to define groups of interest, set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}. As not differentially specified, comparisons for the different curve parameters are performed separately.
+Since most addressed experimental questions of an PM-approach desire to statistically compare not only single curves, but distinct groups of curves, the analysis of a PM-data results in simultaneous inference across multiple questions \citep{hothorn}. To adress this issue the function \code{opm_mcp} provides fuctionality for performance of simultaneous multiple comparisons of group means by internally calling \code{glht} from \pkg{multcomp}. Using available metadata and/or the substrate-names the user is enabled to define groups of interest, set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}. As not differentially specified, comparisons for the different curve parameters are performed separately.
 
-TODO: describe here, why multiple comparisons of means, why not ANOVA, why multcomp and nothing else?
+At this point, the power and flexibility of simultaneous multiple comparison procedures will be figured out and the user shall be encouraged to apply contrast tests on individually designed sets of mean comparison rather than to employ probably better-known classical ANOVA-based approaches followed by F-tests. It has to be pointed out, that, generally, F-tests provide not more than global information about main effects and interaction effects. That is nothing more than a significant result gives evidence for a difference in means among any of the considered treatments. In the framework of PM-results an significant F-test for example the effect of the substrate would indicate that at least two of the substrates cause different respiration. Considering that each experiment encounters at least 96 different substrates (up to 2,000) this information is obviously nearly useless. Moreover, F-tests do not provide information about effect sizes neither is it possible to easily adress comparisons of particular interest \citep{schaarschmidt}.
 
-The function internally reshapes the data into a 'flat' data frame containing one column for the chosen parameter-value, one column for the well-name and optionally additional columns for the selected metadata. For performance of the testing procedure, a model has to be determined thereby specifying the factor's levels which determine the grouping \citep{searle, hothorn}.
+From our point of view, the very most underlying experimental question in PM-experiments can be best expressed as a set of particular mean comparisons, resulting in a multiple comparison problem \citep{hochberg}. However, testing an increasing number of hypothesis with the number of true hypotheses unknown, the probability of at least one wrong testing decision increases. Thus the so-called family-wise error-rate (FWER), which is essentially the probability of at least one false rejection among all the null hypotheses, needs to be controlled \citep{tukey}.
+The here internally employed functionality from the package \pkg{multcomp} provides solutions for all listed difficulties, since it allows to test user defined set of contrasts based on a broad range of model-types while internally controling the FWER.  
 
-TODO Lea Introduce functionality of \code{opm\_mcp()} and \code{extract()}; explain the implementation of how factors are merged to produce a pseudo-one-way-layout \citep{schaarschmidt}.
-
-Vorschlaege johannes:
-(1) Wir sollten erlaeutern, warum der User eventuell motiviert sein kuennte, multiple Vergleiche zu machen. Viele user sind eventuell nur mit der Idee von paarweisen Vergleichen vertraut und kaemen vielleicht von selber nicht auf die Idee, etwas multiples zu machen. Solche user wuerden wir dadurch konkret auf bestimmte Analysemoeglichkeiten hinweisen, auf die er selber nicht kaeme.
-(2) Wir sollten erlaeutern, warum wir gerade multcomp nehmen. Was sind die Vorteile von multcomp, im Gegensatz zu anderen Vorgehensweisen, wie z.B. der doch viel bekannteren Anova und dann z.B. Bonferroni-Korrektur (solche Argumente koennen kommen: Nehmt doch das Bekannte)? Auch wenn so ein Absatz einigen sehr trivial erscheinen mag, wir muessen damit rechnen, dass viele Leser der Vignette von so etwas noch gar keine Ahnung haben, daher ist so ein kleiner Textbook-Absatz schon notwendig. Wir sollten die user da gleich richtig "einnorden".
-(3) Wir sollten das prinzipielle Vorgehen der multcomp-Methode erlaeutern (auch wenn es da schon haarig und anspruchsvoll wird), da ist aber die Art und Weise, wie du mir das unten beschrieben hast, schon sehr hilfreich.
-(4) Und dann kauen wir ein paar Beispiele durch.
+% TODO: describe here, why multiple comparisons of means, why not ANOVA, why multcomp and nothing else?
+% TODO Lea Introduce functionality of \code{opm\_mcp()} and \code{extract()}; explain the implementation of how factors
+% are merged to produce a pseudo-one-way-layout \citep{schaarschmidt}.
+The function internally reshapes the data into a 'flat' data frame containing one column for the chosen parameter-value, one column for the well-name and optionally additional columns for the selected metadata. For performance of the testing procedure, a model has to be stated thereby specifying the factor's levels which determine the grouping \citep{searle, hothorn}.
 }
+
+{\color{green}Vorschlaege johannes:
+(3) Wir sollten das prinzipielle Vorgehen der multcomp-Methode erlaeutern (auch wenn es da schon haarig und anspruchsvoll wird), da ist aber die Art und Weise, wie du mir das unten beschrieben hast, schon sehr hilfreich.}
+
+
 
 \subsection[Discretizing and export for phylogenetic analysis]{Discretizing the aggregated data and export for phylogenetic analysis}\label{methods discrete-multistate}
 
