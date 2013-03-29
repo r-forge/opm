@@ -96,6 +96,7 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 %\tableofcontents
 %\newpage
 
@@ -379,29 +380,40 @@ For instance, the naming scheme of the individual plates can be devised by selec
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}
 
-Since most experimental questions addressed by a PM study desire to statistically compare not only single curves, but distinct groups of curves, the analysis of PM data usually results in simultaneous inferences across multiple questions \citep{hothorn}.
-To address this issue the function \code{opm_mcp} provides functionality for performing simultaneous multiple comparisons of group means by internally calling \code{glht} from the \pkg{multcomp} package but providing an easier interface for it, specifically adapted to the typical objects of \pkg{opm}.
-By referring to available metadata and/or the substrate names, the user is able to define groups of interest, set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}.
+
+%% BEGINJohannes
+{\color{red}
+Besides statistically comparing single curves using \code{ci_plot()}, the user may also be interested in statistically comparing the mean value of distinct groups of curves. 
+For example, imagine the comparison of four different bacteria using GEN-III microplates.
+For each bacterial strain, ten replicates have ben performed {\color{red}(appropriate example datasets are distributed with the \pkg{opm} and \pkg{opmdata} packages).} 
+Do these four bacteria differ in, e.g., the mean value of, e.g., curve parameter A of, e.g, well A1?
+Here, a statistical comparison of four groups (four organisms) of each 10 values (curve parameter A of 10 replicates of well A1) will be perfomed. Statistically, this results in simultaneous inferences across multiple questions \citep{hothorn}.
+}
+To address this issue the function \code{opm_mcp()} provides functionality for performing simultaneous multiple comparisons of group means by internally calling \code{glht()} from the \pkg{multcomp} package \citep{hothorn} but providing an easier interface for it, specifically adapted to the typical objects of \pkg{opm}.
+By referring to available metadata and/or the substrate names, the user is able to define groups of interest (e.g., four different bacteria), set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}. {\color{red} The choice of appropriate models and contrasts will be explained in detail below.}
 As comparisons of the different curve parameters are performed separately, it is possible to ask very specific questions on differences between curve shapes.
 
 % describe here, why multiple comparisons of means, why not ANOVA, why multcomp and nothing else?
-At this point, we would like to highlight the power and flexibility of simultaneous multiple comparison procedures and encourage the user to apply contrast tests on individually designed sets of mean comparison rather than to employ the probably better known classical ANOVA-based approaches followed by F-tests.
-It has to be pointed out that in general F-tests provide no more than global information about main effects and interaction effects.
+At this point, {\color{red} it is necessary} to highlight the power and flexibility of simultaneous multiple comparison procedures and encourage the user to apply contrast tests on individually designed sets of mean comparison rather than to employ the probably {\color{red} more popular} classical ANOVA-based approaches followed by F-tests.
+It has to be pointed out that in general F-tests provide no more than {\color{red} only} global information about main effects and interaction effects.
 That is, only the significance of a result yields evidence for a difference in the means among any of the considered treatments.
-For example, in the framework of PM data, a significant F-test on the effect of the substrate would indicate that at least two of the substrates cause distinct respiration. Considering that each PM experiment encounters at least 96 different substrates (overall up to 2,000), this information is obviously nearly useless.
+For example, in the framework of PM data, a significant F-test on the effect of the substrate would indicate that at least two of the substrates cause distinct respiration. 
+Considering that each PM experiment encounters at least 96 different substrates (overall up to 2,000), this information is obviously nearly useless.
 Moreover, F-tests neither provide information about effect sizes nor do they ease to  address comparisons of particular interest \citep{schaarschmidt}.
 
 %Vorschlaege johannes:
 %(3) Wir sollten das prinzipielle Vorgehen der multcomp-Methode erlaeutern (auch wenn es da schon haarig und anspruchsvoll wird), da ist aber die Art und Weise, wie du mir das unten beschrieben hast, schon sehr hilfreich.
 From our point of view, the very most underlying experimental questions in PM experiments can be best expressed as a set of particular mean comparisons, resulting in a multiple-comparison problem \citep{hochberg}.
-But if an increasing number of hypotheses is tested, with the number of true hypotheses unknown, the probability of at least one wrong testing decision also increases.
+But if an increasing number of hypotheses is tested{\color{red}, i.e., an increasing number of groups is compared to each other}, with the number of true hypotheses unknown, the probability of at least one wrong testing decision also increases {\color{red} (i.e., the claim, that any two out of several groups may differ significantly, can be wrong)}.
 Thus the so-called family-wise error-rate, which is essentially the probability of at least one false rejection among all the null hypotheses, needs to be controlled \citep{tukey}.
-The here internally employed functionality from the package \pkg{multcomp} provides solutions for all listed difficulties, since it allows for testing a user-defined set of contrasts based on a broad range of model types while internally controlling the family-wise error-rate.
+The here internally employed functionality from the package \pkg{multcomp} provides solutions for all listed difficulties, since it allows for testing a user-defined set of contrasts based on a broad range of model types while internally controlling the family-wise error-rate.  
 
 %TODO explain the implementation of how factors are merged to produce a pseudo-one-way-layout \citep{schaarschmidt}.
 The function \code{opm\_mcp()} internally reshapes the data into a ``flat'' data frame containing one column for the chosen parameter value, one column for the well (substrate) name and optionally additional columns for the selected metadata.
 For performing the testing procedure, a model has to be stated that specifies the factor levels that determine the grouping \citep{searle, hothorn}.
 The \code{opm\_mcp()} function allows for applying such testing directly to \proglang{OPMS} objects.
+
+
 
 
 %% ENDLEA
@@ -923,7 +935,7 @@ vaas.1.6.A.hm <- heat_map(vaas.1.6.A, as.labels = "Strain",
 
 \scalebox{1.225}{
 
-<<fig=TRUE, echo=FALSE, results=hide, width=18, height=12>>=
+<<fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
 print(heat_map(vaas.1.6.A, as.labels = "Strain", as.groups = "Species"))
 @
 
@@ -970,6 +982,126 @@ Shown are the results on the three wells A01 (negative control), A02 (Dextrin) a
 
 {\color{red}\subsection[Statistical comparisons of group means]{Statistical comparisons of group means}
 
+
+
+
+{\color{red} 
+Vorschlag Johannes: Wir sollten hier ein plakatives Beispiel nehmen, in dem wir sowohl Gruppenvergleiche haben, die nicht verschieden voneinander sind, wie auch Gruppenvergleiche, die signifikant verschieden voneinander sind und bei denen man auch einen Unterschied in der effect size sehen kann. Daher sollten wir auf den \code{vaas\_et\_al} Datensatz zurueckgreifen, wie unten in blauer Farbe beschrieben.
+
+Die beiden Beispiel-Figures von Lea (momentan Fig. 12 und 13) halte ich nicht fuer so ideal, denn Fig. 12 beinhaltet nur einen paarweisen Vergleich, kein multiple comparison, und in Fig. 13 gibt es keinen Unterschied bei irgendeinem der paarweisen Vergleich - es wird dem Leser das Potential einer solchen Abbildung nicht vollstaendig klar.Ich habe mir trotzdem erlaubt, bei diesen und einigen anderen Figures etwas die Groesse anzupassen.
+}
+
+{\color{blue} In order to demonstrate the functionality of \code{opm\_mcp()}, let  us make use of the example addressed above. 
+Imagine the comparison of four different bacteria using GEN-III microplates.
+For each bacterial strain, ten replicates have ben performed.
+Do these four bacteria differ in, e.g., the mean value of, e.g., curve parameter A of, e.g, well A1?
+Here, a statistical comparison of four groups (four organisms) of each 10 values (curve parameter A of 10 replicates of well A1) will be perfomed.
+Let us first subset from the data set \code{vaas\_et\_al} the ten GEN-III plates from the first technical replicates and let us also subet for the curves from well G06.
+<<results=hide, width=8>>=
+xyz <- subset(vaas_et_al[,,"G06"], list(Experiment = "First replicate"))
+@
+
+Let us plot these data (see Figure~\ref{fig:xy_plot_mcp}). For each of the four strains, ten curves are shown. 
+
+<<fig=FALSE, width=8>>=
+xy_plot(xyz, include = "Strain", neg.ctrl = FALSE, legend.fmt  = list(space = "right"))
+@
+
+\begin{figure}
+
+\scalebox{1.225}{
+
+<<fig=TRUE, echo=FALSE, width=9, height=6>>=
+xy_plot(xyz, include = "Strain", neg.ctrl = FALSE, 
+  legend.fmt  = list(space = "right"))
+@
+
+}
+
+\caption{
+\label{fig:xy_plot_mcp}
+PM curves from the ten technical replicates of the first biological repetition plotted using \code{xy\_plot()}.
+The respective curves from all four strains are superimposed; the affiliation to each strain is indicated by colour (see the legend).
+The x-axes show the measurement time in hours, the y-axes the measured colour intensities in OmniLog\textregistered \ units.
+}
+
+\end{figure}
+
+
+The question that arises now is the following.
+Is there between any of the four strains a significant difference, based on the mean of the curve parameter A values as determined for each of the ten curves?
+Here, a multiple comparison of group means is performed using \code{opm\_mcp()}.
+The groups to be compared are defined by the argument model. (((Die anderen Argumente sollten hier auch erklaert werden, oder?)))
+<<results=hide, width=8>>=
+(x <- opm_mcp(xyz, model = list("Strain"), m.type = "aov",
+  mcp.def = mcp(Strain = "Tukey")))
+@
+
+The results shown below indicate that all group means are significantly different from each other, except for the comparison of strains DSM30083T and DSM1707:
+
+<<width=8>>=
+summary(x)
+@
+
+
+The results of the statistical test can be plotted (see Figure~\ref{fig:ci_plot_mcp}). 
+For example, the mean of curve parameter A values of strain DSM 30083T is 26.615 units larger than the mean of A values of strain DSM18039 (see the estimate results above). 
+Therefore, point estimator of difference between these two strain is plotted at position 26.615 on the x-axis. 
+In pairwise comparisons where the 95\% confidence interval crosses the vertical dashed line at zero there is no significant difference between the group means. 
+The more distant the 95\% confidence interval is from the dashed zero line, the larger the biological effect of the difference, irrespective of the size of the p-value. 
+For example, the results from the statistical calculations indicate that all significant differences are highly significant (p < 0.001). 
+However, the position of the 95\% confidence interval indicates that the difference between strains DSM18039 and 429SC1 is much larger than between strains DSM30083T and 429SC1.
+
+
+<<fig=FALSE, width=8>>=
+op <- par(no.readonly = TRUE) # default plotting settings
+par(mar = c(3, 15, 3, 2))
+plot(x)
+par(op)
+@
+
+\begin{figure}
+
+\scalebox{1.225}{
+
+<<fig=TRUE, echo=FALSE, width=8, height=3>>=
+op <- par(no.readonly = TRUE) # default plotting settings
+par(mar = c(3, 15, 3, 2))
+plot(x)
+par(op)
+@
+
+}
+
+\caption{
+\label{fig:ci_plot_mcp}
+95\% confidence interval for comparison of group means between the strains. All pairwise comparisons are shown. The filled black circle indicates the point estimator of difference betweeen the mean of groups. 
+}
+
+\end{figure}
+
+}
+
+
+{\color{red} 
+Kommentar Johannes: Bis hierhin hatten wir ein sehr simples und straight-forward example.
+Nun koennte Lea, wie schon von ihr angedeutet, die Spezialitaeten erlaeutern, z.B. was eine contrast matrix ist, ect.
+
+Anschliessend koennten wir nochmal ein echt komplexes Beispiel bringen, in dem man die volle Wucht der moeglichen Argumente in  \code{opm\_mcp()} ausnutzt, so dass der Leser nocheinmal wirklich vor Augen gefuehrt bekommt, was man mit  \code{opm\_mcp()} so alles Feines machen kann.
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 TODO Lea: here the application of \code{opm\_mcp()} with example and output-graphics.
 reshaping the data
 <<results=hide, width=8>>=
@@ -1013,7 +1145,7 @@ par(op)
 \begin{figure}
 
 \scalebox{0.9}{
-<<fig=TRUE, echo=FALSE, results=hide, width=18, height=12>>=
+<<fig=TRUE, echo=FALSE, results=hide, width=9, height=3>>=
 op <- par(no.readonly = TRUE) # default plotting settings
 par(mar = c(3, 20, 3, 2))
 plot(x)
@@ -1042,7 +1174,7 @@ more sophisticated with maually defined set of contrast:
 \begin{figure}
 
 \scalebox{0.9}{
-<<fig=TRUE, echo=FALSE, results=hide, width=18, height=12>>=
+<<fig=TRUE, echo=FALSE, results=hide, width=9, height=3>>=
  # creating an informative plot
  op <- par(no.readonly = TRUE) # default plotting settings
  par(mar = c(3, 20, 3, 2))
