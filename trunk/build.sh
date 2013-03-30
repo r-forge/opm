@@ -84,7 +84,8 @@ find_docu_script()
 
 
 # Check whether or not each *.Rnw vignette file has a more recent *.pdf file
-# in the doc directory of the package.
+# in the doc directory of the package. Remove problematic lines inserted by 
+# some software from Rnw files.
 #
 check_vignettes()
 {
@@ -98,14 +99,19 @@ check_vignettes()
       if [ "$sweave_file" -nt "$pdf_file" ]; then
         built_pdf_file=${sweave_file%.*}.pdf
         if [ "$built_pdf_file" -nt "$pdf_file" ]; then
-          cp -v "$built_pdf_file" "$pdf_file"
-          echo
+          cp -v "$built_pdf_file" "$pdf_file" 1>&2
+          echo >&2
         else
           echo "WARNING: '$pdf_file' missing or older than '$sweave_file'" >&2
           echo "create or update '$built_pdf_file' to fix this" >&2
           echo >&2
           errs=$(($errs + 1))
         fi
+      fi
+      if grep -q '^\\SweaveOpts{concordance=TRUE}' "$sweave_file"; then
+        # changes are only done if necessary to avoid changes in file
+        # modification time, and after comparison with PDF
+        sed -i 'v; /^\\SweaveOpts{concordance=TRUE}/ d' "$sweave_file"
       fi
     done
   done
