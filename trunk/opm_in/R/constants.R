@@ -169,6 +169,9 @@ W3C_COLORS <- structure(
 
 MEMOIZED <- new.env(parent = emptyenv())
 
+MEMOIZED$WELL.POS <- as.list(structure(.Data = seq.int(nrow(WELL_MAP)),
+  .Names = sort.int(rownames(WELL_MAP))))
+
 
 ################################################################################
 ################################################################################
