@@ -15,6 +15,7 @@
 % Put several empty lines surrounding a figure caption.
 % Put words such as "via" in italics.
 % Put taxon names in italics (but not strain names).
+% Put TODOs in \rcsmark or \rcscom tags and remove them once done.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -96,12 +97,14 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+
+% NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
+% So please don't try to rescue that line, and don't rely on it being there.
+
+%% so far adding a TOC proved unsuccessful -- apparently the JSS style doesn't allow for a TOC
 %\tableofcontents
 %\newpage
 
-%% Please do NOT include the following line again, as it yields errors under Linux
-%\SweaveOpts{concordance=TRUE}
 
 \section[Introduction]{Introduction}
 The phenotype is regarded as the set of all types of traits of an organism \citep{mahner}.
@@ -113,6 +116,23 @@ The intensity of cellular respiration correlates with the production of NADH eng
 To measure cellular respiration in an experimental assay, this flow of electrons can be utilized to reduce a tetrazolium dye such as tetrazolium violet, thereby producing purple colour \citep{bochnersava}.
 In principle, the more intense the colour, the larger the physiological activity.
 
+
+% The following figure is first referred to in the section 'Introduction'.
+% Make sure it remains mentioned there.
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics{opm_fig_1}
+}
+\caption{\label{fig:data}
+Overview of the data assembly from an PM experiment and the possible additions using \pkg{opm}.
+The raw colour-formation values result in sets of 96 raw kinetics per plate.
+Using \pkg{opm}, they can be augmented by the information coded in the shape characteristics.
+This yields 96 sets of parameters per plate, each containing four robustly estimated parameters that describe distinct aspects of the respective curve shape.
+The \pkg{opm} package also offers tools for further combining this bundle of raw and aggregated data of each single kinetic with meta-information on the organisms and/or experiments.
+Based on this meta-information, a variety of visual and statistical comparison tools for either the raw or the aggregated data are available in \pkg{opm}.
+}
+\end{figure}
+
 The Phenotype MicroArray (PM) system is capable of measuring a large number of phenotypes in a high-throughput-system utilizing the above described tetrazolium detection system.
 About 2,000 distinct physiological challenges, such as the metabolism of single carbon sources for energy gain, the metabolism under varying osmolyte concentrations, and the response to varying growth-inhibitory substances are included in the PM microtiter plates \citep{bochner2001, bochner2009}.
 The OmniLog\textregistered \ PM system records the colour formation in an automated setting (every 15 minutes) throughout the duration of the experiment, which may last up to several days.
@@ -122,9 +142,10 @@ Briefly, 96-well microtiter plates with substrates, dye, and bacterial cells are
 The OmniLog\textregistered \ reader is driven by the \textit{Data Collection} software.
 The stored results files, which are in a proprietary format, are then imported into the \textit{Data Management}, \textit{File Management/Kinetic Analysis}, and \textit{Parametric Analysis} software packages for data analysis.
 
-In the case of positive reactions, the kinetics are expected to appear as sigmoidal curves in analogy to typical bacterial growth curves.
+In the case of positive reactions, the kinetics are expected to appear as sigmoidal curves in analogy to typical bacterial growth curves (Figure~\ref{fig:data}).
 The intrinsic higher level of data complexity contains additional valuable biological information which can be extracted by exploration of the shape characteristics of the recorded curves \citep{bisbin}.
 These curve features can, in principle, unravel fundamental differences or similarities in the respiration behaviour of distinct organisms, which cannot be identified by the traditional end-point measurements alone.
+But the meta-information of interest on the organisms and experimental conditions must also be available for an according statistical assessment.
 
 The motivation for the here presented \pkg{opm} package originated from (i) the need to overcome the limited graphical and analysis functions of the proprietary OmniLog\textregistered \ PM software and (ii) the desirability of an analysis system for this kind of data in a free statistical software environment such as \proglang{R} \citep{r}.
 At the moment, the visualisation of the kinetics is of limited quality, especially when simultaneously comparing the curves from more than two experiments.
@@ -152,34 +173,35 @@ The work flow described below includes (i) the input of raw kinetic data and int
 
 \subsection[Overview]{Overview}\label{methods overview}
 
-In the following the work flow for generating an \proglang{R} object that contains multiple OmniLog\textregistered \ plates along with the kinetic raw data, the corresponding metadata of interest, and the corresponding aggregated curve parameters, is described.
+In the following the work flow (see Figure~\ref{fig:work_flow}) for generating an \proglang{R} object that contains multiple OmniLog\textregistered \ plates along with the kinetic raw data, the corresponding metadata of interest, and the corresponding aggregated curve parameters, is described.
 Further it is explained how to analyse either raw data, metadata, aggregated curve parameter data, or combinations of all, as stored in the respective \proglang{R} object, by both graphical or statistical approaches.
 
-The raw data of the reduced tetrazolium colour intensity values can be exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis} as CSV (comma-separated values) files and imported into the \pkg{opm} package using \code{read\_opm()}.
-In a first step the valuable biological information coded in the shape characteristics of the recorded curves have to be extracted.
-%% BGN
-Using the function \code{do\_aggr()}, which under default settings accesses methods from the package \pkg{grofit} \citep{kahm}, the length of the lag phase $\lambda$, the respiration rate $\mu$ (corresponding to the steepness of the slope) and the maximum cell respiration A (corresponding to the maximum value recorded) are calculated.
-As an additional descriptive parameter of cell respiration, the area under the curve (AUC) is estimated \textit{via} numerical integration.
-The user can select parametric model fits as well as model-free fits using spline smoothers for the automated calculation of curve parameters, as provided by the methods from the \pkg{grofit} package \citep{kahm}.
-%% END
-A simpler and computationally faster approach for parameter estimation has additionally been implemented, but only for the parameters A and AUC.
-All implementations also provide confidence limits calculated \textit{via} bootstrapping, with 95\% being the default confidence value \citep{efron}.
-
-To facilitate a comprehensive and straightforward data processing and analysis, the raw and aggregated data of each single kinetic can be concatenated and combined with metadata using, e.g., the \code{include\_metadata()} function.
-It has to be emphasized that metadata can include all kind of describing characteristics of the observed organism(s) such as taxonomic affiliation and geographical and/or ecological origin, or of the performed experimental setting such as culture conditions, genetic modifications, physiological information of any kind and so on.
-Figure 1 presents an overview of the data assembly from an PM experiment.
-
+% The following figure is first referred to in the section 'Overview'.
+% Make sure it remains mentioned there.
 \begin{figure}
 \scalebox{1.225}{
-\includegraphics{opm_fig_1}
+\includegraphics{opm_fig_2}
 }
-\caption{\label{fig:data}
-Overview of the data assembly from an PM experiment.
-The raw colour-formation values resulting in sets of 96 raw kinetics per plate are augmented by the information coded in the shape characteristics, the 96 four-parameter sets of aggregated data.
-The resulting bundle of raw and aggregated data of each single kinetic can be concatenated and combined with meta-information on the organisms and/or experiments.
+\caption{\label{fig:work_flow}
+A depiction of the possible work flow within \pkg{opm} and its potential interplay with \proglang{R} and third-party software.
+\rcsmark{
+Update needed. 
+Original graphics file should be made available to all contributors.
+}
+The work flow allows the user full flexibility with respect to the type of information added to the created \proglang{R} objects and to the order of steps in which this is achieved.
+See Figure~\ref{fig:overview} for the functions that can be used the respective step.
 }
 \end{figure}
 
+
+The raw data of the reduced tetrazolium colour intensity values can be exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis} as CSV (comma-separated values) files and imported into the \pkg{opm} package using \code{read\_opm()}.
+In a first step the valuable biological information coded in the shape characteristics of the recorded curves have to be extracted.
+Using the function \code{do\_aggr()}, the length of the lag phase $\lambda$, the respiration rate $\mu$ (corresponding to the steepness of the slope) and the maximum cell respiration A are calculated.
+As an additional descriptive parameter of cell respiration, the area under the curve (AUC) is estimated, usually \textit{via} numerical integration.
+All implementations also provide confidence limits calculated \textit{via} bootstrapping, with 95\% being the default confidence value \citep{efron}.
+
+To facilitate a comprehensive and straightforward data processing and analysis, the raw and aggregated data of each single kinetic can be concatenated and combined with metadata (see Figure~\ref{fig:data}) using, e.g., the \code{include\_metadata()} function.
+It has to be emphasized that metadata can include all kind of describing characteristics of the observed organism(s) such as taxonomic affiliation and geographical and/or ecological origin, or of the performed experimental setting such as culture conditions, genetic modifications, physiological information of any kind and so on.
 
 The work flow of the package was designed for offering a maximum of flexibility with respect to the type of information added to the \proglang{R} object and to the order of steps in which this is achieved.
 For example, it is possible to add first the metadata and to perform some of the later described analysis and second to aggregate the raw kinetics and go on with analysis of the aggregated values.
@@ -188,7 +210,7 @@ Since experimental frameworks can be imagined where only very limited meta-infor
 \subsection[Data import]{Data import}\label{methods import}
 
 The example dataset coming with the package was published in our first study on PM data \citep{vaas}.
-In brief, four bacterial strains were measured on GenIII plates (AES Chemunex BLG 1030) in the PM modus.
+In brief, four bacterial strains were measured on  GEN-III plates (AES Chemunex BLG 1030) in the PM modus.
 For more details see Section~\ref{application overview}.
 
 The proprietary OmniLog\textregistered \ PM data analysis software \textit{File Management/Kinetic Analysis} \citep{biologInc} allows one to export the kinetic raw data from single or multiple plates as CSV files containing a small amount of associated run information that the user can enter at the interface of the OmniLog\textregistered \ PM \textit{Data Collection} software which controls the OmniLog\textregistered \ reader.
@@ -209,7 +231,7 @@ In the \proglang{OPMS} class, data may have been obtained from distinct organism
 The function \code{read\_opm()} has an argument ``convert'' which controls how sets of plates with distinct types are treated; for instance, the function can return a list of  \proglang{OPMS} objects, one for each plate type encountered.
 The entire \proglang{S4} class hierarchy used by \pkg{opm} is shown in Figure~\ref{fig:class_hierarchy}.
 Users come in direct contact only with \proglang{OPM}, \proglang{OPMA}, \proglang{OPMD} and \proglang{OPMS} classes.
-A number of \proglang{S3} helper classes is also used by several functions.
+A number of \proglang{S3} helper classes are also used by several functions.
 
 
 \subsection[Integration of metadata]{Integration of metadata}\label{methods metadata}
@@ -230,21 +252,6 @@ The user can subsequently add further columns describing any metadata of interes
 The data frame or CSV file can then be queried for the information specific to each plate, and the resulting data integrated into \proglang{OPM} or \proglang{OPMS} objects using \code{include\_metadata()}.
 Whereas this function will usually result in non-nested metadata entries, the implementation allows one, in principle, to deal with arbitrarily nested meta-information.
 The amount of meta-information added and plates analysed is only limited by the available computer memory.
-
-
-% The following figure is already referred to in the section 'Data import'.
-% Make sure it remains mentioned there.
-\begin{figure}
-\scalebox{1.225}{
-\includegraphics{opm_fig_2}
-}
-\caption{\label{fig:work_flow}
-%TODO update this figure
-Overview of the complete work flow for data compilation.
-The work flow allows the user full flexibility with respect to the type of information added to the \proglang{R} object and to the order of steps in which this is achieved.
-See Figure~\ref{fig:overview} for other methods to integrate metadata.
-}
-\end{figure}
 
 
 % The following figure is already referred to in the section 'Data import'.
@@ -286,21 +293,20 @@ The package is accompanied by a command-line script \code{run_opm.R}, enabling t
 \subsection[Aggregating data by estimating curve parameters]{Aggregating data by estimating curve parameters}\label{methods aggregating}
 
 
-%% BGN
-Descriptive curve parameters from the kinetic raw data can be calculated and included in \proglang{OPM} and \proglang{OPMS} objects using the function \code{do\_aggr()} (see Figure~\ref{fig:work_flow}), which accesses methods from the package \pkg{grofit} \citep{kahm} or a native implementation which is faster but only estimates two of the four parameters.
-%% END
-\rcsadd{Alternatively, curve parameters can be extracted using a spline-based
-  fitting procedure implemented in \pkg{opm}. Three different modeling
-  alternatives for the splines exist: (Low rank) cubic smoothing splines
-  \citep{Reinsch:1967} as implemented in \code{smooth.spline}, thin plate
-  splines \citep[a generalization of smoothing splines]{Wood2003} and P-splines
-  \citep{eilers}; the latter two are implemented in the package \pkg{mgcv}.
-  % + package citations
-}
+Descriptive curve parameters from the kinetic raw data can be calculated and included in \proglang{OPM} and \proglang{OPMS} objects using the function \code{do\_aggr()} (see Figure~\ref{fig:work_flow}).
+Curve parameters can be extracted using a spline-based fitting procedure implemented in \pkg{opm}. Three different modelling alternatives for the splines exist:
+(low-rank) cubic smoothing splines \citep{Reinsch:1967} as implemented in \code{smooth.spline} from the  \pkg{base} package, thin plate splines \citep[a generalization of smoothing splines]{Wood2003} and P-splines \citep{eilers}.
+The latter two are implemented in the package \pkg{mgcv}.
+% mgcv seems to already be cited, as Wood2003 is lited among the package citations on CRAN
+It is also possible to access methods from the package \pkg{grofit} \citep{kahm} or to use a native  implementation which is faster but only estimates two of the four parameters.
+
 The descriptive curve parameters are the lag phase $\lambda$,  the respiration rate $\mu$ (corresponding to the steepness of the slope), the maximum cell respiration A (corresponding to the maximum value of the curve) and the area under the curve AUC.
 The parameters $\lambda$, $\mu$, and A are derived by default from spline fits, whereas AUC is estimated \textit{via} numerical integration (see Figure 2 in \cite{kahm} for details).
-%TODO add own picture explaining these parameters?
-If desired, the user is free to use the parameter estimates from the provided model fits as well \citep{vaas}.
+\rcsmark{
+We should add own picture explaining these parameters.
+}
+%If desired, the user is free to use the parameter estimates from the provided model fits as well \citep{vaas}.
+% not sure whether this works
 In addition to the point estimates for the parameters from both model and spline, confidence limits can be calculated (for the spline-based approach \textit{via} bootstrapping), with 95\% being the default value \citep{efron}.
 But confidence intervals and according group means can also be calculated from experimental repetitions, as explained in Section~\ref{methods plotting-aggregated}.
 Attaching the aggregated data to an \proglang{OPM} object yields an object of the class \proglang{OPMA}, which can also be stored within an \proglang{OPMS} container object.
@@ -321,8 +327,8 @@ As Figure~\ref{fig:overview} illustrates, the package provides methods for (i) q
 \includegraphics{opm_fig_4}
 }
 \caption{\label{fig:overview}
-%TODO update this figure; maybe even merge it with figure 1
 This scheme provides an overview of the possible strategies and appropriate functions for data analysis using the \pkg{opm} package.
+\rcsmark{Update needed, should be merged with old Figure 1.}
 Taking an \proglang{OPMS} object containing the kinetic raw data and the aggregated curve parameters (optionally with their corresponding 95\% confidence limits) as starting point, methods for metadata management, plotting the data in a customized manner, querying and sub-setting \proglang{OPMS} objects, and data conversion tools including discretization and output in files are provided.
 }
 \label{analysis-figure}
@@ -334,10 +340,15 @@ Furthermore, the bundled structure of an \proglang{OPMS} object, and the methods
 
 \subsection[Plotting functions]{Plotting functions}\label{methods plotting}
 
-%TODO a problem with the subsections is that they are not numbered accordingly
-%
+
+
 \subsubsection[Plotting functions for raw data]{Plotting functions for raw data}
 
+\rcscom{
+Lea, a disadvantage of using subsubsections is that they are not numbered and cannot be referred to.
+If this cannot be fixed (without generating other problems), please convert back to the previously used sections in all parts of this document.
+Please also use label annotations and check for dead links.
+}
 
 The function \code{xy\_plot()} displays the raw measurements (y-axis) in dependency of the time (x-axis).
 For each well one sub-panel is drawn, and the user is free to colour the plotted curves by either their affiliation to a specific plate or by a combination of (metadata-)variables of choice.
@@ -355,68 +366,66 @@ This plot offers a display format which is especially powerful in uncovering gen
 
 \subsubsection[Plotting the aggregated data]{Plotting the aggregated data}\label{methods plotting-aggregated}
 
+\rcscom{
+Lea \& Johannes, please check whether the phrasing of this subsection is OK now.
+Then remove this note.
+}
 For the graphical representation of the aggregated data, namely point estimators and corresponding confidence limits for the curve parameters, the function \code{ci\_plot()} provides a framework to plot subsets of different parameters in a convenient and easily applicable manner.
 This straightforward assembly of different curves' characteristics in a single overview facilitates the interpretation and comparison of user-defined data subsets arranged according to the technical and/or biological repetition structure or other aspects of the experimental design \citep{vaas}.
 
-%% BEGINLEA
-
-%Since a PM experiment usually contains sets of plates, which might not be measured all in the same experimental run, it is important to consider possible systematic variations and control for those.
 When analysing empirically obtained measurements such as PM data it is important to consider possible systematic variations and control for those.
 For a PM experiment the purpose of such a normalization is to minimize systematic variations in the aggregated curve parameters so as to more easily recognize biological differences, as well as to allow for the comparison of parameters across plates processed in different experimental runs.
 The underlying ideas are mainly derived from DNA-microarray experiments for measuring gene-expression levels \citep{quackenbush}.
 
 With \code{extract()} the user is enabled not only to select certain aggregated or discretized values into common matrices or data frames, but also to apply normalizations before computing point estimates and their respective confidence intervals for individually defined experimental groups.
 Although this function is intended mainly as a helper function for \code{ci_plot()}, it can be quite useful for specific normalization purposes, for example when data were derived before and after servicing the Omnilog\textregistered \ facility, which might result in shifting the measurements by a certain amount.
-
-%% ENDLEA
-
+In conjunction with \code{extract()}, \code{ci_plot()} allows for visualizing point estimates and confidence intervals of groups of parameter estimates.
+For visualizing differences between groups and their confidence intervals, see \code{opm_mcp()} as described in Section~\ref{methods group-means}.
+ 
 Additionally, the package offers the possibility of plotting the aggregated curve parameters as a heat map \textit{via} the function \code{heat\_map()}.
 Heat maps appear particularly powerful for visualizing the outcomes of PM experiment because dendrograms inferred from both the substrates and the plates can be used to rearrange the plot.
 Since the user is free to define which metadata or strain information are of interest for the annotation of the plot and the clustering analysis, this tool provides a powerful feature for data exploration in specialized contexts.
 For instance, the naming scheme of the individual plates can be devised by selecting associated metadata; it is also possible to automatically construct row groups by selecting the same or other meta-information.
 \code{heat\_map()} is mainly a wrapper for the \code{heatmap()} functions from either the \pkg{stats} or the \pkg{gplots} \proglang{R} package, but contains some useful adaptations to the PM data, facilitates the selection of a clustering algorithm and the construction of row and column groups, and provides more appropriate default solutions for row and column descriptions sizes (we suppose that in most situations the pictures produced by \code{heat\_map()} should not need manual adaptation in these respects).
 
-%% BEGINLEA
 
-\subsection[Statistical comparisons of group means]{Statistical comparisons of group means}
+\subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{methods group-means}
 
-
-%% BEGINJohannes
-{\color{red}
-Besides statistically comparing single curves using \code{ci_plot()}, the user may also be interested in statistically comparing the mean value of distinct groups of curves. 
-For example, imagine the comparison of four different bacteria using GEN-III microplates.
-For each bacterial strain, ten replicates have ben performed {\color{red}(appropriate example datasets are distributed with the \pkg{opm} and \pkg{opmdata} packages).} 
-Do these four bacteria differ in, e.g., the mean value of, e.g., curve parameter A of, e.g, well A1?
-Here, a statistical comparison of four groups (four organisms) of each 10 values (curve parameter A of 10 replicates of well A1) will be perfomed. Statistically, this results in simultaneous inferences across multiple questions \citep{hothorn}.
+\rcscom{
+Lea \& Johannes, please check whether the phrasing of this subsection is OK now.
+Then remove this note.
 }
+Besides comparing single curves, the user may also be interested in statistically comparing the mean values of distinct groups of curves.
+For example, imagine the comparison of four different bacteria using GEN-III microplates.
+Assume that for each bacterial strain, ten replicates have been performed.
+(An according example dataset is actually available in the \pkg{opmdata} package.)
+Do these four bacteria differ in, e.g., the mean value of, e.g., curve parameter A of, e.g, well A1?
+Here, a statistical comparison of four groups (four organisms) of each 10 values (curve parameter A of 10 replicates of well A1) would need to be performed.
+Statistically, this results in simultaneous inferences across multiple questions \citep{hothorn}.
 To address this issue the function \code{opm_mcp()} provides functionality for performing simultaneous multiple comparisons of group means by internally calling \code{glht()} from the \pkg{multcomp} package \citep{hothorn} but providing an easier interface for it, specifically adapted to the typical objects of \pkg{opm}.
-By referring to available metadata and/or the substrate names, the user is able to define groups of interest (e.g., four different bacteria), set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}. {\color{red} The choice of appropriate models and contrasts will be explained in detail below.}
+By referring to available metadata and/or the substrate names, the user is able to define groups of interest (e.g., four different bacteria), set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}.
+The choice of appropriate models and contrasts will be explained in detail below.
 As comparisons of the different curve parameters are performed separately, it is possible to ask very specific questions on differences between curve shapes.
 
-% describe here, why multiple comparisons of means, why not ANOVA, why multcomp and nothing else?
-At this point, {\color{red} it is necessary} to highlight the power and flexibility of simultaneous multiple comparison procedures and encourage the user to apply contrast tests on individually designed sets of mean comparison rather than to employ the probably {\color{red} more popular} classical ANOVA-based approaches followed by F-tests.
-It has to be pointed out that in general F-tests provide no more than {\color{red} only} global information about main effects and interaction effects.
+At this point, it is necessary to highlight the power and flexibility of simultaneous multiple comparison procedures and encourage the user to apply contrast tests on individually designed sets of mean comparison rather than to employ the probably more popular classical ANOVA-based approaches followed by F-tests.
+It has to be pointed out that in general F-tests \textit{only} provide global information about main effects and interaction effects.
 That is, only the significance of a result yields evidence for a difference in the means among any of the considered treatments.
 For example, in the framework of PM data, a significant F-test on the effect of the substrate would indicate that at least two of the substrates cause distinct respiration. 
 Considering that each PM experiment encounters at least 96 different substrates (overall up to 2,000), this information is obviously nearly useless.
-Moreover, F-tests neither provide information about effect sizes nor do they ease to  address comparisons of particular interest \citep{schaarschmidt}.
+Moreover, F-tests neither provide information about effect sizes nor do they ease to address comparisons of particular interest \citep{schaarschmidt}.
 
-%Vorschlaege johannes:
-%(3) Wir sollten das prinzipielle Vorgehen der multcomp-Methode erlaeutern (auch wenn es da schon haarig und anspruchsvoll wird), da ist aber die Art und Weise, wie du mir das unten beschrieben hast, schon sehr hilfreich.
 From our point of view, the very most underlying experimental questions in PM experiments can be best expressed as a set of particular mean comparisons, resulting in a multiple-comparison problem \citep{hochberg}.
-But if an increasing number of hypotheses is tested{\color{red}, i.e., an increasing number of groups is compared to each other}, with the number of true hypotheses unknown, the probability of at least one wrong testing decision also increases {\color{red} (i.e., the claim, that any two out of several groups may differ significantly, can be wrong)}.
+But if an increasing number of hypotheses is tested, with the number of true hypotheses unknown, the probability of at least one wrong testing decision also increases.
+That is, if an increasing number of groups is compared to each other, conclusions on significant differences between a pair of groups are increasingly likely to be wrong.
 Thus the so-called family-wise error-rate, which is essentially the probability of at least one false rejection among all the null hypotheses, needs to be controlled \citep{tukey}.
 The here internally employed functionality from the package \pkg{multcomp} provides solutions for all listed difficulties, since it allows for testing a user-defined set of contrasts based on a broad range of model types while internally controlling the family-wise error-rate.  
 
-%TODO explain the implementation of how factors are merged to produce a pseudo-one-way-layout \citep{schaarschmidt}.
+\rcscom{
+Lea \& Johannes, explain the implementation of how factors are merged to produce a pseudo-one-way-layout \citep{schaarschmidt}, and/or remove this note.
+}
 The function \code{opm\_mcp()} internally reshapes the data into a ``flat'' data frame containing one column for the chosen parameter value, one column for the well (substrate) name and optionally additional columns for the selected metadata.
 For performing the testing procedure, a model has to be stated that specifies the factor levels that determine the grouping \citep{searle, hothorn}.
 The \code{opm\_mcp()} function allows for applying such testing directly to \proglang{OPMS} objects.
-
-
-
-
-%% ENDLEA
 
 
 \subsection[Discretizing and export for phylogenetic analysis]{Discretizing the aggregated data and export for phylogenetic analysis}\label{methods discrete-multistate}
@@ -481,7 +490,7 @@ data("vaas_et_al", package = "opmdata")
 
 The subsets \code{vaas\_1} and \code{vaas\_4} are described in the \pkg{opm} manual.
 
-The metadata comprise seven entries.
+The metadata included in these objects comprise seven entries.
 The entry \textit{Experiment} denotes the biological replicate or the affiliation to the time-series experiments.
 The keys \textit{Species} and \textit{Strain} refer to the organism used for the respective experiment (see above), and \textit{Slot} (either \textit{A} or \textit{B}) indicates whether the plate was placed in the left or the right half of the OmniLog\textregistered \ reader.
 (Note that for an assessment of the reproducibility of the curves the slot is occasionally of relevance.)
@@ -644,13 +653,11 @@ batch.result <- batch_opm_to_yaml(files, include = "*Example_?.csv.xz",
 By default, progress messages are printed to the screen.
 The return value, here assigned to the \code{batch.result} variable, also contains all information about the success of the individual file conversions.
 The \code{run_opm.R} script distributed with the package is an \proglang{Rscript}-dependent command-line tool for non-interactively running such file conversions.
-\begin{Schunk}
-\begin{Sinput}
-R> opm_files("scripts")
-\end{Sinput}
-\end{Schunk}
+Its location in the file system can be obtained using
 
-%TODO whats about example for OPMS-object including metadata?
+<<results=hide, width=10>>=
+opm_files("scripts")
+@
 
 
 \subsection[Aggregating data by estimating curve parameters]{Aggregating data by estimating curve parameters}\label{application aggregating}
@@ -664,14 +671,14 @@ data("vaas_1")
 
 Data aggregation (curve-parameter estimation) can be performed using \code{do\_aggr()}.
 In the \pkg{opm} manual, this one and the other functions relevant for data aggregation are contained in a family called ``aggregation-functions'' with according cross-references.
-\code{vaas\_1} already contains aggregated data but we will \rcsdel{here} re-calculate some for demonstration purposes.
+\code{vaas\_1} already contains aggregated data but we will re-calculate some for demonstration purposes.
 For invoking the fast estimation method, use:
 
 <<results=hide, width=10>>=
 vaas_1.reaggr <- do_aggr(vaas_1, boot = 100, method = "opm-fast")
 @
 
-This will only estimate two of the four parameters \rcsmark{add which}.
+This will only estimate two of the four parameters, namely A and AUC.
 (Screen messages output by \code{boot.ci()} might be annoying but can usually be ignored.)
 Information about the data aggregation settings is available \textit{via}:
 
@@ -690,15 +697,15 @@ vaas_1.reaggr.aggr <- aggregated(vaas_1.reaggr)
 The default function of \code{do\_aggr()} includes 100-fold bootstrapping of the data to obtain confidence intervals.
 As this is a time-consuming intensive process (if \pkg{grofit} is used), it may be split over several cores on a multicore machine if the \pkg{multicore} \proglang{R} package is available by setting the cores argument to a value larger than one.
 
-\rcsadd{One can also specify different spline fitting methods using \code{method = "spline"}.
+One can also specify different spline fitting methods using \code{method = "spline"}.
   Options such as the spline type, the number of knots used for the spline and
   other options for the splines can be easily set using the function \code{set\_spline\_options} (which can only be used in conjunction with \code{method = "spline"}).
-  To essentially reproduce the results from \code{method = "grofit"} we use smoothing splines (and for the sake of computing time in this vignette we only use 10 bootstrap replicates to compute confidence intervals for the parameter estimates):}
+  To essentially reproduce the results from \code{method = "grofit"} we use smoothing splines (and for the sake of computing time in this vignette we only use 10 bootstrap replicates to compute confidence intervals for the parameter estimates):
 <<smoothing_splines,results=hide>>=
 op <- set_spline_options(type = "smooth.spline")
 vaas_1.aggr2 <- do_aggr(vaas_1, boot = 10, method = "spline", options = op)
 @
-\rcsadd{Other spline types can be specified \textit{via} the \code{type} argument in the function \code{set\_spline\_options}.}
+Other spline types can be specified \textit{via} the \code{type} argument in the function \code{set\_spline\_options}.
 
 \subsection[Manipulation of OPM and OPMS data]{Manipulation of \proglang{OPM} and \proglang{OPMS} data}\label{application manipulation}
 
@@ -790,7 +797,6 @@ vaas.1.6 <- subset(vaas_et_al,
   query = list(Experiment = "First replicate", 'Plate number' = 6))
 @
 
-%(To specify \code{opm::} is not normally necessary but clashes with a \code{select} method defined in the \pkg{MASS} package sometimes need to be avoided.)
 Providing the desired combination of metadata keys and values as a list offers a maximum of flexibility, but other approaches are also implemented, as well as the selection of plates based on the presence of keys only (like \code{\%k\%} described above; it makes not much sense for \code{vaas\_et\_al} whose plates are uniform regarding the keys), and nested queries (like \code{\%q\%} with a list described above; makes of course more sense if the metadata contain nested entries).
 The \code{subset()} function also has a ``time'' argument that allows one to create a subset containing only the time points that were common to all plates.
 This is useful because deviations regarding the overall measurement hours might exist.
@@ -932,15 +938,11 @@ vaas.1.6.A.hm <- heat_map(vaas.1.6.A, as.labels = "Strain",
 @
 
 \begin{figure}
-
 \scalebox{1.225}{
-
 <<fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
 print(heat_map(vaas.1.6.A, as.labels = "Strain", as.groups = "Species"))
 @
-
 }
-
 \caption{
 \label{fig:heat_map}
 Visualization of the clustered results from the curve parameter maximum height (A) for each substrate using the function \code{heat\_map()}.
@@ -949,8 +951,13 @@ As row labels, the strain names were selected, whereas the species affiliations 
 The central rectangle is a substrate $x$ plate matrix in which the colours represent the classes of values.
 The default colour setting uses topological colours, with deep violet and blue indicating the lowest values and light brown indicating the highest values.
 }
-
 \end{figure}
+
+\rcscom{
+Lea, please provide examples for the use of \code{ci\_plot()} in conjunction with \code{extract()}.
+You can use the examples from the manual here because they are unsuitable for the manual.
+Afterwards, include suitable examples in the manual.
+}
 
 The \code{ci\_plot()} function (see Figure~\ref{fig:ci_plot}) provides a visualization of the point estimator and its 95\% confidence interval calculated \textit{via} bootstrapping during aggregation of curves into parameters.
 The user is free to select the subsets of interest \textit{via} the bracket operator as described above (see Section~\ref{application manipulation}):
@@ -962,57 +969,61 @@ ci_plot.legend <- ci_plot(vaas.1.6[, , 1:3],
 @
 
 \begin{figure}
-
 \scalebox{1.225}{
-
 <<fig=TRUE, echo=FALSE, results=hide, width=18, height=12>>=
 print(ci_plot(vaas.1.6[, , 1:3], as.labels = list("Species", "Strain"),
   subset = "A", legend.field = NULL, x = 150, y = 3))
 @
-
 }
-
 \caption{
 \label{fig:ci_plot}
-Comparison of point estimates and their 95\% confidence intervals for the parameter maximum height (A) observed from four strains.
+Comparison of point estimates and their 95\% confidence intervals for the parameter maximum height (A) observed from four strains, using \code{ci\_plot()}.
 Shown are the results on the three wells A01 (negative control), A02 (Dextrin) and A03 (D-Maltose) as indicated by the sub-plot titles.
+\rcsmark{Lea, the font size is way too small. Revise here or suggest changes of function.}
 }
-
 \end{figure}
 
-{\color{red}\subsection[Statistical comparisons of group means]{Statistical comparisons of group means}
 
+\subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
 
-
-
-{\color{red} 
+\rcscom{
 Vorschlag Johannes: Wir sollten hier ein plakatives Beispiel nehmen, in dem wir sowohl Gruppenvergleiche haben, die nicht verschieden voneinander sind, wie auch Gruppenvergleiche, die signifikant verschieden voneinander sind und bei denen man auch einen Unterschied in der effect size sehen kann. Daher sollten wir auf den \code{vaas\_et\_al} Datensatz zurueckgreifen, wie unten in blauer Farbe beschrieben.
-
 Die beiden Beispiel-Figures von Lea (momentan Fig. 12 und 13) halte ich nicht fuer so ideal, denn Fig. 12 beinhaltet nur einen paarweisen Vergleich, kein multiple comparison, und in Fig. 13 gibt es keinen Unterschied bei irgendeinem der paarweisen Vergleich - es wird dem Leser das Potential einer solchen Abbildung nicht vollstaendig klar.Ich habe mir trotzdem erlaubt, bei diesen und einigen anderen Figures etwas die Groesse anzupassen.
 }
 
-{\color{blue} In order to demonstrate the functionality of \code{opm\_mcp()}, let  us make use of the example addressed above. 
+\rcscom{
+Style in the next paragraphs seems a bit too colloquial.
+At lot of ``let us'', for instance.
+Other parts repeat a lot of text from the method section.
+The variable names should be in the style used above in this vignette.
+Please revise.
+Also, please consider the TODO entries in the code for opm\_mcp().
+}
+
+To demonstrate the functionality of \code{opm\_mcp()}, let  us make use of the example addressed above. 
 Imagine the comparison of four different bacteria using GEN-III microplates.
-For each bacterial strain, ten replicates have ben performed.
+For each bacterial strain, ten replicates have been performed.
 Do these four bacteria differ in, e.g., the mean value of, e.g., curve parameter A of, e.g, well A1?
-Here, a statistical comparison of four groups (four organisms) of each 10 values (curve parameter A of 10 replicates of well A1) will be perfomed.
-Let us first subset from the data set \code{vaas\_et\_al} the ten GEN-III plates from the first technical replicates and let us also subet for the curves from well G06.
+Here, a statistical comparison of four groups (four organisms) of each 10 values (curve parameter A of 10 replicates of well A1) will be performed.
+Let us first subset from the data set \code{vaas\_et\_al} the ten GEN-III plates from the first technical replicates and let us also subset for the curves from well G06.
 <<results=hide, width=8>>=
-xyz <- subset(vaas_et_al[,,"G06"], list(Experiment = "First replicate"))
+xyz <- subset(vaas_et_al[, , "G06"], list(Experiment = "First replicate"))
 @
 
-Let us plot these data (see Figure~\ref{fig:xy_plot_mcp}). For each of the four strains, ten curves are shown. 
+Let us plot these data (see Figure~\ref{fig:xy_plot_mcp}).
+For each of the four strains, ten curves are shown. 
 
-<<fig=FALSE, width=8>>=
-xy_plot(xyz, include = "Strain", neg.ctrl = FALSE, legend.fmt  = list(space = "right"))
+<<fig=FALSE, width=10>>=
+xy_plot(xyz, include = ~ Strain, neg.ctrl = FALSE,
+  legend.fmt = list(space = "right"))
 @
 
 \begin{figure}
 
 \scalebox{1.225}{
 
-<<fig=TRUE, echo=FALSE, width=9, height=6>>=
-xy_plot(xyz, include = "Strain", neg.ctrl = FALSE, 
+<<fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
+xy_plot(xyz, include = ~ Strain, neg.ctrl = FALSE, 
   legend.fmt  = list(space = "right"))
 @
 
@@ -1031,15 +1042,18 @@ The x-axes show the measurement time in hours, the y-axes the measured colour in
 The question that arises now is the following.
 Is there between any of the four strains a significant difference, based on the mean of the curve parameter A values as determined for each of the ten curves?
 Here, a multiple comparison of group means is performed using \code{opm\_mcp()}.
-The groups to be compared are defined by the argument model. (((Die anderen Argumente sollten hier auch erklaert werden, oder?)))
+The groups to be compared are defined by the argument ``model''.
+
+\rcscom{Die anderen Argumente sollten hier auch erklaert werden, oder?}
+
 <<results=hide, width=8>>=
-(x <- opm_mcp(xyz, model = list("Strain"), m.type = "aov",
+(x <- opm_mcp(xyz, model = ~ Strain, m.type = "aov",
   mcp.def = mcp(Strain = "Tukey")))
 @
 
 The results shown below indicate that all group means are significantly different from each other, except for the comparison of strains DSM30083T and DSM1707:
 
-<<width=8>>=
+<<results=hide, width=8>>=
 summary(x)
 @
 
@@ -1080,37 +1094,21 @@ par(op)
 
 \end{figure}
 
-}
-
-
-{\color{red} 
+\rcscom{
 Kommentar Johannes: Bis hierhin hatten wir ein sehr simples und straight-forward example.
 Nun koennte Lea, wie schon von ihr angedeutet, die Spezialitaeten erlaeutern, z.B. was eine contrast matrix ist, ect.
-
 Anschliessend koennten wir nochmal ein echt komplexes Beispiel bringen, in dem man die volle Wucht der moeglichen Argumente in  \code{opm\_mcp()} ausnutzt, so dass der Leser nocheinmal wirklich vor Augen gefuehrt bekommt, was man mit  \code{opm\_mcp()} so alles Feines machen kann.
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-TODO Lea: here the application of \code{opm\_mcp()} with example and output-graphics.
-reshaping the data
+\rcscom{TODO Lea: here the application of \code{opm\_mcp()} with example and output-graphics.
+reshaping the data}
 <<results=hide, width=8>>=
 data(vaas_4)
-x <- opm_mcp(vaas_4, model = list("Species", "Strain"),
+x <- opm_mcp(vaas_4, model = ~ Species + Strain,
   do.mcp = FALSE)
 @
 
-Explain contrasts, refer to \code{contrMat() from \pkg{multcomp}}
+\rcscom{Explain contrasts, refer to \code{contrMat() from \pkg{multcomp}}}
 <<results=hide, echo=FALSE, width=8>>=
 n <- c(10,20,30,40)
  names(n) <- paste("group", 1:4, sep="")
@@ -1125,16 +1123,15 @@ n <- c(10,20,30,40)
  contrMat(n, type = "McDermott")
 @
 
-comparison according metadata 'Species'
+\rcscom{comparison according metadata 'Species'}
 <<results=hide, width=8>>=
-x <- opm_mcp(vaas_4, model = list("Species"), m.type = "lm",
+x <- opm_mcp(vaas_4, model = ~ Species, m.type = "lm",
   mcp.def = mcp(Species = "Dunnett"))
 @
 
-Explain Confidence intervals for differences of group means, point out the difference to the 95\%CI of the curve-parameter estimators.
-
+\rcscom{Explain Confidence intervals for differences of group means, point out the difference to the 95\%CI of the curve-parameter estimators.
 Figure:
-informative plotting of the CI:
+informative plotting of the CI:}
 <<results=hide, width=8>>=
 op <- par(no.readonly = TRUE) # default plotting settings
 par(mar = c(3, 20, 3, 2))
@@ -1143,7 +1140,6 @@ par(op)
 @
 
 \begin{figure}
-
 \scalebox{0.9}{
 <<fig=TRUE, echo=FALSE, results=hide, width=9, height=3>>=
 op <- par(no.readonly = TRUE) # default plotting settings
@@ -1156,10 +1152,9 @@ par(op)
 \label{fig:opm_mcp_CI_plotI}
 95\% confidence interval for comparison of group means between the species.
 }
-
 \end{figure}
 
-more sophisticated with maually defined set of contrast:
+\rcscom{more sophisticated with maually defined set of contrast:}
 
 <<results=hide, width=8>>=
  contr <- rbind(
@@ -1171,8 +1166,8 @@ more sophisticated with maually defined set of contrast:
     model = ~ Well, m.type = "lm", mcp.def = contr)
 @
 
-\begin{figure}
 
+\begin{figure}
 \scalebox{0.9}{
 <<fig=TRUE, echo=FALSE, results=hide, width=9, height=3>>=
  # creating an informative plot
@@ -1186,10 +1181,8 @@ more sophisticated with maually defined set of contrast:
 \label{fig:opm_mcp_CI_plotII}
 95\% confidence interval for manyally chosen comparison of group means on a specifically selected set of wells.
 }
-
 \end{figure}
 
-}
 
 \subsection[Discretization and phylogenetic data export]{Discretization and phylogenetic data export}\label{application discrete-phylogeny}
 
@@ -1203,7 +1196,6 @@ vaas.repl <- subset(vaas_et_al,
 vaas.repl <- do_disc(vaas.repl)
 @
 
-%(As above, to specify \code{opm::} is not normally necessary but clashes with a \code{select} method defined in the \pkg{MASS} package sometimes need to be avoided.)
 Note that the resulting objects is an \proglang{OPMS} object with \proglang{OPMD} objects as elements.
 Such objects contain discretized values available \textit{via} \code{discretized()} and the discretization settings used, which can be obtained using \code{disc\_settings()}.
 This works much like \code{aggregated()} and \code{aggr\_settings()} explained above.
