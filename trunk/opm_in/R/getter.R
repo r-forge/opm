@@ -1274,7 +1274,13 @@ setMethod("disc_settings", OPMD, function(object) {
 #' @keywords attribute
 #' @details \itemize{
 #'   \item If a named list is used as \code{key} argument, its names will be
-#'   used within the to-level of the resulting nested or non-nested list.
+#'   used within the first level of the resulting nested or non-nested list.
+#'   That is, \code{key} can be used to translate names on the fly, and this
+#'   can be used by all functions that call \code{metadata} indirectly, usually
+#'   via an \code{as.labels} or \code{as.groups} argument.
+#'   \item Even though it is not technically impossible per se, it is usually
+#'   a bad idea to select metadata entries using numeric (positional) keys. The
+#'   problem is that, in contrast to, e.g., data frames, 
 #'   \item Formulas passed as \code{key} argument are treated by ignoring the
 #'   left side (if any) and converting the right side to a list or other vector.
 #'   Code enclosed in \code{I} is evaluated with a call to \code{eval}. It is up
@@ -1285,7 +1291,7 @@ setMethod("disc_settings", OPMD, function(object) {
 #'   (for nested querying) in the output. The same effect have other operators
 #'   of high precedence such as \code{::} but their use is not recommended. All
 #'   operators with a lower precedence than \code{$} separate list elements.
-#'   }
+#' }
 #' @examples
 #'
 #' # 'OPM' method
