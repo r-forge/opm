@@ -144,15 +144,8 @@ Overview of the data assembly from an PM experiment and the possible additions u
 The raw colour-formation values result in sets of 96 raw kinetics per plate.
 Using \pkg{opm}, they can be augmented by the information coded in the shape characteristics.
 This yields 96 sets of parameters per plate, each containing four robustly estimated parameters that describe distinct aspects of the respective curve shape.
-The \pkg{opm} package also offers tools for further combining this bundle of raw and aggregated data of each single kinetic with meta-information on the organisms and/or experiments.
+The \pkg{opm} package also offers tools for further combining this bundle of raw, aggregated and also discretized data of each single kinetic with meta-information on the organisms and/or experiments.
 Based on this meta-information, a variety of visual and statistical comparison tools for either the raw or the aggregated data are available in \pkg{opm}.
-\rcscom{
-TODO JS: 
-Please rephrase as follows: `one' -> `single', `Hour' -> `Time', `value' -> `Value'.
-Maybe as a small depiction of the Omnilog instrument (lower left side).
-Maybe add row above that indicates what is done within opm (right) and what by the Omnilog software.
-Maybe mention at least in the text that the data can also be discretized.
-}
 }
 \end{figure}
 
