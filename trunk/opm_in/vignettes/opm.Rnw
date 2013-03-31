@@ -97,6 +97,7 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -390,7 +391,8 @@ For a PM experiment the purpose of such a normalization is to minimize systemati
 The underlying ideas are mainly derived from DNA-microarray experiments for measuring gene-expression levels \citep{quackenbush}.
 
 With \code{extract()} the user is enabled not only to select certain aggregated or discretized values into common matrices or data frames, but also to apply normalizations before computing point estimates and their respective confidence intervals for individually defined experimental groups.
-\rcsadd{Normalization indicates here the subtraction of the mean of each plate from each of its values (over all wells of that plate), either per row or per column. Alternatively, all values can be divided by the mean of the value. The details can be set in the respective arguments of \code{extract()}.}
+\rcsadd{Normalization indicates here (i) the subtraction of the mean of each plate from each of its values, or (ii) all values can be divided by the mean of the value. The details can be set in the respective arguments of \code{extract()}.}
+, either per row or per column. Alternatively, 
 Although this function is intended mainly as a helper function for \code{ci_plot()}, it can be quite useful for specific normalization purposes, for example when data were derived before and after servicing the Omnilog\textregistered \ facility, which might result in shifting the measurements by a certain amount.
 In conjunction with \code{extract()}, \code{ci_plot()} allows for visualizing point estimates and confidence intervals of groups of parameter estimates.
 For visualizing differences between groups and their confidence intervals, see \code{opm_mcp()} as described in Section~\ref{methods group-means}.
@@ -977,12 +979,30 @@ The default colour setting uses topological colours, with deep violet and blue i
 }
 \end{figure}
 
+
+
 \rcscom{
 Lea, please provide examples for the use of \code{ci\_plot()} in conjunction with \code{extract()}.
 You can use the examples from the manual here because they are unsuitable for the manual.
 Afterwards, include suitable examples in the manual.
 }
-
+<<results=hide, fig=FALSE, width=10>>=
+(x <- extract(vaas_et_al, as.labels = list("Species", "Strain"),
+  dataframe = TRUE))
+# without normalisation
+(y <- extract(x, as.groups = TRUE,  norm.per = c("none")))
+ci_plot(y[,1:8])
+# normalisation by plate-means
+(y <- extract(x, as.groups = TRUE,  norm.per = c("row")))
+ci_plot(y[,1:8])
+# normalisation by well-means
+(y <- extract(x, as.groups = TRUE,  norm.per = c("column")))
+ci_plot(y[,1:8])
+# normalisation by subtraction of well-mean of A10
+(y <- extract(x, as.groups = TRUE,  norm.per = c("column"), norm.by = c(10),
+  subtract = TRUE))
+ci_plot(y[,1:15])
+@
 The \code{ci\_plot()} function (see Figure~\ref{fig:ci_plot}) provides a visualization of the point estimator and its 95\% confidence interval calculated \textit{via} bootstrapping during aggregation of curves into parameters.
 The user is free to select the subsets of interest \textit{via} the bracket operator as described above (see Section~\ref{application manipulation}):
 
