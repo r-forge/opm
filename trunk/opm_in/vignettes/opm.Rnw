@@ -116,6 +116,9 @@ Next, Figure~\ref{fig:overview} should be looked at, as it lists the names of th
 Examples for each step would then be found in the according subsections of of Section~\ref{application}.
 Details on the scientific background could well be skipped during a first reading.
 The user would nevertheless find them in Section~\ref{methods}, including references for important functionality.
+\rcscom{
+TODO MG: Add link to new resources section.
+}
 
 
 \subsection[Scientific introduction]{Scientific introduction}\label{scientific introduction}
@@ -143,6 +146,13 @@ Using \pkg{opm}, they can be augmented by the information coded in the shape cha
 This yields 96 sets of parameters per plate, each containing four robustly estimated parameters that describe distinct aspects of the respective curve shape.
 The \pkg{opm} package also offers tools for further combining this bundle of raw and aggregated data of each single kinetic with meta-information on the organisms and/or experiments.
 Based on this meta-information, a variety of visual and statistical comparison tools for either the raw or the aggregated data are available in \pkg{opm}.
+\rcscom{
+TODO JS: 
+Please rephrase as follows: `one' -> `single', `Hour' -> `Time', `value' -> `Value'.
+Maybe as a small depiction of the Omnilog instrument (lower left side).
+Maybe add row above that indicates what is done within opm (right) and what by the Omnilog software.
+Maybe mention at least in the text that the data can also be discretized.
+}
 }
 \end{figure}
 
