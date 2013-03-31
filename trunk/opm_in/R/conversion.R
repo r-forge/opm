@@ -856,7 +856,7 @@ setMethod("rep", OPMS, function(x, ...) {
 
 #' Extract aggregated values
 #'
-#' Extract selected aggregated and/or discretized values into common matrix or 
+#' Extract selected aggregated and/or discretized values into common matrix or
 #' data frame. The data-frame method conducts normalisation and/or computes
 #' normalized point-estimates and respective confidence intervals for
 #' user-defined experimental groups. It is mainly a helper function for
@@ -970,9 +970,9 @@ setMethod("rep", OPMS, function(x, ...) {
 #' # select only the first replicate of the E.coli strains
 #' x <- subset(vaas_et_al,
 #'   query = list(Experiment = "First replicate", Species = "Escherichia coli"))
-#'   
+#'
 #' # extract parameter A with strain, experiment, slot and species as metadata
-#' x.A <- extract(x, 
+#' x.A <- extract(x,
 #'   as.labels = list("Strain", "Experiment", "Slot", "Species"),
 #'   subset = "A", dataframe = TRUE)
 #' stopifnot(dim(x.A) == c(20L, 101L))
