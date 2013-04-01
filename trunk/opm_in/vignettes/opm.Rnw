@@ -97,6 +97,7 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -211,13 +212,33 @@ The raw kinetic data can be exported by the proprietary OmniLog\textregistered \
 To facilitate a comprehensive and straightforward data processing and analysis, the raw and aggregated data of each single kinetic can be concatenated and combined with metadata (see Figure~\ref{fig:data}). The underlying principles are described in Section~\ref{methods metadata}, whereas example code for metadata management is included in Section~\ref{application metadata}.
 
 In a further step the valuable biological information coded in the shape characteristics of the recorded curves can be extracted.
-Four descriptive curve parameters are estimated, which is explained in detail in Section~\ref{methods aggregating}, whereas example code for metadata management is included in Section~\ref{application aggregating}.
+Four descriptive curve parameters are estimated, which is explained in detail in Section~\ref{methods aggregating}, whereas example code for curve parameter aggregation is included in Section~\ref{application aggregating}.
+
+The user may now be interested to either query or subset the diverse set of data stored in \proglang{OPM(A)(D)(S)} objects. 
+The underlying principles are described in Section~\ref{methods manipulation}, whereas example code for object management is included in Section~\ref{application manipulation}.
+
+The raw kinetic data can be plotted either as levelplots or as typical curves in form of XY plots. The aggregated curve parameters can be plotted either as confidence-interval plots (comparison of single curves), radial plots (comparison of single/few wells across several plates) or heatmaps (comparison of all wells across several plates). 
+The underlying principles are described in Section~\ref{methods plotting}, whereas example code for plotting is included in Section~\ref{application plotting}.
+
+In order to then statistically compare aggregated curve parameters, functionalities for the multiple comparison of groups means are implemented. 
+This allows to test statistical hypothesis involving groups of numerous plates (as defined, e.g., \textit{via} metadata entries) and/or groups of numerous wells (as defined, e.g.,  \textit{via} KEGG or COG groups). 
+\rcscom{is that possible?, to define groups via KEGG or COG groups?}
+The  principles are described in Section~\ref{methods group-means}, and example code is included in Section~\ref{application group-means}.
+
+The aggregated data can be discretized and exported for phylogenetic analysis in specialized phylogeny software such as \proglang{PAUP*}, \proglang{RAxML} or \proglang{TNT}. The principle is outlined in Section~\ref{methods discrete-multistate}.
+Also, a typical application of the OmniLog\textregistered \ technology is to classify reactions as being either positive, negative or weak (ambiguous). 
+In order to not rely on artificial user-defined threshold values, k-means partitioning algorithms have been implemented to obtain non-biased discretization into these categories based on the data (maximum value A) itself. The  principle is described in Section~\ref{methods discrete-binary}. Example code for these discretization applications, including the export of discretization results as  tabular \proglang{HTML} or text generation suitable for publication, is included in Section~\ref{application discrete-phylogeny}.
+
+Furthermore, substrate informations can be accessed, including CAS numbers, KEGG and Metacyc IDs as far as they are available. Code examples are included in Section~\ref{application substrates}.
+
+Finally, it is possible to modify settings that have an effect on multiple functions and/or on frequently used arguments, see Section~\ref{application settings}.
+
+
+\label{methods manipulation}
+
 
 \rcscom{
-This section has been largely re-written because it did not really serve as an overview.
-The other forthcoming steps and subsections should also be mentioned and linked here.
-Johannes, might you have a look?
-But see also next TODO entry.
+All subsections are mentioned and linked. The section \proglang{Batch conversion of many files} is not yet addressed (see TODO entry for Lea).
 }
 
 The work flow of the package was designed for offering a maximum of flexibility with respect to the type of information added to the \proglang{R} object and to the order of steps in which this is achieved.
@@ -1057,8 +1078,8 @@ Shown are the results on the three wells A01 (negative control), A02 (Dextrin) a
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
 
 \rcscom{
-Vorschlag Johannes: Wir sollten hier ein plakatives Beispiel nehmen, in dem wir sowohl Gruppenvergleiche haben, die nicht verschieden voneinander sind, wie auch Gruppenvergleiche, die signifikant verschieden voneinander sind und bei denen man auch einen Unterschied in der effect size sehen kann. Daher sollten wir auf den \code{vaas\_et\_al} Datensatz zurueckgreifen, wie unten in blauer Farbe beschrieben.
-Die beiden Beispiel-Figures von Lea (momentan Fig. 12 und 13) halte ich nicht fuer so ideal, denn Fig. 12 beinhaltet nur einen paarweisen Vergleich, kein multiple comparison, und in Fig. 13 gibt es keinen Unterschied bei irgendeinem der paarweisen Vergleich - es wird dem Leser das Potential einer solchen Abbildung nicht vollstaendig klar.Ich habe mir trotzdem erlaubt, bei diesen und einigen anderen Figures etwas die Groesse anzupassen.
+Vorschlag Johannes: Wir sollten hier ein plakatives Beispiel nehmen, in dem wir sowohl Gruppenvergleiche haben, die nicht verschieden voneinander sind, wie auch Gruppenvergleiche, die signifikant verschieden voneinander sind und bei denen man auch einen Unterschied in der effect size sehen kann. Daher sollten wir auf den \code{vaas\_et\_al} Datensatz zurueckgreifen, da dort eine Fuelle an Kurven zur Verfuegung steht.
+Die beiden Beispiel-Figures von Lea \ref{fig:opm_mcp_CI_plotI}, \ref{fig:opm_mcp_CI_plotII}) halte ich nicht fuer so ideal, denn \ref{fig:opm_mcp_CI_plotI} beinhaltet nur einen paarweisen Vergleich, kein multiple comparison, und in \ref{fig:opm_mcp_CI_plotII} gibt es keinen Unterschied bei irgendeinem der paarweisen Vergleich - es wird dem Leser das Potential einer solchen Abbildung nicht vollstaendig klar.
 }
 
 To demonstrate the functionality of \code{opm\_mcp()}, a comparison of four different bacteria, with each ten replicates using GEN-III microplates, will be utilized.
@@ -1101,8 +1122,8 @@ The x-axes show the measurement time in hours, the y-axes the measured colour in
 The statistical question to be addressed is the following.
 Is there a significant difference between any of the four strains, based on the mean of the curve parameter A values as determined for each of the ten curves?
 Here, a multiple comparison of group means is performed using \code{opm\_mcp()}.
-The groups to be compared are defined by the argument ``model''. The argument ``m.type'' specifies the model types to use in model fitting, e.g., a linear model (lm), a generalized linar model (glm), or an analysis of variance (aov). The argument ``mcp.def'' basically defines the type of contrast matrix to be used for the multiple comparison. In principle, the contrast matrix defines what type of comparison should be made. Concrete, among the groups defined by the argument ``model'', which of these should actually be included in pariwise comparisons? A detailed explanation of contrast matrices is shown further below. 
-\rcscom{Lea, is this the correct idea?}
+The groups to be compared are defined by the argument ``model''. The argument ``m.type'' specifies the model types to use in model fitting, e.g., a linear model (lm), a generalized linar model (glm), or an analysis of variance (aov). The argument ``mcp.def'' basically defines the type of contrast matrix to be used for the multiple comparison. In principle, the contrast matrix defines what type of comparison should be made. Concrete, among the groups defined by the argument ``model'', which of these should actually be included in paiwwise comparisons? A detailed explanation of contrast matrices is shown further below. 
+\rcscom{Lea, is this the correct idea of a contrast matrix?}
 
 <<results=hide, width=8>>=
 (x <- opm_mcp(vaas.subset.mcp, model = ~ Strain, m.type = "aov",
