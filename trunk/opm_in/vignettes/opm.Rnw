@@ -1126,7 +1126,7 @@ The groups to be compared are defined by the argument ``model''. The argument ``
 \rcscom{Lea, is this the correct idea of a contrast matrix?}
 
 <<results=hide, width=8>>=
-(x <- opm_mcp(vaas.subset.mcp, model = ~ Strain, m.type = "aov",
+(xx <- opm_mcp(vaas.subset.mcp, model = ~ Strain, m.type = "aov",
   mcp.def = mcp(Strain = "Tukey")))
 @
 
@@ -1140,7 +1140,7 @@ summary(x)
 Is it possible to show here at least part of the output from \code{summary(x)}?
 We surely do not need the long list at the beginning, but would it be possible to show the output containing the estimates, the p-values, etc?
 Answer: Then we would need to select within the output of summary().
-Lea, might you have a look?
+Lea, might you have a look? 
 }
 
 The results of the statistical test can be plotted (see Figure~\ref{fig:ci_plot_mcp}). 
@@ -1155,7 +1155,7 @@ However, the position of the 95\% confidence interval indicates that the differe
 <<fig=FALSE, width=8>>=
 op <- par(no.readonly = TRUE) # default plotting settings
 par(mar = c(3, 15, 3, 2))
-plot(x)
+plot(xx)
 par(op)
 @
 
@@ -1166,7 +1166,7 @@ par(op)
 <<fig=TRUE, echo=FALSE, width=8, height=3>>=
 op <- par(no.readonly = TRUE) # default plotting settings
 par(mar = c(3, 15, 3, 2))
-plot(x)
+plot(xx)
 par(op)
 @
 
@@ -1194,6 +1194,7 @@ x <- opm_mcp(vaas_4, model = ~ Species + Strain,
 @
 
 \rcscom{Lea, explain contrasts, refer to \code{contrMat() from \pkg{multcomp}}}
+
 <<results=hide, echo=FALSE, width=8>>=
 n <- c(10,20,30,40)
  names(n) <- paste("group", 1:4, sep="")
@@ -1207,6 +1208,15 @@ n <- c(10,20,30,40)
  contrMat(n, type = "Marcus")
  contrMat(n, type = "McDermott")
 @
+
+
+\rcscom{comment Johannes: Lea, could it make sense to explain the contrast matrix using the following example? I still not have understood for what these 0, 1, and -1 are.}
+
+The principle of a contrast matrix can best be explained using the example from above (see Figure~\ref{fig:ci_plot_mcp}). If I had any idea on that stuff, I would have given an appropriate explanation for the code output seen below.
+<<width=8>>=
+summary(xx)[2]
+@
+
 
 \rcscom{Lea, comparison according metadata 'Species'}
 <<results=hide, width=8>>=
