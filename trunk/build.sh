@@ -83,6 +83,32 @@ find_docu_script()
 ################################################################################
 
 
+# Check whether or not each file in the source directory (1st argument) has a 
+# more recent *.pdf file in the target directory (2nd argument). Used below for 
+# comparing the original graphics files with the resulting PDFs in the vignette
+# directory.
+#
+check_graphics_files()
+{
+  local source_dir=$1 target_dir=$2 errs=0
+  local source_file target_file
+  for source_file in "$source_dir"/*; do
+    [ -e "$source_file" ] || break
+    target_file=$target_dir/${source_file##*/}
+    target_file=${target_file%.*}.pdf
+    if [ "$target_file" -ot "$source_file" ]; then
+      echo "WARNING: '$target_file' missing or older than '$source_file'" >&2
+      echo >&2
+      errs=$(($errs + 1))
+    fi
+  done
+  return $errs
+}
+
+
+################################################################################
+
+
 # Check whether or not each *.Rnw vignette file has a more recent *.pdf file
 # in the doc directory of the package. Remove problematic lines inserted by 
 # some software from Rnw files.
@@ -93,7 +119,7 @@ check_vignettes()
   local errs=0
   for indir; do
     for sweave_file in "$indir"/vignettes/*.Rnw; do
-      [ -s "$sweave_file" ] || break
+      [ -e "$sweave_file" ] || break
       pdf_file=$indir/inst/doc/${sweave_file##*/}
       pdf_file=${pdf_file%.*}.pdf
       if [ "$sweave_file" -nt "$pdf_file" ]; then
@@ -133,7 +159,7 @@ check_R_tests()
   for infile; do
     testfile=${infile%/R/*}/inst/tests/test_${infile##*/R/}
     if ! [ -s "$testfile" ]; then
-      echo "test file for '$infile' does not exist" >&2
+      echo "test file for '$infile' does not exist or is empty" >&2
       errs=$((errs + 1))
     elif ! awk -v rfile="$infile" \
       '
@@ -314,6 +340,7 @@ fi
 # Set up package input directory, name of logfile, and location of 'docu.R'.
 #
 PKG_DIR=opm_in
+GRAPHICS_DIR=graphics
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 DOCU=`find_docu_script || :`
 if [ "$DOCU" ]; then
@@ -327,6 +354,7 @@ fi
 
 # Conduct checks defined in this file (via shell functions).
 #
+check_graphics_files "$GRAPHICS_DIR" "$PKG_DIR/vignettes" || true
 check_vignettes "$PKG_DIR" || true
 if ! check_R_tests "$PKG_DIR"/R/*; then
   echo "something wrong with the tests in '$PKG_DIR', exiting now" >&2
@@ -366,7 +394,7 @@ fi
 # Move the generated archive files, if any, into their directory.
 #
 for file in "$OUT_DIR"_*.tar.gz; do
-  [ -s "$file" ] || break
+  [ -e "$file" ] || break
   mkdir -p "$BUILT_PACKAGES" && mv -v "$file" "$BUILT_PACKAGES"
 done
 
