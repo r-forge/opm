@@ -27,6 +27,11 @@ The build script only cares about 'opm\_in/', but not about 'opmdata\_in/' or
 Folder with test files for 'run_tests.sh' and the results of running it.
 
 
+### 'graphics'
+
+Folder with original graphics files for the vignette.
+
+
 ### 'misc'
 
 Any other files. Do **not** place files relevant for creating or testing the 
