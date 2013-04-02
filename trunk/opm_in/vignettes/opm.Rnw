@@ -279,26 +279,25 @@ A number of \proglang{S3} helper classes are also used by several functions.
 
 \subsection[Integration of metadata]{Integration of metadata}\label{methods metadata}
 
-The interface of the \textit{Data Collection} software of the OmniLog\textregistered \ reader is restricted in size and contains only comparatively few fields entering accompanying information  to each plate such as on the organism under study and the culture conditions
+The interface of the \textit{Data Collection} software of the OmniLog\textregistered \ reader is restricted in size and contains only comparatively few fields for entering accompanying information  to each plate such as on the organism under study or the culture conditions
 Further, not all of these fields are exported together with the raw measurements.
-But for most experimental designs is is clearly necessary to add much more meta-information to the kinetic data.
-It has to be emphasized that metadata can include all kind of describing characteristics of the observed organism(s) such as taxonomic affiliation and geographical and/or ecological origin, or of the performed experimental setting such as culture conditions, genetic modifications, physiological information of any kind and so on.
+But for most experimental designs it is clearly necessary to add much more meta-information to the kinetic data.
+It has to be emphasized that metadata can include all kind of describing characteristics of the observed organism(s) such as taxonomic affiliation, geographical and/or ecological origin, or of the performed experimental setting such as culture conditions, genetic modifications, physiological information of any kind and so on.
 
-To this end, the \pkg{opm} user can integrate the metadata in \proglang{OPM} and \proglang{OPMS} objects using the function \code{include\_metadata()} (among other functions for this task; see Figure~\ref{fig:work_flow}).
-Usually, the metadata are kept in a data frame which can be saved to, and generated from, a CSV file.
-For an unambiguous match between the raw kinetic data in the \proglang{OPMS} object and the collected metadata, a unique identifier is needed.
-By default the combination of \textit{Setup Time} and \textit{Position} is used, which should unequivocally identify certain plates.
+To this end, the \pkg{opm}-user can integrate the metadata into \proglang{OPM} and \proglang{OPMS} objects using the function \code{include\_metadata()} (among other functions for this task; see Figure~\ref{fig:work_flow}).
+Usually, the metadata are kept in a data frame which can conveniently be saved to, and generated directly from, a CSV file.
+For an unambiguous match between the raw kinetic data in the \proglang{OPMS} object and the collected metadata, a unique identifier is needed: This is, by default, proviced by the combination of \textit{Setup Time} and \textit{Position}, which should unequivocally identify certain plates.
 \textit{Setup Time} indicates the date and time at the precision of seconds of starting the batch read in the OmniLog\textregistered \ reader.
 \textit{Position} indicates the position of the plate in the OmniLog\textregistered \ reader.
 (For instance, \textit{10-A} indicates the plate sliding carriage number 10 in slot A of the reader, but for \pkg{opm} the meaning is irrelevant, as these entries only serves as identifiers.)
 Both \textit{Setup Time} and \textit{Position} are automatically recorded by the OmniLog\textregistered \ reader \textit{Data Collection} software and are exported by the OmniLog\textregistered \ PM \textit{File Management/Kinetic Analysis} software into CSV files together with the raw kinetic data.
 
-To facilitate the compilation of metadata information, \code{collect\_template()} generates a data frame (and additionally, if requested, a CSV file) in which each line represents a single PM plate.
-The function \code{collect\_template()} automatically includes the \textit{Setup Time} and \textit{Position} (or any other CSV data of interest) of each plate into the data frame or file.
-The user can subsequently add further columns describing any metadata of interest of any PM plate of interest.
-The data frame or CSV file can then be queried for the information specific to each plate, and the resulting data integrated into \proglang{OPM} or \proglang{OPMS} objects using \code{include\_metadata()}.
+To facilitate the user-friendly compilation of metadata information, \code{collect\_template()} generates a data frame (and additionally, if requested, a CSV file) in which each line represents a single PM plate.
+The function \code{collect\_template()} automatically includes the \textit{Setup Time} and \textit{Position} (or any other CSV data of interest) of each plate into the data frame or file providing a structured template for input of metadata.
+Thus, it is easy to subsequently add further columns describing any kind of meta-information of interest of any PM plate of interest.
+The resulting data frame or CSV file can then be queried for the information specific to each plate, and the resulting data integrated into \proglang{OPM} or \proglang{OPMS} objects using \code{include\_metadata()}.
 Whereas this function will usually result in non-nested metadata entries, the implementation allows one, in principle, to deal with arbitrarily nested meta-information.
-The amount of meta-information added and plates analysed is only limited by the available computer memory.
+Thereby, the amount of meta-information added and plates analysed is only limited by the available computer memory.
 
 
 % The following figure is already referred to in the section 'Data import'.
@@ -990,8 +989,6 @@ The central rectangle is a substrate $x$ plate matrix in which the colours repre
 The default colour setting uses topological colours, with deep violet and blue indicating the lowest values and light brown indicating the highest values.
 }
 \end{figure}
-
-
 
 \rcscom{
 Lea, please provide examples for the use of \code{ci\_plot()} in conjunction with \code{extract()}.
