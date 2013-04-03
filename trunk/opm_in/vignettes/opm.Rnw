@@ -97,7 +97,6 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -616,7 +615,7 @@ For instance, for inputting all example files except for the one with multiple p
 <<results=hide>>=
 many.plates <- read_opm(files, exclude = "*Multiple*", convert = "grp")
 summary(many.plates)
-summary(many.plates$PM01)
+summary(many.plates[["PM01"]])
 rm(many.plates) # tidy up
 @
 
@@ -656,6 +655,7 @@ metadata.example <- to_metadata("example_metadata.csv")
 @
 Per default, this expects CSV columns separated by tabulators, with the fields protected by quotes.
 To input other formats, consider the \code{sep} argument for defining an alternative column separator, as well as the \code{strip.white} argument for turning the removal of whitespace at the beginning and end of the fields on or off (which is relevant if a spreadsheet program exports CSV \textit{without} quotes).
+
 Now the user could add information to the data frame by calling \code{edit()}, which would open the \proglang{R} editor, or by any other way of manipulating data frames in \proglang{R}.
 New columns could be defined, or the existing metadata modified.
 But the first columns must remain unchanged because they are needed to identify individual PM plates for linking them to their meta-information.
@@ -680,13 +680,73 @@ unlink("example_metadata.csv")
 @
 
 A couple of other functions have been implemented for manipulating metadata included in \proglang{OPM} and \proglang{OPMS} objects.
-For instance, the entire meta-information, or specific entries, can be set using the replacement function \code{metadata()<-} (see the \pkg{opm} manual for details).
-%TODO MG more details needed here.
-In the following we discuss metadata modification using \code{map\_metadata()}.
-
-Making use of the exemplar generated above, the key \textit{Colour} could be changed to \textit{Colony colour} as follows:
+For instance, the entire meta-information, or specific entries, can be set using the replacement function \code{metadata()<-}.
+Setting a specific entry named \code{key} to a specific value \code{value} in all plates would be accomplished by \code{metadata(example.opm, key) <- value}.
+If the right side of the assignment is a data frame with the same length as the \proglang{OPMS} object, each row would be specifically assigned to the \proglang{OPM} object with the same index.
+This comes handy for adding the \code{csv\_data()} selected or all information from the OmniLog\textregistered \ CSV files to the metadata:
 
 <<results=hide>>=
+metadata(example.opm)
+metadata(example.opm) <- to_metadata(csv_data(example.opm))[, 
+  c("Strain Name", "Sample Number")]
+metadata(example.opm)
+@
+
+You might note that ``Sample Number'' is a misnomer in these datasets.
+In this and similar cases, modifying metadata in-place is of interest, which can be accomplished using \code{map\_metadata()}.
+This function would return a novel \proglang{OPMS} (or \proglang{OPM}) object.
+Its formula method is particularly powerful.
+
+<<results=hide>>=
+metadata(example.opm)
+metadata(map_metadata(example.opm, Organism ~ `Sample Number`))
+@
+
+This works by converting the left side of the formula into a metadata key and evaluating the right side of the formula in the context of the metadata entries that have already been added.
+``Sample Number'' must be quoted because it contains a special character (the blank).
+
+But we have not yet removed the aptly named ``Sample Number'' entries.
+Here, it is useful that all operators (except for \code{\$} and other high-precedence operators, which can be used for defining nested keys) on the left side, if present, would be changed into a call to \code{list()}.
+Hence it is possible to define several keys at once.
+The right side, once evaluated, would be recycled accordingly.
+Thus we could clean up our metadata in a single line of code:
+
+<<results=hide>>=
+metadata(map_metadata(example.opm,
+  Organism + `Sample Number` ~ list(`Sample Number`, NULL)))
+@
+
+The deletion of ``Sample Number'' is accomplished by the assignment of \code{NULL}, as usual in lists.
+Instead of \code{+} almost all other operators could be used, and one could also write \code{c(Organism, `Sample Number`)} on the left side, which might be more intuitive.
+
+But we have not yet stored an \proglang{OPMS} object with the cleaned metadata.
+This could be done using \code{example.opm <- map\_metadata(example.opm, ...)}.
+In that case, however, direct assignment would also be possible:
+
+<<results=hide>>=
+metadata(example.opm) <- Organism + `Sample Number` ~ 
+  list(`Sample Number`, NULL)
+metadata(example.opm)
+@
+
+So keep in mind that formulas are very flexible for modifying metadata entries.
+They would allow for any other operation (such as numerical calculations) provided it can be applied to the selected predefined metadata content.
+
+Assigning \code{NULL} to a metadata key would remove that entry.
+All metadata would be cleared by assigning an empty list, without specifying a key:
+
+<<results=hide>>=
+metadata(example.opm, "Organism") <- NULL
+metadata(example.opm)
+metadata(example.opm) <- list()
+metadata(example.opm)
+@
+
+Note that \code{map\_metadata()} can also be used with character vectors as mapping objects.
+Making use again of the exemplar generated above, the key \textit{Colour} could be changed to \textit{Colony colour} as follows:
+
+<<results=hide>>=
+example.opm <- include_metadata(example.opm, md = metadata.example)
 md.map <- metadata_chars(example.opm, values = FALSE)
 md.map
 @
@@ -706,7 +766,8 @@ By setting their argument \code{values} to \code{TRUE}, the functions \code{meta
 For instance, assume any entries ``red'' in the field denoted \textit{Colony colour} should be changed to ``green'':
 
 <<results=hide, width=10>>=
-(md.map <- metadata_chars(example.opm, values = TRUE))
+md.map <- metadata_chars(example.opm, values = TRUE)
+md.map
 md.map["red"] <- "green"
 example.opm <- map_metadata(example.opm, md.map, values = TRUE)
 metadata(example.opm)
@@ -715,8 +776,6 @@ metadata(example.opm)
 This command will transform all entries in the table with the value "red" to "green".
 Other values, as well as the keys, should be unaffected.
 It is possible to map other types of entries such as numeric vectors by requesting their coercion to the character type; see the \pkg{opm} manual for details.
-%TODO MG example for formulas needed.
-%TODO MG example for csv_data -> metadata is needed
 
 
 \subsection[Aggregating data by estimating curve parameters]{Aggregating data by estimating curve parameters}\label{application aggregating}
@@ -1110,8 +1169,8 @@ print(ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 0, y = 0))
 \caption{
 \label{fig:ci_plot_norm}
 Comparison of mean point estimates and their 95\% confidence intervals, computed over ``Species'' and ``Strain'' and normalized by subtraction of the overall well-mean of A10 (Positive Control) for the parameter maximum height (A) observed from four strains, using \code{ci\_plot()}.
-Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), A03 (D-Maltose), A04 (D-Trehalose) and A10 (Positive Control) as indicated by the sub-plot titles. Point estimates that have no overlapping confidence intervals are regarded to be significantly different.
-
+Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), A03 (D-Maltose), A04 (D-Trehalose) and A10 (Positive Control) as indicated by the sub-plot titles.
+Point estimates that have no overlapping confidence intervals are regarded to be significantly different.
 }
 \end{figure}
 
