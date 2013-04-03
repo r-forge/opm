@@ -97,6 +97,7 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -1104,21 +1105,22 @@ Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), 
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
 
-\rcscom{
-Vorschlag Johannes: Wir sollten hier ein plakatives Beispiel nehmen, in dem wir sowohl Gruppenvergleiche haben, die nicht verschieden voneinander sind, wie auch Gruppenvergleiche, die signifikant verschieden voneinander sind und bei denen man auch einen Unterschied in der effect size sehen kann. Daher sollten wir auf den \code{vaas\_et\_al} Datensatz zurueckgreifen, da dort eine Fuelle an Kurven zur Verfuegung steht.
-Die beiden Beispiel-Figures von Lea \ref{fig:opm_mcp_CI_plotI}, \ref{fig:opm_mcp_CI_plotII}) halte ich nicht fuer so ideal, denn \ref{fig:opm_mcp_CI_plotI} beinhaltet nur einen paarweisen Vergleich, kein multiple comparison, und in \ref{fig:opm_mcp_CI_plotII} gibt es keinen Unterschied bei irgendeinem der paarweisen Vergleich - es wird dem Leser das Potential einer solchen Abbildung nicht vollstaendig klar.
-}
+%\rcscom{
+%Vorschlag Johannes: Wir sollten hier ein plakatives Beispiel nehmen, in dem wir sowohl Gruppenvergleiche haben, die nicht verschieden voneinander sind, wie auch Gruppenvergleiche, die signifikant verschieden voneinander sind und bei denen man auch einen Unterschied in der effect size sehen kann. Daher sollten wir auf den \code{vaas\_et\_al} Datensatz zurueckgreifen, da dort eine Fuelle an Kurven zur Verfuegung steht.
+%Die beiden Beispiel-Figures von Lea \ref{fig:opm_mcp_CI_plotI}, \ref{fig:opm_mcp_CI_plotII}) halte ich nicht fuer so ideal, denn \ref{fig:opm_mcp_CI_plotI} beinhaltet nur einen paarweisen Vergleich, kein multiple comparison, und in \ref{fig:opm_mcp_CI_plotII} gibt es keinen Unterschied bei irgendeinem der paarweisen Vergleich - es wird dem Leser das Potential einer solchen Abbildung nicht vollstaendig klar.
+%}
 
-To demonstrate the functionality of \code{opm\_mcp()}, a comparison of four different bacteria, with each ten replicates using GEN-III microplates, will be utilized.
-Do these four bacteria differ in, e.g., the mean value of, e.g., curve parameter A of, e.g, well A1?
-Here, a statistical comparison of four groups (four organisms) of each 10 values (curve parameter A of 10 replicates of well A1) will be performed.
+To demonstrate the functionality of \code{opm\_mcp()}, a comparison of four different bacteria, with each ten replicates using GEN-III microplates, will serve as an example. 
+One experimental questions, which could be addressed might be ``Do these four bacteria differ in, e.g., the mean value of, e.g., curve parameter A of, e.g, well G06''?
+The answer will be given by perfoming a statistical comparison of the four groups (four organisms) against each other. 
 First, from the data set \code{vaas\_et\_al}, a subset of the ten technical replicates of GEN-III plates from the first biological replicate and also for the curves from well G06 only will be made.
+
 <<results=hide, width=8>>=
 vaas.subset.mcp <- subset(vaas_et_al[, , "G06"], 
   list(Experiment = "First replicate"))
 @
 
-For each of the four strains, ten curves are shown (see Figure~\ref{fig:xy_plot_mcp}). 
+Now the dataset contains four strains measured each in ten replicates, represented by ten curves per strain (see Figure~\ref{fig:xy_plot_mcp}). 
 
 <<fig=FALSE, width=10>>=
 xy_plot(vaas.subset.mcp, include = ~ Strain, neg.ctrl = FALSE,
