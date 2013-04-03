@@ -958,11 +958,14 @@ level_plot(vaas.1.6, main = "E. coli vs. P. aeruginosa",
 @
 
 \begin{figure}
+
 \scalebox{1.225}{
+
 <<fig=TRUE, echo=FALSE, width=18, height=12>>=
 print(level_plot(vaas.1.6, main = "E. coli vs. P. aeruginosa",
   include = list("Species", "Strain")))
 @
+
 }
 
 \caption{
@@ -985,7 +988,7 @@ The function \code{heat\_map()} (see Figure~\ref{fig:heat_map}) provides false-c
 In the context of PM data, it makes most sense to apply it to the estimated curve parameters.
 This \pkg{opm} function is a wrapper for \code{heatmap()} from the \pkg{stats} and \code{heatmap.2()} from the \pkg{gplots} package with some adaptations to PM data.
 For instance, row groups can be automatically constructed from the metadata.
-The function must be applied to matrices or data frames constructed using \code{extract()}:
+The function \code{heat\_map()} must be applied to matrices or data frames constructed using the helper-function \code{extract()}:
 
 <<results=hide, fig=FALSE, width=10>>=
 vaas.1.6.A <- extract(vaas.1.6, as.labels = list("Species", "Strain"),
@@ -1004,16 +1007,18 @@ print(heat_map(vaas.1.6.A, as.labels = "Strain", as.groups = "Species"))
 \label{fig:heat_map}
 Visualization of the clustered results from the curve parameter maximum height (A) for each substrate using the function \code{heat\_map()}.
 The x-axis corresponds to the substrates clustered according to the similarity of their values over all plates; the y-axis corresponds to the plates clustered to the similarity of their values over all substrates.
-As row labels, the strain names were selected, whereas the species affiliations was used to assign row group colours (bars at the left side).
-The central rectangle is a substrate $x$ plate matrix in which the colours represent the classes of values.
+As row labels, the strain names were selected (argument \code{as.labels}), whereas the species affiliations was used to assign row group colours (bars at the left side, argument \code{as.groups}).
+The central rectangle is a substrate $\times$ plate matrix in which the colours represent the classes of values.
 The default colour setting uses topological colours, with deep violet and blue indicating the lowest values and light brown indicating the highest values.
 }
 \end{figure}
 
-Alternatively, using the function \code{ci\_plot()} the user is enabled to visualize parameters'point estimators and corresponding 95\% confidence intervals, derived \textit{via} bootstrapping during aggregation of curves into parameters. Thereby the bracket operator as described above (see Section~\ref{application manipulation}) facilitates the free selection of subsets of interest. Figure~\ref{fig:ci_plot} provides such a visualization of the parameter maximum height (A) for the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose).
+Additionally, using the function \code{ci\_plot()} the user is enabled to visualize parameters'point estimators and corresponding 95\% confidence intervals, derived \textit{via} bootstrapping during aggregation of raw kinetic data into curve parameters. Thereby the bracket operator as described above (see Section~\ref{application manipulation}) facilitates the free selection of subsets of interest. Figure~\ref{fig:ci_plot} provides such a visualization of the parameter maximum height (A) for the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose).
+
+
 
 <<results=hide, fig=FALSE, width=10>>=
-ci_plot.legend <- ci_plot(vaas.1.6[, , 1:3],
+ci_plot.legend <- ci_plot(vaas.1.6[, , c("A01", "A02", "A03")],
   as.labels = list("Species", "Strain"), subset = "A",
   legend.field = NULL, x = 170, y = 3)
 @
@@ -1021,18 +1026,27 @@ ci_plot.legend <- ci_plot(vaas.1.6[, , 1:3],
 \begin{figure}
 \scalebox{1.225}{
 <<fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
-print(ci_plot(vaas.1.6[, , 1:3], as.labels = list("Species", "Strain"),
+print(ci_plot(vaas.1.6[, , c("A01", "A02", "A03")], as.labels = list("Species", "Strain"),
   subset = "A", legend.field = NULL, x = 170, y = 3))
 @
 }
 \caption{
 \label{fig:ci_plot}
 Comparison of point estimates and their 95\% confidence intervals for the parameter maximum height (A) observed from four strains, using \code{ci\_plot()}.
-Shown are the results from one plate on the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose) as indicated by the sub-plot titles.
+Shown are the results from one plate on the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose) as indicated by the sub-plot titles. Point estimates that have no overlapping confidence intervals are regarded to be significantly different.
 }
 \end{figure}
 
+\rcscom{
+Comment Johannes. I do not like Figure~\ref{fig:ci_plot} too much, since the confidence intervals are extremely small compared to the distance of the point estimates. The information potential coded in the confidence interval does not become clear here. In contrast, Figure~\ref{fig:ci_plot_groups} is far more impressive, since the confidence intervals shown here are really informative. Should we not think about combining the figures? I see the point of Figure~\ref{fig:ci_plot_groups} to introduce \code{norm.per = c("none")}, perhaps we could then use different wells for Figure~\ref{fig:ci_plot} and  Figure~\ref{fig:ci_plot_groups}? At minimum, I suggest to use a different data set for Figure~\ref{fig:ci_plot}, we need more impressive (larger) confidence intervals }
+
+
 Furthermore the helper-function \code{extract()} offers flexibility to apply different approaches of normalisation, standardisation and grouping of comprehensive OPMS-objects according selected metadata, as introduced in Section~\ref{methods plotting-aggregated}. 
+\rcscom{
+Comment Johannes: (1) We need a definition of the term "normalisation". From my current small insight into multivariate statistics I know that different authors treat the terms "normalisation", "standardisation", "Zentrierung", etc, quite differently and use different words for the same stuff. 
+We also need an explanation why and under what conditions a normalisation should be appropriate. (2) You address the term "standardisation", but it is no where else addressed in the vignette. 
+Is there, with respect to \code{extract()}, really a difference between normalisation and standardisation? 
+If no, we should skip standardisation, if yes, we need examples and justifications for this}
 After the extraction of the values together with demanded metatdata (argument \code{as.labels}), the resulting dataframe can be treated by \code{extract()} for generating dataframes with joined metadata for grouping (indicated by \code{as.groups}) and applied normalisation \textit{via} the argument \code{norm.per}. 
 
 <<results=hide, fig=FALSE, width=10>>=
@@ -1040,7 +1054,7 @@ After the extraction of the values together with demanded metatdata (argument \c
   dataframe = TRUE))
 @
 
-\code{norm.per = c("none")} applies no normalisation and returns a dataframe with \code{as.groups = TRUE} containing means computed of estimators according the available metadata (see Fig~\ref{fig:ci_plot_groups}). 
+\code{norm.per = c("none")} applies no normalisation and returns a dataframe with \code{as.groups = TRUE} containing means computed of estimators according the available metadata (see Fig~\ref{fig:ci_plot_groups}). (Note: the bracket operator \code{[]} addresses the respective columns in the data frame \code{y} produced using \code{extract()}).
 
 <<results=hide, fig=FALSE, width=10>>=
 # without normalisation
@@ -1048,7 +1062,7 @@ After the extraction of the values together with demanded metatdata (argument \c
 ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 350, y = 0)
 @
 
-\begin{figure}[h]
+\begin{figure}
 \scalebox{1.225}{
 <<fig=TRUE, echo=FALSE, results=hide, width=9, height=8>>=
 print(ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 350, y = 0))
@@ -1057,27 +1071,28 @@ print(ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 350, y = 0))
 \caption{
 \label{fig:ci_plot_groups}
 Comparison of mean point estimates and their 95\% confidence intervals, computed over "Species" and "Strain", for the parameter maximum height (A) observed from four strains, using \code{ci\_plot()}.
-Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), A03 (D-Maltose), A04 (D-Trehalose) and A10 (Positive Control) as indicated by the sub-plot titles.
+Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), A03 (D-Maltose), A04 (D-Trehalose) and A10 (Positive Control) as indicated by the sub-plot titles. Point estimates that have no overlapping confidence intervals are regarded to be significantly different.
 }
 \end{figure}
 
-Normalisation subtracting plate means (\code{norm.per = c("row")}) or well means (\code{norm.per = c("column")}) can be applied and the results directly plotted using \code{ci\_plot()}.
+Normalisation subtracting plate means (\code{norm.per = c("row")}; by default, this would subtract the mean of each plate from each of its values (over all wells of that plate)) or well means (\code{norm.per = c("column")}; by default, this would subtract the mean of each well from each of its values (over all plates in which this well is present)) can be applied and the results directly plotted using \code{ci\_plot()}.
 
 <<results=hide, fig=FALSE, width=10>>=
-# without normalisation
+# without normalisation (no figure is plotted in this manual)
 (y <- extract(x, as.groups = TRUE,  norm.per = c("none")))
 ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 350, y = 1)
-# normalisation by plate-means
+# normalisation by plate-means (no figure is plotted in this manual)
 (y <- extract(x, as.groups = TRUE,  norm.per = c("row")))
 ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 130, y = 1)
-# normalisation by well-means
+# normalisation by well-means (no figure is plotted in this manual)
 (y <- extract(x, as.groups = TRUE,  norm.per = c("column")))
 ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 20, y = 1)
 @
 
-Moreover, \textit{via} \code{norm.by} it is possible to use selected well(s)/plate(s) for calculation of means used for normalisatio. 
+Moreover, \textit{via} \code{norm.by} it is possible to use selected well(s)/plate(s) for calculation of means used for normalisation. 
 With \code{direct = TRUE} even directly entered numeric values can be used for normalisation purposes. 
 See Figure~\ref{fig:ci_plot_norm} for an example of plotted CIs normalized by subtracting the value of well A10 (Positive Control).
+
 
 <<results=hide, fig=FALSE, width=10>>=
 # normalisation by subtraction of well-mean of A10
@@ -1095,10 +1110,12 @@ print(ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 0, y = 0))
 \caption{
 \label{fig:ci_plot_norm}
 Comparison of mean point estimates and their 95\% confidence intervals, computed over ``Species'' and ``Strain'' and normalized by subtraction of the overall well-mean of A10 (Positive Control) for the parameter maximum height (A) observed from four strains, using \code{ci\_plot()}.
-Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), A03 (D-Maltose), A04 (D-Trehalose) and A10 (Positive Control) as indicated by the sub-plot titles.
+Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), A03 (D-Maltose), A04 (D-Trehalose) and A10 (Positive Control) as indicated by the sub-plot titles. Point estimates that have no overlapping confidence intervals are regarded to be significantly different.
+
 }
 \end{figure}
 
+\rcscom{I have not yet understood what this "subtraction of the value of well A10" is actually doing. I see from the normal confidence interval plot, that the mean value of A10 is approximately 310. I understand that subtracting the value of 310 from the well values of A10 will yield values of somewhat zero (see the confidence interval plot of A10 in Figure~\ref{fig:ci_plot_norm}). But I also see in the normal confidence interval plot that the mean of well A01 (negative control) is approximately 50-100, depending on the strain. Subtraction of the value of approx. 310 (mean of A10) from the values of A01 (approx 50-100) should yield values of -210 to -260, but not of approximately zero (as indicated in Figure~\ref{fig:ci_plot_norm} for well A01). Is there anything wrong, or did I misunderstood something? If the latter, which I hope is true, then some commenting on how  Figure~\ref{fig:ci_plot_norm} needs to be read is necessary} 
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
 
@@ -1125,27 +1142,31 @@ xy_plot(vaas.subset.mcp, include = ~ Strain, neg.ctrl = FALSE,
 @
 
 \begin{figure}
+
 \scalebox{1.225}{
+
 <<fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
 xy_plot(vaas.subset.mcp, include = ~ Strain, neg.ctrl = FALSE, 
   legend.fmt  = list(space = "right"))
 @
+
 }
+
 \caption{
 \label{fig:xy_plot_mcp}
 PM curves from the ten technical replicates of the first biological repetition plotted using \code{xy\_plot()}.
 The respective curves from all four strains are superimposed; the affiliation to each strain is indicated by colour (see the legend).
 The x-axes show the measurement time in hours, the y-axes the measured colour intensities in OmniLog\textregistered \ units.
 }
+
 \end{figure}
 
-The statistical question to be addressed is: ``Is there a significant difference between any of the four strains, comparing the mean of their curve parameter A values (determined for each of the ten curves)?''
 
+The statistical question to be addressed is the following.
+Is there a significant difference between any of the four strains, based on the mean of the curve parameter A values as determined for each of the ten curves?
 Here, a multiple comparison of group means is performed using \code{opm\_mcp()}.
-The groups to be compared are defined by the argument \code{model}. 
-The argument \code{m.type} specifies the model type to be used for fitting the mode, e.g., a linear model (\code{lm}), a generalized linar model (\code{glm}), or an analysis of variance model (\code{aov}). 
-\textit{Via} the argument \code{mcp.def} the user can define the type of contrast matrix to be used for the multiple comparison. In principle, the contrast matrix defines which group means should be compared and how. In our example Tukey-type contrast-matrix indicates an all-against-all comparison, resulting in a set of six two sided pairwise comparisons amoung all the four strain-means (all possible pairs).
-A more detailed explanation of contrast matrices is shown further below.
+The groups to be compared are defined by the argument ``model''. The argument ``m.type'' specifies the model types to use in model fitting, e.g., a linear model (lm), a generalized linar model (glm), or an analysis of variance (aov). The argument ``mcp.def'' basically defines the type of contrast matrix to be used for the multiple comparison. In principle, the contrast matrix defines what type of comparison should be made. Concrete, among the groups defined by the argument ``model'', which of these should actually be included in paiwwise comparisons? A detailed explanation of contrast matrices is shown further below. 
+\rcscom{Lea, is this the correct idea of a contrast matrix?}
 
 <<results=hide, width=8>>=
 (xx <- opm_mcp(vaas.subset.mcp, model = ~ Strain, m.type = "aov",
@@ -1155,53 +1176,57 @@ A more detailed explanation of contrast matrices is shown further below.
 The results shown below indicate that all group means are significantly different from each other, except for the comparison of strains DSM30083T and DSM1707:
 
 <<results=hide, width=8>>=
-summary(xx)
+summary(x)
 @
 
 \rcscom{
-Is it possible to show here at least part of the output from \code{summary(xx)}?
+Is it possible to show here at least part of the output from \code{summary(x)}?
 We surely do not need the long list at the beginning, but would it be possible to show the output containing the estimates, the p-values, etc?
 Answer: Then we would need to select within the output of summary().
-Markus, can we adapt the summary function, that only the model-fit is shown without the data? 
+Lea, might you have a look? 
 }
 
-\code{opm_mcp()} internally calls \code{glht} from package \pkg{multcomp} and returns an object of class \code{glht}. The results of the performed statistical test can be plotted (shown in Figure~\ref{fig:ci_plot_mcp}) using the methods available for objects of class \code{glht} (see help-page of \code{glht} for details).
-On the y-axes the performed comparisons are indicated as differences of the groups, determining which differences of means are computed. 
-
-For example, the last comparison showing the difference of mean of curve parameter A values of strain DSM 30083T minus the mean of A values of strain DSM18039 results 26.615 units. Therefore, the point estimator of this difference of specific group-means is plotted at position 26.615 on the x-axis. That is, in mean A-values for Strain DSM30083T is 26.615 units larger than the mean A-value of strain DSM18039 (for the detailed numeric outcome see the estimate results provided by \code{summary(xx)} or \code{confint(xx)}).
-
-Additionally, each point estimator for difference of means comes with an 95\% confidence interval providing information about statistical significance of the test, the effect size and the variability of the mean-differences.
-In pairwise comparisons where the 95\% confidence interval crosses the vertical dashed line at zero there is no significant difference between the group means and respectively, if zero is not included, a significant difference is shown. Then, the more distant the 95\% confidence interval is from zero (dashed vertical line in the plot), the larger the biological effect size, i.e. the real differences between the groups. It has to be pointed out, that effect sizes are not correlated with sizes of the corresponding p-values: In this example the results from the statistical calculations indicate that all significant differences are highly significant (p < 0.001). 
-However, the position of the 95\% confidence interval indicates that the difference between strains DSM18039 and 429SC1 (i.e, the effect size in the second comparison) is much larger than between strains DSM30083T and 429SC1 (smaller effect size in the third comparison).
+The results of the statistical test can be plotted (see Figure~\ref{fig:ci_plot_mcp}). 
+For example, the mean of curve parameter A values of strain DSM 30083T is 26.615 units larger than the mean of A values of strain DSM18039 (see the estimate results above, provided by \code{summary(x)}). 
+Therefore, point estimator of difference between these two strain is plotted at position 26.615 on the x-axis. 
+In pairwise comparisons where the 95\% confidence interval crosses the vertical dashed line at zero there is no significant difference between the group means. 
+The more distant the 95\% confidence interval is from the dashed zero line, the larger the biological effect of the difference, irrespective of the size of the p-value. 
+For example, the results from the statistical calculations indicate that all significant differences are highly significant (p < 0.001). 
+However, the position of the 95\% confidence interval indicates that the difference between strains DSM18039 and 429SC1 (i.e, the effect size) is much larger than between strains DSM30083T and 429SC1.
 
 
 <<fig=FALSE, width=8>>=
-op <- par(no.readonly = TRUE) # save default plotting settings
-par(mar = c(3, 15, 3, 2)) # adapt margins in the plot
-plot(xx) 
-par(op) # reset to default plotting settings
+op <- par(no.readonly = TRUE) # default plotting settings
+par(mar = c(3, 15, 3, 2))
+plot(xx)
+par(op)
 @
 
 \begin{figure}
+
 \scalebox{1.225}{
+
 <<fig=TRUE, echo=FALSE, width=8, height=3>>=
 op <- par(no.readonly = TRUE) # default plotting settings
 par(mar = c(3, 15, 3, 2))
 plot(xx)
 par(op)
 @
+
 }
+
 \caption{
 \label{fig:ci_plot_mcp}
-95\% confidence interval for comparison of group means between the four strains. All pairwise comparisons are shown. The filled black circle indicates the point estimator of difference betweeen the mean of groups. 
+95\% confidence interval for comparison of group means between the strains. All pairwise comparisons are shown. The filled black circle indicates the point estimator of difference betweeen the mean of groups. 
 }
+
 \end{figure}
 
-%\rcscom{
-%Kommentar Johannes: Bis hierhin hatten wir ein sehr simples und straight-forward example.
-%Nun koennte Lea, wie schon von ihr angedeutet, die Spezialitaeten erlaeutern, z.B. was eine contrast matrix ist, ect.
-%Anschliessend koennten wir nochmal ein echt komplexes Beispiel bringen, in dem man die volle Wucht der moeglichen Argumente in  \code{opm\_mcp()} ausnutzt, so dass der Leser nocheinmal wirklich vor Augen gefuehrt bekommt, was man mit  \code{opm\_mcp()} so alles Feines machen kann.
-%}
+\rcscom{
+Kommentar Johannes: Bis hierhin hatten wir ein sehr simples und straight-forward example.
+Nun koennte Lea, wie schon von ihr angedeutet, die Spezialitaeten erlaeutern, z.B. was eine contrast matrix ist, ect.
+Anschliessend koennten wir nochmal ein echt komplexes Beispiel bringen, in dem man die volle Wucht der moeglichen Argumente in  \code{opm\_mcp()} ausnutzt, so dass der Leser nocheinmal wirklich vor Augen gefuehrt bekommt, was man mit  \code{opm\_mcp()} so alles Feines machen kann.
+}
 
 \rcscom{TODO Lea: here the application of \code{opm\_mcp()} with example and output-graphics.
 reshaping the data}
