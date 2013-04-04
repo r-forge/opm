@@ -21,6 +21,8 @@
   argument; 'style' can be run through I() and then causes names and values to
   be swapped
 
+- listing.default() now deals with a greater variety of objects
+
 - 'merge.R' now repairs empty column names (which would cause merge() to 
   crash)
 

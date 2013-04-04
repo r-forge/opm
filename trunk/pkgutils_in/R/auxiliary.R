@@ -285,7 +285,7 @@ listing.factor <- function(x, ...) {
 #' @export
 #'
 listing.default <- function(x, ...) {
-  listing(unclass(x), ...)
+  listing(c(unclass(x)), ...)
 }
 
 #' @rdname listing
