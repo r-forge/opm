@@ -169,12 +169,13 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #' Create some kind of listing, used, e.g., in (error) messages or warnings.
 #'
 #' @inheritParams pack_desc
-#' @param x For the default method, an object convertible via \code{unlist} to
-#'   a vector. In the default style mode, its \sQuote{names} attribute is used
-#'   as the first column of the resulting listing; if it is \code{NULL} or if
-#'   \code{force.numbers} is \code{TRUE}, numbers are inserted. The
-#'   \sQuote{double} method is controlled by the \sQuote{digits} entry of
-#'   \code{options} from the \pkg{base} package.
+#' @param x For the default method, an object convertible via \code{unclass} to 
+#'   one of the object classes that have explicit methods. For the
+#'   character-vector method, in the default style mode, its \sQuote{names}
+#'   attribute is used as the first column of the resulting listing; if it is
+#'   \code{NULL} or if \code{force.numbers} is \code{TRUE}, numbers are
+#'   inserted. The \sQuote{double} method is controlled by the \sQuote{digits}
+#'   entry of \code{options} from the \pkg{base} package.
 #' @param header \code{NULL} or character vector. Prepended to the result.
 #' @param footer \code{NULL} or character vector. Appended to the result.
 #' @param prepend Logical, numeric or character scalar. The two main uses are:
@@ -266,7 +267,17 @@ listing <- function(x, ...) UseMethod("listing")
 listing.double <- function(x, ...) {
   x <- signif(x, getOption("digits"))
   mode(x) <- "character"
-  listing(x = x, ...)
+  listing.character(x, ...)
+}
+
+#' @rdname listing
+#' @method listing factor
+#' @export
+#'
+listing.factor <- function(x, ...) {
+  y <- as.character(x)
+  names(y) <- names(x)
+  listing.character(y, ...)
 }
 
 #' @rdname listing
@@ -274,8 +285,7 @@ listing.double <- function(x, ...) {
 #' @export
 #'
 listing.default <- function(x, ...) {
-  mode(x) <- "character"
-  listing(x = x, ...)
+  listing(unclass(x), ...)
 }
 
 #' @rdname listing
@@ -283,7 +293,7 @@ listing.default <- function(x, ...) {
 #' @export
 #'
 listing.list <- function(x, ...) {
-  listing(x = unlist(x), ...)
+  listing(unlist(x), ...)
 }
 
 #' @rdname listing
@@ -295,7 +305,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
       ""
     else
       "\n", force.numbers = FALSE,
-      last.sep = c("and", "both", "comma", "or", "two"),
+    last.sep = c("and", "both", "comma", "or", "two"),
     hf.collapse = collapse, ...) {
 
   spaces <- function(x) {
