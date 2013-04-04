@@ -1145,12 +1145,13 @@ ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 20, y = 1)
 
 Moreover, \textit{via} \code{norm.by} it is possible to use selected well(s)/plate(s) for calculation of means used for normalisation. 
 With \code{direct = TRUE} even directly entered numeric values can be used for normalisation purposes. 
-See Figure~\ref{fig:ci_plot_norm} for an example of plotted CIs normalized by subtracting the value of well A10 (Positive Control).
+See Figure~\ref{fig:ci_plot_norm} for an example of plotted CIs normalized by subtracting the value of well A10 (Positive Control). 
+Note that due to the internal structure of the dataframe \code{norm.per = "row"} in combination with the \code{norm.by}-argument has to be used.
 
 
 <<results=hide, fig=FALSE, width=10>>=
 # normalisation by subtraction of well-mean of A10
-y <- extract(x, as.groups = TRUE,  norm.per = c("column"), norm.by = 10,
+y <- extract(x, as.groups = TRUE,  norm.per = c("row"), norm.by = 10,
   subtract = TRUE)
 ci_plot(y[,c(1:7, 13)], legend.field = NULL, x = 0, y = 0)
 @
@@ -1168,8 +1169,6 @@ Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), 
 Point estimates that have no overlapping confidence intervals are regarded to be significantly different.
 }
 \end{figure}
-
-\rcscom{Is there anything wrong with the normalisation using only the value of one well (here "A10")?} 
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
 
