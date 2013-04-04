@@ -934,6 +934,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   \code{\link{ci_plot}}. See the examples.
 #'
 #' @family conversion-functions
+#' @author Lea A.I. Vaas, Markus Goeker
 #' @seealso \code{\link{aggregated}} for the extraction of aggregated values
 #'   from a single \code{OPMA} objects.
 #'
@@ -944,31 +945,33 @@ setMethod("rep", OPMS, function(x, ...) {
 #'
 #' ## 'OPMS' method
 #' data(vaas_4)
-#' opm_opt("curve.param")
-#' # Matrix (containing the parameter given above)
+#' opm_opt("curve.param") # default parameter
+#'
+#' # generate matrix (containing the parameter given above)
 #' (x <- extract(vaas_4, as.labels = list("Species", "Strain")))
 #' stopifnot(is.matrix(x), identical(dim(x), c(4L, 96L)), is.numeric(x))
 #' # Using a formula also works
 #' (y <- extract(vaas_4, as.labels = ~ Species + Strain))
 #' stopifnot(identical(x, y))
 #'
-#' # Data frame
+#' # generate data frame
 #' (x <- extract(vaas_4, as.labels = list("Species", "Strain"),
 #'   dataframe = TRUE))
 #' stopifnot(is.data.frame(x), identical(dim(x), c(4L, 99L)))
-#' # All parameters in a single data frame
+#'
+#' # put all parameters in a single data frame
 #' x <- lapply(param_names(), function(name) extract(vaas_4, subset = name,
 #'   as.labels = list("Species", "Strain"), dataframe = TRUE))
 #' x <- do.call(rbind, x)
-#' # Get discretized data
+#'
+#' # get discretized data
 #' (x <- extract(vaas_4, subset = "disc", as.labels = list("Strain")))
 #' stopifnot(is.matrix(x), identical(dim(x), c(4L, 96L)), is.logical(x))
 #'
-#' \dontrun{
+#' ## data-frame method
 #'
-#' # applications of normalisation
-#'
-#' # extract data from OPMS-object as dataframe
+#' # extract data from OPMS-object as primary data frame
+#' # second call to extract() then applied to this one
 #' (x <- extract(vaas_4, as.labels = list("Species", "Strain"),
 #'   dataframe = TRUE))
 #'
@@ -976,23 +979,22 @@ setMethod("rep", OPMS, function(x, ...) {
 #' y <- extract(x, as.groups = "Species",  norm.per = "none")
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 350, y = 1)
-#' 
+#'
 #' # normalisation by plate means
 #' y <- extract(x, as.groups = "Species",  norm.per = "row")
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 130, y = 1)
-#' 
+#'
 #' # normalisation by well means
 #' y <- extract(x, as.groups = "Species",  norm.per = "column")
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 20, y = 1)
-#' 
+#'
 #' # normalisation by subtraction of the well means of well A10 only
 #' y <- extract(x, as.groups = "Species",  norm.per = "row", norm.by = 10,
 #'   subtract = TRUE)
-#' # plotting using ci_plot()  
+#' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 0, y = 0)
-#' }
 #'
 setGeneric("extract", function(object, ...) standardGeneric("extract"))
 
