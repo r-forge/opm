@@ -3,12 +3,15 @@
 \alias{listing.character}
 \alias{listing.default}
 \alias{listing.double}
+\alias{listing.factor}
 \alias{listing.list}
 \title{Nicer message listings}
 \usage{
   listing(x, ...)
 
   \method{listing}{double} (x, ...)
+
+  \method{listing}{factor} (x, ...)
 
   \method{listing}{default} (x, ...)
 
@@ -23,13 +26,14 @@
 }
 \arguments{
   \item{x}{For the default method, an object convertible
-  via \code{unlist} to a vector. In the default style mode,
-  its \sQuote{names} attribute is used as the first column
-  of the resulting listing; if it is \code{NULL} or if
-  \code{force.numbers} is \code{TRUE}, numbers are
-  inserted. The \sQuote{double} method is controlled by the
-  \sQuote{digits} entry of \code{options} from the
-  \pkg{base} package.}
+  via \code{unclass} to one of the object classes that have
+  explicit methods. For the character-vector method, in the
+  default style mode, its \sQuote{names} attribute is used
+  as the first column of the resulting listing; if it is
+  \code{NULL} or if \code{force.numbers} is \code{TRUE},
+  numbers are inserted. The \sQuote{double} method is
+  controlled by the \sQuote{digits} entry of \code{options}
+  from the \pkg{base} package.}
 
   \item{header}{\code{NULL} or character vector. Prepended
   to the result.}
