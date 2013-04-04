@@ -97,7 +97,6 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -225,6 +224,10 @@ Since experimental frameworks can be imagined where only very limited meta-infor
 The raw kinetic data can be exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis} as CSV files and imported into the \pkg{opm} package using \code{read\_opm()}. 
 This is explained in detail in section Section~\ref{methods import}, whereas corresponding code examples are found in Section~\ref{application import}.
 
+Batch processing many files is also possible, even without starting an interactive \proglang{R} session.
+This includes storage of the \pkg{opm} data in the \proglang{YAML} format, as detailed in Section~\ref{methods batch}.
+Example code is given in  Section~\ref{application batch}.
+
 All kinds of PM data can be enriched with metadata (see Figure~\ref{fig:data}).
 The underlying principles are described in Section~\ref{methods metadata}, whereas example code for metadata management is included in Section~\ref{application metadata}.
 
@@ -248,8 +251,6 @@ The methods implemented in \pkg{opm} for classifying reactions as either ``posit
 Example code, including the export of discretization results as  publication-ready tables, is included in Section~\ref{application discrete-table}.
 Textual reports with or without formatting markup can also be produced, as exemplified in Section~\ref{application discrete-text}.
 The discretization settings can be modified in detail; see Section~\ref{application discrete-finetuning}.
-
-\rcsadd{To support a fast and easy data exchange of the resulting complex data bundles its conversion into the \pkg{opm} \proglang{YAML} format is facilitated. Section~\ref{methods batch} describes the procedure and example code from Section~\ref{application batch} facilitates the method's direct application.}
 
 Furthermore, substrate informations can be accessed, including CAS numbers, KEGG and Metacyc IDs as far as they are available. Code examples are included in Section~\ref{application substrates}.
 
