@@ -966,52 +966,32 @@ setMethod("rep", OPMS, function(x, ...) {
 #'
 #' \dontrun{
 #'
-#' # data preparation
-#' require(opmdata)
-#' data(vaas_et_al)
+#' # applications of normalisation
 #'
-#' # select only the first replicate of the E.coli strains
-#' x <- subset(vaas_et_al,
-#'   query = list(Experiment = "First replicate", Species = "Escherichia coli"))
+#' # extract data from OPMS-object as dataframe
+#' (x <- extract(vaas_4, as.labels = list("Species", "Strain"),
+#'   dataframe = TRUE))
 #'
-#' # extract parameter A with strain, experiment, slot and species as metadata
-#' x.A <- extract(x,
-#'   as.labels = list("Strain", "Experiment", "Slot", "Species"),
-#'   subset = "A", dataframe = TRUE)
-#' stopifnot(dim(x.A) == c(20L, 101L))
-#'
-#' # simplest version:
-#' # no 'as.labels' specified, no grouping, no normalisation
-#' y <- group_CI(x.A, as.groups = FALSE, norm.per = NULL)
-#' stopifnot(is.data.frame(y), identical(dim(y), c(20L, 101L)))
-#'
-#' # grouping according all available metadata-columns, no normalisation
-#' x <- group_CI(vaas.test.A, as.groups = TRUE, as.labels = NULL,
-#'   norm.per = NULL)
-#' stopifnot(is.data.frame(x), identical(dim(x), c(12L, 101L)))
-#' stopifnot(is_ci_plottable(x))
-#'
-#' # visualisation using ci_plot
-#' message("plot #1")
-#' ci_plot(x[, 1L:10L], legend.field = c(3L, 2L))
-#' # note: the first five columns are factors, thus only four wells plotted
-#'
-#' # with specified columns ('as.labels' given as character-string of the
-#' # column-names) for grouping (TRUE), normalisation by division ("plate.div")
-#' # using well A10-values (positive control)
-#' x <- group_CI(object = vaas.test.A, as.groups = TRUE,
-#'   as.labels = colnames(vaas.test.A[, 1L:3L]), norm.per = "plate.div",
-#'   x = 10 )
-#' stopifnot(is.data.frame(x), identical(dim(x), c(12L, 100L)))
-#' stopifnot(is_ci_plottable(x))
-#'
-#' # visualisation using ci_plot
-#' message("plot #2")
-#' ci_plot(x[, 4L:14L], vline = 1) # good
-#' # note: the first four columns are factors, thus only six plots
-#' # A10 all point-estimator have value 1, since the values of this well are
-#' # divided by themselves
-#'
+#' # no normalisation, but grouping for 'Species'
+#' y <- extract(x, as.groups = "Species",  norm.per = "none")
+#' # plotting using ci_plot()
+#' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 350, y = 1)
+#' 
+#' # normalisation by plate means
+#' y <- extract(x, as.groups = "Species",  norm.per = "row")
+#' # plotting using ci_plot()
+#' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 130, y = 1)
+#' 
+#' # normalisation by well means
+#' y <- extract(x, as.groups = "Species",  norm.per = "column")
+#' # plotting using ci_plot()
+#' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 20, y = 1)
+#' 
+#' # normalisation by subtraction of the well means of well A10 only
+#' y <- extract(x, as.groups = "Species",  norm.per = "row", norm.by = 10,
+#'   subtract = TRUE)
+#' # plotting using ci_plot()  
+#' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 0, y = 0)
 #' }
 #'
 setGeneric("extract", function(object, ...) standardGeneric("extract"))
