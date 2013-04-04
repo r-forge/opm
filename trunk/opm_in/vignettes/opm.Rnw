@@ -97,6 +97,7 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -1337,22 +1338,13 @@ summary(xx)
 @
 
 \rcscom{
-Is it possible to show here at least part of the output from \code{summary(x)}?
+Is it possible to show here at least part of the output from \code{summary(xx)}?
 Markus, can we adapt the summary function, that only the model-fit is shown without the data?
 }
 
 \code{opm_mcp()} internally calls \code{glht} from package \pkg{multcomp} and returns an object of class \code{glht}. The results of the performed statistical test can be plotted (shown in Figure~\ref{fig:ci_plot_mcp}) using the methods available for objects of class \code{glht} (see help-page of \code{glht} for details).
 On the y-axes the performed comparisons are indicated as differences of the groups, determining which differences of means are computed.
 
-For example, the last comparison showing the difference of mean of curve parameter A values of strain DSM 30083T minus the mean of A values of strain DSM18039 results 26.615 units. 
-Therefore, the point estimator of this difference of specific group-means is plotted at position 26.615 on the x-axis. 
-That is, in mean A-values for Strain DSM30083T is 26.615 units larger than the mean A-value of strain DSM18039 (for the detailed numeric outcome see the estimate results provided by \code{summary(xx)} or \code{confint(xx)}).
-Additionally, each point estimator for difference of means comes with an 95\% confidence interval providing information about statistical significance of the test, the effect size and the variability of the mean-differences.
-
-In pairwise comparisons where the 95\% confidence interval includes zero there is no significant difference between the group means and respectively, if zero is not included, a significant difference is shown. 
-Then, the more distant the 95\% confidence interval is from zero (dashed vertical line in the plot), the larger the biological effect size, i.e. the real differences between the groups. 
-It has to be pointed out, that effect sizes are not correlated with sizes of the corresponding p-values: In this example the results from the statistical calculations indicate that all significant differences are highly significant (p < 0.001).
-However, the position of the 95\% confidence interval indicates that the difference between strains DSM18039 and 429SC1 (i.e, the effect size in the second comparison) is much larger than between strains DSM30083T and 429SC1 (smaller effect size in the third comparison).
 
 <<fig=FALSE, width=8>>=
 op <- par(no.readonly = TRUE) # default plotting settings
@@ -1381,21 +1373,35 @@ par(op)
 
 \end{figure}
 
+
+For example, the last comparison showing the difference of mean of curve parameter A values of strain DSM 30083T minus the mean of A values of strain DSM18039 results 26.615 units. 
+Therefore, the point estimator of this difference of specific group-means is plotted at position 26.615 on the x-axis. 
+That is, in mean A-values for Strain DSM30083T is 26.615 units larger than the mean A-value of strain DSM18039 (for the detailed numeric outcome see the estimate results provided by \code{summary(xx)} or \code{confint(xx)}).
+Additionally, each point estimator for difference of means comes with an 95\% confidence interval providing information about statistical significance of the test, the effect size and the variability of the mean-differences.
+
+In pairwise comparisons where the 95\% confidence interval includes zero there is no significant difference between the group means and respectively, if zero is not included, a significant difference is shown. 
+Then, the more distant the 95\% confidence interval is from zero (dashed vertical line in the plot), the larger the biological effect size, i.e. the real differences between the groups. 
+It has to be pointed out, that effect sizes are not correlated with sizes of the corresponding p-values: In this example the results from the statistical calculations indicate that all significant differences are highly significant (p < 0.001).
+However, the position of the 95\% confidence interval indicates that the difference between strains DSM18039 and 429SC1 (i.e, the effect size in the second comparison) is much larger than between strains DSM30083T and 429SC1 (smaller effect size in the third comparison).
+
 %\rcscom{
 %Kommentar Johannes: Bis hierhin hatten wir ein sehr simples und straight-forward example.
 %Nun koennte Lea, wie schon von ihr angedeutet, die Spezialitaeten erlaeutern, z.B. was eine contrast matrix ist, ect.
 %Anschliessend koennten wir nochmal ein echt komplexes Beispiel bringen, in dem man die volle Wucht der moeglichen Argumente in  \code{opm\_mcp()} ausnutzt, so dass der Leser nocheinmal wirklich vor Augen gefuehrt bekommt, was man mit  \code{opm\_mcp()} so alles Feines machen kann.
 %}
 
-\rcscom{TODO Lea: here the application of \code{opm\_mcp()} with example and output-graphics.
-reshaping the data}
+The main steps the function \code{opm\_mcp()} internally proceeds are a reshaping of the data into a flat-file formatted dataframe and the application of \code{glhp} from \pkg{multcomp}.
+The reshaping can be viewed, when the argument \code{do.mcp = FALSE}:
+
 <<results=hide, width=8>>=
 data(vaas_4)
 x <- opm_mcp(vaas_4, model = ~ Species + Strain,
   do.mcp = FALSE)
 @
 
-\rcscom{Lea, explain contrasts, refer to \code{contrMat() from \pkg{multcomp}}}
+For performing the comparisons of interest, the user has to provide a contrast-matrix.
+A contrast is defined as a linear combination of two or more factor level means (averages) whose coefficients add up to zero \citep{hochberg}. 
+The function \code{contrMat()} from \pkg{multcomp} provides an overview about the predefined contrast-types, which can be used in the \code{opm\_mcp()}-argument \code{mcp.def}.
 
 <<results=hide, echo=FALSE, width=8>>=
 n <- c(10,20,30,40)
@@ -1411,24 +1417,54 @@ n <- c(10,20,30,40)
  contrMat(n, type = "McDermott")
 @
 
-
-\rcscom{comment Johannes: Lea, could it make sense to explain the contrast matrix using the following example? I still not have understood for what these 0, 1, and -1 are.}
-
-The principle of a contrast matrix can best be explained using the example from above (see Figure~\ref{fig:ci_plot_mcp}). If I had any idea on that stuff, I would have given an appropriate explanation for the code output seen below.
+Using the example from above (see Figure~\ref{fig:ci_plot_mcp}), a brief illustration of a resulting contrast matrix is given.
+``Tukey''-type contrasts define to compare all group-against all others in the dataset. The underlying contrast-matrix can be viewed by typing  
 <<width=8>>=
 summary(xx)[2]
 @
 
+Analogously, the user is free to set up contrast-matrices containing the comparisons of interest.
+However, it must be set up a model first, which defines which factor determines the groups and thus the possibilities for comparisons.
+For matters of convenience, we want to compare the overall-performance of the tested organisms on the first four wells A01 to A04. 
+The model will therefore contain \code{Well} as factor-variable and four possible comparisons of interest can be defined like:
+<<results=hide, width=8>>=
+ contr <- rbind(
+   "A01 (Negative Control) - A02 (Dextrin)" = c(1, -1, 0, 0),
+   "A01 (Negative Control) - A03 (D-Maltose)" = c(-1, 0, 1, 0),
+  "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1),
+   "A03 (D-Maltose) - A04 (D-Trehalose)" = c(0, 0, 1, -1))
+@
 
-\rcscom{Lea, comparison according metadata 'Species'}
+Using the \code{opm_mcp()}-function, the resulting code ends in:
+<<results=hide, width=8>>=
+x <- opm_mcp(vaas_4[, , 1:4],
+    model = ~ Well, m.type = "lm", mcp.def = contr)
+@
+
+Visualization of the results is available by the \code{plot()}-method for \code{glht}-objects:
+\begin{figure}
+\scalebox{0.9}{
+<<fig=TRUE, echo=FALSE, results=hide, width=9, height=3>>=
+ # creating an informative plot
+ op <- par(no.readonly = TRUE) # default plotting settings
+ par(mar = c(3, 20, 3, 2))
+ plot(x)
+ par(op) # reset plotting settings
+@
+}
+\caption{
+\label{fig:opm_mcp_CI_plotII}
+95\% confidence interval for manyally chosen comparison of group means on a specifically selected set of wells.
+}
+\end{figure}
+
+It has to be pointed out, that the \code{model}-statement defines, which group-means are available for comparisons. In the following example \code{Species} contains only two levels (``Pseudomonas aeruginosa'' and ``Escherichia coli''). Thus, irrespectively the stated contrast-type, only one comparison is possible.
+
 <<results=hide, width=8>>=
 x <- opm_mcp(vaas_4, model = ~ Species, m.type = "lm",
   mcp.def = mcp(Species = "Dunnett"))
 @
 
-\rcscom{Lea, explain confidence intervals for differences of group means, point out the difference to the 95\%CI of the curve-parameter estimators.
-Figure:
-informative plotting of the CI:}
 <<results=hide, width=8>>=
 op <- par(no.readonly = TRUE) # default plotting settings
 par(mar = c(3, 20, 3, 2))
@@ -1451,35 +1487,10 @@ par(op)
 }
 \end{figure}
 
-\rcscom{Lea, explain: more sophisticated with manually defined set of contrast:}
 
-<<results=hide, width=8>>=
- contr <- rbind(
-   "A01 (Negative Control) - A02 (Dextrin)" = c(1, -1, 0, 0),
-   "A01 (Negative Control) - A03 (D-Maltose)" = c(-1, 0, 1, 0),
-  "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1),
-   "A03 (D-Maltose) - A04 (D-Trehalose)" = c(0, 0, 1, -1))
- x <- opm_mcp(vaas_4[, , 1:4],
-    model = ~ Well, m.type = "lm", mcp.def = contr)
-@
-
-
-\begin{figure}
-\scalebox{0.9}{
-<<fig=TRUE, echo=FALSE, results=hide, width=9, height=3>>=
- # creating an informative plot
- op <- par(no.readonly = TRUE) # default plotting settings
- par(mar = c(3, 20, 3, 2))
- plot(x)
- par(op) # reset plotting settings
-@
-}
-\caption{
-\label{fig:opm_mcp_CI_plotII}
-95\% confidence interval for manyally chosen comparison of group means on a specifically selected set of wells.
-}
-\end{figure}
-
+\rcscom{Lea, explain confidence intervals for differences of group means, point out the difference to the 95\%CI of the curve-parameter estimators.
+Figure:
+informative plotting of the CI:}
 
 
 \subsection[Discretization and phylogenetic data export]{Discretization and phylogenetic data export}\label{application discrete-phylogeny}
