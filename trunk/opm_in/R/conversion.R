@@ -877,7 +877,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #' @param dataframe Logical scalar. Return data frame or matrix?
 #'
 #' @param as.groups For the \code{\link{OPMS}} method, a list, character vector
-#'   or formula indicating the etadata to be joined and used as
+#'   or formula indicating the metadata to be joined and used as
 #'   \sQuote{row.groups} attribute of the output matrix. See
 #'   \code{\link{heat_map}} for its usage. Ignored if \code{NULL} and if
 #'   \code{dataframe} is \code{FALSE}.
