@@ -545,7 +545,7 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
         complain("closing parenthesis or bracket preceded by space",
           grepl("[^,]\\s+[)}\\]]", x, perl = TRUE))
         complain("closing parenthesis or bracket followed by wrong character",
-          grepl("[)\\]}][^\\s()[\\]}$:,;]", x, perl = TRUE))
+          grepl("[)\\]}][^\\s()[\\]}$@:,;]", x, perl = TRUE))
       }
     }
     if (modify) {
