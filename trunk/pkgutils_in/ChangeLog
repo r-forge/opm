@@ -15,7 +15,8 @@
 
 - fixed bug in check_R_code() that caused removal of quoted sections of a line
   of code to remove too much; fixed other bug causing false reports of missing
-  space between operators
+  space between operators; fixed third bug causing false reports of wrong
+  character after bracket or parentheses
 
 - listing() gets a 'hf.collapse' argument and more options in the 'last.sep' 
   argument; 'style' can be run through I() and then causes names and values to
