@@ -98,7 +98,6 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -356,6 +355,12 @@ Beside changing the metadata entries by using the \proglang{R} editor, the funct
 The replacement function \code{metadata()<-} enables the user to set the entire meta-information, or specific entries, directly.
 If a data frame is used on the right side of the assignment whose number of rows is identical to the number of plates within the  \proglang{OPMS} object on the left side, each data-frame row is specifically added to the corresponding plate.
 
+There are no restrictions regarding the stored metadata \textit{values} except for the fact that it usually makes not much sense to store factors.
+It is safer to store character vectors instead because otherwise conversions might easily result in integer vectors instead of factors.
+Where appropriate, factors would be created on-the-fly from character vectors by those methods that have to integrate metadata in data frames.
+With respect to the stored metadata \textit{names}, there are only very few restrictions, which are explained in Section~\ref{methods settings}.
+In contrast to data frames it is not advisable to access metadata entries by position instead of by name.
+
 
 \subsection[Aggregating data by estimating curve parameters]{Aggregating data by estimating curve parameters}\label{methods aggregating}
 
@@ -551,7 +556,8 @@ It is checked that the novel values inherit from the same class(es) than the old
 Usage examples are provided in several sections (e.g., Section~\ref{application discrete-table}).
 The function \code{param_names()} yields the spelling of the curve parameters used by \pkg{opm}.
 It also displays the set of names that are used by some methods that have to compile metadata entries with other columns.
-It is not impossible but discouraged to use these names as metadata keys.
+It is thus not impossible, but discouraged, to use these names as metadata keys.
+The same holds for (non-syntactical) names starting with an underscore and followed by capital letters, as such names are temporarily used by some methods in intermediary objects together with the metadata.
 
 
 \section[Program application]{Program application}\label{application}
