@@ -98,6 +98,7 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -1336,7 +1337,7 @@ Compare this with Figure~\ref{fig:ci_plot_groups}.
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
 
-To demonstrate the use of \code{opm\_mcp()}, the function for conducting comparisons of group means directly on \proglang{OPMS} objects, we compare four distinct strains, each of which represented by ten replicates of GEN-III microplate measurements.
+To demonstrate the use of \code{opm\_mcp()}, the function for conducting multiple comparisons of group means directly on \proglang{OPMS} objects, we compare four distinct strains, each of which represented by ten replicates of GEN-III microplate measurements.
 An experimental questions that could be addressed with these data might be ``Do these four bacteria differ in the mean value of curve parameter A on well G06'' (see Figure~\ref{fig:xy_plot_mcp})?
 An according subset can be taken from the first biological replicate included in \code{vaas\_et\_al}:
 
@@ -1456,7 +1457,7 @@ For a meaningful biological interpretation of the results it is therefore highly
 
 For performing the comparisons of interest, the user has to provide a contrast matrix.
 A contrast is defined as a linear combination of two or more factor level means (averages) whose coefficients add up to zero \citep{hochberg}. 
-To demonstrate the principle of a contrast matrix, an all-against-all comparison (a ``Tukey''-type contrast) of four groups is performed. 
+To demonstrate the principle of a contrast matrix, an all-against-all comparison (a ``Tukey''-type contrast) of four groups is performed using a toy-example. 
 
 <<width=8>>=
 n <- c(10, 20, 30, 40)
@@ -1466,7 +1467,7 @@ contrMat(n, type = "Tukey")
 
 The output table reads as follows.
 In each line, a pair of group-wise comparisons is defined by the locations of the non-zero values.
-For instance, in the first line, the 1 and -1 values indicate that the means of \code{group1} are subtracted from the means of \code{group1}.
+For instance, in the first line, the 1 and -1 values indicate that the means of \code{group1} are subtracted from the means of \code{group2}.
 The function \code{contrMat()} from \pkg{multcomp} (see \code{?multcomp::contrMat}) provides an overview of the predefined contrast types that can be used in the \code{opm\_mcp()} argument \code{linfct}.
 
 In the example from above (see Figure~\ref{fig:ci_plot_mcp}), a ``Tukey''-type contrast was used to trigger the comparison of all groups against all others in the data set.
