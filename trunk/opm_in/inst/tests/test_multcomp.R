@@ -233,15 +233,12 @@ test_that("linfct as predefined object", {
 
 ## opm_mcp
 test_that("linfct as predefined matrix-object", {
-  # see above
-  contr <- rbind(
-    "A01 (Negative Control) - A02 (Dextrin)" = c(1, -1, 0, 0),
-    "A01 (Negative Control) - A03 (D-Maltose)" = c(-1, 0, 1, 0),
-    "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1),
-    "A03 (D-Maltose) - A04 (D-Trehalose)" = c(0, 0, 1, -1))
-  rem <- -ncol(EXPL.DF):-(ncol(EXPL.DF) - 91L)
-  x <- opm_mcp(EXPL.DF[, rem],
-    model = ~ Well, m.type = "lm", linfct = contr)
+  x <- EXPL.DF[, -ncol(EXPL.DF):-(ncol(EXPL.DF) - 91L)]
+  contr <- opm_mcp(x, model = ~ Well, output = "contrast")
+  expect_is(contr, "list")
+  expect_true(all(vapply(contr, inherits, logical(1L), "contrMat")))
+  contr <- contr$Well[c(1:3, 6), ]
+  x <- opm_mcp(x, model = ~ Well, m.type = "lm", linfct = contr)
   expect_is(x, "glht")
   expect_equal(x$type, NULL)
   expect_true(is.list(x))

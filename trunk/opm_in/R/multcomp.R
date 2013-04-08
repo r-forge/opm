@@ -176,7 +176,7 @@
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 1)
 #' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
 #'
-#' # comparison of only A01 - A04 against each other
+#' # comparison of only A01 - A04 against each other, Tukey style
 #' # note that the left side of the model is set automatically
 #' (x <- opm_mcp(vaas_4[, , 1:4],
 #'   model = ~ Well + Species, m.type = "lm",
@@ -184,20 +184,18 @@
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 6)
 #' plot_with_margin(x, c(3, 18, 3, 2)) # creating an informative plot
 #'
-#' # user-defined contrast matrix
+#' # Dunnett-type comparison
 #' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ Well,
 #'   m.type = "lm", linfct = c(Dunnett = 1)))
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 3)
 #' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
 #'
 #' # manually defined contrast matrix
-#' contr <- rbind(
-#'   "A01 (Negative Control) - A02 (Dextrin)" = c(1, -1, 0, 0),
-#'   "A01 (Negative Control) - A03 (D-Maltose)" = c(-1, 0, 1, 0),
-#'   "A01 (Negative Control) - A04 (D-Trehalose)" = c(-1, 0, 0, -1),
-#'   "A03 (D-Maltose) - A04 (D-Trehalose)" = c(0, 0, 1, -1))
-#' x <- opm_mcp(vaas_4[, , 1:4],
-#'   model = ~ Well, m.type = "lm", linfct = contr)
+#' (contr <- opm_mcp(vaas_4[, , 1:4], linfct = c(Tukey = 1),
+#'   model = ~ Well, output = "contrast")) # create template, Tukey style
+#' contr <- contr$Well[c(1:3, 6), ] # select comparisons of interest
+#' (x <- opm_mcp(vaas_4[, , 1:4],
+#'   model = ~ Well, m.type = "lm", linfct = contr)) # run tests
 #' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
 #'
 #' ## data-frame method (usually unnecessary to directly apply it)
