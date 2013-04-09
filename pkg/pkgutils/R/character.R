@@ -93,7 +93,7 @@ sections.logical <- function(x, include = TRUE, ...) {
   prepare_sections <- function(x) {
     if (prepend <- !x[1L])
       x <- c(TRUE, x)
-    if (append <- x[n <- length(x)])
+    if (append <- x[length(x)])
       x <- c(x, FALSE)
     x <- matrix(cumsum(rle(x)$lengths), ncol = 2L, byrow = TRUE)
     x <- x[, 2L] - x[, 1L] + 1L
@@ -102,14 +102,15 @@ sections.logical <- function(x, include = TRUE, ...) {
     if (prepend)
       x <- x[-1L]
     if (append)
-      x <- x[-n]
+      x <- x[-length(x)]
     x
   }
   if (!(n <- length(x)))
     return(structure(factor(ordered = TRUE), .Names = names(x)))
-  stopifnot(complete.cases(x))
-  result <- integer(n)
-  true.runs <- x & c(x[-1L] == x[-n], FALSE)
+  if (any(is.na(x)))
+    stop("'x' must not contain NA values")
+  result <- integer(length(x))
+  true.runs <- x & c(x[-1L] == x[-length(x)], FALSE)
   result[!true.runs] <- prepare_sections(x[!true.runs])
   if (L(include))
     result[true.runs] <- NA_integer_
@@ -125,10 +126,10 @@ sections.logical <- function(x, include = TRUE, ...) {
 sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
     perl = TRUE, ...) {
   if (is.character(pattern)) {
-    y <- grepl(pattern = pattern, x = x, perl = perl, ...)
+    found <- grepl(pattern = pattern, x = x, perl = perl, ...)
     if (L(invert))
-      y <- !y
-    split.default(x = x, f = sections(x = y, include = include))
+      found <- !found
+    split.default(x, sections(found, include))
   } else if (is.numeric(pattern)) {
     if (identical(pattern <- as.integer(pattern), 1L))
       return(strsplit(x, "", fixed = TRUE))

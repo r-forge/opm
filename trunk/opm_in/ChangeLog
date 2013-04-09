@@ -39,6 +39,8 @@
 - improved print() methods for OPM(S/D)_Summary objects
 - substrate_info() gets new 'greek' and 'html' arguments
 - listing() gets 'html' argument
+- the data-frame method of separate() now deals with columns with only empty
+  strings
 - documentation of the YAML format was improved
 
 
