@@ -261,7 +261,7 @@ do_test -i csv -o template2 -f "$tmpdir/md.csv" -q "$FAILED_FILES" \
 # yaml mode
 #
 do_test -i csv -o yml -f "$tmpdir/%s.yml" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -z -p 2 -a -b 0 -f -r yaml -d "$tmpdir" \
+  Rscript --vanilla "$run_opm" -z -p 2 -a fast -b 0 -r yaml -d "$tmpdir" \
   -i '*.csv'
 
 

@@ -32,8 +32,10 @@ do_write <- function(x, options) {
 }
 
 
-do_read <- function(file, options) {
-  read.delim(file, sep = options$separator, check.names = options$names,
+do_read <- function(infile, options) {
+  if (infile == "-")
+    infile <- file("stdin")
+  read.delim(infile, sep = options$separator, check.names = options$names,
     strip.white = !options$keep, header = !options$bald,
     stringsAsFactors = FALSE, fileEncoding = options$encoding)
 }
@@ -57,7 +59,7 @@ read_and_create_unique_names <- function(files, options) {
 
 
 do_split <- function(x) {
-  x <- unlist(strsplit(x, ",", fixed = TRUE))
+  x <- unlist(strsplit(x, ",", fixed = TRUE), recursive = FALSE)
   x[nzchar(x)]
 }
 
