@@ -37,6 +37,15 @@ AGGREGATION <- c(
 names(AGGREGATION) <- c("no", "fast", "grofit", "p", "smooth", "thin")
 
 
+MAP_GRAPHICS_FORMAT <- c(
+  bitmap = "bmp",
+  mypdf = "pdf",
+  postscript = "ps",
+  cairo_pdf = "pdf",
+  cairo_ps = "ps"
+)
+
+
 ################################################################################
 #
 # Functions for each running mode
@@ -53,23 +62,14 @@ run_clean_mode <- function(input, opt) {
 
 
 run_plot_mode <- function(input, opt) {
-  if (!nzchar(opt$dir))
-    opt$dir <- NULL
   plot_fun <- if (opt$level)
     level_plot
   else
     xy_plot
-  switch(opt$format,
-    pdf = {
-      ext <- opt$format
-      opt$format <- "mypdf"
-    },
-    postscript = ext <- "ps",
-    ext <- opt$format
-  )
+  ext <- map_values(opt$format, MAP_GRAPHICS_FORMAT)
   io_fun <- function(infile, outfile, file.format) {
     x <- read_opm(infile, gen.iii = opt$type)
-    eval(call(file.format, outfile))
+    eval(call(name = file.format, file = outfile))
     print(plot_fun(x))
     dev.off()
   }
@@ -125,8 +125,6 @@ run_yaml_mode <- function(input, opt) {
     opt$processes <- 1L
   } else
     proc <- 1L
-  if (!nzchar(opt$dir))
-    opt$dir <- NULL
   aggr.args <- case(match.arg(opt$aggregate, names(AGGREGATION)),
     no = NULL,
     fast = aggr_args(opt, "opm-fast"),
@@ -251,6 +249,8 @@ input <- opt$args
 opt <- opt$options
 if (is.null(opt$include))
   opt$include <- list()
+if (!nzchar(opt$dir))
+  opt$dir <- NULL
 
 
 ################################################################################
