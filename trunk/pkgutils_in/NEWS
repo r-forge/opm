@@ -11,6 +11,10 @@ Bug fixes:
 
 - fixed bug in syntax highlighting for gedit
 
+Significant user-visible changes:
+
+- the first argument of mypdf() was renamed
+
 New features:
 
 - 'merge.R' now deals with empty column names
