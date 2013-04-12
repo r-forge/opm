@@ -10,6 +10,9 @@
 - syntax highlighting for gedit now correctly displays indexing with '$' after
   indexing with brackets
 
+- fixed bug in 'merge.R' that affected the '-c' argument if the merge column
+  was numeric
+
 - fixed bug in repair_S4_docu.rb script that caused a wrong error message if
   documentation files were not found
 

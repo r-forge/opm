@@ -214,7 +214,7 @@ if (opt$conserve) {
   previous <- data[[1L]][, opt$xcolumn]
   if (setequal(previous, x[, opt$xcolumn])) {
     rownames(x) <- x[, opt$xcolumn]
-    x <- x[previous, , drop = FALSE]
+    x <- x[as.character(previous), , drop = FALSE]
     rownames(x) <- NULL
   }
 }
