@@ -59,15 +59,24 @@ run_plot_mode <- function(input, opt) {
     level_plot
   else
     xy_plot
-  io_fun <- function(infile, outfile) {
+  switch(opt$format,
+    pdf = {
+      ext <- opt$format
+      opt$format <- "mypdf"
+    },
+    postscript = ext <- "ps",
+    ext <- opt$format
+  )
+  io_fun <- function(infile, outfile, file.format) {
     x <- read_opm(infile, gen.iii = opt$type)
-    postscript(outfile)
+    eval(call(file.format, outfile))
     print(plot_fun(x))
     dev.off()
   }
-  batch_process(names = input, proc = opt$processes, out.ext = "ps",
+  batch_process(names = input, proc = opt$processes, out.ext = ext,
     io.fun = io_fun, outdir = opt$dir, verbose = !opt$quiet,
-    overwrite = opt$overwrite, include = opt$include, exclude = opt$exclude)
+    overwrite = opt$overwrite, include = opt$include, exclude = opt$exclude,
+    fun.args = list(file.format = opt$format))
 }
 
 
@@ -171,6 +180,9 @@ option.parser <- OptionParser(option_list = list(
   # See https://stat.ethz.ch/pipermail/r-devel/2008-January/047944.html
   #make_option(c("-G", "--Gen3"), action = "store_true", default = FALSE,
   #  help = "Change plate type to generation III [default: %default]"),
+
+  make_option(c("-f", "--format"), type = "character", default = "postscript",
+    help = "Graphics output format [default: %default]", metavar = "NAME"),
 
   # h
 

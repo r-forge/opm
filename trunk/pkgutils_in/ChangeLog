@@ -18,6 +18,8 @@
 - 'merge.R' now repairs empty column names (which would cause merge() to 
   crash) and reads from STDIN (indicated as file name '-').
 
+- the first argument of mypdf() was renamed
+
 - pack_desc(..., "source") now suppresses package startup messages
 
 - check_R_code() gets a 'three.dots' argument, and the 'docu.R' script an
