@@ -239,7 +239,7 @@ FAILED_FILES=failed_files # within $TESTDIR, created if necessary
 # plot mode
 #
 do_test -i csv -o ps -f "$tmpdir/%s.ps" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -p 2 -r plot -d "$tmpdir" -i '*.csv'
+  Rscript --vanilla "$run_opm" -p 2 -r xyplot -d "$tmpdir" -i '*.csv'
 
 # split mode -- these tests only guarantee that if there is nothing to split
 # the original file results
