@@ -120,7 +120,6 @@ Readers who want to jump right into examples for applying \pkg{opm} to their dat
 Next, Figure~\ref{fig:overview} should be looked at, as it lists the names of the functions that can be used in each step of the possible \pkg{opm} work flows.
 Examples for each step would then be found in the according subsections of Section~\ref{application}.
 An overview of these sections is provided in Section~\ref{methods overview}.
-Since the complete code of this Vignette comes with the R-package in a file called \textit{opm.R} (can usually be found under \path{...\R\R-X.X.X\library\opm\doc}), application of the here given examples and demonstrations are straightforwardly processable. 
 
 The single most important problem users reported to us when applying \pkg{opm} was that the input files could not be read.
 This was uniformly due to the use of multi-plate CSV files.
@@ -267,6 +266,8 @@ Furthermore, substrate informations can be accessed, including CAS numbers, KEGG
 
 Finally, it is possible to modify settings that have an effect on multiple functions and/or on frequently used arguments. 
 See Section~\ref{methods settings} for details and Section~\ref{application discrete-table} for a code example.
+
+After a successful installation of \pkg{opm}, the complete \proglang{R} code extracted from this vignette (as well as all other vignette files) can be found \textit{via} \code{opm\_files("doc")}.
 
 
 \subsection[Data import]{Data import}\label{methods import}
@@ -758,7 +759,7 @@ You can also provide the location of another previously created metadata file wi
 
 The generated CSV file could then be edited using external software; for the purpose of this tutorial, we load it directly and manipulate it in \proglang{R}.
 To avoid the usual changes in data format and header of the table during the import a customized import function was implemented as a wrapper for \code{read.delim()}:
-<<label=to.metadata, width=8>>=
+<<label=to.metadata.I, width=8>>=
 metadata.example <- to_metadata("example_metadata.csv")
 @
 Per default, this expects CSV columns separated by tabulators, with the fields protected by quotes.
@@ -776,7 +777,7 @@ metadata.example$Integer <- c(10L, 20L, 30L)
 
 Now the metadata are ready to be included into the previously generated \proglang{OPMS} object:
 
-<<label=include.metadata, width=8>>=
+<<label=include.metadata.I, width=8>>=
 example.opm <- include_metadata(example.opm, md = metadata.example)
 @
 
@@ -799,7 +800,7 @@ Setting a specific entry named \code{key} to a specific value \code{value} in al
 If the right side of the assignment is a data frame with the same length as the \proglang{OPMS} object, each row would be specifically assigned to the \proglang{OPM} object with the same index.
 This comes handy for adding the \code{csv\_data()} selected or all information from the OmniLog\textregistered \ CSV files to the metadata:
 
-<<label=to.metadata, results=hide>>=
+<<label=to.metadata.II, results=hide>>=
 metadata(example.opm)
 metadata(example.opm) <- to_metadata(csv_data(example.opm))[, 
   c("Strain Name", "Sample Number")]
@@ -887,7 +888,7 @@ Methods such as \code{extract()} are based on this principle.
 The following code, making use of the \code{metadata.example} data frame generated above, adds a new metadata entry with the key ``Character'' containing the integer values from the metadata entry called ``Integer'' converted to character mode
 It then includes a new metadata entry with the key ``Times 10'' containing the entry ``Integer'' multiplied by 10.
 
-<<label=include.metadata, results=hide, width=8>>=
+<<label=include.metadata.II, results=hide, width=8>>=
 example.opm <- include_metadata(example.opm, md = metadata.example)
 metadata(example.opm)
 example.opm <- map_metadata(example.opm, Character ~ as.character(Integer))
@@ -1220,23 +1221,18 @@ level_plot(vaas.1.6, main = "E. coli vs. P. aeruginosa",
 @
 
 \begin{figure}
-
 \scalebox{1.225}{
-
 <<fig=TRUE, echo=FALSE, width=18, height=12>>=
 print(level_plot(vaas.1.6, main = "E. coli vs. P. aeruginosa",
   include = list("Species", "Strain")))
 @
-
 }
-
 \caption{
 \label{fig:level_plot}
 Visualization of PM curves using the function \code{level\_plot()}.
 Each respiration curve is displayed as a thin horizontal line, in which the curve height as measured in colour-value units is represented by color intensity (darker parts indicate higher curves).
 The x-axes correspond to the measurement time in hours.
 }
-
 \end{figure}
 
 Again, a main title can be set explicitly.
@@ -1368,7 +1364,7 @@ See Figure~\ref{fig:ci_plot_norm} for an example of plotted confidence intervals
 Note that due to the structure of the data frame \code{norm.per = "row"} in combination with the \code{norm.by} argument has to be used.
 
 
-<<label=norm.wellA10, results=hide, fig=FALSE, width=10>>=
+<<label=norm.well.A10, results=hide, fig=FALSE, width=10>>=
 # normalisation by subtraction of the well means of well A10 only
 y <- extract(x, as.groups = TRUE,  norm.per = "row", norm.by = 10,
   subtract = TRUE)
