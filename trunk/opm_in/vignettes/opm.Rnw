@@ -98,6 +98,7 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -471,6 +472,8 @@ It is also possible to automatically construct row groups by selecting the same 
 \code{heat\_map()} is mainly a wrapper for the \code{heatmap()} functions from either the \pkg{stats} or the \pkg{gplots} \proglang{R} package, but contains some useful adaptations to PM data.
 It facilitates the selection of a clustering algorithm and the construction of row and column groups, and provides more appropriate default solutions for row and column descriptions sizes.
 (We suppose that in most situations the pictures produced by \code{heat\_map()} should not need to be manually adapted in these respects.)
+
+Finally, \pkg{opm} enables the user to plot aggregated values as radial plots using the \code{radial\_plot()} function, which is mainly a wrapper for the \code{radial.plot()} function from the \pkg{plotrix} package. \code{radial\_plot()} displays a plot of radial lines, polygon(s), symbols or a combination of these centered at the midpoint of the plot frame, the lengths, vertices or positions corresponding to the numeric magnitudes of the data values.
 
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{methods group-means}
@@ -1298,6 +1301,33 @@ Shown are the results for estimating the maximum height of the single curves on 
 But note that here the confidence intervals only indicate the uncertainty in parameter estimation from single curves.
 }
 \end{figure}
+
+
+The function \code{radial\_plot()} is able to plot numeric values as distances from the center of a circular field in the directions defined by angles in radians.
+
+Figure~\ref{fig:radial_plot} provides an example of such a visualization.
+The parameter maximum height (A) is plotted for the wells A01 to A10 from dataset \code{vaas_4}. Note that the values for positioning the upper-left corner of the legend are oriented according to the axes of the plot. Hence, if the legend should be placed in the lower left part of the figure, negative values for x and y will be necessary.
+The code is as follows:
+
+<<label=ci.plot.I, results=hide, fig=FALSE, width=10>>=
+radial_plot(vaas_4[,, 1:5], as.labels = list("Species", "Strain"), 
+            x = 150, y = 200) 
+@
+
+\begin{figure}
+\scalebox{1.225}{
+<<fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
+radial_plot(vaas_4[,, 1:10], as.labels = list("Species", "Strain"), 
+            x = 190, y = 190) 
+@
+}
+\caption{
+\label{fig:radial_plot}
+Comparison of point estimates for the parameter maximum height (A) observed from four strains, using \code{radial\_plot()}.
+Shown are the results for estimating the maximum height of the single curves from wells A01 to A10.
+}
+\end{figure}
+
 
 Furthermore, the helper function \code{extract()} (more specifically, its data-frame method) can group curve parameters from \proglang{OPMS} objects according to selected metadata and calculate according point estimates (means) and confidence intervals.
 It can also apply normalisation beforehand, which might frequently be necessary to more easily recognize biological differences; see Section~\ref{methods plotting-aggregated}.
