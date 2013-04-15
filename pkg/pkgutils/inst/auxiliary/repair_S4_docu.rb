@@ -195,6 +195,10 @@ private
       'bracket'
     when '[['
       'double.bracket'
+    when '[<-'
+      'bracket.set'
+    when '[[<-'
+      'double.bracket.set'
     when /<-$/
       @name.sub(/<-$/, ".set")
     when '+'
