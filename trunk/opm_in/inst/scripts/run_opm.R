@@ -182,12 +182,12 @@ option.parser <- OptionParser(option_list = list(
     help = "File exclusion globbing pattern [default: <none>]",
     metavar = "PATTERN"),
 
+  make_option(c("-f", "--format"), type = "character", default = "postscript",
+    help = "Graphics output format [default: %default]", metavar = "NAME"),
+
   ## A bug in Rscript causes '-g' to generate strange warning messages.
   ## See https://stat.ethz.ch/pipermail/r-devel/2008-January/047944.html
   # g
-
-  make_option(c("-f", "--format"), type = "character", default = "postscript",
-    help = "Graphics output format [default: %default]", metavar = "NAME"),
 
   # h
 
