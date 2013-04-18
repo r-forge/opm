@@ -264,6 +264,11 @@ do_test -i csv -o yml -f "$tmpdir/%s.yml" -q "$FAILED_FILES" \
   Rscript --vanilla "$run_opm" -z -p 2 -a fast -b 0 -r yaml -d "$tmpdir" \
   -i '*.csv'
 
+# json mode
+#
+do_test -i csv -o json -f "$tmpdir/%s.json" -q "$FAILED_FILES" \
+  Rscript --vanilla "$run_opm" -z -p 2 -a smooth -b 0 -r json -d "$tmpdir" \
+  -i '*.csv'
 
 rm -rf "$tmpdir"
 
