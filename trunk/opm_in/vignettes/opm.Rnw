@@ -705,7 +705,7 @@ But this might only occasionally be useful, as \code{read\_opm} can cope with si
 
 \subsection[Batch conversion of many files]{Batch conversion of many files}\label{application batch}
 
-In addition to \code{read\_opm()} and \code{read\_single\_opm()} (Section\ref{application import}), which need to be called before an interactive exploration of PM data, batch-processing large numbers of files by converting them from CSV (or previously generated \proglang{YAML} or \proglang{JSON}) to \proglang{YAML} or \proglang{JSON} format, is also possible.
+In addition to \code{read\_opm()} and \code{read\_single\_opm()} (Section~\ref{application import}), which need to be called before an interactive exploration of PM data, batch-processing large numbers of files by converting them from CSV (or previously generated \proglang{YAML} or \proglang{JSON}) to \proglang{YAML} or \proglang{JSON} format, is also possible.
 This optionally includes aggregating the raw data by estimating curve parameters (Section~\ref{application aggregating}), discretizing these parameters (Section~\ref{application discrete-text}) and integrating metadata (Section~\ref{application metadata}). 
 Again there is a \textit{demo} mode to first investigate the attempted conversions:
 
@@ -1293,27 +1293,27 @@ The default can by set with \code{opm\_opt(hm.colors = ...)}.
 The function \code{radial\_plot()} is able to plot numeric values as distances from the center of a circular field in directions defined by angles in radians.
 Some selection of wells should usually be applied beforehand for these plots to be useful.
 Figure~\ref{fig:radial_plot} provides an example of such a visualization.
-The parameter maximum height (A) is plotted for the wells A01 to A10 from dataset \code{vaas\_4}.
+The parameter maximum height (A) is plotted for the wells A01 to A05 and A10 from dataset \code{vaas\_4}.
 Note also that the values for positioning the upper-left corner of the legend are oriented according to the axes of the plot.
 Hence, if the legend should be placed in the lower left part of the figure, negative values for x and y would be necessary.
 The code is as follows:
 
 <<label=radial.plot.I, results=hide, fig=FALSE, width=10>>=
-radial_plot(vaas_4[, , 1:5], as.labels = list("Species", "Strain"),
+radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
   x = 150, y = 200)
 @
 
 \begin{figure}
 \scalebox{1.225}{
 <<fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
-radial_plot(vaas_4[, , 1:5], as.labels = list("Species", "Strain"),
+radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
   x = 150, y = 200)
 @
 }
 \caption{
 \label{fig:radial_plot}
 Comparison of point estimates for the parameter maximum height (A) observed from four strains, using \code{radial\_plot()}.
-Shown are the results for estimating the maximum height of the single curves from wells A01 to A10.
+Shown are the results for estimating the maximum height of the single curves from wells A01 to A05 and A10.
 }
 \end{figure}
 
