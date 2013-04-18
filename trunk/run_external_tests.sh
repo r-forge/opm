@@ -178,7 +178,15 @@ read_opm_version()
 }
 
 
-change_version()
+change_json_version()
+{
+  local version=$1
+  shift
+  sed -i "v; s/\(\"version\"\):\"[^\"]\+\"/\1:\"$version\"/g" "$@"
+}
+
+
+change_yaml_version()
 {
   local version=$1 tmpfile=`mktemp --tmpdir`
   shift
@@ -226,10 +234,11 @@ tmpdir=`mktemp -d`
 cd "$TESTDIR"
 
 
-# Update the version to let the YAML tests pass the test irrespective of the
-# version.
+# Update the version to let the YAML and JSON tests pass the test irrespective
+# of the actual version.
 #
-change_version "$version" tests/*.yml
+change_yaml_version "$version" tests/*.yml
+change_json_version "$version" tests/*.json
 
 
 FAILED_FILES=failed_files # within $TESTDIR, created if necessary
@@ -279,10 +288,12 @@ echo >&2
 echo >&2
 
 
-# Fix the version in the YAML files to avoid SVN updates.
+# Fix the version in the YAML and JSON files to avoid SVN updates.
 #
-change_version 0.0.0 tests/*.yml
-change_version 0.0.0 "$FAILED_FILES"/*.yml 2> /dev/null || true
+change_yaml_version 0.0.0 tests/*.yml
+change_yaml_version 0.0.0 "$FAILED_FILES"/*.yml 2> /dev/null || true
+change_json_version 0.0.0 tests/*.json
+change_json_version 0.0.0 "$FAILED_FILES"/*.json 2> /dev/null || true
 
 
 ################################################################################
