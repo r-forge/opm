@@ -1,17 +1,17 @@
 ---
 - metadata:
     'Project #': 420
-    Creator: NA
+    Creator: .na
     Modified: Okt 25 2012 14:55
-    Modifier: NA
-    Unrestricted Access?: TRUE
+    Modifier: .na
+    Unrestricted Access?: yes
     Parent File: C:\Biolog420\Ecoplate\5Feb-9628.D4C
-    Frozen?: FALSE
-    Sample Number: NA
+    Frozen?: no
+    Sample Number: .na
     Strain Type: GN-NENT
     Strain Name: 9629
     Strain Number: 9628
-    Other: NA
+    Other: .na
     'A  1: +/b/- Color Reactions': '-'
     'A  2: +/b/- Color Reactions': '-'
     'A  3: +/b/- Color Reactions': '-'
@@ -594,17 +594,17 @@
     Turbidity Filter Position: 5
     Data Generation Mode: Reader
     ID Result: No ID Performed
-    'ID #1 Name': NA
+    'ID #1 Name': .na
     'ID #1 SIM': -1.0
     'ID #1 DIST': -1.0
-    'ID #2 Name': NA
+    'ID #2 Name': .na
     'ID #2 SIM': -1.0
     'ID #2 DIST': -1.0
-    'ID #3 Name': NA
+    'ID #3 Name': .na
     'ID #3 SIM': -1.0
     'ID #3 DIST': -1.0
-    Empty Field: NA
-    N.N.: NA
+    Empty Field: .na
+    N.N.: .na
   csv_data:
     File: tests/Example_Microstation_GN2.csv
     Plate Type: SF-N2
@@ -710,1253 +710,1253 @@
     H12: 0.004
   aggregated:
     A01:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A02:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A03:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A04:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A05:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A06:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A07:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A08:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A09:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A10:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A11:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     A12:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B01:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: -0.001
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B02:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.012
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B03:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.006
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B04:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.007
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B05:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.008
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B06:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B07:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B08:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B09:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B10:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B11:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     B12:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C01:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: -0.002
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C02:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.012
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C03:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.006
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C04:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.007
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C05:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.009
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C06:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.001
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C07:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C08:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C09:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C10:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C11:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     C12:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D01:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: -0.002
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D02:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.012
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D03:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.008
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D04:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.009
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D05:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.012
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D06:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.002
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D07:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D08:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D09:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D10:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D11:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     D12:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E01:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: -0.002
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E02:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.012
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E03:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.007
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E04:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.008
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E05:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.01
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E06:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E07:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E08:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E09:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E10:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E11:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     E12:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F01:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: -0.002
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F02:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.012
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F03:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.008
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F04:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.01
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F05:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.01
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F06:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.002
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F07:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F08:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F09:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F10:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F11:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     F12:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G01:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: -0.002
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G02:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.012
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G03:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.007
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G04:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.008
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G05:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.012
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G06:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.002
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G07:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G08:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G09:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G10:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G11:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     G12:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H01:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H02:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H03:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H04:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H05:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H06:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H07:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H08:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H09:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H10:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H11:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.003
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
     H12:
-      mu: NA
-      lambda: NA
+      mu: .na.real
+      lambda: .na.real
       A: 0.004
-      AUC: NA
-      mu CI95 low: NA
-      lambda CI95 low: NA
-      A CI95 low: NA
-      AUC CI95 low: NA
-      mu CI95 high: NA
-      lambda CI95 high: NA
-      A CI95 high: NA
-      AUC CI95 high: NA
+      AUC: .na.real
+      mu CI95 low: .na.real
+      lambda CI95 low: .na.real
+      A CI95 low: .na.real
+      AUC CI95 low: .na.real
+      mu CI95 high: .na.real
+      lambda CI95 high: .na.real
+      A CI95 high: .na.real
+      AUC CI95 high: .na.real
   aggr_settings:
     method: shortcut
     options:
@@ -1964,102 +1964,102 @@
     software: opm
     version: 0.0.0
   discretized:
-    A01: FALSE
-    A02: FALSE
-    A03: FALSE
-    A04: FALSE
-    A05: FALSE
-    A06: FALSE
-    A07: FALSE
-    A08: FALSE
-    A09: FALSE
-    A10: FALSE
-    A11: FALSE
-    A12: FALSE
-    B01: FALSE
-    B02: TRUE
-    B03: FALSE
-    B04: TRUE
-    B05: TRUE
-    B06: FALSE
-    B07: FALSE
-    B08: FALSE
-    B09: FALSE
-    B10: FALSE
-    B11: FALSE
-    B12: FALSE
-    C01: FALSE
-    C02: TRUE
-    C03: FALSE
-    C04: TRUE
-    C05: TRUE
-    C06: FALSE
-    C07: FALSE
-    C08: FALSE
-    C09: FALSE
-    C10: FALSE
-    C11: FALSE
-    C12: FALSE
-    D01: FALSE
-    D02: TRUE
-    D03: TRUE
-    D04: TRUE
-    D05: TRUE
-    D06: FALSE
-    D07: FALSE
-    D08: FALSE
-    D09: FALSE
-    D10: FALSE
-    D11: FALSE
-    D12: FALSE
-    E01: FALSE
-    E02: TRUE
-    E03: TRUE
-    E04: TRUE
-    E05: TRUE
-    E06: FALSE
-    E07: FALSE
-    E08: FALSE
-    E09: FALSE
-    E10: FALSE
-    E11: FALSE
-    E12: FALSE
-    F01: FALSE
-    F02: TRUE
-    F03: TRUE
-    F04: TRUE
-    F05: TRUE
-    F06: FALSE
-    F07: FALSE
-    F08: FALSE
-    F09: FALSE
-    F10: FALSE
-    F11: FALSE
-    F12: FALSE
-    G01: FALSE
-    G02: TRUE
-    G03: TRUE
-    G04: TRUE
-    G05: TRUE
-    G06: FALSE
-    G07: FALSE
-    G08: FALSE
-    G09: FALSE
-    G10: FALSE
-    G11: FALSE
-    G12: FALSE
-    H01: FALSE
-    H02: FALSE
-    H03: FALSE
-    H04: FALSE
-    H05: FALSE
-    H06: FALSE
-    H07: FALSE
-    H08: FALSE
-    H09: FALSE
-    H10: FALSE
-    H11: FALSE
-    H12: FALSE
+    A01: no
+    A02: no
+    A03: no
+    A04: no
+    A05: no
+    A06: no
+    A07: no
+    A08: no
+    A09: no
+    A10: no
+    A11: no
+    A12: no
+    B01: no
+    B02: yes
+    B03: no
+    B04: yes
+    B05: yes
+    B06: no
+    B07: no
+    B08: no
+    B09: no
+    B10: no
+    B11: no
+    B12: no
+    C01: no
+    C02: yes
+    C03: no
+    C04: yes
+    C05: yes
+    C06: no
+    C07: no
+    C08: no
+    C09: no
+    C10: no
+    C11: no
+    C12: no
+    D01: no
+    D02: yes
+    D03: yes
+    D04: yes
+    D05: yes
+    D06: no
+    D07: no
+    D08: no
+    D09: no
+    D10: no
+    D11: no
+    D12: no
+    E01: no
+    E02: yes
+    E03: yes
+    E04: yes
+    E05: yes
+    E06: no
+    E07: no
+    E08: no
+    E09: no
+    E10: no
+    E11: no
+    E12: no
+    F01: no
+    F02: yes
+    F03: yes
+    F04: yes
+    F05: yes
+    F06: no
+    F07: no
+    F08: no
+    F09: no
+    F10: no
+    F11: no
+    F12: no
+    G01: no
+    G02: yes
+    G03: yes
+    G04: yes
+    G05: yes
+    G06: no
+    G07: no
+    G08: no
+    G09: no
+    G10: no
+    G11: no
+    G12: no
+    H01: no
+    H02: no
+    H03: no
+    H04: no
+    H05: no
+    H06: no
+    H07: no
+    H08: no
+    H09: no
+    H10: no
+    H11: no
+    H12: no
   disc_settings:
     method: kmeans
     options:
