@@ -627,8 +627,8 @@ setMethod("seq", OPMS, function(...) {
 #' @param downcase Logical scalar indicating whether full names should be
 #'   (carefully) converted to lower case. This uses \code{\link{substrate_info}}
 #'   in \sQuote{downcase} mode; see there for details.
-#' @param plate Name of the plate type. Several ones can be given unless 
-#'   \code{object} is of class \code{\link{OPM}} or \code{\link{OPMS}}. 
+#' @param plate Name of the plate type. Several ones can be given unless
+#'   \code{object} is of class \code{\link{OPM}} or \code{\link{OPMS}}.
 #'   \code{\link{plate_type}} is applied before searching for the substrate
 #'   names, and partial matching is allowed.
 #' @param ... Optional arguments passed between the methods.
