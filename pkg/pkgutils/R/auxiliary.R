@@ -319,7 +319,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
       ""
   }
 
-  do_prepend <- function(x, prepend) paste(spaces(prepend), x, sep = "")
+  do_prepend <- function(x, prepend) paste0(spaces(prepend), x)
 
   sentence <- function(x, last, prepend) {
     get_last_sep <- function(last) case(last, and = " and ", comma = ", ",
@@ -797,7 +797,7 @@ problem.character <- function(x, infile = NULL, line = NULL, ...) {
   infile <- sprintf(" '%s'", infile)
   line <- sprintf(" (line %i)", line)
   msg <- "PROBLEM in file"
-  msg <- paste(msg, infile, line, ": ", x, sep = "", collapse = "\n")
+  msg <- paste0(msg, infile, line, ": ", x, collapse = "\n")
   message(msg)
   if (nzchar(logfile <- get("logfile", PKGUTILS_OPTIONS)))
     cat(msg, sep = "\n", file = logfile, append = TRUE)
