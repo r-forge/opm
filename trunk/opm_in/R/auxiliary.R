@@ -420,7 +420,8 @@ metadata_key.formula <- function(x, to.formula = FALSE, ...,
   elem_type <- function(name) switch(as.character(name),
     `::` =, `:::` =, `$` =, `@` = 1L, # operators with highest precedence
     `I` = 2L, # protected formula elements
-    3L # anything else
+    `J` = 3L, # causing on-the-fly joining of metadata elements
+    4L # anything else
   )
   apply_to_tail <- function(x, fun) {
     for (i in seq_along(x)[-1L])
@@ -444,6 +445,7 @@ metadata_key.formula <- function(x, to.formula = FALSE, ...,
       x[[1L]] <- c.name # tight binding, no changes
       eval(x, envir)
     },
+    stop(NOT_YET),
     {
       x[[1L]] <- list.name
       apply_to_tail(x, rec_listify)
@@ -460,12 +462,13 @@ metadata_key.formula <- function(x, to.formula = FALSE, ...,
       x[[1L]] <- c.name
       as.name(paste(eval(x, envir), collapse = get("key.join", OPM_OPTIONS)))
     },
+    stop(NOT_YET),
     apply_to_tail(x, rec_replace)
   ))
-  result <- (if (to.formula)
-      rec_replace
-    else
-      rec_listify)(x[[length(x)]])
+  result <- if (to.formula)
+    rec_replace(x[[length(x)]])
+  else
+    rec_listify(x[[length(x)]])
   if (full.eval)
     return(metadata_key(x = eval(result, envir), ...))
   x[[length(x)]] <- result
