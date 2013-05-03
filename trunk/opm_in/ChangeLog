@@ -8,6 +8,7 @@
 - ensured compatibility with yaml >= 2.1.7 regarding treatment of NA values
   and added according conversion of metadata from YAML/JSON input files
 
+- order of arguments of listing() has been slightly changed
 - removed deprecated select() function
 - well_to_substrate() is now deprecated in favour of new wells() methods
 
