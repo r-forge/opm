@@ -488,8 +488,14 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #'   is also possible; see there for details.
 #'
 #'   For the data-frame method, just the names of the columns to extract, or
-#'   their indices, as vector; alternatively, the name of the class to extract
-#'   from the data frame to form the matrix values.
+#'   their indices, as vector, if \code{direct} is \code{TRUE}. Alternatively,
+#'   the name of the class to extract from the data frame to form the matrix
+#'   values.
+#'
+#'   In the \sQuote{direct} mode, \code{what} can also be a named list of
+#'   vectors used for indexing. In that case a data frame is returned that
+#'   contains the columns from \code{object} together with new columns that
+#'   result from pasting the selected columns together.
 #' @param join Logical scalar. Join each row together to yield a character
 #'   vector? Otherwise it is just attempted to construct a data frame.
 #' @param sep Character scalar. Used as separator between the distinct metadata
@@ -510,10 +516,12 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #'   can be used for testing the applied metadata selections beforehand.
 #'
 #'   The data-frame method is partially trivial (extract the selected columns
-#'   and join them to form a character vector), partially more useful (extract
-#'   columns with data of a specified class).
-#' @return Data frame or character vector, depending on the \code{join}
-#'   argument. The data-frame method always returns a character vector.
+#'   and join them to form a character vector or new data-frame columns),
+#'   partially more useful (extract columns with data of a specified class).
+#' @return For the \code{OPMS} method, a data frame or character vector,
+#'   depending on the \code{join} argument. The data-frame method returns a
+#'   character vector or a data frame, too, but depending on the \code{what}
+#'   argument.
 #' @family conversion-functions
 #' @keywords dplot manip
 #' @seealso base::data.frame base::as.data.frame base::cbind
@@ -578,7 +586,7 @@ setMethod("extract_columns", OPMS, function(object, what, join = FALSE,
 }, sealed = SEALED)
 
 setMethod("extract_columns", "data.frame", function(object, what,
-    as.labels = NULL, as.groups = NULL, sep = " ",
+    as.labels = NULL, as.groups = NULL, sep = opm_opt("value.comb.join"),
     direct = inherits(what, "AsIs")) {
   join <- function(x, what, sep)
     do.call(paste, c(x[, what, drop = FALSE], list(sep = sep)))
@@ -589,9 +597,19 @@ setMethod("extract_columns", "data.frame", function(object, what,
     as.matrix(x)
   }
   if (L(direct)) {
-    result <- join(object, what, sep)
-    if (length(as.labels))
-      names(result) <- join(object, as.labels, sep)
+    if (is.list(what)) {
+      if (is.null(names(what)))
+        stop("if 'what' is a list, it must have names")
+      result <- object
+      for (i in seq_along(what))
+        result[, names(what)[i]] <- as.factor(join(object, what[[i]], sep))
+      if (length(as.labels))
+        rownames(result) <- join(object, as.labels, sep)
+    } else {
+      result <- join(object, what, sep)
+      if (length(as.labels))
+        names(result) <- join(object, as.labels, sep)
+    }
   } else {
     result <- find_stuff(object, what)
     if (length(as.labels))
@@ -601,7 +619,6 @@ setMethod("extract_columns", "data.frame", function(object, what,
     attr(result, "row.groups") <- as.factor(join(object, as.groups, sep))
   result
 }, sealed = SEALED)
-
 
 
 ################################################################################

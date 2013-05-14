@@ -304,6 +304,25 @@ test_that("extract_columns() gets metadata right if a formula is used", {
 })
 
 
+## extract_columns
+test_that("extract_columns can be applied to a data frame", {
+  x <- data.frame(A = letters[1:5], B = 1:5)
+  got <- extract_columns(x, list(C = c("A", "B")), direct = TRUE)
+  expect_is(got, "data.frame")
+  expect_equal(dim(got), c(5, 3))
+  expect_equal(names(got), c("A", "B", "C"))
+  expect_equal(rownames(got), rownames(x))
+  expect_is(got$C, "factor")
+  got <- extract_columns(x, list(C = c("A", "B")), direct = TRUE,
+    as.labels = "A")
+  expect_is(got, "data.frame")
+  expect_equal(dim(got), c(5, 3))
+  expect_equal(names(got), c("A", "B", "C"))
+  expect_equal(rownames(got), as.character(got$A))
+  expect_is(got$C, "factor")
+})
+
+
 ## sort
 ## UNTESTED
 
