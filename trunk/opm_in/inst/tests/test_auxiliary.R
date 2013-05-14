@@ -124,33 +124,32 @@ test_that("we can convert formulas to formulas for use as metadata keys", {
 
   f <- ~ a $ b $ c + I(var) * J("d" + e) + c("f", "g", "h") | i$"j"
   got <- metadata_key(f, TRUE)
+  expect_equal(attr(got, "combine"), list(d.e = c("d", "e")))
   expect_equal(got, ~ a.b.c + A.B * d.e + c(f, g, h) | i.j)
 
   f <- ~ a $ b $ c + I(var) * J("d", e$r) + c("f", "g", "h") | i$"j"
-  old <- opm_opt(key.comb.join = "#")
+  old <- opm_opt(comb.key.join = "#")
   got <- metadata_key(f, TRUE)
+  expect_equal(attr(got, "combine"), list(`d#e.r` = c("d", "e.r")))
   expect_equal(got, ~ a.b.c + A.B * `d#e.r` + c(f, g, h) | i.j)
-  opm_opt(key.comb.join = old$key.comb.join)
+  opm_opt(comb.key.join = old$comb.key.join)
 
 })
 
 
 ## metadata_key
 test_that("we can convert formulas to lists for use as metadata keys", {
-  empty.named.list <- as.list(new.env())
   var <- c("A", "B")
   f <- ~ a $ b $ c + I(var) * ("d" + e) + c("f", "g", "h") | i$"j"
 
   got <- metadata_key(f, FALSE)
   wanted <- list(a.b.c = c("a", "b", "c"), A.B = c("A", "B"),
     d = "d", e = "e", f = "f", g = "g", h = "h", i.j = c("i", "j"))
-  attr(wanted, "combine") <- empty.named.list
   expect_equal(got, wanted)
 
   got <- metadata_key(f, FALSE, remove = c("A.B", "i.j"))
   wanted <- list(a.b.c = c("a", "b", "c"),
     d = "d", e = "e", f = "f", g = "g", h = "h")
-  attr(wanted, "combine") <- empty.named.list
   expect_equal(got, wanted)
 
   f <- ~ a $ b $ c + I(var) * J("d" + e + E$F) + c("f", "g", "h") | i$"j"
@@ -164,7 +163,6 @@ test_that("we can convert formulas to lists for use as metadata keys", {
   f <- Value ~ Well
   got <- metadata_key(f, FALSE)
   wanted <- c(Well = "Well")
-  attr(wanted, "combine") <- empty.named.list
   expect_equal(got, wanted)
   got <- metadata_key(f, FALSE, remove = RESERVED_NAMES)
   expect_equal(got, NULL)
