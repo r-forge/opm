@@ -415,7 +415,7 @@ metadata_key.list <- function(x, to.formula = FALSE, remove = NULL, ops = "+",
 #' @rdname metadata_key
 #' @method metadata_key formula
 #'
-metadata_key.formula <- function(x, to.formula = FALSE, ...,
+metadata_key.formula <- function(x, to.formula = FALSE, remove = NULL, ...,
     full.eval = !to.formula, envir = parent.frame()) {
   elem_type <- function(name) switch(as.character(name),
     `::` =, `:::` =, `$` =, `@` = 1L, # operators with highest precedence
@@ -428,8 +428,22 @@ metadata_key.formula <- function(x, to.formula = FALSE, ...,
       x[[i]] <- fun(x[[i]])
     x
   }
+  combine <- new.env(parent = emptyenv())
+  comb_list <- function(x) {
+    if (!is.list(x))
+      return(x)
+    x <- flatten(x)
+    if (length(x) > 1L) {
+      keys <- vapply(x, paste0, character(1L),
+        collapse = get("key.join", OPM_OPTIONS))
+      combine[[paste0(keys,
+        collapse = get("key.comb.join", OPM_OPTIONS))]] <- keys
+    }
+    x
+  }
   c.name <- as.name("c")
   list.name <- as.name("list")
+  comblist.name <- as.name("comb_list")
   rec_listify <- function(x) case(length(x), NULL, if (is.call(x))
       NULL
     else if (is.name(x))
@@ -445,7 +459,10 @@ metadata_key.formula <- function(x, to.formula = FALSE, ...,
       x[[1L]] <- c.name # tight binding, no changes
       eval(x, envir)
     },
-    stop(NOT_YET),
+    {
+      x[[1L]] <- comblist.name
+      apply_to_tail(x, rec_listify)
+    },
     {
       x[[1L]] <- list.name
       apply_to_tail(x, rec_listify)
@@ -456,23 +473,36 @@ metadata_key.formula <- function(x, to.formula = FALSE, ...,
     else
       x, switch(
     elem_type(x[[1L]]),
-    as.name(paste(all.vars(apply_to_tail(x, rec_replace)),
+    as.name(paste0(all.vars(apply_to_tail(x, rec_replace)),
       collapse = get("key.join", OPM_OPTIONS))),
     {
       x[[1L]] <- c.name
-      as.name(paste(eval(x, envir), collapse = get("key.join", OPM_OPTIONS)))
+      as.name(paste0(eval(x, envir), collapse = get("key.join", OPM_OPTIONS)))
     },
-    stop(NOT_YET),
+    as.name(paste0(all.vars(apply_to_tail(x, rec_replace)),
+      collapse = get("key.comb.join", OPM_OPTIONS))),
     apply_to_tail(x, rec_replace)
   ))
   result <- if (to.formula)
     rec_replace(x[[length(x)]])
   else
     rec_listify(x[[length(x)]])
-  if (full.eval)
-    return(metadata_key(x = eval(result, envir), ...))
-  x[[length(x)]] <- result
-  x
+  if (full.eval) {
+    result <- metadata_key(x = eval(result, enclos = envir), remove = remove,
+      ...)
+    if (length(result)) {
+      suppressWarnings(rm(list = remove, envir = combine))
+      combine <- as.list(combine)
+      if (length(remove))
+        combine <- combine[!vapply(combine, function(x) any(x %in% remove),
+          logical(1L))]
+      attr(result, "combine") <- combine
+    }
+    result
+  } else {
+    x[[length(x)]] <- result
+    x
+  }
 }
 
 
@@ -2042,9 +2072,16 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #'     \item{heatmap.colors}{Colour palette used by \code{\link{heat_map}}}.
 #'     \item{html.attr}{Used by \code{\link{phylo_data}} for automatically
 #'       creating \acronym{HTML} \sQuote{title} and \sQuote{class} attributes.}
+#'     \item{key.comb.join}{Used by functions that support on-the-fly
+#'       combination of metadata entries converted to data-frame columns. Sets
+#'       the character string that is used when joining old names to new name.}
 #'     \item{key.join}{Used by \code{\link{metadata}} and some other functions
 #'       that must be in sync with it for joining metadata keys used in nested
 #'       queries (because the resulting object is \sQuote{flat}).}
+#'     \item{key.value.join}{Used by functions that support on-the-fly
+#'       combination of metadata entries converted to data-frame columns. Sets
+#'       the character string that is used when joining old values to new
+#'       values.}
 #'     \item{phylo.fmt}{Character scalar indicating the default output format
 #'       used by \code{\link{phylo_data}}.}
 #'     \item{split}{Character scalar indicating the default splitting characters
