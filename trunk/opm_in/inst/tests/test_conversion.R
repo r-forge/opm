@@ -305,6 +305,34 @@ test_that("extract_columns() gets metadata right if a formula is used", {
 
 
 ## extract_columns
+test_that("extract_columns() works if a formula is used with joining", {
+
+  # 1
+  got <- extract_columns(NESTED.MD, ~ J(A$C) + K)
+  expect_equal(names(got), c("A.C", "K"))
+
+  # 2
+  got <- extract_columns(NESTED.MD, ~ A$C + J(K))
+  expect_equal(names(got), c("A.C", "K"))
+
+  # 3
+  got <- extract_columns(NESTED.MD, ~ J(A$C, K))
+  expect_equal(names(got), c("A.C", "K", "A.C.K"))
+
+  # 3
+  got <- extract_columns(NESTED.MD, ~ J(A$C + K))
+  expect_equal(names(got), c("A.C", "K", "A.C.K"))
+
+  # 4
+  old <- opm_opt(key.join = "~", comb.key.join = "!")
+  on.exit(opm_opt(old))
+  got <- extract_columns(NESTED.MD, ~ J(A$C + K))
+  expect_equal(names(got), c("A~C", "K", "A~C!K"))
+
+})
+
+
+## extract_columns
 test_that("extract_columns can be applied to a data frame", {
   x <- data.frame(A = letters[1:5], B = 1:5)
   got <- extract_columns(x, list(C = c("A", "B")), direct = TRUE)
@@ -454,9 +482,18 @@ test_that("aggregated parameters can be extracted as dataframe with CIs", {
     c(T, F, F, T, F, F))
   expect_true(all(grepl("lambda", as.character(mat[, 3L]), fixed = TRUE)))
 
+  mat2 <- extract(THIN.AGG, as.labels = ~ organism + run,
+    subset = "lambda", dataframe = TRUE, sep = "***", ci = TRUE)
+  expect_equal(mat, mat2)
+
+  mat2 <- extract(THIN.AGG, as.labels = ~ J(organism + run),
+    subset = "lambda", dataframe = TRUE, sep = "***", ci = TRUE)
+  expect_equal(dim(mat2), c(6L, 100L))
+  expect_equal(mat, mat2[, -match("organism.run", colnames(mat2))])
+
   mat <- extract(THIN.AGG, as.labels = list("organism", "run"),
     subset = "lambda", dataframe = TRUE, sep = "***", ci = TRUE,
-    as.groups = list("run", "organism"))
+    as.groups = ~ run - organism)
   expect_is(mat, "data.frame")
   expect_equal(dim(mat), c(6L, 101L))
   expect_equal(colnames(mat), c("organism", "run",
@@ -472,6 +509,12 @@ test_that("aggregated parameters can be extracted as dataframe with CIs", {
   expect_true(all(grepl("lambda", as.character(mat[, 3L]), fixed = TRUE)))
   expect_equal(mat[, 1L], mat[, 101L])
   expect_equal(mat[, 2L], mat[, 100L])
+
+  mat2 <- extract(THIN.AGG, as.labels = list("organism", "run"),
+    subset = "lambda", dataframe = TRUE, sep = "***", ci = TRUE,
+    as.groups = ~ J(run - organism))
+  expect_equal(dim(mat2), c(6L, 102L))
+  expect_equivalent(mat, mat2[, -102L]) # TODO: unclear why different
 
 })
 

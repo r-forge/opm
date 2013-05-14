@@ -398,7 +398,7 @@ metadata_key.character <- function(x, to.formula = FALSE, remove = NULL, ...) {
 #'
 metadata_key.list <- function(x, to.formula = FALSE, remove = NULL, ops = "+",
     ...) {
-  join <- function(x) vapply(x, paste, character(1L),
+  join <- function(x) vapply(x, paste0, character(1L),
     collapse = get("key.join", OPM_OPTIONS))
   if (is.null(names(x <- flatten(x))))
     names(x) <- join(x)
@@ -429,17 +429,30 @@ metadata_key.formula <- function(x, to.formula = FALSE, remove = NULL, ...,
     x
   }
   combine <- new.env(parent = emptyenv())
-  comb_list <- function(x) {
-    if (!is.list(x))
-      return(x)
-    x <- flatten(x)
-    if (length(x) > 1L) {
-      keys <- vapply(x, paste0, character(1L),
+  comb_list <- function(...) {
+    if (length(keys <- flatten(x <- list(...))) > 1L) {
+      keys <- vapply(keys, paste0, character(1L),
         collapse = get("key.join", OPM_OPTIONS))
       combine[[paste0(keys,
-        collapse = get("key.comb.join", OPM_OPTIONS))]] <- keys
+        collapse = get("comb.key.join", OPM_OPTIONS))]] <- keys
     }
     x
+  }
+  comb_names <- function(x) {
+    x <- all.vars(x)
+    key <- paste0(x, collapse = get("comb.key.join", OPM_OPTIONS))
+    if (length(x) > 1L)
+      combine[[key]] <- x
+    as.name(key)
+  }
+  final_comb_list <- function(x, remove) {
+    x <- as.list(x)
+    if (length(remove))
+      x <- x[!vapply(x, function(y) any(y %in% remove), logical(1L))]
+    if (length(x))
+      x
+    else
+      NULL
   }
   c.name <- as.name("c")
   list.name <- as.name("list")
@@ -479,8 +492,7 @@ metadata_key.formula <- function(x, to.formula = FALSE, remove = NULL, ...,
       x[[1L]] <- c.name
       as.name(paste0(eval(x, envir), collapse = get("key.join", OPM_OPTIONS)))
     },
-    as.name(paste0(all.vars(apply_to_tail(x, rec_replace)),
-      collapse = get("key.comb.join", OPM_OPTIONS))),
+    comb_names(apply_to_tail(x, rec_replace)),
     apply_to_tail(x, rec_replace)
   ))
   result <- if (to.formula)
@@ -490,17 +502,12 @@ metadata_key.formula <- function(x, to.formula = FALSE, remove = NULL, ...,
   if (full.eval) {
     result <- metadata_key(x = eval(result, enclos = envir), remove = remove,
       ...)
-    if (length(result)) {
-      suppressWarnings(rm(list = remove, envir = combine))
-      combine <- as.list(combine)
-      if (length(remove))
-        combine <- combine[!vapply(combine, function(x) any(x %in% remove),
-          logical(1L))]
-      attr(result, "combine") <- combine
-    }
+    if (length(result))
+      attr(result, "combine") <- final_comb_list(combine, remove)
     result
   } else {
     x[[length(x)]] <- result
+    attr(x, "combine") <- final_comb_list(combine, remove)
     x
   }
 }
@@ -2047,6 +2054,14 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #'     \item{color.borders}{Character vector with default color borders between
 #'       which \code{\link{level_plot}} interpolates to obtain a colour
 #'       palette.}
+#'     \item{comb.key.join}{Used by functions that support combination of
+#'       metadata entries converted to data-frame columns immediately after
+#'       their selection. Sets the character string that is used when joining
+#'       old names to new name.}
+#'     \item{comb.value.join}{Used by functions that support combination of
+#'       metadata entries converted to data-frame columns immediately after
+#'       their selection. Sets the character string that is used when joining
+#'       old values to new values.}
 #'     \item{contrast.type}{Character scalar indicating the default type of
 #'       contrast used by \code{\link{opm_mcp}}.}
 #'     \item{css.file}{Character scalar. Default \acronym{CSS} file linked by
@@ -2072,16 +2087,9 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #'     \item{heatmap.colors}{Colour palette used by \code{\link{heat_map}}}.
 #'     \item{html.attr}{Used by \code{\link{phylo_data}} for automatically
 #'       creating \acronym{HTML} \sQuote{title} and \sQuote{class} attributes.}
-#'     \item{key.comb.join}{Used by functions that support on-the-fly
-#'       combination of metadata entries converted to data-frame columns. Sets
-#'       the character string that is used when joining old names to new name.}
 #'     \item{key.join}{Used by \code{\link{metadata}} and some other functions
 #'       that must be in sync with it for joining metadata keys used in nested
 #'       queries (because the resulting object is \sQuote{flat}).}
-#'     \item{key.value.join}{Used by functions that support on-the-fly
-#'       combination of metadata entries converted to data-frame columns. Sets
-#'       the character string that is used when joining old values to new
-#'       values.}
 #'     \item{phylo.fmt}{Character scalar indicating the default output format
 #'       used by \code{\link{phylo_data}}.}
 #'     \item{split}{Character scalar indicating the default splitting characters
