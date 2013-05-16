@@ -326,6 +326,37 @@ check_roxygen_tags()
 ################################################################################
 
 
+# Show warnings in results from running examples in R package documentation.
+#
+show_example_warnings()
+{
+  local folder outfile
+  for folder; do
+    outfile=$folder.Rcheck/opm-Ex.Rout
+    [ -s "$outfile" ] || continue
+    awk '
+      $1 == "Warning" {
+        text = $0
+        if (text !~ / :$/) {
+          print text
+          next
+        }
+        while (1) {
+          getline
+          if ($0 !~ /^  /)
+            break
+          text = (text $0)
+        }
+        print text
+      }
+    ' "$outfile"
+  done
+}
+
+
+################################################################################
+
+
 # A 'full build' means we copy the code from trunk/opm to pkg/opm, which, after
 # committing to SVN, would cause R-Forge to (attempt to) build the next package.
 #
@@ -376,9 +407,16 @@ Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --good well-map.R,substrate-info.R,plate-map.R "$PKG_DIR"
 
 
+OUT_DIR=${PKG_DIR%_in}
+
+
+# Visualize R warnings in the examples
+#
+show_example_warnings "$OUT_DIR"
+
+
 # Copy the package files to pkg/opm, if requested ('full' build).
 #
-OUT_DIR=${PKG_DIR%_in}
 if [ "$full_build" ]; then
   if [ -d "$OUT_DIR" ]; then
     target=../pkg/$OUT_DIR
