@@ -302,13 +302,13 @@ check_roxygen_tags()
           sub(/-functions$/, "", value["@family"])
           if (value["@family"] != basename) {
             printf "wrong @family entry in \"%s\" (line %i in file \"%s\")\n",
-              title, position, FILENAME
+              title, position, FILENAME > "/dev/stderr"
             problems++
           }
         } else if (!(value["@keywords"] in no_family) &&
             !("@exportMethod" in value)) {
           printf "missing @family tag in \"%s\" (line %i in file \"%s\")\n",
-            title, position, FILENAME
+            title, position, FILENAME > "/dev/stderr"
           problems++
         }
       }
@@ -327,6 +327,7 @@ check_roxygen_tags()
 
 
 # Show warnings in results from running examples in R package documentation.
+# Assumes default output names used by R CMD check.
 #
 show_example_warnings()
 {
@@ -338,7 +339,7 @@ show_example_warnings()
       $1 == "Warning" {
         text = $0
         if (text !~ / :$/) {
-          print text
+          print text > "/dev/stderr"
           next
         }
         while (1) {
@@ -347,9 +348,33 @@ show_example_warnings()
             break
           text = (text $0)
         }
-        print text
+        print text > "/dev/stderr"
       }
     ' "$outfile"
+    echo >&2
+  done
+}
+
+
+################################################################################
+
+
+# Show warnings in results from running tests contained in R package.
+# Assumes main test file named 'run-all.R' and default output names used by 
+# R CMD check.
+#
+show_test_warnings()
+{
+  local folder outfile
+  for folder; do
+    outfile=$folder.Rcheck/tests/run-all.Rout
+    [ -s "$outfile" ] || continue
+    awk '
+      /^Warning messages:/, /^>/ {
+        print > "/dev/stderr"
+      }
+    ' "$outfile"
+    echo >&2
   done
 }
 
@@ -410,9 +435,10 @@ Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
 OUT_DIR=${PKG_DIR%_in}
 
 
-# Visualize R warnings in the examples
+# Visualize R warnings in the examples and tests, if any
 #
 show_example_warnings "$OUT_DIR"
+show_test_warnings "$OUT_DIR"
 
 
 # Copy the package files to pkg/opm, if requested ('full' build).
