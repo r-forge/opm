@@ -333,7 +333,7 @@ show_example_warnings()
 {
   local folder outfile
   for folder; do
-    outfile=$folder.Rcheck/opm-Ex.Rout
+    outfile=$folder.Rcheck/${folder##*/}-Ex.Rout
     [ -s "$outfile" ] || continue
     awk '
       $1 == "Warning" {
@@ -360,7 +360,7 @@ show_example_warnings()
 
 
 # Show warnings in results from running tests contained in R package.
-# Assumes main test file named 'run-all.R' and default output names used by 
+# Assumes main test file named 'run-all.R' and default output names used by
 # R CMD check.
 #
 show_test_warnings()
