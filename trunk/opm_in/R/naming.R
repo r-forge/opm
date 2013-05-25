@@ -477,10 +477,10 @@ setOldClass("substrate_match")
 #'   \sQuote{substrate_match}, \code{\link{OPM}} or \code{\link{OPMS}} object.
 #' @param ... Optional arguments passed between the methods.
 #' @export
-#' @return The character method returns a list of character matrices (empty if 
-#'   nothing was found), with one row per position found, the plate name in the 
-#'   first column and the well name in the second. The names of this list 
-#'   correspond to \code{names}. The \code{\link{OPM}} and \code{\link{OPMS}} 
+#' @return The character method returns a list of character matrices (empty if
+#'   nothing was found), with one row per position found, the plate name in the
+#'   first column and the well name in the second. The names of this list
+#'   correspond to \code{names}. The \code{\link{OPM}} and \code{\link{OPMS}}
 #'   methods do the same, using their own substrates. The list and
 #'   \sQuote{substrate_match} methods return lists of such lists.
 #' @details  The query names must be written exactly as used in the stored plate
@@ -562,9 +562,9 @@ setMethod("find_positions", OPM, function(object, ...) {
 #' @param ... Optional arguments passed between the methods.
 #' @export
 #' @return The character method returns a character vector with \code{object}
-#'   used as names and either a matched entry or \code{NA} as value. The factor 
-#'   method does the same, whereas the list method traverses a list and calls 
-#'   \code{substrate_info} on its elements. The \code{\link{OPM}} and 
+#'   used as names and either a matched entry or \code{NA} as value. The factor
+#'   method does the same, whereas the list method traverses a list and calls
+#'   \code{substrate_info} on its elements. The \code{\link{OPM}} and
 #'   \code{\link{OPMS}} methods work like the character method, using their own
 #'   substrates.
 #' @family naming-functions
@@ -615,7 +615,7 @@ setMethod("find_positions", OPM, function(object, ...) {
 #' # List method
 #' (x <- substrate_info(find_substrate(c("D-Glucose", "D-Gloucose"))))
 #' stopifnot(length(x[[1]]) > length(x[[2]]))
-#' 
+#'
 #' # OPM and OPMS methods
 #' data(vaas_1)
 #' (x <- substrate_info(vaas_1[, 1:3], "all"))
