@@ -248,13 +248,15 @@ FAILED_FILES=failed_files # within $TESTDIR, created if necessary
 # plot mode
 #
 do_test -i csv -o ps -f "$tmpdir/%s.ps" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -p 2 -r xyplot -d "$tmpdir" -i '*.csv'
+  Rscript --vanilla "$run_opm" -p 2 -r xyplot -d "$tmpdir" -i '*.csv' \
+  -k 'TIME:Setup Time,ID'
 
 # split mode -- these tests only guarantee that if there is nothing to split
 # the original file results
 #
 do_test -i csv -o csv -f "$tmpdir/%s-00001.csv" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -p 2 -s , -r split -d "$tmpdir" -i '*.csv'
+  Rscript --vanilla "$run_opm" -p 2 -s , -r split -d "$tmpdir" -i '*.csv' \
+  -k 'TIME:Setup Time,ID'
 
 # template collection mode
 #
@@ -265,19 +267,19 @@ do_test -i csv -o template -f "$tmpdir/md.csv" -q "$FAILED_FILES" \
 #
 do_test -i csv -o template2 -f "$tmpdir/md.csv" -q "$FAILED_FILES" \
   Rscript --vanilla "$run_opm" -p 2  -s , -r template -m "$tmpdir/md.csv" \
-  -i '*.csv'
+  -i '*.csv' -k 'TIME:Setup Time,ID'
 
 # yaml mode
 #
 do_test -i csv -o yml -f "$tmpdir/%s.yml" -q "$FAILED_FILES" \
   Rscript --vanilla "$run_opm" -z -p 2 -a fast -b 0 -r yaml -d "$tmpdir" \
-  -i '*.csv'
+  -i '*.csv' -k 'TIME:Setup Time,ID'
 
 # json mode
 #
 do_test -i csv -o json -f "$tmpdir/%s.json" -q "$FAILED_FILES" \
   Rscript --vanilla "$run_opm" -z -p 2 -a smooth -b 0 -r json -d "$tmpdir" \
-  -i '*.csv'
+  -i '*.csv' -k 'TIME:Setup Time,ID'
 
 rm -rf "$tmpdir"
 
