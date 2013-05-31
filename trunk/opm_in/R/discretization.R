@@ -396,13 +396,14 @@ setMethod("discrete", "data.frame", function(x, as.labels = NULL, sep = " ",
 #'   error is raised since \code{\link{best_cutoff}} needs groups with more than
 #'   a single element.
 #'
-#'   If \code{object} is not of class \code{\link{OPMS}}, \code{groups} is
-#'   ignored, with a warning.
+#'   The \code{groups} argument has no effect on \code{\link{OPMA}} objects.
 #'
 #' @param plain Logical scalar indicating whether or not an \code{\link{OPMD}}
 #'   or \code{\link{OPMS}} object should be created.
 #' @param subset Character scalar passed to \code{\link{extract}}. It is
 #'   recommended to use the maximum height (currently called \sQuote{A}).
+#' @param unify Logical scalar indicating whether results should be unified per
+#'   group. Has no effect on \code{\link{OPMA}} objects.
 #' @param ... Optional arguments passed to \code{\link{extract}}. Only relevant
 #'   for certain settings of \code{groups}, see above.
 #'
@@ -520,14 +521,10 @@ setMethod("discrete", "data.frame", function(x, as.labels = NULL, sep = " ",
 setGeneric("do_disc", function(object, ...) standardGeneric("do_disc"))
 
 setMethod("do_disc", OPMA, function(object, cutoff, groups = FALSE,
-    plain = FALSE, subset = opm_opt("disc.param")) {
+    plain = FALSE, subset = opm_opt("disc.param"), unify = FALSE) {
   if (!length(cutoff))
     stop(sprintf(
       "'cutoff' must be a non-empty vector if applied to %s objects",
-      class(object)))
-  if (!missing(groups))
-    warning(sprintf(
-      "the 'groups' argument is ignored if applied to %s objects",
       class(object)))
   x <- aggregated(object, subset = map_grofit_names(subset, ci = FALSE)[[1L]],
     ci = FALSE)[1L, ]
@@ -548,22 +545,29 @@ setMethod("do_disc", OPMA, function(object, cutoff, groups = FALSE,
 }, sealed = SEALED)
 
 setMethod("do_disc", "OPMS", function(object, cutoff = TRUE, groups = FALSE,
-    plain = FALSE, subset = opm_opt("disc.param"), ...) {
+    plain = FALSE, subset = opm_opt("disc.param"), unify = !length(cutoff),
+    ...) {
+
   add_disc <- function(x, discretized, disc.settings) {
     new(OPMD, measurements = measurements(x),
       metadata = metadata(x), csv_data = csv_data(x),
       aggregated = aggregated(x), aggr_settings = aggr_settings(x),
       discretized = discretized, disc_settings = disc.settings)
   }
+
   if (!all(has_aggr(object)))
     stop("all plates must contain aggregated data to run this function")
+  LL(unify)
+
   if (is.logical(groups)) {
     combined <- !L(groups)
     groups <- NULL
   } else
     combined <- !length(groups)
+
   # extra step necessary here because extract() allows 'disc'
   subset <- unname(match.arg(subset, unlist(map_grofit_names(plain = TRUE))))
+
   x <- extract(object = object, as.labels = groups, subset = subset,
     ci = FALSE, full = FALSE, dataframe = FALSE, dups = "ignore", ...)
 
@@ -616,8 +620,10 @@ setMethod("do_disc", "OPMS", function(object, cutoff = TRUE, groups = FALSE,
           disc.settings[[i]] <- tmp
         }
         x[idx, ] <- x[idx, , drop = FALSE] > settings$cutoffs
-        is.const <- is_constant(x[idx, , drop = FALSE], 2L)
-        x[idx, !is.const] <- NA
+        if (unify) {
+          is.const <- is_constant(x[idx, , drop = FALSE], 2L)
+          x[idx, !is.const] <- NA
+        }
       }
       mode(x) <- "logical"
 
@@ -636,6 +642,8 @@ setMethod("do_disc", "OPMS", function(object, cutoff = TRUE, groups = FALSE,
         }
         x[idx, ] <- y
       }
+      if (unify)
+        stop(NOT_YET)
       mode(x) <- "logical"
 
     }
@@ -647,6 +655,8 @@ setMethod("do_disc", "OPMS", function(object, cutoff = TRUE, groups = FALSE,
     disc.settings[[OPTIONS]] <- list(cutoffs = attr(x, "cutoffs"),
       datasets = length(object), parameter = subset)
     disc.settings <- rep.int(list(disc.settings), length(object))
+    if (unify)
+      stop(NOT_YET)
 
   } else
     stop(BUG_MSG) # this should be an impossible combination of settings
