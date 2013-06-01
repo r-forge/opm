@@ -1634,7 +1634,7 @@ setMethod("subset", OPMS, function(x, query, values = TRUE,
   if (time) {
     tp <- hours(x, what = "all")
     if (is.matrix(tp))
-      tp <- lapply(seq.int(nrow(tp)), function(i) tp[i, ])
+      tp <- lapply(seq_len(nrow(tp)), function(i) tp[i, ])
     if (length(maxs <- unique.default(vapply(tp, max, 1))) < 2L)
       return(x)
     min.max <- min(maxs)
