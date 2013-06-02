@@ -12,7 +12,7 @@
   \method{update}{class_desc} (object,
     outcomment = c("note", "author", "references", "seealso"),
     description = sprintf("  See \%s.", rd_quote(c("code", "link"), class_name(object))),
-    ...)
+        ...)
 
   \method{update}{pack_desc} (object, version = TRUE,
     date.format = "\%Y-\%m-\%d", ...)

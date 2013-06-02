@@ -128,9 +128,13 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, ...) {
       VERB = x,
       RCODE = {
         switch(parent.tags[1L],
-          `\\usage` = if (grepl("\\s*<-\\s*value\\s*$", x, perl = TRUE))
+          `\\usage` = {
+            if (grepl("\\s*<-\\s*value\\s*$", x, perl = TRUE))
             # Repair duplicate 'value' entries of replacement functions
-            x <- sub(",\\s*value", "", x, perl = TRUE)
+              x <- sub(",\\s*value", "", x, perl = TRUE)
+            # break long lines
+            x <- gsub("(.{80})\\s", "\\1\n    ", x, perl = TRUE)
+          }
         )
         x
       }
