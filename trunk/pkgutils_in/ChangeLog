@@ -1,4 +1,11 @@
 
+2012-XX-XX (5th release on CRAN)
+
+- fixed bug in vertical-merge running mode 'merge.R' script
+
+- repair_docu() now also repairs too long usage lines
+
+
 2012-04-15 (4th release on CRAN)
 
 - fixed bug in check_R_code() that caused removal of quoted sections of a line

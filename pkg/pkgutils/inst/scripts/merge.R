@@ -189,8 +189,9 @@ if (opt$help || (length(files) + opt$vertical) < 2L) {
 
 if (opt$vertical) {
   for (file in files) {
-    x <- aggregate(do_read(file, opt), by = list(x[[opt$xcolumn]]),
-      FUN = join_unique, join = opt$join, simplify = TRUE)
+    x <- do_read(file, opt)
+    x <- aggregate(x, by = list(x[, opt$xcolumn]), FUN = join_unique,
+      join = opt$join, simplify = TRUE)
     do_write(x[, -1L, drop = FALSE], opt)
   }
   quit(status = 0L)
