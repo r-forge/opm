@@ -30,7 +30,7 @@ class_desc <- function(x) UseMethod("class_desc")
 class_desc.list <- function(x) {
   if (is.null(names(x)))
     stop("list 'x' must have names")
-  if (!all(vapply(x, inherits, logical(1L), what = "character")))
+  if (!all(vapply(x, inherits, NA, "character")))
     stop("list 'x' must contain only character vectors")
   class(x) <- "class_desc"
   x
@@ -55,7 +55,7 @@ classes_desc.list <- function(x) {
   if (is.null(names(x)))
     stop("list 'x' must have names")
   x <- lapply(x, class_desc)
-  if (!all(names(x) == vapply(x, class_name, character(1L))))
+  if (!all(names(x) == vapply(x, class_name, "")))
     stop("inconsistencies between list names and class-name entries")
   class(x) <- "classes_desc"
   x
@@ -254,7 +254,7 @@ update.class_desc <- function(object,
   others <- list(description = description, ...)
   others <- others[names(others) %in% names(object)]
   others <- others[!names(others) %in% outcomment]
-  others <- others[vapply(others, length, integer(1L)) > 0L]
+  others <- others[vapply(others, length, 0L) > 0L]
   for (name in names(others))
     object[[name]] <- as.character(others[[name]])
   object

@@ -1,6 +1,9 @@
 
 2012-XX-XX (5th release on CRAN)
 
+- fixed bug in 'docu.R' that caused wrong archive file name to be passed to R
+  CMD check when running script not from parent directory
+
 - fixed bug in vertical-merge running mode 'merge.R' script
 
 - repair_docu() now also repairs too long usage lines

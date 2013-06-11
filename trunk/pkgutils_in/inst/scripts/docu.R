@@ -37,7 +37,7 @@ copy_dir <- function(from, to, delete) {
     files <- files[!grepl(delete, files, perl = TRUE, ignore.case = TRUE)]
   dirs <- sub(from, to, unique.default(dirname(files)), fixed = TRUE)
   unlink(to, recursive = TRUE)
-  vapply(dirs[order(nchar(dirs))], dir.create, logical(1L), recursive = TRUE)
+  vapply(dirs[order(nchar(dirs))], dir.create, NA, recursive = TRUE)
   file.copy(files, sub(from, to, files, fixed = TRUE))
 }
 
@@ -70,7 +70,7 @@ run_sweave <- function(files, opt) {
       warning(e)
       1L
     })
-  }, integer(1L)))
+  }, 0L))
 }
 
 
@@ -410,7 +410,7 @@ for (i in seq_along(package.dirs)) {
     build.err <- run_R_CMD(out.dir, "build", opt$buildopts)
     errs <- errs + build.err
     if (!opt$folder) {
-      pkg.file <- sprintf("%s_%s.tar.gz", out.dir,
+      pkg.file <- sprintf("%s_%s.tar.gz", basename(out.dir),
         pack_desc(out.dir)[[1L]]$Version)
       msg <- sprintf(" archive file '%s'...", pkg.file)
     }
