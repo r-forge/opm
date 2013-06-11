@@ -407,7 +407,7 @@ flatten.default <- function(object, ...) object
 #' @export
 #'
 flatten.list <- function(object, ...) {
-  while (any(is.a.list <- vapply(object, is.list, logical(1L)))) {
+  while (any(is.a.list <- vapply(object, is.list, NA))) {
     object[!is.a.list] <- lapply(object[!is.a.list], list)
     object <- unlist(object, recursive = FALSE)
   }

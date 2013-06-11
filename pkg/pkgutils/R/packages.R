@@ -95,11 +95,11 @@ pack_desc.character <- function(pkg, action = c("read", "update", "source"),
     update = {
       x <- update(object = x, version = version, date.format = date.format)
       if (!demo)
-        puts(x = x, file = vapply(x, attr, character(1L), which = "file"), ...)
+        puts(x = x, file = vapply(x, attr, "", which = "file"), ...)
       wanted <- "Date"
       if (version)
         wanted <- c(wanted, "Version")
-      x <- lapply(wanted, function(i) vapply(x, `[[`, character(1L), i = i))
+      x <- lapply(wanted, function(i) vapply(x, `[[`, "", i = i))
       x <- do.call(cbind, x)
       colnames(x) <- wanted
       x

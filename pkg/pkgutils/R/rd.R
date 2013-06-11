@@ -91,11 +91,10 @@ repair_docu.character <- function(x, ignore = NULL, ...) {
 repair_docu.Rd <- function(x, remove.dups = FALSE, ...) {
   cum_parts <- function(x) {
     x <- strsplit(x, ".", fixed = TRUE)
-    x <- x[vapply(x, length, integer(1L)) > 0L]
+    x <- x[vapply(x, length, 0L) > 0L]
     unlist(lapply(x, function(y) {
-      vapply(seq_along(y), function(i) {
-        paste(y[seq.int(1L, i)], collapse = ".")
-      }, character(1L))
+      vapply(seq_along(y),
+        function(i) paste0(y[seq.int(1L, i)], collapse = "."), "")
     }))
   }
   function.names <- new.env(parent = emptyenv())
@@ -148,7 +147,7 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, ...) {
     if (is.null(this.tag <- attr(x, "Rd_tag")))
       this.tag <- ".empty"
     y <- lapply(x, repair_recursively, parent.tags = c(this.tag, parent.tags))
-    y[vapply(y, is.null, logical(1L))] <- NULL
+    y[vapply(y, is.null, NA)] <- NULL
     if (!length(y))
       return(NULL)
     attributes(y) <- attributes(x)
@@ -199,7 +198,7 @@ NULL
 subset.Rd <- function(x, subset, values = FALSE, ...) {
   prepend <- !grepl("^\\\\", subset, perl = TRUE)
   subset[prepend] <- sprintf("\\%s", subset[prepend])
-  y <- vapply(x, attr, character(1L), which = "Rd_tag") %in% subset
+  y <- vapply(x, attr, "", which = "Rd_tag") %in% subset
   if (L(values)) {
     x[!y] <- NULL
     x
