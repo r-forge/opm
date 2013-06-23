@@ -19,23 +19,18 @@
 ################################################################################
 
 
-# Checked locations of the R installation directory. Names must not contain
-# whitespace. The 'docu.R' script is either found in the $PATH or searched
-# within these directories, in order. If an environment variable $R_LIBRARY is
-# defined, it is honoured.
+# Checked locations of the R installation directory if it is not found in the
+# result from calling R RHOME. Directory names must not contain whitespace.
+# The 'docu.R' script is either found in the $PATH or searched within these 
+# directories, in order.
 #
-if [ "${R_LIBRARY:-}" ]; then
-  R_LIBRARIES=$R_LIBRARY
-else
-  R_LIBRARIES="
-    /usr/local/lib/R/library
-    /usr/local/lib64/R/library
-    /usr/lib64/R/library
-    /usr/lib/R/library
-    /usr/share/R/library
-    $HOME/R/x86_64-pc-linux-gnu-library/2.15
-  "
-fi
+FALLBACK_R_LIBRARY_DIRS="
+  /usr/local/lib/R/library
+  /usr/local/lib64/R/library
+  /usr/lib64/R/library
+  /usr/lib/R/library
+  /usr/share/R/library
+"
 
 # 'docu.R' creates a logfile itself, which contains, e.g., information on style
 # checks and according modifications of R source files.
@@ -67,9 +62,15 @@ find_docu_script()
     echo "$result"
     return 0
   fi
-  local r_library
-  for r_library in $R_LIBRARIES; do
-    result=$r_library/pkgutils/scripts/docu.R
+  local r_library_dirs=`R RHOME || :`
+  if [ "$r_library_dirs" ]; then
+    r_library_dirs=$r_library_dirs/library
+  else
+    r_library_dirs=$FALLBACK_R_LIBRARY_DIRS
+  fi
+  local r_library_dir
+  for r_library_dir in $r_library_dirs; do
+    result=$r_library_dir/pkgutils/scripts/docu.R
     if [ -s "$result" ]; then
       echo "$result"
       return 0
