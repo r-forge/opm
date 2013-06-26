@@ -3,7 +3,7 @@ metadata:
   TIME: 11.04.2011 17:08:05
   ID: 1
 csv_data:
-  File: tests/Example_Old_Style_Nora_3.csv
+  File: external_tests/tests/Example_Old_Style_Nora_3.csv
   Data File: I:\2011_Ergebnisse\PhaenotypischeMicroArrays\11-04-11_Pgal und 65kbKO
     262kbKO-Mutanten\110411 Negative Control IM-TU-C_NK_Negative Control_NK IM-TU-C_20_28_PMX_0_11.04.2011_C_
     8B_1.oka

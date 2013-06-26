@@ -3,7 +3,7 @@ metadata:
   TIME: 8/30/2010 11:28:54 AM
   ID: 1
 csv_data:
-  File: tests/Example_Johannes_1.csv
+  File: external_tests/tests/Example_Johannes_1.csv
   Data File: C:\Dokumente und Einstellungen\Johannes\Eigene Dateien\DSMZ-arbeiten\OmnilogPM\Biolog_Lauf\Techrepl\PMX_0_100830_C_42.OKA
   Setup Time: 8/30/2010 11:28:54 AM
   Position: 21-B

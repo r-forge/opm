@@ -608,7 +608,7 @@
     Empty Field: .na
     N.N.: .na
   csv_data:
-    File: tests/Example_Microstation_GN2.csv
+    File: external_tests/tests/Example_Microstation_GN2.csv
     Plate Type: SF-N2
     Setup Time: Feb 05 2009 14:24
     Position: '1'
