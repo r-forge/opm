@@ -3,7 +3,7 @@ metadata:
   TIME: Apr 11 2011 5:08 PM
   ID: 1
 csv_data:
-  File: tests/Example_Old_Style_Nora_1.csv
+  File: external_tests/tests/Example_Old_Style_Nora_1.csv
   Data File: I:\2011_Ergebnisse\PhaenotypischeMicroArrays\11-04-11_Pgal und 65kbKO
     262kbKO-Mutanten\110411_PM9-10-14-15-16-17-20 NK Pgal WT-65kbKO-262kbKO_23.OKA
   Setup Time: Apr 11 2011 5:08 PM

@@ -3,7 +3,7 @@ metadata:
   TIME: 27.07.2011 13:55:26
   ID: 1
 csv_data:
-  File: tests/Example_Old_Style_Anne_1.csv
+  File: external_tests/tests/Example_Old_Style_Anne_1.csv
   Data File: C:\Users\Anne\Desktop\27.07.11_raw\afi_Roseobacter denitrificans_DSM
     7001__1_28_PMX_357_27.07.2011_A_22A_4.oka
   Setup Time: 27.07.2011 13:55:26

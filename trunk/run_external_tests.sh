@@ -12,7 +12,7 @@
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
 #
-# (C) 2012 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
+# (C) 2013 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
 #
 ################################################################################
 
@@ -46,6 +46,9 @@ TESTDIR=external_tests
 set -eu
 
 
+# Find the script docu.R (from the pkgutils R package) either in the $PATH or
+# within the pkgutils subdirectory of the R installation directory.
+#
 find_run_opm_script()
 {
   local result=`which run_opm.R`
@@ -72,102 +75,83 @@ find_run_opm_script()
 }
 
 
-# Run tests based on file comparison. This function originates from a larger
-# Shell library and thus contains a usage message, even though it is not
-# relevant here.
+################################################################################
+
+
+# Used by do_test().
+#
+format_basename()
+{
+  local filename=${1##*/}
+  printf "$2" ${filename%.*}
+}
+
+
+################################################################################
+
+
+# Run tests based on file comparison.
 #
 do_test()
 {
-  local help_msg= test_dir=tests in_ext=txt out_ext=out q_dir=
-  local err_file=tests.err out_file=tests.out outfmt=
+  local qdir= outfmt= wantedfmt= indir= inext= logfile=/dev/stderr
 
   local opt
   OPTIND=1
-  while getopts d:f:hi:o:q: opt; do
+  while getopts d:f:i:l:q:w: opt; do
     case $opt in
-      d ) test_dir=$OPTARG;;
+      d ) indir=$OPTARG;;
       f ) outfmt=$OPTARG;;
-      h ) help_msg=yes;;
-      i ) in_ext=$OPTARG;;
-      o ) out_ext=$OPTARG;;
-      q ) q_dir=$OPTARG;;
+      i ) inext=$OPTARG;;
+      l ) logfile=$OPTARG;;
+      q ) qdir=$OPTARG;;
+      w ) wantedfmt=$OPTARG;;
       * ) return 1;;
     esac
   done
   shift $(($OPTIND - 1))
 
-  if [ $# -eq 0 ] || [ "$help_msg" ]; then
-    cat >&2 <<-____EOF
-	$FUNCNAME runs tests based on the comparison of specified input and output
-	files.
-
-	Usage: $FUNCNAME [options] arguments
-
-	Options:
-	  -d x  Assume input and output files in this directory.
-	  -f x  Use x as template for the output filenames. Should use '%s' to
-	        refer to the respective input filename.
-	  -h    Print this message.
-	  -i x  Use x as input file extension.
-	  -o x  Use x as output file extension.
-	  -q x  Copy unexpected output files in quarantine directory x.
-
-	Arguments should start with the name of a script file or command, followed
-	by its command-line arguments. The respective input file will be appended
-	as the last argument.
-
-____EOF
+  if [ $# -eq 0 ] || [ -z "$outfmt" ] || [ -z "$wantedfmt" ] ||
+    [ -z "$indir" ] || [ -z "$inext" ] || [ -z "$qdir" ]
+  then
+    echo "arguments -d, -f, -im -q and -w must be provided" >&2
     return 1
   fi
 
-  if ! [ -d "$test_dir" ]; then
-    echo "Directory $test_dir does not exist, exiting..." >&2
-    return 1
-  fi
+  local infile wantfile gotfile
+  local lastfile=
 
-  local infile wantfile
-  local stdout_output=`mktemp`
-  local gotfile=$stdout_output
+  mkdir -p "$qdir" || return 1
 
-  for infile in "$test_dir"/*."$in_ext"; do
+  "$@" "$indir"/*."$inext" 2> "$logfile" || true
+
+  for infile in "$indir"/*."$inext"; do
+    wantfile=`format_basename "$infile" "$wantedfmt"`
+    gotfile=`format_basename "$infile" "$outfmt"`
+    [ "$lastfile" ] && [ "$lastfile" = "$gotfile" ] && continue
+    lastfile=$gotfile
     echo
-    wantfile=${infile%.$in_ext}.$out_ext
-    echo "TESTING $infile => $wantfile ..."
-    if "$@" "$infile" > "$stdout_output"; then
-      if [ "$outfmt" ]; then
-        gotfile=${infile%.$in_ext}
-        gotfile=${gotfile##*/}
-        gotfile=`printf "$outfmt" "$gotfile"`
-      fi
+    echo "TESTING $infile => $wantfile..."
+    if [ -s "$gotfile" ]; then
       if diff -q "$wantfile" "$gotfile"; then
         echo "	<<<SUCCESS>>>"
         echo
+        rm -f "$gotfile"
       else
         echo "	<<<FAILURE>>>"
         echo
-        if [ "$q_dir" ]; then
-          mkdir -p "$q_dir"
-          mv "$gotfile" "$q_dir"
-        else
-          diff "$wantfile" "$gotfile" || true
-        fi
+        mv "$gotfile" "$qdir"
       fi
     else
       echo "	<<<ERROR>>>"
       echo
+      rm -f "$gotfile"
     fi
-    [ "$outfmt" ] && rm -f "$gotfile"
-  done 2> "$err_file" | tee "$out_file"
-
-  rm -f "$stdout_output"
-
-  echo "RESULT:\
-    `grep -F -c '<<<SUCCESS>>>' "$out_file"` successes,\
-    `grep -F -c '<<<FAILURE>>>' "$out_file"` failures,\
-    `grep -F -c '<<<ERROR>>>' "$out_file"` errors"
-  echo
-  echo
+  done
 }
+
+
+################################################################################
 
 
 num_items()
@@ -176,10 +160,16 @@ num_items()
 }
 
 
+################################################################################
+
+
 read_opm_version()
 {
   awk '$1 == "Version:" {print $2; exit}' "$@"
 }
+
+
+################################################################################
 
 
 change_json_version()
@@ -188,6 +178,9 @@ change_json_version()
   shift
   sed -i "v; s/\(\"version\"\):\"[^\"]\+\"/\1:\"$version\"/g" "$@"
 }
+
+
+################################################################################
 
 
 change_yaml_version()
@@ -232,76 +225,107 @@ else
 fi
 
 
-tmpdir=`mktemp -d`
+tmpdir=`mktemp --tmpdir -d`
+tmpfile=`mktemp --tmpdir`
 
 
-cd "$TESTDIR"
+testfile_dir=$TESTDIR/tests
+failedfile_dir=$TESTDIR/failed_files # within $TESTDIR, created if necessary
+[ -d "$failedfile_dir" ] && rm -rf "$failedfile_dir"/* ||
+  mkdir "$failedfile_dir"
+errfile=$TESTDIR/tests.err
+outfile=$TESTDIR/tests.out
+rm -f "$errfile" "$outfile"
 
 
 # Update the version to let the YAML and JSON tests pass the test irrespective
-# of the actual version.
+# of the actual version. This must later on be set back, see below.
 #
-change_yaml_version "$version" tests/*.yml
-change_json_version "$version" tests/*.json
-
-
-FAILED_FILES=failed_files # within $TESTDIR, created if necessary
-[ -d "$FAILED_FILES" ] && rm -rf "$FAILED_FILES"/* || mkdir "$FAILED_FILES"
-
-
-# plot mode
-#
-do_test -i csv -o ps -f "$tmpdir/%s.ps" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -p 2 -r xyplot -d "$tmpdir" -i '*.csv' \
-  -k 'TIME:Setup Time,ID'
-
-# split mode -- these tests only guarantee that if there is nothing to split
-# the original file results
-#
-do_test -i csv -o csv -f "$tmpdir/%s-00001.csv" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -p 2 -s , -r split -d "$tmpdir" -i '*.csv' \
-  -k 'TIME:Setup Time,ID'
-
-# template collection mode
-#
-do_test -i csv -o template -f "$tmpdir/md.csv" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -p 2 -r template -m "$tmpdir/md.csv" -i '*.csv'
-
-# template collection mode with other field separator
-#
-do_test -i csv -o template2 -f "$tmpdir/md.csv" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -p 2  -s , -r template -m "$tmpdir/md.csv" \
-  -i '*.csv' -k 'TIME:Setup Time,ID'
-
-# yaml mode
-#
-do_test -i csv -o yml -f "$tmpdir/%s.yml" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -z -p 2 -a fast -b 0 -r yaml -d "$tmpdir" \
-  -i '*.csv' -k 'TIME:Setup Time,ID'
-
-# json mode
-#
-do_test -i csv -o json -f "$tmpdir/%s.json" -q "$FAILED_FILES" \
-  Rscript --vanilla "$run_opm" -z -p 2 -a smooth -b 0 -r json -d "$tmpdir" \
-  -i '*.csv' -k 'TIME:Setup Time,ID'
-
-rm -rf "$tmpdir"
-
-
-num_failed=`num_items \`ls "$FAILED_FILES"\``
-echo "OVERALL RESULT (number of failed files): $num_failed" >&2
-echo >&2
-echo >&2
-
-
-# Fix the version in the YAML and JSON files to avoid SVN updates.
-#
-change_yaml_version 0.0.0 tests/*.yml
-change_yaml_version 0.0.0 "$FAILED_FILES"/*.yml 2> /dev/null || true
-change_json_version 0.0.0 tests/*.json
-change_json_version 0.0.0 "$FAILED_FILES"/*.json 2> /dev/null || true
+change_yaml_version "$version" "$testfile_dir"/*.yml
+change_json_version "$version" "$testfile_dir"/*.json
 
 
 ################################################################################
+
+
+echo "Testing plot mode..."
+do_test -i csv -d "$testfile_dir" \
+  -w "$testfile_dir/%s.ps" -l "$tmpfile" \
+  -f "$tmpdir/%s.ps" -q "$failedfile_dir" \
+  Rscript --vanilla "$run_opm" -p 2 -r xyplot -d "$tmpdir" -i '*.csv' \
+  -k 'TIME:Setup Time,ID' >> "$outfile" &&
+    cat "$tmpfile" >> "$errfile"
+
+echo "Testing split mode..."
+# This test only guarantees that if there is nothing to split the original
+# file results
+do_test -i csv -d "$testfile_dir" \
+  -w "$testfile_dir"/%s.csv -l "$tmpfile" \
+  -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
+  Rscript --vanilla "$run_opm" -p 2 -s , -r split -d "$tmpdir" -i '*.csv' \
+  -k 'TIME:Setup Time,ID' >> "$outfile" &&
+    cat "$tmpfile" >> "$errfile" 
+
+echo "Testing template-collection mode..."
+do_test -i csv -d "$testfile_dir" \
+  -w "$testfile_dir/md.template" -l "$tmpfile" \
+  -f "$tmpdir/md.template" -q "$failedfile_dir" \
+  Rscript --vanilla "$run_opm" -p 2 -r template -m "$tmpdir/md.template" \
+  -i '*.csv' >> "$outfile" &&
+    cat "$tmpfile" >> "$errfile"
+
+echo "Testing template-collection mode with other field separator..."
+do_test -i csv -d "$testfile_dir" \
+  -w "$testfile_dir/md.template2" -l "$tmpfile" \
+  -f "$tmpdir/md.template2" -q "$failedfile_dir" \
+  Rscript --vanilla "$run_opm" -p 2 -r template -m "$tmpdir/md.template2" \
+  -s , -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+    cat "$tmpfile" >> "$errfile"
+
+echo "Testing YAML mode..."
+do_test -i csv -d "$testfile_dir" \
+  -w "$testfile_dir/%s.yml" -l "$tmpfile" \
+  -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
+  Rscript --vanilla "$run_opm" -z -p 2 -a fast -b 0 -r yaml -d "$tmpdir" \
+  -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+    cat "$tmpfile" >> "$errfile"
+
+echo "Testing JSON mode..."
+do_test -i csv -d "$testfile_dir" \
+  -w "$testfile_dir/%s.json" -l "$tmpfile" \
+  -f "$tmpdir/%s.json" -q "$failedfile_dir" \
+  Rscript --vanilla "$run_opm" -z -p 2 -a smooth -b 0 -r json -d "$tmpdir" \
+  -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+    cat "$tmpfile" >> "$errfile"
+
+
+################################################################################
+
+
+rm -rf "$tmpdir" "$tmpfile" 
+
+echo "RESULT:\
+  `grep -F -c '<<<SUCCESS>>>' "$outfile"` successes,\
+  `grep -F -c '<<<FAILURE>>>' "$outfile"` failures,\
+  `grep -F -c '<<<ERROR>>>' "$outfile"` errors"
+echo
+
+num_failed=`num_items \`ls "$failedfile_dir"\``
+echo "OVERALL RESULT (number of failed files): $num_failed"
+echo
+
+
+# Fix the version in the YAML and JSON files to avoid SVN updates. Do this in
+# the failed files, too, if any, to avoid annoying reports when manually
+# calling diff.
+#
+change_yaml_version 0.0.0 "$testfile_dir"/*.yml
+change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
+change_json_version 0.0.0 "$testfile_dir"/*.json
+change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
+
+
+################################################################################
+
 
 
