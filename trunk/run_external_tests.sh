@@ -17,20 +17,6 @@
 ################################################################################
 
 
-# Checked locations of the R installation directory if it is not found in the
-# result from calling R RHOME. Directory names must not contain whitespace.
-# The 'run_opm.R' script is either found in the $PATH or searched within these 
-# directories, in order.
-#
-FALLBACK_R_LIBRARY_DIRS="
-  /usr/local/lib/R/library
-  /usr/local/lib64/R/library
-  /usr/lib64/R/library
-  /usr/lib/R/library
-  /usr/share/R/library
-"
-
-
 # This directory must exist, be readable and writeable and must contain a
 # subdirectory called 'tests'
 #
@@ -39,7 +25,7 @@ TESTDIR=external_tests
 
 ################################################################################
 #
-# It should not be necessary to change anything below this line
+# It should not be necessary to change anything below this line.
 #
 
 
@@ -56,15 +42,10 @@ find_run_opm_script()
     echo "$result"
     return 0
   fi
-  local r_library_dirs=`R RHOME || :`
-  if [ "$r_library_dirs" ]; then
-    r_library_dirs=$r_library_dirs/library
-  else
-    r_library_dirs=$FALLBACK_R_LIBRARY_DIRS
-  fi
-  local r_library_dir
-  for r_library_dir in $r_library_dirs; do
-    result=$r_library_dir/opm/scripts/run_opm.R
+  local r_dir=`R RHOME`
+  local subdir
+  for subdir in library site-library; do
+    result=$r_dir/$subdir/opm/scripts/run_opm.R
     if [ -s "$result" ]; then
       echo "$result"
       return 0
@@ -206,7 +187,7 @@ change_yaml_version()
 ################################################################################
 
 
-run_opm=`find_run_opm_script`
+run_opm=`find_run_opm_script || :`
 if [ "$run_opm" ]; then
   echo "using script '$run_opm'" >&2
   echo >&2
@@ -302,16 +283,15 @@ do_test -i csv -d "$testfile_dir" \
 ################################################################################
 
 
-rm -rf "$tmpdir" "$tmpfile" 
+rm -rf "$tmpdir" "$tmpfile"
 
+echo
 echo "RESULT:\
   `grep -F -c '<<<SUCCESS>>>' "$outfile"` successes,\
   `grep -F -c '<<<FAILURE>>>' "$outfile"` failures,\
   `grep -F -c '<<<ERROR>>>' "$outfile"` errors"
 echo
-
-num_failed=`num_items \`ls "$failedfile_dir"\``
-echo "OVERALL RESULT (number of failed files): $num_failed"
+echo "`num_items \`ls "$failedfile_dir"\`` failed files"
 echo
 
 
@@ -326,6 +306,3 @@ change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
 
 
 ################################################################################
-
-
-

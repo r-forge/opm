@@ -19,19 +19,6 @@
 ################################################################################
 
 
-# Checked locations of the R installation directory if it is not found in the
-# result from calling R RHOME. Directory names must not contain whitespace.
-# The 'docu.R' script is either found in the $PATH or searched within these 
-# directories, in order.
-#
-FALLBACK_R_LIBRARY_DIRS="
-  /usr/local/lib/R/library
-  /usr/local/lib64/R/library
-  /usr/lib64/R/library
-  /usr/lib/R/library
-  /usr/share/R/library
-"
-
 # 'docu.R' creates a logfile itself, which contains, e.g., information on style
 # checks and according modifications of R source files.
 #
@@ -45,7 +32,7 @@ BUILT_PACKAGES=misc/built_packages
 
 ################################################################################
 #
-# It should not be necessary to change anything below this line
+# It should not be necessary to change anything below this line.
 #
 
 
@@ -62,15 +49,10 @@ find_docu_script()
     echo "$result"
     return 0
   fi
-  local r_library_dirs=`R RHOME || :`
-  if [ "$r_library_dirs" ]; then
-    r_library_dirs=$r_library_dirs/library
-  else
-    r_library_dirs=$FALLBACK_R_LIBRARY_DIRS
-  fi
-  local r_library_dir
-  for r_library_dir in $r_library_dirs; do
-    result=$r_library_dir/pkgutils/scripts/docu.R
+  local r_dir=`R RHOME`
+  local subdir
+  for subdir in library site-library; do
+    result=$r_dir/$subdir/pkgutils/scripts/docu.R
     if [ -s "$result" ]; then
       echo "$result"
       return 0
