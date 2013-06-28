@@ -53,6 +53,26 @@ find_run_opm_script()
 ################################################################################
 
 
+# If a given number of CPUs is larger than the number of available ones, reduce
+# it accordingly.
+#
+correct_num_cpus()
+{
+  local wanted=$(($1 + 0))
+  local got=`grep -wc processor /proc/cpuinfo 2> /dev/null || echo 0`
+  if [ $got -lt $wanted ]; then
+    echo "WARNING: number of used CPUs reduced from $wanted to $got" >&2
+    echo >&2
+    echo "$got"
+  else
+    echo "$wanted"
+  fi
+}
+
+
+################################################################################
+
+
 # Used by do_test().
 #
 format_basename()
@@ -227,6 +247,9 @@ if ! [ -d "$testfile_dir" ]; then
   echo "directory '$testfile_dir' does not exist, exiting now" >&2
   exit 1
 fi
+
+
+np=`correct_num_cpus "$np"`
 
 
 failedfile_dir=$testdir/failed_files # within $testdir, created if necessary
