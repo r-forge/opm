@@ -429,8 +429,7 @@ show_test_warnings "$OUT_DIR"
 if [ "$full_build" ]; then
   if [ -d "$OUT_DIR" ]; then
     target=../pkg/$OUT_DIR
-    mkdir -p "$target" && cp -r -u "$OUT_DIR"/* "$target" &&
-      rm -r "$OUT_DIR"
+    mkdir -p "$target" && cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
   fi
 else
   echo "NOTE: no full build, '$OUT_DIR' not copied" >&2
