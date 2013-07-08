@@ -185,6 +185,19 @@ change_yaml_version()
 ################################################################################
 
 
+# Modify the version entry within opm-generated CSV files.
+#
+change_csv_version()
+{
+  local version=$1
+  shift
+  sed -i "v; s/\(\"opm\";\"\)[^\"]\+\(\";\)/\1$version\2/g" "$@"
+}
+
+
+################################################################################
+
+
 help_msg=
 np=4 # using more cores yielded only little speedup
 run_opm=
@@ -264,11 +277,12 @@ tmpdir=`mktemp --tmpdir -d`
 tmpfile=`mktemp --tmpdir`
 
 
-# Update the version to let the YAML and JSON tests pass the test irrespective
-# of the actual version. This must later on be reversed, see below.
+# Update the version to let the YAML, JSON and CSV tests pass the test
+# irrespective of the actual version. This must later on be reversed, see below.
 #
 change_yaml_version "$version" "$testfile_dir"/*.yml
 change_json_version "$version" "$testfile_dir"/*.json
+change_csv_version "$version" "$testfile_dir"/*.tab
 
 
 ################################################################################
@@ -324,6 +338,14 @@ do_test -i csv -d "$testfile_dir" \
   -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
     cat "$tmpfile" >> "$errfile"
 
+echo "Testing CSV mode..."
+do_test -i csv -d "$testfile_dir" \
+  -w "$testfile_dir/%s.tab" -l "$tmpfile" \
+  -f "$tmpdir/%s.tab" -q "$failedfile_dir" \
+  Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r csv -d "$tmpdir" \
+  -u ';' -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+    cat "$tmpfile" >> "$errfile"
+
 
 ################################################################################
 
@@ -340,14 +362,16 @@ echo "`ls "$failedfile_dir" | wc -l` quarantined files."
 echo
 
 
-# Fix the version in the YAML and JSON files to avoid SVN updates. Do this in
-# the quarantined files, too, if any, to avoid annoying reports when manually
+# Fix the version in the YAML, JSON and CSV files to avoid SVN updates. Do this
+# in the quarantined files, too, if any, to avoid annoying reports when manually
 # calling diff.
 #
 change_yaml_version 0.0.0 "$testfile_dir"/*.yml
 change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
 change_json_version 0.0.0 "$testfile_dir"/*.json
 change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
+change_csv_version 0.0.0 "$testfile_dir"/*.tab
+change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
 
 
 ################################################################################
