@@ -568,7 +568,7 @@ setMethod("find_positions", OPM, function(object, ...) {
 #'   See the references for information on the databases.
 #' @param browse Numeric scalar. If non-zero, an \acronym{URL} is generated from
 #'   each \acronym{ID}. If positive, this number of \acronym{URL}s (counted from
-#'   the beginning) is also opened in the default web browser; if negative, the 
+#'   the beginning) is also opened in the default web browser; if negative, the
 #'   \acronym{URL}s are only returned. It is an error to try this with those
 #'   values of \code{what} that do not yield an \acronym{ID}.
 #' @param ... Optional other arguments passed between the methods.
@@ -606,7 +606,7 @@ setMethod("find_positions", OPM, function(object, ...) {
 #'   databases. \emph{Nucleic Acids Research} \strong{40}: D742--D753.
 #' @references \url{http://www.ncbi.nlm.nih.gov/mesh}
 #' @references Coletti, M.H., Bleich, H.L 2001 Medical subject headings used to
-#'   search the biomedical literature. \emph{Journal of the American Medical 
+#'   search the biomedical literature. \emph{Journal of the American Medical
 #'   Informatics Association} \strong{8}: 317--323.
 #' @references \url{http://www.ebi.ac.uk/chebi/}
 #' @references Hastings, J., de Matos, P., Dekker, A., Ennis, M., Harsha, B.,
