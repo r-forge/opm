@@ -66,8 +66,8 @@ find_docu_script()
 ################################################################################
 
 
-# Check whether or not each file in the source directory (1st argument) has a 
-# more recent *.pdf file in the target directory (2nd argument). Used below for 
+# Check whether or not each file in the source directory (1st argument) has a
+# more recent *.pdf file in the target directory (2nd argument). Used below for
 # comparing the original graphics files with the resulting PDFs in the vignette
 # directory.
 #
@@ -93,7 +93,7 @@ check_graphics_files()
 
 
 # Check whether or not each *.Rnw vignette file has a more recent *.pdf file
-# in the doc directory of the package. Remove problematic lines inserted by 
+# in the doc directory of the package. Remove problematic lines inserted by
 # some software from Rnw files.
 #
 check_vignettes()
