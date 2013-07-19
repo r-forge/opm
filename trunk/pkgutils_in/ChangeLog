@@ -8,6 +8,9 @@
 
 - repair_docu() now also repairs too long usage lines
 
+- S4 documentation now includes an optional mapping of Rd file names (much like
+  @rdname, but an additional annotation is needed)
+
 
 2012-04-15 (4th release on CRAN)
 
