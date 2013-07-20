@@ -16,7 +16,8 @@ Description: Tools for creating R packages, particularly for checking
         for some text editors are contained.
 License: GPL (>= 2)
 URL: http://www.dsmz.de/
-Collate: 'constants.R' 'packages.R' 'auxiliary.R' 'class.R'
-        'directory.R' 'rd.R' 'data.R' 'plotting.R' 'imports.R'
+Collate: 'imports.R' 'constants.R' 'data.R' 'auxiliary.R' 'coding.R'
+        'character.R' 'packages.R' 'class.R' 'directory.R' 'rd.R'
+        'plotting.R'
 LazyData: yes
 LazyDataCompression: bzip2

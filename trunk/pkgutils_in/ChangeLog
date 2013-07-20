@@ -14,6 +14,10 @@
 - repair_S4_docu() now includes an optional mapping of Rd file names (much like
   the @rdname mechanism in Roxygen2, but based on a distinct annotation)
 
+- the package documentation has been streamlined (related functions are now
+  documented together)
+
+- the documentation of repair_S4_docu() has been completed
 
 2012-04-15 (4th release on CRAN)
 
