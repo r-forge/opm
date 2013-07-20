@@ -97,19 +97,22 @@ must <- function(expr, msg = NULL, ..., domain = NULL) {
 
 #' Assert a length
 #'
-#' Raise an error if a given \R object does not have the specified length. This
-#' is mainly used to easily generate meaningful error messages related to
-#' function arguments.
+#' Raise an error if one to several given \R objects do not have the specified
+#' length. This is mainly used to easily generate meaningful error messages
+#' related to function arguments.
 #'
 #' @param x \R object to test.
+#' @param ... Any \R objects to test.
 #' @param .wanted Integer scalar giving the desired length. Note that this can
 #'   \strong{not} be a scalar with \sQuote{double} as \code{storage.mode}.
 #' @param .msg Error message passed to \code{sprintf} with the name of \code{x}
 #'   and the value of \code{wanted} as the two additional arguments.
 #' @param .domain Passed to \code{stop} from the \pkg{base} package as argument
 #'   \sQuote{domain}.
-#' @return If successful, \code{x}, but an error message is raised if
-#'   \code{length(x)} is not identical to \code{wanted}.
+#' @return If successful, \code{L} returns \code{x}, but an error message is
+#'   raised if \code{length(x)} is not identical to \code{wanted}. \code{LL}
+#'   yields the names of the arguments contained in \code{\dots}, returned
+#'   invisibly, if successful. Otherwise an error is raised.
 #' @seealso base::stop
 #' @export
 #' @family auxiliary-functions
@@ -119,6 +122,8 @@ must <- function(expr, msg = NULL, ..., domain = NULL) {
 #' stopifnot(identical(x, letters))
 #' (x <- try(L(letters, 25L), silent = TRUE))
 #' stopifnot(inherits(x, "try-error"))
+#' (x <- LL(letters, LETTERS, .wanted = 26L))
+#' stopifnot(x == c("letters", "LETTERS"))
 #'
 L <- function(x, .wanted = 1L, .msg = "need object '%s' of length %i",
     .domain = NULL) {
@@ -128,27 +133,8 @@ L <- function(x, .wanted = 1L, .msg = "need object '%s' of length %i",
     domain = .domain)
 }
 
-
-################################################################################
-
-
-#' Assert lengths
-#'
-#' Raise an error if one of several \R objects does not have the specified
-#' length. This is mainly used to easily generate meaningful error messages
-#' related to function arguments.
-#'
-#' @inheritParams L
-#' @param ... Any \R objects to test.
-#' @return The names of the arguments contained in \code{\dots}, returned
-#'   invisibly, if successful. Otherwise an error is raised.
-#' @seealso base::stop
+#' @rdname L
 #' @export
-#' @family auxiliary-functions
-#' @keywords utilities
-#' @examples
-#' (x <- LL(letters, LETTERS, .wanted = 26L))
-#' stopifnot(x == c("letters", "LETTERS"))
 #'
 LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
     .domain = NULL) {
@@ -374,24 +360,28 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 ################################################################################
 
 
-#' Flatten a list
+#' Flatten an object
 #'
-#' Create a non-nested list.
+#' Methods for making an object \sQuote{flat}, such as creating a non-nested
+#' list from a list.
 #'
-#' @param object Usually a list. The default method just returns \code{object}.
+#' @param object Usually a list. The default method just returns \code{object}
+#'   if it is atomic but raises an error otherwise.
 #' @inheritParams pack_desc
 #' @export
-#' @return A list.
+#' @return The list method returns a non-nested list.
 #' @family auxiliary-functions
-#' @note The method is based on 
+#' @details The list method is based on 
 #'   \url{http://stackoverflow.com/questions/8139677/} with some slight
 #'   improvements.
+#' @seealso base::unlist
 #' @keywords manip
 #' @examples
 #' x <- list(a = list(b = 1:5, c = letters[1:5]), d = LETTERS[1:3],
 #'   e = list(pi))
-#' (y <- flatten(x))
+#' (y <- flatten(x)) # sublists removed, non-list elements kept
 #' stopifnot(is.list(y), length(y) == 4, !sapply(y, is.list))
+#' # atomic objects are not modified by default
 #' stopifnot(identical(letters, flatten(letters)))
 #'
 flatten <- function(object, ...) UseMethod("flatten")
@@ -400,7 +390,11 @@ flatten <- function(object, ...) UseMethod("flatten")
 #' @method flatten default
 #' @export
 #'
-flatten.default <- function(object, ...) object
+flatten.default <- function(object, ...) {
+  if (is.atomic(object))
+    return(object)
+  stop("need atomic 'object' (or specific 'flatten' method)")
+}
 
 #' @rdname flatten
 #' @method flatten list
@@ -409,7 +403,7 @@ flatten.default <- function(object, ...) object
 flatten.list <- function(object, ...) {
   while (any(is.a.list <- vapply(object, is.list, NA))) {
     object[!is.a.list] <- lapply(object[!is.a.list], list)
-    object <- unlist(object, recursive = FALSE)
+    object <- unlist(object, FALSE)
   }
   object
 }
@@ -456,7 +450,7 @@ logfile.NULL <- function(x) {
 #'
 logfile.character <- function(x) {
   old <- PKGUTILS_OPTIONS$logfile
-  PKGUTILS_OPTIONS$logfile <- L(x[complete.cases(x)])
+  PKGUTILS_OPTIONS$logfile <- L(x[!is.na(x)])
   if (nzchar(x))
     tryCatch(cat(sprintf("\nLOGFILE RESET AT %s\n", date()), file = x,
       append = TRUE), error = function(e) {
@@ -714,16 +708,9 @@ prepare_options.character <- function(x) {
 #'   \sQuote{pack_desc}, \sQuote{pack_descs} or \sQuote{Rd}.
 #' @param file Character vector of file names to which the data in \code{x}
 #'   shall be written.
-#~ @export
 #' @return \code{x}, returned invisibly.
 #' @seealso base::cat base::write
-#~ @family auxiliary-functions
-#~ @keywords IO
 #' @keywords internal
-#~ @examples
-#~ x <- class_rdfiles("methods", "ObjectsWithPackage", "content")
-#~ y <- puts(x, "")
-#~ stopifnot(identical(x, y))
 #'
 puts <- function(x, file, ...) UseMethod("puts")
 
@@ -823,22 +810,7 @@ problem.character <- function(x, infile = NULL, line = NULL, ...) {
 #' @return List of lists with the results of calling \code{source}. For the
 #'   action of the \sQuote{pack_desc} or \sQuote{pack_descs} methods, see
 #'   \code{\link{pack_desc}}.
-#~ @family auxiliary-functions
-#~ @export
 #' @keywords internal
-#~ @examples
-#~
-#~ # character method
-#~ stopifnot(!sapply(vars <- c("foo", "bar"), exists))
-#~ tmpfile1 <- tempfile()
-#~ tmpfile2 <- tempfile()
-#~ cat("foo <- 1", file = tmpfile1)
-#~ cat("bar <- 2", file = tmpfile2)
-#~ source_files(c(tmpfile1, tmpfile2))
-#~ stopifnot(sapply(vars, exists))
-#~ rm(list = vars) # tidy up
-#~
-#~ # for the 'pack_desc' and 'pack_descs' methods, see pack_desc()
 #'
 source_files <- function(x, ...) UseMethod("source_files")
 
