@@ -1,15 +1,18 @@
 
 2012-XX-XX (5th release on CRAN)
 
-- fixed bug in 'docu.R' that caused wrong archive file name to be passed to R
-  CMD check when running script not from parent directory
+- fixed bug in 'docu.R' that caused wrong archive file name to be passed to 'R
+  CMD check' when running script not from parent directory
 
 - fixed bug in vertical-merge running mode 'merge.R' script
 
-- repair_docu() now also repairs too long usage lines
+- the default flatten() method now only accepts atomic objects
 
-- S4 documentation now includes an optional mapping of Rd file names (much like
-  @rdname, but an additional annotation is needed)
+- repair_docu() now also repairs too long usage lines (which cause a complaint
+  when running 'R CMD check')
+
+- repair_S4_docu() now includes an optional mapping of Rd file names (much like
+  the @rdname mechanism in Roxygen2, but based on a distinct annotation)
 
 
 2012-04-15 (4th release on CRAN)
