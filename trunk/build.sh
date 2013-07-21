@@ -353,6 +353,10 @@ show_test_warnings()
     outfile=$folder.Rcheck/tests/run-all.Rout
     [ -s "$outfile" ] || continue
     awk '
+      /There were [0-9]+ warnings/ {
+        print
+        next
+      }
       /^Warning messages:/, /^>/ {
         print > "/dev/stderr"
       }

@@ -534,7 +534,9 @@ pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
 #'
 #' Quickly estimate the curve parameters AUC (area under the curve) or A
 #' (maximum height). This is normally not directly called by an \pkg{opm} user
-#' but via \code{\link{do_aggr}}.
+#' but via \code{\link{do_aggr}} and might eventually be made internal to the
+#' package and inaccessible, so it is advisable to not use this function
+#' directly.
 #'
 #' @param x Matrix as output by \code{\link{measurements}}, i.e. with the time
 #'   points in the first columns and the measurements in the remaining columns
