@@ -321,7 +321,6 @@ puts.pack_descs <- function(x, file, ...) {
 #' @param x Character vector.
 #' @param infile Name of input file. Use \code{NULL} to ignore it.
 #' @param line Number of input line. Use \code{NULL} to ignore it.
-#' @export
 #' @return Character vector.
 #' @keywords internal
 #'

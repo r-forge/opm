@@ -1,6 +1,4 @@
 
-
-
 ################################################################################
 
 
@@ -95,11 +93,11 @@ must <- function(expr, msg = NULL, ..., domain = NULL) {
 ################################################################################
 
 
-#' Assert lengths
+#' Assert a length
 #'
-#' Raise an error if a given \R object does not have the specified length. This
-#' is mainly used to easily generate meaningful error messages related to
-#' function arguments.
+#' Raise an error if one to several given \R objects do not have the specified
+#' length. This is mainly used to easily generate meaningful error messages
+#' related to function arguments.
 #'
 #' @param x \R object to test.
 #' @param ... Any \R objects to test.
@@ -360,26 +358,28 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 ################################################################################
 
 
-#' Flatten a list
+#' Flatten an object
 #'
-#' Convert to a \sQuote{flat} object, such as a non-nested list created from a
-#' list.
+#' Methods for making an object \sQuote{flat}, such as creating a non-nested
+#' list from a list.
 #'
 #' @param object Usually a list. The default method just returns \code{object}
-#'   if it is atomic but fails otherwise.
+#'   if it is atomic but raises an error otherwise.
 #' @inheritParams pack_desc
 #' @export
-#' @return The list method returns a list, the default method \code{object}.
+#' @return The list method returns a non-nested list.
 #' @family coding-functions
-#' @note The list method is based on 
+#' @details The list method is based on 
 #'   \url{http://stackoverflow.com/questions/8139677/} with some slight
 #'   improvements.
+#' @seealso base::unlist
 #' @keywords manip
 #' @examples
 #' x <- list(a = list(b = 1:5, c = letters[1:5]), d = LETTERS[1:3],
 #'   e = list(pi))
-#' (y <- flatten(x))
+#' (y <- flatten(x)) # sublists removed, non-list elements kept
 #' stopifnot(is.list(y), length(y) == 4, !sapply(y, is.list))
+#' # atomic objects are not modified by default
 #' stopifnot(identical(letters, flatten(letters)))
 #'
 flatten <- function(object, ...) UseMethod("flatten")
@@ -391,7 +391,7 @@ flatten <- function(object, ...) UseMethod("flatten")
 flatten.default <- function(object, ...) {
   if (is.atomic(object))
     return(object)
-  stop("need either atomic 'object' or specific 'flatten' method")
+  stop("need atomic 'object' (or specific 'flatten' method)")
 }
 
 #' @rdname flatten
@@ -408,5 +408,3 @@ flatten.list <- function(object, ...) {
 
 
 ################################################################################
-
-
