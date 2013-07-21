@@ -51,22 +51,22 @@
 #' @details The computation of the paper size is done numerically for the
 #'   \acronym{DIN} series, whereas a lookup table is used for the other formats.
 #'
-#'   \code{max_rgb_contrast} arranges colours so as to achieve that neighboring 
-#'   colours are most distinct with respect to their RGB coordinates. This is 
+#'   \code{max_rgb_contrast} arranges colours so as to achieve that neighboring
+#'   colours are most distinct with respect to their RGB coordinates. This is
 #'   done as follows: (1) Euclidean distances between the RGB coordinates of the
-#'   input colours are calculated; (2) the distances are logarithmized and 
+#'   input colours are calculated; (2) the distances are logarithmized and
 #'   inversed; (3) a principal-coordinate analysis is conducted on these
 #'   inversed distances; (4) the input colours are sorted according to the first
 #'   principal coordinate.
 #'
-#'   Note that this is probably only works for colour vectors of small to 
-#'   moderate size, and that the resulting vector could as well be used in 
+#'   Note that this is probably only works for colour vectors of small to
+#'   moderate size, and that the resulting vector could as well be used in
 #'   reverse order (see the examples).
 #'
 #' @references \url{http://en.wikipedia.org/wiki/Paper_size}
 #'
 #' @family plotting-functions
-#' @seealso grDevices::pdf grDevices::col2rgb
+#' @seealso grDevices::pdf grDevices::col2rg
 #' @keywords IO dplot color
 #' @examples
 #' \dontrun{

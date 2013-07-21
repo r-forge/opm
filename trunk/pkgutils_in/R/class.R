@@ -7,13 +7,12 @@
 #'
 #' Constructor functions for class-description objects. These are used for
 #' defining specific methods for the result of \code{promptClass} from the
-#' \pkg{methods} package.
+#' \pkg{methods} package. None of these objects is currently used by the
+#' \sQuote{docu.R} script that comes with the package.
 #'
 #' @param x \R object to be converted.
 #~ @export
 #' @return Object of class \sQuote{class_desc} or \sQuote{classes_desc}.
-#' @note  None of these objects is currently used by the \sQuote{docu.R}
-#'   script that comes with the package.
 #' @seealso methods::promptClass
 #~ @family class-functions
 #~ @keywords methods

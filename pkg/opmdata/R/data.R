@@ -32,7 +32,7 @@
 #'   efficient exploration of Phenotype Microarray kinetics. \emph{PLoS ONE}
 #'   \strong{7}, e34846.
 #' @references Selezska, K., Kazmierczak, M., Muesken, M., Garbe, J., Schobert,
-#'   M., Haeussler, S., Wiehlmann, L., Rohde, C., Sikorski, J. 2012 
+#'   M., Haeussler, S., Wiehlmann, L., Rohde, C., Sikorski, J. 2012
 #'   \emph{Pseudomonas aeruginosa} population structure revisited under
 #'   environmental focus: impact of water quality and phage pressure.
 #'   \emph{Environmental Microbiology} \strong{14}, 1952--1967.

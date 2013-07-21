@@ -19,6 +19,8 @@
 
 - the documentation of repair_S4_docu() has been completed
 
+- swap_code() now ignores Roxygen2 comment lines
+
 2012-04-15 (4th release on CRAN)
 
 - fixed bug in check_R_code() that caused removal of quoted sections of a line

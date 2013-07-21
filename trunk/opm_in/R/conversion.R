@@ -117,23 +117,17 @@ setMethod("merge", c(CMAT, "ANY"), function(x, y) {
 #' Get available plates or apply function to them
 #'
 #' Get all \code{plates} contained in an \code{\link{OPMS}} object or a list, or
-#' create a list containing a single \code{\link{OPM}} object as element. The
-#' list method traverses the input recursively and skips all objects of other
-#' classes than \code{\link{OPM}}. \code{oapply} applies a function to all
-#' \code{\link{OPM}} objects within an \code{\link{OPMS}} object. Optionally it
-#' simplifies the result to an \code{\link{OPMS}} object if possible, or other
-#' structures simpler than a list.
+#' create a list containing a single \code{\link{OPM}} object as element, or
+#' apply a function to a collection of \code{\link{OPM}} objects.
 #'
 #' @param object List, \code{\link{OPM}} or \code{\link{OPMS}} object.
 #' @param fun A function. Should copy with an \code{\link{OPM}} object as first
-#'   argument. The \code{\link{OPM}} method of \code{oapply} simply applies
-#'   \code{fun} once (to \code{object}).
+#'   argument.
 #' @param ... Optional other arguments passed to \code{fun}.
 #' @param simplify Logical scalar. If \code{FALSE}, the result is a list. If
-#'   \code{TRUE}, it is attempted to simplify the result to a vector or matrix
-#'   or to an \code{\link{OPMS}} object (if the result is a list of
-#'   \code{\link{OPM}} or \code{\link{OPMA}} objects). If this is impossible, a
-#'   list is returned.
+#'   \code{TRUE}, it is attempted to simplify this to a vector, matrix or
+#'   \code{\link{OPMS}} object (if the result is a list of \code{\link{OPM}} or
+#'   \code{\link{OPMA}} objects). If this is impossible, a list is returned.
 #'
 #' @return For \code{plates}, a list of \code{\link{OPM}} objects (may be empty
 #'   instead if \code{object} is a list). The result of \code{oapply} depends on
@@ -142,24 +136,30 @@ setMethod("merge", c(CMAT, "ANY"), function(x, y) {
 #' @export
 #' @family conversion-functions
 #' @keywords attribute manip
-#' @note See also \code{\link{opms}}, which is somewhat similar to the list
-#'   method of \code{plates} but more flexible.
+#' @details
+#'   The list method of \code{plates} traverses the input recursively and skips
+#'   all objects of other classes than \code{\link{OPM}}. See also
+#'   \code{\link{opms}}, which is somewhat similar but more flexible.
+#'
+#'   \code{oapply} applies a function to all \code{\link{OPM}} objects within an
+#'   \code{\link{OPMS}} object. Optionally it simplifies the result to an
+#'   \code{\link{OPMS}} object if possible, or other structures simpler than a
+#'   list. The \code{\link{OPM}} method of simply applies \code{fun} once (to
+#'   \code{object}).
+#'
 #' @seealso base::list base::as.list base::sapply
 #' @examples
-#'
-#' ## plates()
-#'
-#' # 'OPM' method
+#' # plates(), 'OPM' method
 #' data(vaas_1)
 #' summary(x <- plates(vaas_1)) # => list of OPM objects
 #' stopifnot(is.list(x), length(x) == 1L, sapply(x, inherits, what = "OPM"))
 #'
-#' # 'OPMS' method
+#' # plates(), 'OPMS' method
 #' data(vaas_4)
 #' summary(x <- plates(vaas_4)) # => list of OPM objects
 #' stopifnot(is.list(x), length(x) == 4L, sapply(x, inherits, what = "OPM"))
 #'
-#' # list method
+#' # plates(), list method
 #' x <- list(vaas_1, letters, vaas_4, 1:10)
 #' summary(x <- plates(x)) # => list of OPM objects
 #' stopifnot(is.list(x), length(x) == 5, sapply(x, inherits, what = "OPM"))

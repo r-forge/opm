@@ -153,7 +153,7 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #' Create some kind of listing, used, e.g., in (error) messages or warnings.
 #'
 #' @inheritParams pack_desc
-#' @param x For the default method, an object convertible via \code{unclass} to 
+#' @param x For the default method, an object convertible via \code{unclass} to
 #'   one of the object classes that have explicit methods. For the
 #'   character-vector method, in the default style mode, its \sQuote{names}
 #'   attribute is used as the first column of the resulting listing; if it is
@@ -195,10 +195,10 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #' @param force.numbers Logical scalar. Always use numbers instead of the
 #'   \sQuote{names} attribute?
 #' @param last.sep Character scalar indicating what should be used as last
-#'   separator if \code{style} is \sQuote{sentence}. \sQuote{both} means 
+#'   separator if \code{style} is \sQuote{sentence}. \sQuote{both} means
 #'   \sQuote{and} and comma, \sQuote{two} means \sQuote{or} and comma.
 #' @param hf.collapse Character scalar or empty. If distinct from
-#'   \code{collapse}, used for separately for joining \code{header} and 
+#'   \code{collapse}, used for separately for joining \code{header} and
 #'   \code{footer} (if provided).
 #' @param ... Optional other arguments passed to \code{formatDL}.
 #' @return Character scalar.
@@ -369,7 +369,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #' @export
 #' @return The list method returns a non-nested list.
 #' @family coding-functions
-#' @details The list method is based on 
+#' @details The list method is based on
 #'   \url{http://stackoverflow.com/questions/8139677/} with some slight
 #'   improvements.
 #' @seealso base::unlist

@@ -143,7 +143,7 @@ stopifnot(identical(x, y) || identical(x, rev(y)))
   \url{http://en.wikipedia.org/wiki/Paper_size}
 }
 \seealso{
-  grDevices::pdf grDevices::col2rgb
+  grDevices::pdf grDevices::col2rg
 }
 \keyword{IO}
 \keyword{color}

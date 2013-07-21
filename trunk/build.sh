@@ -5,11 +5,12 @@
 #
 # Documentation-generating script for the 'opm' package
 #
-# This script was tested using Bash and Dash. Prerequisites are the 'docu.R'
-# script from the pkgutils R package and the 'Rscript' executable present in
-# the $PATH.
+# This script was tested using Bash and Dash. Prerequisites for using it in
+# most running modes are the 'docu.R' script from the pkgutils R package and
+# the 'Rscript' executable present in the $PATH.
 #
-# Call this script with the -h option to get an overview of the options.
+# Call this script with 'help' as frist argument to get an overview of its
+# usage.
 #
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
@@ -39,13 +40,14 @@ BUILT_PACKAGES=misc/built_packages
 set -eu
 
 
-# Find the script docu.R (from the pkgutils R package) either in the $PATH or
-# within the pkgutils subdirectory of the R installation directory.
+# Find the script docu.R (from the pkgutils R package) either in the
+# environment variable $DOCU_R_SCRIPT or in the $PATH or within the pkgutils
+# subdirectory of the default R installation directory.
 #
 find_docu_script()
 {
-  local result=`which docu.R`
-  if [ "$result" ]; then
+  local result=${DOCU_R_SCRIPT:-`which docu.R`}
+  if [ "$result" ] && [ -s "$result" ]; then
     echo "$result"
     return 0
   fi
@@ -144,8 +146,7 @@ check_R_tests()
     if ! [ -s "$testfile" ]; then
       echo "test file for '$infile' does not exist or is empty" >&2
       errs=$((errs + 1))
-    elif ! awk -v rfile="$infile" \
-      '
+    elif ! awk -v rfile="$infile" '
         BEGIN {
           fcnt = 0
           while((getline < rfile) > 0) {
@@ -354,7 +355,7 @@ show_test_warnings()
     [ -s "$outfile" ] || continue
     awk '
       /There were [0-9]+ warnings/ {
-        print
+        print > "/dev/stderr"
         next
       }
       /^Warning messages:/, /^>/ {
@@ -369,39 +370,133 @@ show_test_warnings()
 ################################################################################
 
 
-# A 'full build' means we copy the code from trunk/opm to pkg/opm, which, after
-# committing to SVN, would cause R-Forge to (attempt to) build the next package.
+# Cleans up directories left by R CMD check.
 #
-if [ $# -gt 0 ] && [ "$1" = full ]; then
+remove_R_CMD_check_dirs()
+{
+  find . -type d -name '*.Rcheck' -prune -execdir rm -frv \{\} \;
+}
+
+
+################################################################################
+
+
+# Command-line argument parsing. The problem here is that all arguments for
+# 'docu.R' should remain untouched. We thus allow only a single running-mode
+# indicator.
+#
+if [ $# -gt 0 ] && [ "${1%%-*}" ]; then
+  RUNNING_MODE=$1
   shift
-  full_build=yes
 else
-  full_build=
+  RUNNING_MODE=norm
 fi
 
+case $RUNNING_MODE in
+  dfull|dnorm )
+    PKG_DIR=opmdata_in
+    RUNNING_MODE=${RUNNING_MODE#d}
+    CHECK_R_TESTS=
+  ;;
+  docu )
+    :
+  ;;
+  erase )
+    remove_R_CMD_check_dirs
+    exit $?
+  ;;
+  full|norm )
+    PKG_DIR=opm_in
+    CHECK_R_TESTS=yes
+  ;;
+  help )
+    cat >&2 <<-____EOF
+	$0 -- build the opm package using the 'docu.R' script
 
-# Set up package input directory, name of logfile, and location of 'docu.R'.
+	Usage: $0 [mode] [options]
+
+	Possible values for 'mode':
+	  dfull   Full build of the opmdata package.
+	  dnorm   Normal build of the opmdata package.
+	  docu    Check whether the 'docu.R' script can be found, then exit.
+	  erase   Remove directories left over by R CMD check.
+	  full    Full build of the opm package.
+	  help    Print this message.
+	  norm    [DEFAULT] Normal build of the opm package.
+	  pfull   Full build of the pkgutils package.
+	  pnorm   Normal build of the pkgutils package.
+
+	A 'full' build includes copying to the local copy of the pkg directory.
+	Other details of the build process depend on the options.
+
+	All options go to 'docu.R'. Use '-h' to display all of them. Missing options
+	in normal or full running mode means generating the test copy of the package
+	directory and the documentation and running the checks implemented in this
+	script, but not those via 'docu.R'.
+
+	One frequently needs the following options:
+	  -c	Check the copy of the package directory.
+	  -i	Check and install the copy of the package directory.
+	  -o no-vignettes,no-build-vignettes	Skip the time-consuming parts.
+	  -u	Turn off checking altogether (used together with -i or -y).
+	  -y	Build a package tar archive.
+
+Search for 'docu.R' is first done in the environment variable \$DOCU_R_SCRIPT,
+then in the \$PATH, then in the R installation directory.
+
+____EOF
+    exit 1
+  ;;
+  pfull|pnorm )
+    PKG_DIR=pkgutils_in
+    RUNNING_MODE=${RUNNING_MODE#p}
+    CHECK_R_TESTS=
+  ;;
+  * )
+    echo "unknown running mode '$RUNNING_MODE', exiting now" >&2
+    exit 1
+  ;;
+esac
+
+
+################################################################################
+
+
+# Get the 'docu.R' script.
 #
-PKG_DIR=opm_in
-GRAPHICS_DIR=graphics
-[ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 DOCU=`find_docu_script || :`
 if [ "$DOCU" ]; then
-  echo "using script '$DOCU'" >&2
+  echo "using script '$DOCU'" >&2 # does not mean it will work...
   echo >&2
+  [ "$RUNNING_MODE" = docu ] && exit 0
 else
   echo "script 'docu.R' not found, exiting now" >&2
+  echo "call '$0 help' for help" >&2
   exit 1
 fi
+
+
+################################################################################
+#
+# From here on, either a 'normal' or a 'full' build will be conducted. A
+# 'full build' means we copy the code from trunk/opm to pkg/opm, which, after
+# committing to SVN, would cause R-Forge to (attempt to) build the next
+# package.
+#
 
 
 # Conduct checks defined in this file (via shell functions).
 #
-check_graphics_files "$GRAPHICS_DIR" "$PKG_DIR/vignettes" || true
-check_vignettes "$PKG_DIR" || true
-if ! check_R_tests "$PKG_DIR"/R/*; then
-  echo "something wrong with the tests in '$PKG_DIR', exiting now" >&2
-  exit 1
+check_graphics_files graphics "$PKG_DIR/vignettes" || :
+check_vignettes "$PKG_DIR" || :
+if [ "$CHECK_R_TESTS" ]; then
+  if ! check_R_tests "$PKG_DIR"/R/*; then
+    echo "something wrong with the tests in '$PKG_DIR', exiting now" >&2
+    exit 1
+  fi
+else
+  echo "NOTE: omitting check for the presence of R tests" >&2
+  echo >&2
 fi
 if ! check_roxygen_tags "$PKG_DIR"/R/*; then
   echo "something wrong with the Roxygen tags in '$PKG_DIR', exiting now" >&2
@@ -414,6 +509,7 @@ fi
 #
 delete_pat="(.*[.](css|bbl|blg|html|aux|yml|epf|R|gz|log|out|tex)|"
 delete_pat="vignettes/$delete_pat(Rplots|opm|.*-[0-9]{3,3})[.]pdf)\$"
+[ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --modify --preprocess --S4methods --junk "$delete_pat" \
   --good well-map.R,substrate-info.R,plate-map.R "$PKG_DIR"
@@ -428,9 +524,9 @@ show_example_warnings "$OUT_DIR"
 show_test_warnings "$OUT_DIR"
 
 
-# Copy the package files to pkg/opm, if requested ('full' build).
+# Copy the package files to pkg/, if requested ('full' build).
 #
-if [ "$full_build" ]; then
+if [ "$RUNNING_MODE" = full ]; then
   if [ -d "$OUT_DIR" ]; then
     target=../pkg/$OUT_DIR
     mkdir -p "$target" && cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"

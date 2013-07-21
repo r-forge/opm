@@ -249,8 +249,8 @@ is_pkg_dir.character <- function(x) {
 #'   \code{run_R_CMD} to work, see
 #'   \url{http://cran.r-project.org/bin/windows/Rtools/}.
 #'
-#'   \code{copy_pkg_files} copies package files after installation. This is 
-#'   mainly intended for script files, which should often be placed in a 
+#'   \code{copy_pkg_files} copies package files after installation. This is
+#'   mainly intended for script files, which should often be placed in a
 #'   directory for executables. The \sQuote{docu.R} and \sQuote{merge.R} scripts
 #'   that come with the \pkg{pkgutils} package are examples for such files.
 #'
@@ -348,8 +348,10 @@ delete_o_files.character <- function(x, ext = "o", ignore = NULL, ...) {
 #'   valid in its context, or correct or useful code. For instance, the line
 #'   \samp{  SEALED <- FALSE #|| SEALED <- TRUE} would be modified to
 #'   \samp{  SEALED <- TRUE #|| SEALED <- FALSE}, i.e. this could be used to
-#'   change a package constant before conducting any checking.
-#' @note This preprocessing is currently implemented in a Ruby script
+#'   change a package constant before conducting any checking. Note, hovewer,
+#'   that lines starting with a \pkg{roxygen2} comment will not be modified.
+#'
+#'   This preprocessing is currently implemented in a Ruby script
 #'   that comes with the package. It is automatically found in the installation
 #'   directory but fails if a suitable version of Ruby, i.e. \eqn{\ge 1.9.0},
 #'   is unavailable. See \code{\link{run_ruby}} for details.
