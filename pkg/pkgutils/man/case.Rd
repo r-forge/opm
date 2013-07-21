@@ -51,11 +51,10 @@ stopifnot(inherits(x, "try-error"))
 \seealso{
   base::switch
 
-  Other auxiliary-functions: \code{\link{L}},
+  Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{flatten}},
     \code{\link{listing}},
-          \code{\link{logfile}},   \code{\link{map_files}},
-  \code{\link{must}},
-  \code{\link{run_ruby}},     }
+          \code{\link{must}}
+}
 \keyword{utilities}
 

@@ -374,10 +374,11 @@ class Hash
         generic, current = true, s4_methods.first.name
         s4_methods.each do |s4_method|
           file.puts s4_method.aliases(generic)
-          generic = false
           if s4_method.name != current
             generic = true
             current = s4_method.name
+          else
+            generic = false
           end
         end
         file.puts s4_methods.first.usage(:start)
