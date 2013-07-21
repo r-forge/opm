@@ -28,18 +28,25 @@
   or character vector containing directory names, or
   \code{NULL}. If \code{x} is a negative number, this is
   used to go to one of the working directories used
-  earlier, using an internally stored directory list. If
-  \code{x} is a character vector, its elements passed in
+  earlier, using an internally stored directory list. That
+  is, if \code{n} is a numeric scalar, the action of
+  \code{swd(n)} is not necessarily the inverse of what
+  \code{swd(-n)} is doing.
+
+  If \code{x} is a character vector, its elements passed in
   turn to \code{setwd}.
 
-  For \code{listwd}, a numeric scalar indicating how many
-  directories (maximally) to show.}
+  For \code{listwd}, \code{x} is an optional numeric scalar
+  indicating how many directories (maximally) to show. The
+  default is 10.}
 }
 \value{
   \code{swd} yields \code{NULL}, returned invisibly. As a
   side effect, the name of the resulting working directory
   is printed. This is the only action if \code{x} is
-  \code{NULL}.
+  \code{NULL}. The directory stack registers a new
+  directory only via calls to \code{swd} itself, not via
+  \code{setwd}.
 
   For \code{listwd}, a character vector with directory
   names (current one last), returned invisibly. As a side
@@ -55,15 +62,6 @@
   directory if \code{\link{swd}} has not been called yet.
   These is mainly convenience functions for interactive
   sessions.
-}
-\details{
-  The directory stack registers a new directory only via
-  calls to \code{swd} itself, not via \code{setwd}.
-}
-\note{
-  If \code{n} is a numeric scalar, the action of
-  \code{swd(n)} is not necessarily the inverse of what
-  \code{swd(-n)} is doing.
 }
 \examples{
 ## listwd()

@@ -49,7 +49,7 @@ read_and_create_unique_names <- function(files, options) {
   ok[[1L]] <- options$xcolumn
   for (i in seq_along(cn)) {
     if (any(bad <- !nzchar(cn[[i]]))) # merge() crashes with empty column names
-      colnames(data[[i]])[bad] <- sprintf("%s.%i", suffixes[i], 
+      colnames(data[[i]])[bad] <- sprintf("%s.%i", suffixes[i],
         seq_along(cn[[i]])[bad])
     twice <- cn[[i]] %in% setdiff(unlist(cn[-i]), ok[[i]])
     colnames(data[[i]])[twice] <- sprintf("%s.%s", cn[[i]][twice], suffixes[i])
@@ -85,7 +85,7 @@ to_numbered_header <- function(x) {
 option.parser <- OptionParser(option_list = list(
 
   make_option(c("-a", "--all"), action = "store_true",
-    help = "Keep non-matching lines of file 2, too [default: %default]", 
+    help = "Keep non-matching lines of file 2, too [default: %default]",
     default = FALSE),
 
   make_option(c("-b", "--bald"), action = "store_true",
@@ -97,7 +97,7 @@ option.parser <- OptionParser(option_list = list(
     default = FALSE),
 
   make_option(c("-d", "--delete"), action = "store_true",
-    help = "Delete non-matching lines of file 1 [default: %default]", 
+    help = "Delete non-matching lines of file 1 [default: %default]",
     default = FALSE),
 
   make_option(c("-e", "--encoding"), type = "character",
@@ -109,7 +109,7 @@ option.parser <- OptionParser(option_list = list(
     metavar = "SEP", default = "; "),
 
   make_option(c("-k", "--keep"), action = "store_true",
-    help = "Keep whitespace surrounding the separators [default: %default]", 
+    help = "Keep whitespace surrounding the separators [default: %default]",
     default = FALSE),
 
   make_option(c("-n", "--names"), action = "store_true",
@@ -136,7 +136,7 @@ option.parser <- OptionParser(option_list = list(
     help = "Name of the merge column in file 1 [default: '%default']",
     default = COLUMN_DEFAULT_NAME, metavar = "COLUMN"),
 
-  make_option(c("-y", "--ycolumn"), type = "character", 
+  make_option(c("-y", "--ycolumn"), type = "character",
     help = "Name of the merge column in file 2 [default: like file 1]",
     default = "", metavar = "COLUMN")
 
@@ -208,7 +208,7 @@ data <- read_and_create_unique_names(files, opt)
 
 x <- data[[1L]]
 for (i in seq_along(data)[-1L])
-  x <- merge(x, data[[i]], by.x = opt$xcolumn, by.y = opt$ycolumn, 
+  x <- merge(x, data[[i]], by.x = opt$xcolumn, by.y = opt$ycolumn,
     all.x = !opt$delete, all.y = opt$all, sort = !opt$conserve)
 
 if (opt$conserve) {

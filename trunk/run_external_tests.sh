@@ -27,12 +27,13 @@ set -eu
 
 
 # Find the script docu.R (from the pkgutils R package) either in the $PATH or
-# within the pkgutils subdirectory of the R installation directory.
+# within the pkgutils subdirectory of the R installation directory. Used if its
+# location is not provided on the command line.
 #
 find_run_opm_script()
 {
   local result=`which run_opm.R`
-  if [ "$result" ]; then
+  if [ "$result" ] && [ -s "$result" ]; then
     echo "$result"
     return 0
   fi

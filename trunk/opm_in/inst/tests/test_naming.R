@@ -239,7 +239,7 @@ test_that("positions within PM plates can be found", {
   got <- find_positions(query)
   expect_is(got, "list")
   expect_equal(query, names(got))
-  expect_true(all(sapply(got, is.matrix)))
+  expect_true(all(vapply(got, is.matrix, NA)))
   expect_true(all(dim(got[[1L]] > 0L)))
   expect_true(all(dim(got[[2L]] > 0L)))
   expect_true(all(dim(got[[3L]] == 0L)))
@@ -252,7 +252,7 @@ test_that("positions within PM plates can be found", {
   got <- got[[1L]]
   expect_is(got, "list")
   expect_equal(query[[1L]], names(got))
-  expect_true(all(sapply(got, is.matrix)))
+  expect_true(all(vapply(got, is.matrix, NA)))
 
 })
 
