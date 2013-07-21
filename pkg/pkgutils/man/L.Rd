@@ -1,7 +1,7 @@
 \name{L}
 \alias{L}
 \alias{LL}
-\title{Assert a length}
+\title{Assert lengths}
 \usage{
   L(x, .wanted = 1L,
     .msg = "need object '\%s' of length \%i",
@@ -35,10 +35,9 @@
   if successful. Otherwise an error is raised.
 }
 \description{
-  Raise an error if one to several given \R objects do not
-  have the specified length. This is mainly used to easily
-  generate meaningful error messages related to function
-  arguments.
+  Raise an error if a given \R object does not have the
+  specified length. This is mainly used to easily generate
+  meaningful error messages related to function arguments.
 }
 \examples{
 (x <- L(letters, 26L))
