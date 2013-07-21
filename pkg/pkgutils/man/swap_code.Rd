@@ -64,9 +64,8 @@
     \code{\link{copy_pkg_files}},
     \code{\link{delete_o_files}},
     \code{\link{is_pkg_dir}},
-    \code{\link{pack_desc}},
+    \code{\link{logfile}},   \code{\link{pack_desc}},
     \code{\link{pkg_files}},
-    \code{\link{repair_S4_docu}},
     \code{\link{run_R_CMD}},
   }
 \keyword{package}

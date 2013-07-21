@@ -2,6 +2,7 @@
 
 ################################################################################
 
+
 #' Create class-description objects
 #'
 #' Constructor functions for class-description objects. These are used for
