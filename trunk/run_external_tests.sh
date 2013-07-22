@@ -5,7 +5,7 @@
 #
 # Script for testing the 'run_opm.R' script that comes with the opm package.
 #
-# One needs (of course) the 'run_opm.R' script from the opm R package to run
+# One needs (of course) the 'run_opm.R' script from the 'opm' R package to run
 # this, as well as the 'Rscript' executable in the $PATH. The script itself was
 # tested using Bash and Dash. For details on portability, see
 # https://wiki.ubuntu.com/DashAsBinSh .
@@ -18,8 +18,9 @@
 ################################################################################
 
 
-# It should not be necessary to change anything below this line. See the help
-# message for the possible command-line options.
+# It should not be necessary to change anything below this line. Negotiate with
+# MG in case of doubt. See the help message for the possible command-line
+# options.
 #
 set -eu
 
@@ -27,9 +28,9 @@ set -eu
 ################################################################################
 
 
-# Find the script docu.R (from the pkgutils R package) either in the $PATH or
-# within the pkgutils subdirectory of the R installation directory. Used if its
-# location is not provided on the command line.
+# Find the script 'run_opm.R' (from the 'pkgutils' R package) either in the
+# $PATH or within the 'opm' subdirectory of the R installation directory. Used
+# only if its location is not provided on the command line.
 #
 find_run_opm_script()
 {
@@ -230,7 +231,7 @@ shift $(($OPTIND - 1))
 
 if [ "$help_msg" ] || [ $# -gt 0 ]; then
   cat >&2 <<-__EOF
-	$0 -- test the opm package via its 'run_opm.R' script
+	$0 -- test the opm package via its 'run_opm.R' script.
 
 	This script must be executed in the parent directory of the project's R
 	package source directories.
@@ -240,7 +241,12 @@ if [ "$help_msg" ] || [ $# -gt 0 ]; then
 	  -h    Print this message.
 	  -p x  Use x processors (cores).
 	  -s x  Use x as 'run_opm.R' script.
-	  -v x  Insert opm version x (can also be an R package DESCRIPTION file).
+	  -v x  Insert opm version x (x can also be an R package DESCRIPTION file).
+
+	The default is to read the version to use during the tests from the opm
+	DESCRIPTION file from the opm code directory within the working directory.
+	So if tests fail are but the resulting files show no differences, this means
+	an old opm version was used for testing.
 
 __EOF
   exit 1
@@ -252,8 +258,8 @@ fi
 
 [ "$run_opm" ] || run_opm=`find_run_opm_script || :`
 if [ -s "$run_opm" ]; then
-  echo "Using script '$run_opm'..." >&2
-  echo "WARNING: ensure this is the opm version you want to test" >&2
+  echo "Using script '$run_opm' (`stat -c %y "$run_opm"`)..." >&2
+  echo "NOTE: Make sure this is the opm version you want to test!" >&2
   echo >&2
 else
   echo "script 'run_opm.R' not found and not provided, exiting now" >&2
@@ -291,7 +297,8 @@ tmpfile=`mktemp --tmpdir`
 
 
 # Update the version to let the YAML, JSON and CSV tests pass the test
-# irrespective of the actual version. This must later on be reversed, see below.
+# irrespective of the actual version. This must later on be reversed, see
+# below.
 #
 change_yaml_version "$version" "$testfile_dir"/*.yml
 change_json_version "$version" "$testfile_dir"/*.json
@@ -317,7 +324,7 @@ do_test -i csv -d "$testfile_dir" \
   -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
   Rscript --vanilla "$run_opm" -p "$np" -s , -r split -d "$tmpdir" -i '*.csv' \
   -k 'TIME:Setup Time,ID' >> "$outfile" &&
-    cat "$tmpfile" >> "$errfile" 
+    cat "$tmpfile" >> "$errfile"
 
 echo "Testing template-collection mode..."
 do_test -i csv -d "$testfile_dir" \
@@ -388,4 +395,5 @@ change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
 
 
 ################################################################################
+
 

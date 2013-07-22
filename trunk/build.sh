@@ -3,11 +3,11 @@
 
 ################################################################################
 #
-# Documentation-generating script for the 'opm' package
+# Documentation-generating script for the 'opm' package.
 #
 # This script was tested using Bash and Dash. For details on portability, see
 # https://wiki.ubuntu.com/DashAsBinSh . Prerequisites for using this script in
-# most running modes are the 'docu.R' script from the pkgutils R package and
+# most running modes are the 'docu.R' script from the 'pkgutils' R package and
 # the 'Rscript' executable present in the $PATH.
 #
 # Call this script with 'help' as first argument to get an overview of its
@@ -22,27 +22,30 @@
 
 
 # 'docu.R' creates a logfile itself, which contains, e.g., information on style
-# checks and according modifications of R source files.
+# checks and according modifications of R source files. Should only be changed
+# after discussion with all project members.
 #
 LOGFILE=misc/docu_opm.log
 
 
-# If source packages are built, they will be moved into that directory.
+# If source packages are built, they will be moved into that directory. Should
+# only be changed after discussion with all project members.
 #
 BUILT_PACKAGES=misc/built_packages
 
 
 ################################################################################
 #
-# It should not be necessary to change anything below this line.
+# It should not be necessary to change anything below this line. Negotiate with
+# MG in case of doubt.
 #
 
 
 set -eu
 
 
-# Find the script docu.R (from the pkgutils R package) either in the
-# environment variable $DOCU_R_SCRIPT or in the $PATH or within the pkgutils
+# Find the script 'docu.R' (from the 'pkgutils' R package) either in the
+# environment variable $DOCU_R_SCRIPT or in the $PATH or within the 'pkgutils'
 # subdirectory of the default R installation directory.
 #
 find_docu_script()
@@ -100,7 +103,7 @@ check_graphics_files()
 
 # Check whether or not each *.Rnw vignette file has a more recent *.pdf file
 # in the doc directory of the package. Remove problematic lines inserted by
-# some software from Rnw files.
+# some software from *.Rnw files.
 #
 check_vignettes()
 {
@@ -141,8 +144,8 @@ check_vignettes()
 
 
 # Make sure all functions and constants (package-wide variables) in the R code
-# either have a test or are accordingly annotated. See the files in the folder
-# inst/tests for how this annotation works.
+# either have a test or are annotated as being untested. (See the files in the
+# folder inst/tests for how this annotation works.)
 #
 check_R_tests()
 {
@@ -251,9 +254,9 @@ check_R_tests()
 ################################################################################
 
 
-# Check "@family" tag entries in Roxygen comments (they must be present in the
+# Check "@family" tag entries in Roxygen comments. They must be present in the
 # documentation of exported functions with normal names, and must refer to the
-# filename).
+# filename.
 #
 check_roxygen_tags()
 {
@@ -318,8 +321,8 @@ check_roxygen_tags()
 ################################################################################
 
 
-# Show warnings in results from running examples in R package documentation.
-# Assumes default output names used by R CMD check.
+# Show the warnings, if any, within the results from running examples in an R
+# package documentation. Assume default output names used by 'R CMD check'.
 #
 show_example_warnings()
 {
@@ -329,7 +332,13 @@ show_example_warnings()
     outfile=$folder.Rcheck/${folder##*/}-Ex.Rout
     [ -s "$outfile" ] || continue
     awk '
+      BEGIN {
+        cnt = 0
+        printf "WARNINGS found in \"%s\" (might be OK):\n",
+          ARGV[1] > "/dev/stderr"
+      }
       $1 == "Warning" {
+        cnt++
         text = $0
         if (text !~ / :$/) {
           print text > "/dev/stderr"
@@ -343,6 +352,10 @@ show_example_warnings()
         }
         print text > "/dev/stderr"
       }
+      END {
+        if (!cnt)
+          print "None found." > "/dev/stderr"
+      }
     ' "$outfile"
     echo >&2
   done
@@ -352,9 +365,9 @@ show_example_warnings()
 ################################################################################
 
 
-# Show warnings in results from running tests contained in R package.
-# Assumes main test file named 'run-all.R' and default output names used by
-# R CMD check.
+# Show the warnings, if any, in the results from running tests contained in an
+# R package. Assume a main test file named 'run-all.R' and default output names
+# used by 'R CMD check'.
 #
 show_test_warnings()
 {
@@ -364,12 +377,23 @@ show_test_warnings()
     outfile=$folder.Rcheck/tests/run-all.Rout
     [ -s "$outfile" ] || continue
     awk '
-      /There were [0-9]+ warnings/ {
+      BEGIN {
+        cnt = 0
+        printf "WARNINGS found in \"%s\" (should be fixed):\n",
+          ARGV[1] > "/dev/stderr"
+      }
+      /There were [0-9]+ (or more )?warnings/ {
+        cnt++
         print > "/dev/stderr"
         next
       }
       /^Warning messages:/, /^>/ {
+        cnt++
         print > "/dev/stderr"
+      }
+      END {
+        if (!cnt)
+          print "None found." > "/dev/stderr"
       }
     ' "$outfile"
     echo >&2
@@ -403,9 +427,9 @@ remove_R_CMD_check_dirs()
 ################################################################################
 
 
-# Command-line argument parsing. The problem here is that all arguments for
-# 'docu.R' should remain untouched. We thus allow only a single running-mode
-# indicator.
+# Command-line argument parsing. The issue here is that all arguments for
+# 'docu.R' should remain untouched. We thus only allow for a single running
+# mode indicator as (optional) first argument.
 #
 if [ $# -gt 0 ] && [ "${1%%-*}" ]; then
   RUNNING_MODE=$1
@@ -433,7 +457,7 @@ case $RUNNING_MODE in
   ;;
   help )
     cat >&2 <<-____EOF
-	$0 -- build the opm package using the 'docu.R' script
+	$0 -- build the opm package using the 'docu.R' script.
 
 	This script must be executed in the parent directory of the project's R
 	package source directories.
@@ -467,11 +491,11 @@ case $RUNNING_MODE in
 	  -u	Turn off checking altogether (used together with -i or -y).
 	  -y	Build a package tar archive.
 
-Search for 'docu.R' is first done in the environment variable \$DOCU_R_SCRIPT,
-then in the \$PATH, then in the R installation directory. For an initial setup
-of the build process it is usually necessary to install the pkgutils package
-obtained from R-Forge manually via, e.g., R CMD INSTALL, and then to assure
-that the installed 'docu.R' script is found.
+	Search for 'docu.R' is first done in the environment variable \$DOCU_R_SCRIPT,
+	then in the \$PATH, then in the R installation directory. For an initial setup
+	of the build process it is usually necessary to install the pkgutils package
+	obtained from R-Forge manually via, e.g., R CMD INSTALL, and then to assure
+	that the installed 'docu.R' script is found.
 
 ____EOF
     exit 1
@@ -499,7 +523,7 @@ esac
 #
 DOCU=`find_docu_script || :`
 if [ "$DOCU" ]; then
-  echo "using script '$DOCU'" >&2 # does not mean it will work...
+  echo "Using script '$DOCU' (`stat -c %y "$DOCU"`)..." >&2
   echo >&2
   [ "$RUNNING_MODE" = docu ] && exit 0
 else
@@ -528,7 +552,7 @@ if [ "$CHECK_R_TESTS" ]; then
     exit 1
   fi
 else
-  echo "NOTE: omitting check for the presence of R tests" >&2
+  echo "NOTE: omitting check for the presence of R tests." >&2
   echo >&2
 fi
 if ! check_roxygen_tags "$PKG_DIR"/R/*; then
@@ -551,8 +575,9 @@ Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
 OUT_DIR=${PKG_DIR%_in}
 
 
-# Visualize R warnings in the examples and tests, if any
+# Visualize R warnings in the examples and tests, if any.
 #
+echo >&2
 show_example_warnings "$OUT_DIR"
 show_test_warnings "$OUT_DIR"
 
@@ -565,7 +590,7 @@ if [ "$RUNNING_MODE" = full ]; then
     mkdir -p "$target" && cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
   fi
 else
-  echo "NOTE: no full build, '$OUT_DIR' not copied" >&2
+  echo "NOTE: no full build, '$OUT_DIR' not copied." >&2
   echo >&2
 fi
 
