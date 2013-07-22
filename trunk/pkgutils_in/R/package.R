@@ -125,10 +125,10 @@ pack_desc.character <- function(pkg, action = c("read", "update", "source"),
   LL(version, demo, date.format)
   x <- lapply(normalizePath(file.path(pkg, "DESCRIPTION")), function(file) {
     stopifnot(nrow(y <- read.dcf(file)) == 1L)
-    structure(.Data = as.list(y[1L, ]), file = file,
+    structure(as.list(y[1L, ]), file = file,
       class = c("pack_desc", "packageDescription"))
   })
-  x <- structure(.Data = x, .Names = pkg, class = "pack_descs")
+  x <- structure(x, names = pkg, class = "pack_descs")
   case(match.arg(action),
     read = x,
     update = {

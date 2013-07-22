@@ -7,7 +7,8 @@
 #
 # One needs (of course) the 'run_opm.R' script from the opm R package to run
 # this, as well as the 'Rscript' executable in the $PATH. The script itself was
-# tested using Bash and Dash.
+# tested using Bash and Dash. For details on portability, see
+# https://wiki.ubuntu.com/DashAsBinSh .
 #
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
@@ -90,7 +91,12 @@ format_basename()
 #
 do_test()
 {
-  local qdir= outfmt= wantedfmt= indir= inext= logfile=/dev/stderr
+  local qdir=
+  local outfmt=
+  local wantedfmt=
+  local indir=
+  local inext=
+  local logfile=/dev/stderr
 
   local opt
   OPTIND=1
@@ -116,7 +122,9 @@ do_test()
 
   "$@" "$indir"/*."$inext" 2> "$logfile" || true
 
-  local infile wantfile gotfile
+  local infile
+  local wantfile
+  local gotfile
   local lastfile=
 
   for infile in "$indir"/*."$inext"; do
@@ -165,7 +173,8 @@ change_json_version()
 #
 change_yaml_version()
 {
-  local version=$1 tmpfile=`mktemp --tmpdir`
+  local version=$1
+  local tmpfile=`mktemp --tmpdir`
   shift
   local infile
   for infile; do
@@ -222,6 +231,9 @@ shift $(($OPTIND - 1))
 if [ "$help_msg" ] || [ $# -gt 0 ]; then
   cat >&2 <<-__EOF
 	$0 -- test the opm package via its 'run_opm.R' script
+
+	This script must be executed in the parent directory of the project's R
+	package source directories.
 
 	Options:
 	  -d x  Use x as test directory (must contain subdirectory 'tests').
@@ -355,10 +367,10 @@ rm -rf "$tmpdir" "$tmpfile"
 
 
 echo
-echo -n "RESULT: "
-echo -n "`grep -F -c '<<<SUCCESS>>>' "$outfile"` successes, "
-echo -n "`grep -F -c '<<<FAILURE>>>' "$outfile"` failures, "
-echo -n "`grep -F -c '<<<ERROR>>>' "$outfile"` errors, "
+printf "RESULT: "
+printf "`grep -F -c '<<<SUCCESS>>>' "$outfile"` successes, "
+printf "`grep -F -c '<<<FAILURE>>>' "$outfile"` failures, "
+printf "`grep -F -c '<<<ERROR>>>' "$outfile"` errors, "
 echo "`ls "$failedfile_dir" | wc -l` quarantined files."
 echo
 
@@ -376,5 +388,4 @@ change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
 
 
 ################################################################################
-
 

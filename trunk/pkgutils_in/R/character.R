@@ -106,7 +106,7 @@ sections.logical <- function(x, include = TRUE, ...) {
     x
   }
   if (!(n <- length(x)))
-    return(structure(factor(ordered = TRUE), .Names = names(x)))
+    return(structure(factor(ordered = TRUE), names = names(x)))
   if (any(is.na(x)))
     stop("'x' must not contain NA values")
   result <- integer(length(x))
@@ -116,7 +116,7 @@ sections.logical <- function(x, include = TRUE, ...) {
     result[true.runs] <- NA_integer_
   else
     result[x] <- NA_integer_
-  structure(as.ordered(result), .Names = names(x))
+  structure(as.ordered(result), names = names(x))
 }
 
 #' @rdname sections
@@ -233,9 +233,9 @@ map_files.character <- function(x, mapfun, ..., .attr = ".filename",
   )
   mapfun <- match.fun(mapfun)
   if (!length(x))
-    return(structure(logical(), .Names = character(), errors = character()))
+    return(structure(logical(), names = character(), errors = character()))
   result <- do.call(rbind, lapply(x, doit))
-  structure(unlist(result[, 1L]), .Names = x, errors = unlist(result[, 2L]))
+  structure(unlist(result[, 1L]), names = x, errors = unlist(result[, 2L]))
 }
 
 
