@@ -5,11 +5,12 @@
 #
 # Documentation-generating script for the 'opm' package
 #
-# This script was tested using Bash and Dash. Prerequisites for using it in
+# This script was tested using Bash and Dash. For details on portability, see
+# https://wiki.ubuntu.com/DashAsBinSh . Prerequisites for using this script in
 # most running modes are the 'docu.R' script from the pkgutils R package and
 # the 'Rscript' executable present in the $PATH.
 #
-# Call this script with 'help' as frist argument to get an overview of its
+# Call this script with 'help' as first argument to get an overview of its
 # usage.
 #
 # This script is distributed under the terms of the Gnu Public License V2.
@@ -75,8 +76,11 @@ find_docu_script()
 #
 check_graphics_files()
 {
-  local source_dir=$1 target_dir=$2 errs=0
-  local source_file target_file
+  local source_dir=$1
+  local target_dir=$2
+  local errs=0
+  local source_file
+  local target_file
   for source_file in "$source_dir"/*; do
     [ -e "$source_file" ] || break
     target_file=$target_dir/${source_file##*/}
@@ -100,7 +104,10 @@ check_graphics_files()
 #
 check_vignettes()
 {
-  local indir sweave_file pdf_file built_pdf_file
+  local indir
+  local sweave_file
+  local pdf_file
+  local built_pdf_file
   local errs=0
   for indir; do
     for sweave_file in "$indir"/vignettes/*.Rnw; do
@@ -139,7 +146,8 @@ check_vignettes()
 #
 check_R_tests()
 {
-  local infile testfile
+  local infile
+  local testfile
   local errs=0
   for infile; do
     testfile=${infile%/R/*}/inst/tests/test_${infile##*/R/}
@@ -315,7 +323,8 @@ check_roxygen_tags()
 #
 show_example_warnings()
 {
-  local folder outfile
+  local folder
+  local outfile
   for folder; do
     outfile=$folder.Rcheck/${folder##*/}-Ex.Rout
     [ -s "$outfile" ] || continue
@@ -349,7 +358,8 @@ show_example_warnings()
 #
 show_test_warnings()
 {
-  local folder outfile
+  local folder
+  local outfile
   for folder; do
     outfile=$folder.Rcheck/tests/run-all.Rout
     [ -s "$outfile" ] || continue
@@ -370,11 +380,23 @@ show_test_warnings()
 ################################################################################
 
 
-# Cleans up directories left by R CMD check.
+# Remove trailing whitespace characters from R files.
+#
+remove_trailing_whitespace()
+{
+  # note that GNU sed does not understand the backspace escape character \b
+  find . -type f -name '*.R' -exec sed -i 'v; s/[ \t\v\r\a\f]\+$//' \{\} +
+}
+
+
+################################################################################
+
+
+# Clean up directories left over by R CMD check.
 #
 remove_R_CMD_check_dirs()
 {
-  find . -type d -name '*.Rcheck' -prune -execdir rm -frv \{\} \;
+  find . -type d -name '*.Rcheck' -prune -exec rm -fr \{\} +
 }
 
 
@@ -413,6 +435,9 @@ case $RUNNING_MODE in
     cat >&2 <<-____EOF
 	$0 -- build the opm package using the 'docu.R' script
 
+	This script must be executed in the parent directory of the project's R
+	package source directories.
+
 	Usage: $0 [mode] [options]
 
 	Possible values for 'mode':
@@ -425,6 +450,7 @@ case $RUNNING_MODE in
 	  norm    [DEFAULT] Normal build of the opm package.
 	  pfull   Full build of the pkgutils package.
 	  pnorm   Normal build of the pkgutils package.
+	  space   Remove trailing whitespace from R code files.
 
 	A 'full' build includes copying to the local copy of the pkg directory.
 	Other details of the build process depend on the options.
@@ -442,7 +468,10 @@ case $RUNNING_MODE in
 	  -y	Build a package tar archive.
 
 Search for 'docu.R' is first done in the environment variable \$DOCU_R_SCRIPT,
-then in the \$PATH, then in the R installation directory.
+then in the \$PATH, then in the R installation directory. For an initial setup
+of the build process it is usually necessary to install the pkgutils package
+obtained from R-Forge manually via, e.g., R CMD INSTALL, and then to assure
+that the installed 'docu.R' script is found.
 
 ____EOF
     exit 1
@@ -451,6 +480,10 @@ ____EOF
     PKG_DIR=pkgutils_in
     RUNNING_MODE=${RUNNING_MODE#p}
     CHECK_R_TESTS=
+  ;;
+  space )
+    remove_trailing_whitespace
+    exit $?
   ;;
   * )
     echo "unknown running mode '$RUNNING_MODE', exiting now" >&2

@@ -338,7 +338,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
   if (is.null(names(x)) || force.numbers)
     names(x) <- seq_along(x)
   if (inherits(style, "AsIs"))
-    x <- structure(.Data = names(x), .Names = x)
+    x <- structure(names(x), names = x)
   x <- switch(style,
     table =,
     list = do_prepend(formatDL(x = x, style = style, ...), prepend),

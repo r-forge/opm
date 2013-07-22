@@ -192,7 +192,7 @@ check_keywords.NULL <- function(x, full = FALSE, ...) {
   x <- sub("^.*\\|", "", x, perl = TRUE)
   x <- do.call(rbind, strsplit(x, "\\s*:\\s*", perl = TRUE))
   if (L(full))
-    return(structure(.Data = x[, 2L], .Names = x[, 1L]))
+    return(structure(x[, 2L], names = x[, 1L]))
   sort.int(unique.default(x[, 1L]))
 }
 
