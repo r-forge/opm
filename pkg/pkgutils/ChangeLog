@@ -6,6 +6,9 @@
 
 - fixed bug in vertical-merge running mode 'merge.R' script
 
+- fixed bug in demo mode of pack_desc() that caused the file names to be
+  returned invisibly
+
 - the default flatten() method now only accepts atomic objects
 
 - repair_docu() now also repairs too long usage lines (which cause a complaint

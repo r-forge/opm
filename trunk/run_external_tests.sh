@@ -305,6 +305,20 @@ change_json_version "$version" "$testfile_dir"/*.json
 change_csv_version "$version" "$testfile_dir"/*.tab
 
 
+# Fix the version in the YAML, JSON and CSV files to avoid SVN updates. Do
+# this in the quarantined files, too, if any, to avoid annoying reports when
+# manually calling diff.
+#
+trap '
+  change_yaml_version 0.0.0 "$testfile_dir"/*.yml
+  change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
+  change_json_version 0.0.0 "$testfile_dir"/*.json
+  change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
+  change_csv_version 0.0.0 "$testfile_dir"/*.tab
+  change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
+' 0
+
+
 ################################################################################
 
 
@@ -380,18 +394,6 @@ printf "`grep -F -c '<<<FAILURE>>>' "$outfile"` failures, "
 printf "`grep -F -c '<<<ERROR>>>' "$outfile"` errors, "
 echo "`ls "$failedfile_dir" | wc -l` quarantined files."
 echo
-
-
-# Fix the version in the YAML, JSON and CSV files to avoid SVN updates. Do this
-# in the quarantined files, too, if any, to avoid annoying reports when manually
-# calling diff.
-#
-change_yaml_version 0.0.0 "$testfile_dir"/*.yml
-change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
-change_json_version 0.0.0 "$testfile_dir"/*.json
-change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
-change_csv_version 0.0.0 "$testfile_dir"/*.tab
-change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
 
 
 ################################################################################
