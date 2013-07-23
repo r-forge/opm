@@ -376,8 +376,13 @@ source_files.character <- function(x, ...) {
 #' @rdname source_files
 #' @export
 #'
-source_files.pack_descs <- function(x, ...) {
-  invisible(sapply(X = x, FUN = source_files, ..., simplify = FALSE))
+source_files.pack_descs <- function(x, demo = FALSE, ...) {
+  result <- sapply(X = x, FUN = source_files.pack_desc, demo = demo, ...,
+    simplify = FALSE)
+  if (L(demo))
+    result
+  else
+    invisible(result)
 }
 
 #' @method source_files pack_desc
@@ -393,7 +398,7 @@ source_files.pack_desc <- function(x, demo = FALSE, ...) {
   for (pkg in unlist(y[c("depends", "imports")]))
     suppressPackageStartupMessages(require(pkg, character.only = TRUE,
       quietly = TRUE, warn.conflicts = FALSE))
-  invisible(source_files(x = y$r.files, ...))
+  invisible(source_files.character(x = y$r.files, ...))
 }
 
 
