@@ -337,6 +337,9 @@ show_example_warnings()
         printf "WARNINGS found in \"%s\" (might be OK):\n",
           ARGV[1] > "/dev/stderr"
       }
+      {
+        sub(/\r$/, "") # repair Windows/DOS line breaks
+      }
       $1 == "Warning" {
         cnt++
         text = $0
@@ -366,21 +369,24 @@ show_example_warnings()
 
 
 # Show the warnings, if any, in the results from running tests contained in an
-# R package. Assume a main test file named 'run-all.R' and default output names
-# used by 'R CMD check'.
+# R package. Assume default output names used by 'R CMD check'.
 #
 show_test_warnings()
 {
   local folder
   local outfile
   for folder; do
-    outfile=$folder.Rcheck/tests/run-all.Rout
-    [ -s "$outfile" ] || continue
-    awk '
-      BEGIN {
-        cnt = 0
+    find -type f -wholename "*/$folder.Rcheck/tests/*.Rout" -exec awk '
+      FILENAME != oldfilename {
+        if (!cnt && oldfilename)
+          print "None found." > "/dev/stderr"
         printf "WARNINGS found in \"%s\" (should be fixed):\n",
-          ARGV[1] > "/dev/stderr"
+          FILENAME > "/dev/stderr"
+        oldfilename = FILENAME
+        cnt = 0
+      }
+      {
+        sub(/\r$/, "") # repair Windows/DOS line breaks
       }
       /There were [0-9]+ (or more )?warnings/ {
         cnt++
@@ -390,12 +396,18 @@ show_test_warnings()
       /^Warning messages:/, /^>/ {
         cnt++
         print > "/dev/stderr"
+        next
+      }
+      /^Warning message:/, /^>/ { # from tests not based on testthat
+        cnt++
+        if ($0 !~ /^>/)
+          print > "/dev/stderr"
       }
       END {
         if (!cnt)
           print "None found." > "/dev/stderr"
       }
-    ' "$outfile"
+    ' \{\} +
     echo >&2
   done
 }
@@ -408,8 +420,22 @@ show_test_warnings()
 #
 remove_trailing_whitespace()
 {
-  # note that GNU sed does not understand the backspace escape character \b
-  find . -type f -name '*.R' -exec sed -i 'v; s/[ \t\v\r\a\f]\+$//' \{\} +
+  # Note that GNU sed does not understand \b (the backspace escape). We also
+  # omit \r to avoid any problems with Mac or Windows line breaks.
+  find . -type f -name '*.R' -exec sed -i 'v; s/[ \t\v\a\f]\+$//' \{\} +
+}
+
+
+################################################################################
+
+
+# Count tags used in Roxygen2 documentation.
+#
+count_roxygen_tags()
+{
+  find . -type f -wholename '*/R/*.R' \
+    -exec awk '$1 == "#'"'"'" && $2 ~ /^@/ {print $2}' \{\} + |
+      sort - | uniq -c - | sort -nr -
 }
 
 
@@ -475,6 +501,7 @@ case $RUNNING_MODE in
 	  pfull   Full build of the pkgutils package.
 	  pnorm   Normal build of the pkgutils package.
 	  space   Remove trailing whitespace from R code files.
+	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 
 	A 'full' build includes copying to the local copy of the pkg directory.
 	Other details of the build process depend on the options.
@@ -507,6 +534,10 @@ ____EOF
   ;;
   space )
     remove_trailing_whitespace
+    exit $?
+  ;;
+  tags )
+    count_roxygen_tags
     exit $?
   ;;
   * )
