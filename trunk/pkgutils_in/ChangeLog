@@ -9,7 +9,8 @@
 - fixed bug in demo mode of pack_desc() that caused the file names to be
   returned invisibly
 
-- the default flatten() method now only accepts atomic objects
+- the default flatten() method now only accepts atomic objects; the list
+  method gets a 'use.names' argument
 
 - repair_docu() now also repairs too long usage lines (which cause a complaint
   when running 'R CMD check')
@@ -22,7 +23,7 @@
 
 - the documentation of repair_S4_docu() has been completed
 
-- swap_code() now ignores Roxygen2 comment lines
+- swap_code() now ignores (does not modify) Roxygen2 comment lines
 
 2012-04-15 (4th release on CRAN)
 

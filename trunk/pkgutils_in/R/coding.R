@@ -365,6 +365,8 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #'
 #' @param object Usually a list. The default method just returns \code{object}
 #'   if it is atomic but raises an error otherwise.
+#' @param use.names Logical scalar passed to \code{unlist} from the \pkg{base}
+#'   package.
 #' @inheritParams pack_desc
 #' @export
 #' @return The list method returns a non-nested list.
@@ -398,10 +400,10 @@ flatten.default <- function(object, ...) {
 #' @method flatten list
 #' @export
 #'
-flatten.list <- function(object, ...) {
+flatten.list <- function(object, use.names = TRUE, ...) {
   while (any(is.a.list <- vapply(object, is.list, NA))) {
     object[!is.a.list] <- lapply(object[!is.a.list], list)
-    object <- unlist(object, FALSE)
+    object <- unlist(object, FALSE, use.names)
   }
   object
 }
