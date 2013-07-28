@@ -38,7 +38,7 @@
 % authors, first page
 \author{Johannes Sikorski\\Leibniz Institute DSMZ  \AND
         Lea A.I. Vaas\\Leibniz Institute DSMZ \And
-        Benjamin Hofner\\Universit\"{a}t Erlangen-N\"{u}rnberg \And
+        Benjamin Hofner\\Universit\"{a}t \\Erlangen-N\"{u}rnberg \And
         Nora Buddruhs\\Leibniz Institute DSMZ \And
         Anne Fiebig\\Leibniz Institute DSMZ \AND
         Hans-Peter Klenk\\Leibniz Institute DSMZ \And

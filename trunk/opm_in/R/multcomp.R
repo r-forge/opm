@@ -40,8 +40,11 @@
 #'   \item One of the classes of objects accepted by \code{glht} from the
 #'   \pkg{multcomp} package as \code{linfct} argument. Such objects will not be
 #'   modified. Linear functions can be specified by either the matrix of
-#'   coefficients or by symbolic descriptions of one or more linear hypotheses.
-#'   See also \code{contrMat} from the \pkg{multcomp} package.
+#'   coefficients or by symbolic descriptions of one or more linear hypotheses. 
+#'   The set of existing types of contrast is extended by the contrast type 
+#'   \code{Pairs}, which computes all pair-wise comparison concerning the first 
+#'   entry in \code(model). See examples and also \code{contrMat} from the 
+#'   \pkg{multcomp} package.
 #'   \item An object inheriting from the \sQuote{AsIs} as created by \code{I}
 #'   from the \pkg{base} package. Such objects will be converted to an argument
 #'   list for and then passed to \code{mcp} from the \pkg{multcomp} package.
@@ -184,7 +187,7 @@
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 6)
 #' plot_with_margin(x, c(3, 18, 3, 2)) # creating an informative plot
 #'
-#' # Dunnett-type comparison
+#' # Dunnett-type comparison of selected wells
 #' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ Well,
 #'   m.type = "lm", linfct = c(Dunnett = 1)))
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 3)
@@ -197,6 +200,21 @@
 #' (x <- opm_mcp(vaas_4[, , 1:4],
 #'   model = ~ Well, m.type = "lm", linfct = contr)) # run tests
 #' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
+#'
+#' # joining of selected metadata using pseudofunction J
+#' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well + Species), 
+#'   linfct = c(Dunnett = 1)))
+#' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
+#' 
+#' # comparing wells pairwise regarding the tested species
+#' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well + Species), 
+#'   linfct = c(Pairs.Well = 1)))
+#' 
+#' # pairwise comparison of Species regarding the tested strains
+#' xx <- c(vaas_4, vaas_4) # test-data
+#' (x <- opm_mcp(xx[, , 1:4], model = ~ J(Strain + Species), 
+#'   linfct = c(Pairs.Species = 1)))
+#'
 #'
 #' ## data-frame method (usually unnecessary to directly apply it)
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"), subset = "A",
