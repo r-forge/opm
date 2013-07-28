@@ -272,7 +272,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     }
     all_pairs <- function(x) {
       idx <- pair_indices(x <- unique.default(x))
-      sprintf("%s - %s == 0L", x[idx[, 1L]], x[idx[, 2L]])
+      sprintf("`%s` - `%s` == 0L", x[idx[, 1L]], x[idx[, 2L]])
     }
     spec <- spec_to_column_names(spec, attr(data, "joined.columns"))
     #print(spec)
