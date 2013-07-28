@@ -25,6 +25,6 @@ Collate: 'substrate-info.R' 'well-map.R' 'plate-map.R' 'imports.R'
         'naming.R' 'metadata.R' 'getter.R' 'conversion.R'
         'combination.R' 'aggregation.R' 'discretization.R' 'plotting.R'
         'io.R' 'phylogeny.R' 'data.R' 'testing.R' 'multcomp.R'
-        'splinefit.R'
+        'splinefit.R' 'kegg.R'
 LazyData: yes
 LazyDataCompression: bzip2
