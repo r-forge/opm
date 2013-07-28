@@ -37,17 +37,21 @@
 #' @param linfct A specification of the linear hypotheses to be tested
 #'   analogously to \code{linfct} in \code{glht}. A variety of objects can be
 #'   used for this argument: \itemize{
+#'
 #'   \item One of the classes of objects accepted by \code{glht} from the
 #'   \pkg{multcomp} package as \code{linfct} argument. Such objects will not be
 #'   modified. Linear functions can be specified by either the matrix of
-#'   coefficients or by symbolic descriptions of one or more linear hypotheses. 
-#'   The set of existing types of contrast is extended by the contrast type 
-#'   \code{Pairs}, which computes all pair-wise comparison concerning the first 
-#'   entry in \code(model). See examples and also \code{contrMat} from the 
+#'   coefficients or by symbolic descriptions of one or more linear hypotheses.
+#'   The set of existing types of contrast is extended by the contrast type
+#'   \sQuote{Pairs}, which computes all pair-wise comparison concerning the
+#'   first entry in \code{model}. See examples and also \code{contrMat} from the
 #'   \pkg{multcomp} package.
+#'
 #'   \item An object inheriting from the \sQuote{AsIs} as created by \code{I}
-#'   from the \pkg{base} package. Such objects will be converted to an argument
-#'   list for and then passed to \code{mcp} from the \pkg{multcomp} package.
+#'   from the \pkg{base} package. Such objects, irrespective of their class,
+#'   will be converted to an argument list for and then passed to \code{mcp}
+#'   from the \pkg{multcomp} package.
+#'
 #'   \item Other objects will be treated as a selection of factors from the data
 #'   just like \code{model}, i.e. they will be converted like any
 #'   \code{\link{metadata}} key (but note that character vectors would be passed
@@ -57,6 +61,7 @@
 #'   passed to \code{mcp}. Otherwise \code{opm_opt("contrast.type")} would be
 #'   used. (See the \code{type} argument of \code{contrMat}.) The modified
 #'   object would then be used as the argument list in a call to \code{mcp}.
+#'
 #'   }
 #'   After the conversions, if any, this argument is passed to \code{glht} as
 #'   \code{linfct} argument.
@@ -202,17 +207,31 @@
 #' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
 #'
 #' # joining of selected metadata using pseudofunction J
-#' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well + Species), 
+#' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well + Species),
 #'   linfct = c(Dunnett = 1)))
 #' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
-#' 
+#'
 #' # comparing wells pairwise regarding the tested species
-#' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well + Species), 
+#' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well + Species),
 #'   linfct = c(Pairs.Well = 1)))
-#' 
+#'
 #' # pairwise comparison of Species regarding the tested strains
 #' xx <- c(vaas_4, vaas_4) # test-data
-#' (x <- opm_mcp(xx[, , 1:4], model = ~ J(Strain + Species), 
+#' (x <- opm_mcp(xx[, , 1:4], model = ~ J(Strain + Species),
+#'   linfct = c(Pairs.Species = 1)))
+#'
+#' # joining of selected metadata using pseudofunction J
+#' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well + Species),
+#'   linfct = c(Dunnett = 1)))
+#' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
+#'
+#' # comparing wells pairwise regarding the tested species
+#' (x <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well + Species),
+#'   linfct = c(Pairs.Well = 1)))
+#'
+#' # pairwise comparison of Species regarding the tested strains
+#' xx <- c(vaas_4, vaas_4) # artifical test-data
+#' (x <- opm_mcp(xx[, , 1:4], model = ~ J(Strain + Species),
 #'   linfct = c(Pairs.Species = 1)))
 #'
 #'
@@ -271,7 +290,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
   # column joining if applicable. Resulting character vector can be passed to
   # multcomp::mcp().
   level_pairs <- function(spec, column, data) {
-    spec_to_column_names <- function(spec, joined) {
+    spec_to_column_names <- function(spec, joined, column) {
       if (nchar(spec) < 7L)
         spec <- "1"
       else
@@ -281,22 +300,21 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
       spec <- as.integer(spec)
       if (is.null(joined)) # TODO: this would never yield pairs at the moment
         joined <- as.list(structure(column, names = column))
-      joined <- joined[[column]][spec]
+      joined[[column]][spec]
     }
     pair_indices <- function(x) {
       last <- length(nums <- seq_along(x))
-      do.call(rbind, lapply(nums[-last], FUN = function(j)
-        cbind(I = seq.int(j + 1L, last), J = j)))
+      do.call(rbind, lapply(nums[-last],
+        FUN = function(j) cbind(I = seq.int(j + 1L, last), J = j)))
     }
     all_pairs <- function(x) {
       idx <- pair_indices(x <- unique.default(x))
       sprintf("`%s` - `%s` == 0L", x[idx[, 1L]], x[idx[, 2L]])
     }
-    spec <- spec_to_column_names(spec, attr(data, "joined.columns"))
-    #print(spec)
+    spec <- spec_to_column_names(spec, attr(data, "joined.columns"), column)
     groups <- split(as.character(data[, column]), data[, spec])
-    groups <- lapply(groups, unique.default)
     result <- unlist(lapply(groups, all_pairs))
+    #print(spec)
     #print(result)
     if (!length(result))
       stop("no pairs found -- are selected factors constant?")
@@ -367,7 +385,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     colnames(object) <- make.names(colnames(object))
     object
   }
-  contrast_matrices <- function(data, linfct) {
+  contrast_matrices <- function(data, linfct, model) {
     linfct <- convert_hypothesis_spec(linfct, model, data)
     if (!inherits(linfct, "mcp"))
       stop("in 'contrast' mode, 'linfct' must yield an object of class 'mcp'")
@@ -383,7 +401,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     linfct = return(convert_hypothesis_spec(linfct, model,
       convert_data(object, split.at, model))),
     contrast = return(contrast_matrices(convert_data(object, split.at, model),
-      linfct)),
+      linfct, model)),
     mcp = NULL
   )
 
