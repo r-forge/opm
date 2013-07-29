@@ -43,9 +43,16 @@
 #'   modified. Linear functions can be specified by either the matrix of
 #'   coefficients or by symbolic descriptions of one or more linear hypotheses.
 #'   The set of existing types of contrast is extended by the contrast type
-#'   \sQuote{Pairs}, which computes all pair-wise comparison concerning the
-#'   first entry in \code{model}. See examples and also \code{contrMat} from the
-#'   \pkg{multcomp} package.
+#'   \sQuote{Pairs}. Here all pair-wise comparison concerning the first entry in
+#'   \code{model} are computed. Alternatively, the factor which levels should 
+#'   determine the pairs can be addressed directly with, for example 
+#'   \code{linfct = c(Pairs.Well = 1)}.
+#'   The Dunnett-type contrast has the special feature, that users are free to 
+#'   directly define the group which should serve as the control or base in the 
+#'   set of contrasts. Analogously to \code{Pairs}, the name of the level, 
+#'   separated from the string 'Dunnett' by any sign, can be stated. 
+#'   See examples below and in the Vignettes and further \code{contrMat} from 
+#'   the \pkg{multcomp} package.
 #'
 #'   \item An object inheriting from the \sQuote{AsIs} as created by \code{I}
 #'   from the \pkg{base} package. Such objects, irrespective of their class,
@@ -197,6 +204,10 @@
 #'   m.type = "lm", linfct = c(Dunnett = 1)))
 #' stopifnot(inherits(x, "glht"), length(coef(x)) == 3)
 #' plot_with_margin(x, c(3, 20, 3, 2)) # creating an informative plot
+#'
+#' # Dunnett-type comparison with selected control-group
+#' (x <- opm_mcp(vaas_4[, , 1:10], output = "mcp", model = ~ Well,
+#'   linfct = c(`Dunnett.A05 (D-Cellobiose)` = 1)))
 #'
 #' # manually defined contrast matrix
 #' (contr <- opm_mcp(vaas_4[, , 1:4], linfct = c(Tukey = 1),
