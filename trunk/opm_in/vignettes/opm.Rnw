@@ -98,6 +98,7 @@ All functionality is exemplified using real-world data sets that are part of the
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -1572,8 +1573,26 @@ In our example, the results from the statistical calculations indicate that all 
 But the position of the 95\% confidence interval indicates that the difference between strains DSM 18039 and 429SC1 (i.e, the effect size in the second comparison in Figure~\ref{fig:ci_plot_mcp}) is much larger than between strains DSM 30083\textsuperscript{T} and 429SC1 (smaller effect size in the third comparison).
 For a meaningful biological interpretation of the results it is therefore highly recommended to not only take into account the p values but also the effect sizes.
 
-For performing the comparisons of interest, the user has to provide a contrast matrix.
-A contrast is defined as a linear combination of two or more factor level means (averages) whose coefficients add up to zero \citep{hochberg}. 
+When performing PM-experiments, usually the well-wise comparison of strains, treatments, etc. for complete plates is needed and can be performed easily by using the specially designed \code{linfct}-argument \code{Pairs}.
+
+<<label=opm.mcp.linfct.Pairs, results=hide, width=8>>=
+opm_mcp(vaas_4, model = ~ J(Well + Species), m.type = "aov",
+  linfct = c(Pairs = 1), output = "mcp")
+@
+
+Note that \code{Well} has to be part of the model and joined with at least one other metadata-factor in order to determine the groups to be compared. The given example computes all 96 tests for one OPMS object comparing the species on each well.
+
+If models are more complex, the \code{Pairs}-argument offers the flexibility to adress directly the metadata for which the pairwise-comparisons should be performed. Per default the first given metadata-name in the \code{model}-argument will be used. By using \code{linfct = c(Pairs.Well = 1)} the metadata-name \code{Well} can be adressed directly. 
+Similarly, by using \code{linfct = c(Pairs.Species = 1)} \code{Species} will be the pair-determining factor. Thus the result of 
+
+<<label=opm.mcp.linfct.Pairs, results=hide, width=8>>=
+opm_mcp(vaas_4, model = ~ J(Strain + Species), m.type = "aov",
+  linfct = c(Pairs.Species = 1), output = "mcp")
+@
+
+gives the pairwise comparisons of the strains regarding the two species \textit{Escherichia coli} and \textit{Pseudomonas aeruginosa}. When dealing with more complex models also keep in mind the flexibility offered by the numeric vector in \code{linfct}, which refers to the positions of the variables within \code{model}.
+
+For performing even more specific comparisons of interest, the user has the possibility to provide a contrast matrix directly. A contrast is defined as a linear combination of two or more factor level means (averages) whose coefficients add up to zero \citep{hochberg}. 
 To demonstrate the principle of a contrast matrix, an all-against-all comparison (a ``Tukey''-type contrast) of four groups is performed using a toy-example. 
 
 <<label=contrMat, width=8>>=
