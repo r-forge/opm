@@ -16,7 +16,8 @@
 - explicit length() method for OPM objects
 - well() gets a 'use.names' argument
 - opm_mcp() now handles non-syntactical names in metadata (converts them
-  for multcomp::glht()) and computes specific 'Pairs...' contrast-types
+  for multcomp::glht()) and computes specific 'Pairs...' contrast-types;
+  specifying the 'base' for the 'Dunnett' contrast type is also easier now
 
 - streamlined the documentation (merged many entries) in the manual
 
