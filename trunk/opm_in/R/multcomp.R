@@ -321,7 +321,24 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     result
   }
 
-  # Convert the 'linfct' argument into its final from. 'model' is needed when
+  # Create a Dunnett contrast matrix with using 'level', hopefully found in the
+  # 'column' of 'data', as base.
+  #
+  dunnett_with_base <- function(data, column, level) {
+    f <- as.factor(data[, column])
+    if (grepl("^\\d+$", level, FALSE, TRUE)) {
+      base <- as.integer(level)
+      if (base > length(levels(f)))
+        stop(sprintf("level no. %i does not exist", base))
+    } else {
+      base <- match(level, levels(f), nomatch = 0L)
+      if (!base)
+        stop(sprintf("level '%s' does not exist", level))
+    }
+    multcomp::contrMat(c(table(f)), "Dunnett", base)
+  }
+
+  # Convert the 'linfct' argument into its final form. 'model' is needed when
   # getting column names from it if given as positions within the model, 'data'
   # is necessary when computing on factor levels.
   #
@@ -352,10 +369,15 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     # as list to multcomp::mcp().
     result <- as.list(structure(names(result), names = result))
     # Special treatments for special contrast types must be done here.
-    convert <- grepl("^Pairs", result, FALSE, TRUE)
-    result[convert] <- mapply(FUN = level_pairs, spec = result[convert],
-      column = names(result)[convert], MoreArgs = list(data = data),
-      SIMPLIFY = FALSE, USE.NAMES = FALSE)
+    if (any(convert <- grepl("^Pairs", result, FALSE, TRUE)))
+      result[convert] <- mapply(FUN = level_pairs, spec = result[convert],
+        column = names(result)[convert], MoreArgs = list(data = data),
+        SIMPLIFY = FALSE, USE.NAMES = FALSE)
+    if (any(convert <- grepl("^Dunnett..+", result, FALSE, TRUE)))
+      result[convert] <- mapply(FUN = dunnett_with_base,
+        level = substr(result, 9L, nchar(result))[convert],
+        column = names(result)[convert], MoreArgs = list(data = data),
+        SIMPLIFY = FALSE, USE.NAMES = FALSE)
     do.call(multcomp::mcp, result)
   }
 
