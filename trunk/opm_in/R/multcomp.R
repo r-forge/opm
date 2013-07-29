@@ -44,14 +44,14 @@
 #'   coefficients or by symbolic descriptions of one or more linear hypotheses.
 #'   The set of existing types of contrast is extended by the contrast type
 #'   \sQuote{Pairs}. Here all pair-wise comparison concerning the first entry in
-#'   \code{model} are computed. Alternatively, the factor which levels should 
-#'   determine the pairs can be addressed directly with, for example 
+#'   \code{model} are computed. Alternatively, the factor which levels should
+#'   determine the pairs can be addressed directly with, for example
 #'   \code{linfct = c(Pairs.Well = 1)}.
-#'   The Dunnett-type contrast has the special feature, that users are free to 
-#'   directly define the group which should serve as the control or base in the 
-#'   set of contrasts. Analogously to \code{Pairs}, the name of the level, 
-#'   separated from the string 'Dunnett' by any sign, can be stated. 
-#'   See examples below and in the Vignettes and further \code{contrMat} from 
+#'   The Dunnett-type contrast has the special feature, that users are free to
+#'   directly define the group which should serve as the control or base in the
+#'   set of contrasts. Analogously to \code{Pairs}, the name of the level,
+#'   separated from the string 'Dunnett' by any sign, can be stated.
+#'   See examples below and in the Vignettes and further \code{contrMat} from
 #'   the \pkg{multcomp} package.
 #'
 #'   \item An object inheriting from the \sQuote{AsIs} as created by \code{I}
@@ -325,8 +325,6 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     spec <- spec_to_column_names(spec, attr(data, "joined.columns"), column)
     groups <- split(as.character(data[, column]), data[, spec])
     result <- unlist(lapply(groups, all_pairs))
-    #print(spec)
-    #print(result)
     if (!length(result))
       stop("no pairs found -- are selected factors constant?")
     result
