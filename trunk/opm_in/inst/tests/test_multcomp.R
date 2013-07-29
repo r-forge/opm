@@ -293,3 +293,25 @@ test_that("linfct as predefined matrix-object", {
   expect_equal(length(coef(x)), 4)
 })
 
+
+## opm_mcp
+test_that("non-syntactic names", {
+  y <- opm_mcp(EXPL.DF[, 1:10], output = "data", 
+  model = ~ J("Well", "run nonsys"), linfct = c(Pairs = 1))
+  expect_is(y, "data.frame")
+  expect_equal(dim(y), c(28, 6))
+})
+
+
+## opm_mcp
+test_that("linfct Pairs", {
+  y <- opm_mcp(EXPL.DF[, 1:10], output = "mcp", 
+  model = ~ J("Well", "run nonsys"), linfct = c(Pairs.Well = 1))
+  expect_is(y, "glht")
+  expect_equal(y$type, "User-defined")
+  expect_true(is.list(y))
+  expect_equal(length(y), 9)
+  expect_equal(length(coef(y)), 7)
+})
+
+
