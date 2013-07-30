@@ -17,10 +17,15 @@
 #'   using \code{model}.
 #'
 #' @param model A model formula, or a character vector or a list containing the
-#'   names of factors to be included in the model for fitting. For model
-#'   specifications using formulas in general, see \code{formula} (in the
-#'   \pkg{stats} package). For the way models are used by \pkg{opm} for
-#'   selecting metadata entries, see \code{\link{metadata}}.
+#'   names of factors to be included in the model for fitting. 
+#'   In order to join two or more metadata-variables into one factor use 
+#'   pseudofunction \code{J} (described in \code{\link{extract}}). This is 
+#'   necessary especially when \code{linfct = Pairs}, see Vignettes and examples
+#'   below.
+#'   For model specifications using formulas in general, see \code{formula} (in 
+#'   the \pkg{stats} package). 
+#'   For the way models are used by \pkg{opm} for selecting metadata entries, 
+#'   see \code{\link{metadata}}.
 #'
 #'   If \code{object} is of class \code{\link{OPMS}}, \code{model} is passed to
 #'   \code{\link{extract}} after removal of the relevant reserved names (see
@@ -53,6 +58,10 @@
 #'   separated from the string 'Dunnett' by any sign, can be stated.
 #'   See examples below and in the Vignettes and further \code{contrMat} from
 #'   the \pkg{multcomp} package.
+#'   For situations where metadata have non-syntactic names, special signs are 
+#'   exchanged against dots. When applying \code{linfct = c(Pairs = 1)} or 
+#'   \code{linfct = c(Dunnett = 1)} with the above mentioned extension, the sign
+#'   between the linfct-name and the metadata-name must not be a dot.
 #'
 #'   \item An object inheriting from the \sQuote{AsIs} as created by \code{I}
 #'   from the \pkg{base} package. Such objects, irrespective of their class,
