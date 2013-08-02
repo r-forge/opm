@@ -87,6 +87,7 @@ extract_curve_params.grofit <- function(x, ...) {
 #' @method extract_curve_params opm_model
 #'
 extract_curve_params.opm_model <- function(x, all = FALSE, ...) {
+  x <- as.gam(x)
   pred <- fitted(x)
   x <- get_data(x)[, 1]
   ## quick and dirty
@@ -413,6 +414,7 @@ setMethod("do_aggr", OPM, function(object, boot = 100L, verbose = FALSE,
         if (options$save.models) {
             opm_models <- lapply(result, function(x) x$model)
             names(opm_models) <- wells
+            class(opm_models) <- "opm_models"
             if (is.null(options$filename))
               options$filename <- paste0("opm_models_",
                 format(Sys.time(), "%Y-%m-%d_%H:%M:%S"), ".RData")
