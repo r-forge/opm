@@ -634,6 +634,10 @@ for file in "$OUT_DIR"_*.tar.gz; do
 done
 
 
+echo "NOTE: please do not forget to run the external tests, too." >&2
+echo "Any problems within them should be fixed before submission." >&2
+echo "(Small deviations in plotting mode might be OK.)" >&2
+echo >&2
+
+
 ################################################################################
-
-
