@@ -2,6 +2,8 @@
 
 2013-xx-xx (the 11th release on CRAN)
 
+- replaced fast_estimate() by the matrix method of do_aggr(); if necessary, the
+  old matrix method of do_aggr() can be easily replaced with stats::aggregate()
 - removed deprecated functions well_to_substrate() and batch_opm_to_yaml()
 - 'as.groups' argument is now mandatory for the OPMD listing() method
 - removed deprecated 'check.names' argument of to_metadata()
@@ -10,6 +12,7 @@
   instead
 - glob_to_regex() is now an S3 generic function
 
+- new spline-fitting facilities (see set_spline_options())
 - new plate_type() method
 - new infix-operator methods for querying metadata
 - csv_data() gets a 'what' argument

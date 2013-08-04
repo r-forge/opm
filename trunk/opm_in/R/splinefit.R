@@ -131,9 +131,9 @@ fit_spline <- function (y, x = "Hour", data, options = set_spline_options(),
 #'   \code{knots} in \pkg{opm}.
 #' @param correlation An optional \code{"corStruct"} object (see
 #'   \code{\link{corClasses}}) as used to define correlation structures in
-#'   package \pkg{nlme}. For better coverage of confidence intervals and slightly
-#'   improved spline fits it is adviced to use an AR process of order 1 or 2.
-#'   However, this correction for auto-correlated error terms results in
+#'   package \pkg{nlme}. For better coverage of confidence intervals and
+#'   slightly improved spline fits it is adviced to use an AR process of order 1
+#'   or 2. However, this correction for auto-correlated error terms results in
 #'   increased run time.
 #' @param save.models Should the models be saved (on the disk) for further
 #'   inspections and plotting?

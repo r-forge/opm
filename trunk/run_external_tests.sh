@@ -209,6 +209,78 @@ change_csv_version()
 ################################################################################
 
 
+# Used for showing the failed files.
+#
+show_files_of()
+{  
+  local files
+  mkdir -p "$1"
+  files=`ls "$1"`
+  if [ "$files" ]; then
+    echo "File(s) within '$1':"
+    local f
+    for f in $files; do
+      echo "$f"
+    done
+  else
+    echo "No files found within '$1'."
+  fi
+}
+
+
+################################################################################
+
+
+# Helper function for comparing JSON files (which is easier after conversion to
+# YAML).
+#
+reyaml()
+{
+  local cmd='for (file in commandArgs(TRUE))'
+  cmd="$cmd  write(yaml::as.yaml(yaml::yaml.load_file(file)), \"\")"
+  Rscript --vanilla -e "$cmd" "$@"
+}
+
+
+################################################################################
+
+
+# Call diff on failed files, giving their directory, the test directory, and
+# the file extension.
+#
+compare_files_of()
+{
+  local failed
+  failed=`find "$1" -type f -name "*.$3"`
+  if [ -z "$failed" ]; then
+    echo "No files with extension '$3' found." >&2
+    return 1
+  fi
+  local failed_file
+  local other_file
+  local tmpfile=`mktemp --tmpdir`
+  for failed_file in $failed; do
+    other_file=$2/${failed_file##*/}
+    echo "$failed_file"
+    case $3 in
+      json )
+        reyaml "$failed_file" > "$tmpfile"
+        reyaml "$other_file" | diff "$tmpfile" - || :
+      ;;
+      * )
+        diff "$failed_file" "$other_file" || :
+      ;;
+    esac
+    echo
+  done
+  rm -f "$tmpfile"
+}
+
+
+################################################################################
+
+
+output_mode=run_tests
 help_msg=
 np=4 # using more cores yielded only little speedup
 run_opm=
@@ -216,9 +288,11 @@ testdir=external_tests
 version=opm_in/DESCRIPTION
 
 OPTIND=1
-while getopts d:hp:s:v: opt; do
+while getopts c:d:fhp:s:v: opt; do
   case $opt in
+    c ) output_mode=compare_failed; extension=$OPTARG;;
     d ) testdir=$OPTARG;;
+    f ) output_mode=show_failed;;
     h ) help_msg=yes;;
     p ) np=$(($OPTARG + 0));;
     s ) run_opm=$OPTARG;;
@@ -237,20 +311,59 @@ if [ "$help_msg" ] || [ $# -gt 0 ]; then
 	package source directories.
 
 	Options:
+	  -c x  Do not run tests; show differences for failed files with extension x.
 	  -d x  Use x as test directory (must contain subdirectory 'tests').
+	  -f    Do not run tests; list all failed files (if any).
 	  -h    Print this message.
-	  -p x  Use x processors (cores).
-	  -s x  Use x as 'run_opm.R' script.
+	  -p x  Use x processors (cores) for running the tests.
+	  -s x  Use x as 'run_opm.R' script for running the tests.
 	  -v x  Insert opm version x (x can also be an R package DESCRIPTION file).
 
 	The default is to read the version to use during the tests from the opm
 	DESCRIPTION file from the opm code directory within the working directory.
-	So if tests fail are but the resulting files show no differences, this means
-	an old opm version was used for testing.
+	So if tests fail but the resulting files show no differences, this usually
+	means an old opm version was used for testing.
 
 __EOF
   exit 1
 fi
+
+
+################################################################################
+
+
+testfile_dir=$testdir/tests
+if ! [ -d "$testfile_dir" ]; then
+  echo "directory '$testfile_dir' does not exist, exiting now" >&2
+  exit 1
+fi
+failedfile_dir=$testdir/failed_files # within $testdir, created if necessary
+mkdir -p "$failedfile_dir"
+
+errfile=$testdir/tests.err
+outfile=$testdir/tests.out
+
+
+################################################################################
+
+
+case $output_mode in
+  compare_failed )
+    compare_files_of "$failedfile_dir" "$testfile_dir" "$extension"
+    exit $?
+  ;;
+  show_failed )
+    show_files_of "$failedfile_dir"
+    exit $?
+  ;;
+  run_tests )
+    :
+  ;;
+  * )
+    echo "unknown \$output_mode '$output_mode'" >&2
+    exit 1
+  ;;
+esac
 
 
 ################################################################################
@@ -266,6 +379,7 @@ else
   exit 1
 fi
 
+
 if [ "$version" ]; then
   [ -s "$version" ] &&
     version=`awk '$1 == "Version:" {print $2; exit}' "$version"`
@@ -274,24 +388,12 @@ else
   exit 1
 fi
 
-testfile_dir=$testdir/tests
-if ! [ -d "$testfile_dir" ]; then
-  echo "directory '$testfile_dir' does not exist, exiting now" >&2
-  exit 1
-fi
-
 
 np=`correct_num_cpus "$np"`
 
 
-failedfile_dir=$testdir/failed_files # within $testdir, created if necessary
-[ -d "$failedfile_dir" ] && rm -rf "$failedfile_dir"/* ||
-  mkdir "$failedfile_dir"
-errfile=$testdir/tests.err
-outfile=$testdir/tests.out
+rm -rf "$failedfile_dir"/*
 rm -f "$errfile" "$outfile"
-
-
 tmpdir=`mktemp --tmpdir -d`
 tmpfile=`mktemp --tmpdir`
 
