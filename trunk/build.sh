@@ -368,6 +368,29 @@ show_example_warnings()
 ################################################################################
 
 
+# Show the timings, if any, in the results from running examples contained in
+# an R package. Assume default output names used by 'R CMD check'.
+#
+show_example_timings()
+{
+  local folder
+  local outfile
+  for folder; do
+    timings=$folder.Rcheck/${folder##*/}-Ex.timings
+    if [ -s "$timings" ]; then
+      echo "# $folder"
+      sort -nk4 "$timings"
+    else
+      echo "No timings for directory '$folder'." >&2
+    fi
+    echo
+  done
+}
+
+
+################################################################################
+
+
 # Show the warnings, if any, in the results from running tests contained in an
 # R package. Assume default output names used by 'R CMD check'.
 #
@@ -502,6 +525,7 @@ case $RUNNING_MODE in
 	  pnorm   Normal build of the pkgutils package.
 	  space   Remove trailing whitespace from R code files.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
+	  time    Show the timings of the last examples, if any, in order.
 
 	A 'full' build includes copying to the local copy of the pkg directory.
 	Other details of the build process depend on the options.
@@ -538,6 +562,10 @@ ____EOF
   ;;
   tags )
     count_roxygen_tags
+    exit $?
+  ;;
+  time )
+    show_example_timings opm opmdata pkgutils
     exit $?
   ;;
   * )
