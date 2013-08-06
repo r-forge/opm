@@ -476,6 +476,20 @@ remove_R_CMD_check_dirs()
 ################################################################################
 
 
+# Run R CMD Stangle on all vignette code files.
+#
+run_Stangle()
+{
+  local indir
+  for indir; do
+    find "$indir" -type f -name '*.Rnw' -exec R CMD Stangle \{\} +
+  done
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -523,6 +537,7 @@ case $RUNNING_MODE in
 	  norm    [DEFAULT] Normal build of the opm package.
 	  pfull   Full build of the pkgutils package.
 	  pnorm   Normal build of the pkgutils package.
+	  rnw     Run R CMD Stangle on the *.Rnw files.
 	  space   Remove trailing whitespace from R code files.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  time    Show the timings of the last examples, if any, in order.
@@ -555,6 +570,10 @@ ____EOF
     PKG_DIR=pkgutils_in
     RUNNING_MODE=${RUNNING_MODE#p}
     CHECK_R_TESTS=
+  ;;
+  rnw )
+    run_Stangle opm_in opmdata_in pkgutils_in
+    exit $?
   ;;
   space )
     remove_trailing_whitespace
