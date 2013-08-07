@@ -38,7 +38,7 @@ stopifnot(inherits(x, "try-error"))
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},
-    \code{\link{flatten}},   \code{\link{listing}},
+    \code{\link{collect}},   \code{\link{flatten}},   \code{\link{listing}},
         }
 \keyword{utilities}
 
