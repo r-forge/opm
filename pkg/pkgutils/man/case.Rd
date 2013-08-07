@@ -52,7 +52,8 @@ stopifnot(inherits(x, "try-error"))
   base::switch
 
   Other coding-functions: \code{\link{L}},
-  \code{\link{LL}}, \code{\link{flatten}},
+  \code{\link{LL}}, \code{\link{collect}},
+  \code{\link{flatten}},
     \code{\link{listing}},
           \code{\link{must}}
 }

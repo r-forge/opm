@@ -9,6 +9,8 @@
 - fixed bug in demo mode of pack_desc() that caused the file names to be
   returned invisibly
 
+- new collect() method for lists
+
 - the default flatten() method now only accepts atomic objects; the list
   method gets a 'use.names' argument
 
@@ -24,6 +26,9 @@
 - the documentation of repair_S4_docu() has been completed
 
 - swap_code() now ignores (does not modify) Roxygen2 comment lines
+
+- 'merge.R' gets an option for joining rows and deals now with duplicated
+  join-column entries in conjunction with -c
 
 2012-04-15 (4th release on CRAN)
 

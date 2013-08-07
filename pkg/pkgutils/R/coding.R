@@ -358,29 +358,108 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 ################################################################################
 
 
-#' Flatten an object
+#' Flatten a list or collect information from it
 #'
 #' Methods for making an object \sQuote{flat}, such as creating a non-nested
-#' list from a list.
+#' list from a list, and methods for collecting information from list-like
+#' objects into a matrix or data frame.
 #'
 #' @param object Usually a list. The default method just returns \code{object}
 #'   if it is atomic but raises an error otherwise.
-#' @inheritParams pack_desc
+#' @param use.names Logical scalar passed to \code{unlist} from the \pkg{base}
+#'   package.
+#' @param x List.
+#' @param what Character scalar indicating how to collect information.
+#'   \describe{
+#'   \item{counts}{For all non-list elements of \code{x}, count their
+#'   occurrences.}
+#'   \item{occurrences}{Like \sQuote{counts}, but only indicate presence or
+#'   absence.}
+#'   \item{values}{Simplify all direct elements of \code{x}, irrespective of
+#'   whether or not they are lists, for including them as rows in a data frame.
+#'   Their names determine the columns. See \code{keep.unnamed} for the action
+#'   in the case of missing names.}
+#'   \item{elements}{Like \sQuote{elements}, but collect only the non-list
+#'   elements of \code{x}, i.e. flatten \code{x} in the first step.}
+#'   \item{datasets}{Convert all elements to data frames or matrices, then merge
+#'   them using rows and column names. In case of conflict, the last ones win.}
+#'   }
+#' @param min.cov Mimimal coverage required in the resulting presence-absence
+#'   matrix. Columns with a fewer number of non-zero entries are removed.
+#' @param keep.unnamed Logical scalar indicating whether names should be
+#'   inserted for elements of \code{x} that miss them. If \code{NA}, they are
+#'   skipped, but with a warning; if \code{FALSE}, they are skipped silently.
+#'   This has only an effect in conjunction with the last three values of
+#'   \code{what}. If \sQuote{datasets} are chosen, it usually has only an
+#'   effect if all elements of \code{x} are atomic.
+#' @param dataframe Logical scalar indicating whether a data frame should be
+#'   produced instead of a matrix
+#' @param optional See \code{as.data.frame} from the \pkg{base} package.
+#' @param stringsAsFactors See \code{as.data.frame} from the \pkg{base} package.
+#' @param ... Optional arguments passed to and from other methods, if requested
+#'   to \code{as.data.frame}.
 #' @export
-#' @return The list method returns a non-nested list.
+#' @return The list method of \code{flatten} returns a non-nested list. The
+#'   \code{collect} methods yield a data frame or a matrix.
 #' @family coding-functions
-#' @details The list method is based on
+#' @details The list method of \code{flatten} is based on
 #'   \url{http://stackoverflow.com/questions/8139677/} with some slight
 #'   improvements.
 #' @seealso base::unlist
 #' @keywords manip
 #' @examples
+#'
+#' ## flatten()
 #' x <- list(a = list(b = 1:5, c = letters[1:5]), d = LETTERS[1:3],
 #'   e = list(pi))
 #' (y <- flatten(x)) # sublists removed, non-list elements kept
 #' stopifnot(is.list(y), length(y) == 4, !sapply(y, is.list))
 #' # atomic objects are not modified by default
 #' stopifnot(identical(letters, flatten(letters)))
+#'
+#' ## collect()
+#' x <- list(X = list(A = 1:3, B = 7L, C = list('c1', 1:3)),
+#'   Y = list(A = 1:3, 11, B = -1L, D = "?"))
+#'
+#' ## collect values into a data frame or matrix
+#' (got <- collect(x, "values", dataframe = TRUE))
+#' stopifnot(LETTERS[1:4] == colnames(got))
+#' stopifnot(names(x) == rownames(got))
+#' stopifnot(is.list(got$A), is.integer(got$B), is.list(got$C),
+#'   is.factor(got$D))
+#' stopifnot(!is.na(got$A), !is.na(got$B), any(is.na(got$C)), any(is.na(got$D)))
+#' # include the unnamed ones
+#' got <- collect(x, "values", dataframe = TRUE, keep.unnamed = TRUE)
+#' stopifnot(dim(got) == c(2, 5))
+#' # simplify to matrix
+#' (got <- collect(x, "values", dataframe = FALSE))
+#' stopifnot(is.matrix(got), mode(got) == "list")
+#'
+#' ## collect elements into a data frame or matrix
+#' (got <- collect(x, "elements", dataframe = TRUE))
+#' stopifnot(dim(got) == c(2, 9), colnames(x) == rownames(got),
+#'   is.data.frame(got))
+#' (got <- collect(x, "elements", dataframe = FALSE))
+#' stopifnot(dim(got) == c(2, 9), colnames(x) == rownames(got),
+#'   !is.data.frame(got))
+#'
+#' ## count or just note occurrences
+#' (got <- collect(x, "counts", dataframe = FALSE))
+#' stopifnot(dim(got) == c(2, 8), rownames(got) == names(x),
+#'   setequal(colnames(got), unlist(x)), any(got > 1))
+#' (got <- collect(x, "occurrences", dataframe = FALSE))
+#' stopifnot(dim(got) == c(2, 8), rownames(got) == names(x),
+#'   setequal(colnames(got), unlist(x)), !any(got > 1))
+#'
+#' ## convert to data frames and insert everything in a single one
+#' (got <- collect(x, "datasets", optional = FALSE, dataframe = TRUE))
+#' stopifnot(dim(got) == c(3, 6), is.data.frame(got))
+#'
+#' ## a more useful application is to merge matrices
+#' m1 <- matrix(1:4, ncol = 2, dimnames = list(c("A", "B"), c("x", "y")))
+#' m2 <- matrix(1:4, ncol = 2, dimnames = list(c("C", "B"), c("x", "z")))
+#' (got <- collect(list(m1, m2), "datasets"))
+#' stopifnot(dim(got) == c(3, 3), any(is.na(got)))
 #'
 flatten <- function(object, ...) UseMethod("flatten")
 
@@ -398,12 +477,189 @@ flatten.default <- function(object, ...) {
 #' @method flatten list
 #' @export
 #'
-flatten.list <- function(object, ...) {
+flatten.list <- function(object, use.names = TRUE, ...) {
   while (any(is.a.list <- vapply(object, is.list, NA))) {
     object[!is.a.list] <- lapply(object[!is.a.list], list)
-    object <- unlist(object, FALSE)
+    object <- unlist(object, FALSE, use.names)
   }
   object
+}
+
+#' @rdname flatten
+#' @export
+#'
+collect <- function(x, what, ...) UseMethod("collect")
+
+#' @rdname flatten
+#' @method collect list
+#' @export
+#'
+collect.list <- function(x,
+    what = c("counts", "occurrences", "values", "elements", "datasets"),
+    min.cov = 1L, keep.unnamed = FALSE, dataframe = FALSE, optional = TRUE,
+    stringsAsFactors = default.stringsAsFactors(), ...) {
+  note_in_matrix <- function(x, count, min.cov, dataframe, optional,
+      stringsAsFactors, ...) {
+    x <- lapply(lapply(x, unlist), as.character)
+    n <- sort.int(unique.default(unlist(x, FALSE, FALSE)))
+    result <- matrix(0L, length(x), length(n), FALSE, list(names(x), n))
+    if (count)
+      for (i in seq_along(x)) {
+        value <- table(x[[i]], useNA = "ifany")
+        result[i, names(value)] <- unclass(value)
+      }
+    else
+      for (i in seq_along(x))
+        result[i, x[[i]]] <- 1L
+    if (min.cov > 0L)
+      result <- result[, colSums(result) >= min.cov, drop = FALSE]
+    if (dataframe)
+      as.data.frame(x = result, optional = optional,
+        stringsAsFactors = stringsAsFactors, ...)
+    else
+      result
+  }
+  finalize_data <- function(x, dataframe, stringsAsFactors, optional) {
+    if (dataframe && stringsAsFactors)
+      for (i in which(vapply(x, is.character, NA)))
+        x[, i] <- as.factor(x[, i])
+    if (!optional)
+      names(x) <- make.names(names(x))
+    if (dataframe)
+      x
+    else
+      as.matrix(x)
+  }
+  insert_into_matrix <- function(x, flat, keep.unnamed, dataframe, optional,
+      stringsAsFactors, verbose, ...) {
+    oneify <- function(x) {
+      if (is.atomic(x))
+        return(x)
+      size <- vapply(x, length, 0L)
+      x[!size] <- NA
+      x[size > 1L] <- lapply(x[size > 1L], list)
+      x
+    }
+    keep_validly_named_only <- function(x) {
+      if (is.null(names(x)))
+        NULL
+      else
+        x[nzchar(names(x))]
+    }
+    keep_validly_named_only_but_complain <- function(x) {
+      if (is.null(names(x))) {
+        warning("removing unnamed vector")
+        NULL
+      } else if (!all(ok <- nzchar(names(x)))) {
+        warning("removing elements with empty names")
+        x[ok]
+      } else
+        x
+    }
+    enforce_names <- function(x) {
+      names(x) <- if (is.null(n <- names(x)))
+        seq_along(x)
+      else
+        ifelse(nzchar(n), n, seq_along(x))
+      x
+    }
+    if (flat)
+      x <- lapply(x, unlist)
+    else
+      x <- lapply(x, oneify)
+    if (keep.unnamed)
+      x <- lapply(x, enforce_names)
+    else if (verbose)
+      x <- lapply(x, keep_validly_named_only_but_complain)
+    else
+      x <- lapply(x, keep_validly_named_only)
+    n <- unique.default(unlist(lapply(x, names), FALSE))
+    result <- matrix(NA, length(x), length(n), FALSE, list(names(x), n))
+    result <- as.data.frame(x = result, stringsAsFactors = FALSE,
+      optional = TRUE, ...)
+    for (i in seq_along(x))
+      result[i, names(x[[i]])] <- x[[i]]
+    finalize_data(result, dataframe, stringsAsFactors, optional)
+  }
+  collect_matrices <- function(x, keep.unnamed, dataframe, optional,
+      stringsAsFactors, verbose, ...) {
+    keep_validly_named_only <- function(x) {
+      if (is.null(colnames(x)) || is.null(rownames(x)))
+        NULL
+      else
+        x[nzchar(rownames(x)), nzchar(colnames(x))]
+    }
+    keep_validly_named_only_but_complain <- function(x) {
+      if (is.null(colnames(x)) || is.null(rownames(x))) {
+        warning("removing unnamed matrix or data frame")
+        NULL
+      } else {
+        row.ok <- nzchar(rownames(x))
+        col.ok <- nzchar(colnames(x))
+        if (!all(row.ok) || !all(col.ok)) {
+          warning("removing rows and/or columns with empty names")
+          x[row.ok, col.ok]
+        } else
+          x
+      }
+    }
+    enforce_names <- function(x) {
+      rownames(x) <- if (is.null(n <- rownames(x)))
+        seq.int(nrow(x))
+      else
+        ifelse(nzchar(n), n, seq.int(nrow(x)))
+      colnames(x) <- if (is.null(n <- colnames(x)))
+        seq.int(ncol(x))
+      else
+        ifelse(nzchar(n), n, seq.int(ncol(x)))
+      x
+    }
+    if (all.atomic <- all(vapply(x, is.atomic, NA))) {
+      x <- lapply(x, as.matrix)
+      if (keep.unnamed)
+        x <- lapply(x, enforce_names)
+      else if (verbose)
+        x <- lapply(x, keep_validly_named_only_but_complain)
+      else
+        x <- lapply(x, keep_validly_named_only)
+    } else
+      x <- lapply(x, data.frame, stringsAsFactors = FALSE,
+        check.names = !optional)
+    rn <- sort.int(unique.default(unlist(lapply(x, rownames))))
+    cn <- sort.int(unique.default(unlist(lapply(x, colnames))))
+    result <- matrix(NA, length(rn), length(cn), FALSE, list(rn, cn))
+    if (!all.atomic)
+      result <- as.data.frame(result, stringsAsFactors = FALSE,
+        optional = optional)
+    for (mat in x)
+      result[rownames(mat), colnames(mat)] <- mat
+    if (dataframe) {
+      if (all.atomic)
+        result <- as.data.frame(result)
+      if (stringsAsFactors)
+        for (i in which(vapply(result, is.character, NA)))
+          result[, i] <- as.factor(result[, i])
+    } else if (!all.atomic)
+      result <- as.matrix(result)
+    if (!optional)
+      colnames(result) <- make.names(colnames(result))
+    result
+  }
+  LL(min.cov, dataframe, optional, stringsAsFactors, keep.unnamed)
+  if (verbose <- is.na(keep.unnamed))
+    keep.unnamed <- FALSE
+  case(match.arg(what),
+    counts = note_in_matrix(x, TRUE, min.cov, dataframe, optional,
+      stringsAsFactors, ...),
+    occurrences = note_in_matrix(x, FALSE, min.cov, dataframe, optional,
+      stringsAsFactors, ...),
+    elements = insert_into_matrix(x, TRUE, keep.unnamed, dataframe, optional,
+      stringsAsFactors, verbose, ...),
+    values = insert_into_matrix(x, FALSE, keep.unnamed, dataframe, optional,
+      stringsAsFactors, verbose, ...),
+    datasets = collect_matrices(x, keep.unnamed, dataframe, optional,
+      stringsAsFactors, verbose, ...)
+  )
 }
 
 

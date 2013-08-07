@@ -105,7 +105,7 @@ option.parser <- OptionParser(option_list = list(
     metavar = "NAME", default = ""),
 
   make_option(c("-j", "--join-by"), type = "character",
-    help = "Join character(s) for vertical merging mode [default: '%default']",
+    help = "Join character(s) for -r/-v [default: '%default']",
     metavar = "SEP", default = "; "),
 
   make_option(c("-k", "--keep"), action = "store_true",
@@ -123,6 +123,10 @@ option.parser <- OptionParser(option_list = list(
   make_option(c("-s", "--separator"), type = "character",
     help = "Field separator in CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
+
+  make_option(c("-r", "--rows"), action = "store_true",
+    help = "Merge each row horizontally, file by file [default: %default]",
+    default = FALSE),
 
   make_option(c("-u", "--unquoted"), action = "store_true",
     help = "Do not quote fields in output [default: %default]",
@@ -175,9 +179,26 @@ if (opt$bald) {
 #
 
 
-if (opt$help || (length(files) + opt$vertical) < 2L) {
+if (opt$help || (length(files) + (opt$vertical || opt$rows)) < 2L) {
   print_help(option.parser)
   quit(status = 1L)
+}
+
+
+################################################################################
+#
+# horizontal merging of rows
+#
+
+
+if (opt$rows) {
+  for (file in files) {
+    x <- do_read(file, opt)
+    x <- apply(x, 1L,
+      function(x) listing(x[nzchar(x)], style = "%s: %s", collapse = opt$join))
+    do_write(x, opt)
+  }
+  quit(status = 0L)
 }
 
 
@@ -212,10 +233,11 @@ for (i in seq_along(data)[-1L])
     all.x = !opt$delete, all.y = opt$all, sort = !opt$conserve)
 
 if (opt$conserve) {
-  previous <- data[[1L]][, opt$xcolumn]
-  if (setequal(previous, x[, opt$xcolumn])) {
-    rownames(x) <- x[, opt$xcolumn]
-    x <- x[as.character(previous), , drop = FALSE]
+  found <- match(previous <- data[[1L]][, opt$xcolumn], x[, opt$xcolumn], 0L)
+  if (all(found > 0L) && all(x[, opt$xcolumn] %in% previous)) {
+    # appending the row index avoids duplicate row names
+    rownames(x) <- paste(x[, opt$xcolumn], seq.int(nrow(x)))
+    x <- x[paste(previous, found), , drop = FALSE]
     rownames(x) <- NULL
   }
 }

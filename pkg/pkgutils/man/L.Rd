@@ -52,7 +52,7 @@ stopifnot(x == c("letters", "LETTERS"))
   base::stop
 
   Other coding-functions: \code{\link{case}},
-    \code{\link{flatten}},   \code{\link{listing}},
+    \code{\link{collect}},   \code{\link{flatten}},   \code{\link{listing}},
           \code{\link{must}}
 }
 \keyword{utilities}
