@@ -124,7 +124,6 @@
 }
 \examples{
 # 'Rd' objects
-data(xyplot.docu)
 summary(x <- repair_docu(xyplot.docu))
 stopifnot(identical(x, xyplot.docu)) # nothing to repair here
 (x <- check_keywords(xyplot.docu))

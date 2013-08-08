@@ -490,6 +490,38 @@ run_Stangle()
 ################################################################################
 
 
+# Extract R code within the examples of the given files.
+#
+extract_examples()
+{
+  local infile
+  local package
+  for infile; do
+    package=${infile%/man/*}
+    package=${package##*/}
+    [ "${package#*.}" = Rd ] && package=
+    R CMD Rdconv --type=txt "$infile" |
+      awk -v examples=0 -v package="$package" '
+        $0 == "_\bE_\bx_\ba_\bm_\bp_\bl_\be_\bs:" {
+          examples = 1
+          if (package) {
+            printf "## guessed from the filename\n"
+            printf "library(%s)\n", package
+          }
+          next
+        }
+        examples {
+          sub(/^     /, "")
+          print
+        }
+      ' -
+  done
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -500,6 +532,8 @@ if [ $# -gt 0 ] && [ "${1%%-*}" ]; then
 else
   RUNNING_MODE=norm
 fi
+
+remind_of_external_tests=
 
 case $RUNNING_MODE in
   dfull|dnorm )
@@ -514,9 +548,14 @@ case $RUNNING_MODE in
     remove_R_CMD_check_dirs
     exit $?
   ;;
+  example )
+    extract_examples "$@"
+    exit $?
+  ;;
   full|norm )
     PKG_DIR=opm_in
     CHECK_R_TESTS=yes
+    remind_of_external_tests=yes
   ;;
   help )
     cat >&2 <<-____EOF
@@ -532,6 +571,7 @@ case $RUNNING_MODE in
 	  dnorm   Normal build of the opmdata package.
 	  docu    Check whether the 'docu.R' script can be found, then exit.
 	  erase   Remove directories left over by R CMD check.
+	  example Extract R code from the examples within specified files.
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  norm    [DEFAULT] Normal build of the opm package.
@@ -681,10 +721,14 @@ for file in "$OUT_DIR"_*.tar.gz; do
 done
 
 
-echo "NOTE: please do not forget to run the external tests, too." >&2
-echo "Any problems within them should be fixed before submission." >&2
-echo "(Small deviations in plotting mode might be OK.)" >&2
-echo >&2
+if [ "$remind_of_external_tests" ]; then
+  echo "NOTE: please do not forget to run the external tests, too." >&2
+  echo "Any problems within them should be fixed before submission." >&2
+  echo "(Small deviations in plotting mode might be OK.)" >&2
+  echo >&2
+fi
 
 
 ################################################################################
+
+
