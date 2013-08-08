@@ -498,6 +498,8 @@ collect.list <- function(x,
     what = c("counts", "occurrences", "values", "elements", "datasets"),
     min.cov = 1L, keep.unnamed = FALSE, dataframe = FALSE, optional = TRUE,
     stringsAsFactors = default.stringsAsFactors(), ...) {
+
+  # collecting 'counts' or 'occurrences'
   note_in_matrix <- function(x, count, min.cov, dataframe, optional,
       stringsAsFactors, ...) {
     x <- lapply(lapply(x, unlist), as.character)
@@ -519,17 +521,8 @@ collect.list <- function(x,
     else
       result
   }
-  finalize_data <- function(x, dataframe, stringsAsFactors, optional) {
-    if (dataframe && stringsAsFactors)
-      for (i in which(vapply(x, is.character, NA)))
-        x[, i] <- as.factor(x[, i])
-    if (!optional)
-      names(x) <- make.names(names(x))
-    if (dataframe)
-      x
-    else
-      as.matrix(x)
-  }
+
+  # collecting 'values' or 'elements'
   insert_into_matrix <- function(x, flat, keep.unnamed, dataframe, optional,
       stringsAsFactors, verbose, ...) {
     oneify <- function(x) {
@@ -579,15 +572,25 @@ collect.list <- function(x,
       optional = TRUE, ...)
     for (i in seq_along(x))
       result[i, names(x[[i]])] <- x[[i]]
-    finalize_data(result, dataframe, stringsAsFactors, optional)
+    if (dataframe && stringsAsFactors)
+      for (i in which(vapply(result, is.character, NA)))
+        result[, i] <- as.factor(result[, i])
+    if (!optional)
+      names(result) <- make.names(names(result))
+    if (dataframe)
+      result
+    else
+      as.matrix(result)
   }
+
+  # collecting 'datasets'
   collect_matrices <- function(x, keep.unnamed, dataframe, optional,
       stringsAsFactors, verbose, ...) {
     keep_validly_named_only <- function(x) {
       if (is.null(colnames(x)) || is.null(rownames(x)))
         NULL
       else
-        x[nzchar(rownames(x)), nzchar(colnames(x))]
+        x[nzchar(rownames(x)), nzchar(colnames(x)), drop = FALSE]
     }
     keep_validly_named_only_but_complain <- function(x) {
       if (is.null(colnames(x)) || is.null(rownames(x))) {
@@ -598,7 +601,7 @@ collect.list <- function(x,
         col.ok <- nzchar(colnames(x))
         if (!all(row.ok) || !all(col.ok)) {
           warning("removing rows and/or columns with empty names")
-          x[row.ok, col.ok]
+          x[row.ok, col.ok, drop = FALSE]
         } else
           x
       }
@@ -645,6 +648,7 @@ collect.list <- function(x,
       colnames(result) <- make.names(colnames(result))
     result
   }
+
   LL(min.cov, dataframe, optional, stringsAsFactors, keep.unnamed)
   if (verbose <- is.na(keep.unnamed))
     keep.unnamed <- FALSE
