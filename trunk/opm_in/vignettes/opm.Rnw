@@ -103,7 +103,6 @@ This the tutorial of \pkg{opm} in the version of \today{}.
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
