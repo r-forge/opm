@@ -12,6 +12,7 @@
   instead
 - glob_to_regex() is now an S3 generic function
 
+- new generic function annotated() with a variety of methods and options
 - substrate_info() gets a 'download' argument
 - new spline-fitting facilities (see set_spline_options())
 - new plate_type() method
