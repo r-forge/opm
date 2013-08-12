@@ -103,7 +103,6 @@ This is the tutorial of \pkg{opm} in the version of \today{}.
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 % NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
 % So please don't try to rescue that line, and don't rely on it being there.
@@ -1478,7 +1477,8 @@ This type of comparison is termed "Tukey"-type contrasts (all-against-all) becau
 The necessary data subset can be taken from the first biological replicate included in \code{vaas\_et\_al}:
 
 <<label=data-vaas-subset, results=hide>>=
-vaas.G06 <- subset(vaas_et_al[, , "G06"], list(Experiment = "First replicate"))
+vaas.G06 <- subset(vaas_et_al[, , "G06"],
+  list(Experiment = "First replicate"))
 @
 
 The resulting dataset of four strains, each represented by the ten replicates, is shown in Figure~\ref{fig:xy_plot_mcp}. 
@@ -1536,16 +1536,16 @@ Per default \code{opm_opt("contrast.type")} would be inserted, if names were mis
 Note that the structure of the arguments set by \code{model} and by \code{linfct} may become more complex if several metadata entries are involved in the testing.
 The user might therefore wish to recheck the way how \code{model} and by \code{linfct} will actually perform during the execution of the statistical test.
 
-The correct usage of the argument \code{model} can be controlled by:
+The correct usage of the argument \code{model} can be checked by outputting just the converted argument:
 
-<<label=plot-opm-mcp-linfct-dummy>>=
+<<label=opm-mcp-output-model>>=
 opm_mcp(vaas.G06, model = ~ Strain, m.type = "aov",
   linfct = c(Tukey = 1), output = "model")
 @
 
-The correct usage of the argument \code{linfct} can be controlled by:
+Similarly, the correct usage of the argument \code{linfct} can be checked as follows:
 
-<<label=opm.mcp.linfct>>=
+<<label=opm-mcp-output-linfct>>=
 opm_mcp(vaas.G06, model = ~ Strain, m.type = "aov",
   linfct = c(Tukey = 1), output = "linfct")
 @
@@ -1638,38 +1638,32 @@ A summary of the resulting data frame, with well A03 chosen to be the reference 
 
 <<label=summary-opm-mcp-Dunnett>>=
 summary(opm_mcp(vaas.e.coli[, , 1:10], output = "data", model = ~ Well,
-  linfct = c(`Dunnett_A03` = 1), full = FALSE))
+  linfct = c(Dunnett_A03 = 1), full = FALSE))
 @
 
+The object resulting from the test is of class \code{glht} and can be plotted as usual using \code{plot()}.
+Its summary is shown below.
 
-<<label=vaas-e-coli-mcp-Dunnett-special, results=hide>>=
+
+<<label=vaas-e-coli-mcp-Dunnett-special>>=
 mcp.A03 <- opm_mcp(vaas.e.coli[, , 1:10], output = "mcp", model = ~ Well,
-             linfct = c(`Dunnett_A03` = 1), full = FALSE)
-@
-
-The resulting object is of class \code{glht} and can be plotted as usual using \code{plot()}.
-Below is the summary (the output of the code is suppressed, but see the example above):
-
-<<label=vaas-e-coli-mcp-Dunnett-special-summary, echo=FALSE>>=
-options(width=200)
+  linfct = c(Dunnett_A03 = 1), full = FALSE)
 mcp.summary <- summary(mcp.A03)
 mcp.summary$model$call <- NULL # avoid some unnecessary output
 mcp.summary
 @
 
 
-
 \subsubsection[Pairs-type comparison of specific wells]{Pairs-type comparison of groups: pairwise comparisons as defined by specific combinations of metadata entries}\label{specific-well-Pairs}
 
 
 This paragraph describes a more specific and hence complex design of the group structure by making a more distinct use of the stored metadata and its potential combinations. 
-Assume data from two species, \emph{P. aeruginosa} and \emph{E. coli}, with each two plates (data set \code{vaas_4}). 
-The data from wells A01, A02, A03, and H02 have been chosen, see below. 
+Assume data from two species, \emph{P. aeruginosa} and \emph{E. coli} (data set \code{vaas_4}), each with two plates restricted to the wells A01, A02, A03, and H02. 
 
-<<label=opm-mcp-show-data-dummy, eval=FALSE>>=
-opm_mcp(vaas_4[, ,c( 1:3, 86)], model = ~ Species, m.type = "aov",
-        linfct = c(Tukey = 1), output = "data", full = FALSE)
-@
+%<<label=opm-mcp-show-data-dummy, eval=FALSE>>=
+%opm_mcp(vaas_4[, ,c( 1:3, 86)], model = ~ Species, m.type = "aov",
+%  linfct = c(Tukey = 1), output = "data", full = FALSE)
+%@
 
 
 A combination of two species $\times$ four well types would yield eight different groups, which are each represented by two plates.
