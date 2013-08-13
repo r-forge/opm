@@ -589,17 +589,18 @@ setMethod("annotated", "glht", function(object, what = "kegg", how = "ids",
       s <- rep.int(NA_character_, length(x))
     substrate_info(s, what)
   }
-  different <- function(x, cutoff, how) {
+  create_vector <- function(x, how, cutoff) {
+    if (!is.matrix(x))
+      stop("expected matrix, got ", class(x))
     structure(case(how,
+      numeric = x[, "Estimate"],
       different = ifelse(x[, "lwr"] > cutoff, 1L,
         ifelse(x[, "upr"] < cutoff, -1L, 0L)),
       equal = as.integer(cutoff > x[, "lwr"] & cutoff < x[, "upr"]),
       larger = as.integer(x[, "lwr"] > cutoff),
       smaller = as.integer(x[, "upr"] < cutoff)
-    ), names = rownames(x), test = how, cutoff = cutoff)
+    ), names = rownames(x), how = how, cutoff = cutoff)
   }
-  coef_to_ids <- function(x, what, plate)
-    structure(x, names = coef_names_to_ids(names(x), what, plate))
   if (is.numeric(L(output))) {
     cutoff <- output
     output <- "different"
@@ -611,8 +612,7 @@ setMethod("annotated", "glht", function(object, what = "kegg", how = "ids",
     output <- tolower(output)
     cutoff <- get("threshold", OPM_OPTIONS)
   }
-  result <- switch(output, numeric = coef(object),
-    different(confint(object)$confint, cutoff, output))
+  result <- create_vector(confint(object)$confint, output, cutoff)
   names(result) <- names_to_ids(names(result), what,
     attr(object, opm_string())$plate.type)
   case(how, ids = result, values = stop(NOT_YET))
