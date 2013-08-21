@@ -127,7 +127,7 @@ L <- function(x, .wanted = 1L, .msg = "need object '%s' of length %i",
     .domain = NULL) {
   if (identical(length(x), .wanted))
     return(x)
-  stop(sprintf(.msg, as.character(match.call()[2L]), .wanted), call. = FALSE,
+  stop(sprintf(.msg, deparse(match.call()$x), .wanted), call. = FALSE,
     domain = .domain)
 }
 
@@ -190,8 +190,10 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #'   Note that names and values of \code{x} are exchanged beforehand if
 #'   \code{style} is run through \code{I} from the \pkg{base} package.
 #' @param collapse Character scalar used to join the resulting vector elements.
-#'   It is by default also applied jor joining \code{header} and \code{footer}
+#'   It is by default also applied for joining \code{header} and \code{footer}
 #'   footer with them (if provided). This can be turned off using hf.collapse.
+#'   By default this is an empty string for \sQuote{sentence} style, the newline
+#'   character otherwise.
 #' @param force.numbers Logical scalar. Always use numbers instead of the
 #'   \sQuote{names} attribute?
 #' @param last.sep Character scalar indicating what should be used as last
@@ -289,8 +291,8 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
       ""
     else
       "\n", force.numbers = FALSE,
-    last.sep = c("and", "both", "comma", "or", "two"),
-    hf.collapse = collapse, ...) {
+    last.sep = c("and", "both", "comma", "or", "two"), hf.collapse = collapse,
+    ...) {
 
   spaces <- function(x) {
     if (is.character(x))
@@ -334,18 +336,64 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     sprintf("define(%s, %s)dnl", do_quote(y, TRUE), do_quote(x, single))
   }
 
+  escape_sql <- function(x, single) {
+    isna <- is.na(x)
+    x <- if (is.na(single))
+        if (is.null(names(x)))
+          escape_sql(x, TRUE)
+        else
+          structure(escape_sql(x, TRUE), names = escape_sql(names(x), FALSE))
+      else if (single)
+        sprintf("'%s'", gsub("'", "''", x, FALSE, FALSE, TRUE))
+      else
+        sprintf('"%s"', gsub('"', '""', x, FALSE, FALSE, TRUE))
+    x[isna] <- "NULL"
+    x
+  }
+
+  sql_for_insert <- function(x, tablename) {
+    tablename <- escape_sql(L(tablename), FALSE)
+    x <- escape_sql(x, NA)
+    if (is.null(names(x)))
+      sprintf("INSERT INTO %s VALUES (%s);", tablename,
+        paste0(x, collapse = ", "))
+    else
+      sprintf("INSERT INTO %s (%s) VALUES (%s);", tablename,
+        paste0(names(x), collapse = ", "), paste0(x, collapse = ", "))
+  }
+
+  sql_for_update <- function(x, tablename, id) {
+    tablename <- escape_sql(L(tablename), FALSE)
+    x <- escape_sql(x, NA)
+    if (!length(id))
+      id <- 1L
+    if (is.numeric(id)) {
+      id <- structure(x[[pos <- id]], names = names(x)[[id]])
+      x <- x[-pos]
+    } else if (is.character(id) && length(id) == 1L) {
+      if (is.null(names(id)))
+        names(id) <- "id"
+      id <- escape_sql(id, NA)
+    } else
+      stop("non_empty ID column indicator must be numeric or character scalar")
+    x <- paste0(sprintf("%s = %s", names(x), x), collapse = ", ")
+    sprintf("UPDATE %s SET %s WHERE %s = %s;", tablename, x, names(id), id)
+  }
+
   LL(style, collapse, force.numbers, prepend)
-  if (is.null(names(x)) || force.numbers)
+  if ((is.null(names(x)) && style != "insert") || force.numbers)
     names(x) <- seq_along(x)
   if (inherits(style, "AsIs"))
     x <- structure(names(x), names = x)
-  x <- switch(style,
+  switch(style,
     table =,
-    list = do_prepend(formatDL(x = x, style = style, ...), prepend),
-    sentence = sentence(x, match.arg(last.sep), prepend),
-    m4 = to_m4(x, FALSE),
-    M4 = to_m4(x, TRUE),
-    do_prepend(sprintf(style, names(x), x), prepend)
+    list = x <- do_prepend(formatDL(x = x, style = style, ...), prepend),
+    sentence = x <- sentence(x, match.arg(last.sep), prepend),
+    m4 = x <- to_m4(x, FALSE),
+    M4 = x <- to_m4(x, TRUE),
+    insert = return(sql_for_insert(x, header)),
+    update = return(sql_for_update(x, header, footer)),
+    x <- do_prepend(sprintf(style, names(x), x), prepend)
   )
   if (identical(collapse, hf.collapse))
     paste(c(header, x, footer), collapse = collapse)
@@ -382,10 +430,13 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #'   \item{elements}{Like \sQuote{elements}, but collect only the non-list
 #'   elements of \code{x}, i.e. flatten \code{x} in the first step.}
 #'   \item{datasets}{Convert all elements to data frames or matrices, then merge
-#'   them using rows and column names. In case of conflict, the last ones win.}
+#'   them using rows and column names. In case of conflict, the last ones win.
+#'   Here, the behaviour of other arguments is special if all elements of
+#'   \code{x} are atomic. See below.}
 #'   }
-#' @param min.cov Mimimal coverage required in the resulting presence-absence
-#'   matrix. Columns with a fewer number of non-zero entries are removed.
+#' @param min.cov Numeric scalar indicating the mimimal coverage required in the
+#'   resulting presence-absence matrix. Columns with a fewer number of non-zero
+#'   entries are removed.
 #' @param keep.unnamed Logical scalar indicating whether names should be
 #'   inserted for elements of \code{x} that miss them. If \code{NA}, they are
 #'   skipped, but with a warning; if \code{FALSE}, they are skipped silently.
@@ -396,8 +447,8 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #'   produced instead of a matrix
 #' @param optional See \code{as.data.frame} from the \pkg{base} package.
 #' @param stringsAsFactors See \code{as.data.frame} from the \pkg{base} package.
-#' @param ... Optional arguments passed to and from other methods, if requested
-#'   to \code{as.data.frame}.
+#' @param ... Optional arguments passed to and from other methods (if requested
+#'   to \code{as.data.frame}).
 #' @export
 #' @return The list method of \code{flatten} returns a non-nested list. The
 #'   \code{collect} methods yield a data frame or a matrix.
@@ -405,7 +456,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #' @details The list method of \code{flatten} is based on
 #'   \url{http://stackoverflow.com/questions/8139677/} with some slight
 #'   improvements.
-#' @seealso base::unlist
+#' @seealso base::unlist base::as.data.frame
 #' @keywords manip
 #' @examples
 #'
@@ -459,6 +510,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #' m1 <- matrix(1:4, ncol = 2, dimnames = list(c("A", "B"), c("x", "y")))
 #' m2 <- matrix(1:4, ncol = 2, dimnames = list(c("C", "B"), c("x", "z")))
 #' (got <- collect(list(m1, m2), "datasets"))
+#' # values missing in some matrix yield NA
 #' stopifnot(dim(got) == c(3, 3), any(is.na(got)))
 #'
 flatten <- function(object, ...) UseMethod("flatten")
@@ -551,9 +603,9 @@ collect.list <- function(x,
     }
     enforce_names <- function(x) {
       names(x) <- if (is.null(n <- names(x)))
-        seq_along(x)
-      else
-        ifelse(nzchar(n), n, seq_along(x))
+          seq_along(x)
+        else
+          ifelse(nzchar(n), n, seq_along(x))
       x
     }
     if (flat)
@@ -608,13 +660,13 @@ collect.list <- function(x,
     }
     enforce_names <- function(x) {
       rownames(x) <- if (is.null(n <- rownames(x)))
-        seq.int(nrow(x))
-      else
-        ifelse(nzchar(n), n, seq.int(nrow(x)))
+          seq.int(nrow(x))
+        else
+          ifelse(nzchar(n), n, seq.int(nrow(x)))
       colnames(x) <- if (is.null(n <- colnames(x)))
-        seq.int(ncol(x))
-      else
-        ifelse(nzchar(n), n, seq.int(ncol(x)))
+          seq.int(ncol(x))
+        else
+          ifelse(nzchar(n), n, seq.int(ncol(x)))
       x
     }
     if (all.atomic <- all(vapply(x, is.atomic, NA))) {

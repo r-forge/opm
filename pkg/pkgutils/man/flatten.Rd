@@ -44,11 +44,14 @@
   flatten \code{x} in the first step.}
   \item{datasets}{Convert all elements to data frames or
   matrices, then merge them using rows and column names. In
-  case of conflict, the last ones win.} }}
+  case of conflict, the last ones win.  Here, the behaviour
+  of other arguments is special if all elements of \code{x}
+  are atomic. See below.} }}
 
-  \item{min.cov}{Mimimal coverage required in the resulting
-  presence-absence matrix. Columns with a fewer number of
-  non-zero entries are removed.}
+  \item{min.cov}{Numeric scalar indicating the mimimal
+  coverage required in the resulting presence-absence
+  matrix. Columns with a fewer number of non-zero entries
+  are removed.}
 
   \item{keep.unnamed}{Logical scalar indicating whether
   names should be inserted for elements of \code{x} that
@@ -69,7 +72,7 @@
   \pkg{base} package.}
 
   \item{...}{Optional arguments passed to and from other
-  methods, if requested to \code{as.data.frame}.}
+  methods (if requested to \code{as.data.frame}).}
 }
 \value{
   The list method of \code{flatten} returns a non-nested
@@ -138,10 +141,11 @@ stopifnot(dim(got) == c(3, 6), is.data.frame(got))
 m1 <- matrix(1:4, ncol = 2, dimnames = list(c("A", "B"), c("x", "y")))
 m2 <- matrix(1:4, ncol = 2, dimnames = list(c("C", "B"), c("x", "z")))
 (got <- collect(list(m1, m2), "datasets"))
+# values missing in some matrix yield NA
 stopifnot(dim(got) == c(3, 3), any(is.na(got)))
 }
 \seealso{
-  base::unlist
+  base::unlist base::as.data.frame
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},

@@ -74,9 +74,11 @@
 
   \item{collapse}{Character scalar used to join the
   resulting vector elements.  It is by default also applied
-  jor joining \code{header} and \code{footer} footer with
+  for joining \code{header} and \code{footer} footer with
   them (if provided). This can be turned off using
-  hf.collapse.}
+  hf.collapse.  By default this is an empty string for
+  \sQuote{sentence} style, the newline character
+  otherwise.}
 
   \item{force.numbers}{Logical scalar. Always use numbers
   instead of the \sQuote{names} attribute?}
