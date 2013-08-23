@@ -336,17 +336,20 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     sprintf("define(%s, %s)dnl", do_quote(y, TRUE), do_quote(x, single))
   }
 
-  escape_sql <- function(x, single) {
+  escape_sql <- function(x, single, level = 0L) {
     isna <- is.na(x)
-    x <- if (is.na(single))
-        if (is.null(names(x)))
-          escape_sql(x, TRUE)
-        else
-          structure(escape_sql(x, TRUE), names = escape_sql(names(x), FALSE))
-      else if (single)
-        sprintf("'%s'", gsub("'", "''", x, FALSE, FALSE, TRUE))
+    if (is.na(single)) {
+      if (is.null(names(x)))
+        x <- escape_sql(x, TRUE, level)
       else
-        sprintf('"%s"', gsub('"', '""', x, FALSE, FALSE, TRUE))
+        x <- structure(escape_sql(x, TRUE, level),
+          names = escape_sql(names(x), FALSE, level))
+    } else if (single) {
+      case(level, NULL, NULL, x <- gsub("\\W", "_", x, FALSE, TRUE),
+        x <- gsub("\\W+", "%", x, FALSE, TRUE))
+      x <- sprintf("'%s'", gsub("'", "''", x, FALSE, FALSE, TRUE))
+    } else
+      x <- sprintf('"%s"', gsub('"', '""', x, FALSE, FALSE, TRUE))
     x[isna] <- "NULL"
     x
   }
@@ -360,6 +363,18 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     else
       sprintf("INSERT INTO %s (%s) VALUES (%s);", tablename,
         paste0(names(x), collapse = ", "), paste0(x, collapse = ", "))
+  }
+
+  sql_for_select <- function(x, level, tablename, column) {
+    case(level, op <- "=", op <- "ILIKE")
+    tablename <- escape_sql(L(tablename), FALSE)
+    if (length(column))
+      names(x) <- rep_len(column, length(x))
+    else if (is.null(names(x)))
+      stop("need either named vector 'x' or explicitly provided column name")
+    x <- escape_sql(x, NA, level)
+    x <- paste0(sprintf("%s %s %s", names(x), op, x), collapse = " OR ")
+    sprintf("SELECT * FROM %s WHERE %s;", tablename, x)
   }
 
   sql_for_update <- function(x, tablename, id) {
@@ -392,6 +407,12 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     m4 = x <- to_m4(x, FALSE),
     M4 = x <- to_m4(x, TRUE),
     insert = return(sql_for_insert(x, header)),
+    select = return(sql_for_select(x, 0L, header, footer)),
+    select0 =,
+    select1 =,
+    select2 =,
+    select3 = return(sql_for_select(x, as.integer(substring(style, 7L, 7L)),
+      header, footer)),
     update = return(sql_for_update(x, header, footer)),
     x <- do_prepend(sprintf(style, names(x), x), prepend)
   )
@@ -659,14 +680,12 @@ collect.list <- function(x,
       }
     }
     enforce_names <- function(x) {
-      rownames(x) <- if (is.null(n <- rownames(x)))
-          seq.int(nrow(x))
+      enforce <- function(x, n) if (is.null(x))
+          seq_len(n)
         else
-          ifelse(nzchar(n), n, seq.int(nrow(x)))
-      colnames(x) <- if (is.null(n <- colnames(x)))
-          seq.int(ncol(x))
-        else
-          ifelse(nzchar(n), n, seq.int(ncol(x)))
+          ifelse(nzchar(x), x, seq_len(n))
+      rownames(x) <- enforce(rownames(x), nrow(x))
+      colnames(x) <- enforce(colnames(x), ncol(x))
       x
     }
     if (all.atomic <- all(vapply(x, is.atomic, NA))) {
