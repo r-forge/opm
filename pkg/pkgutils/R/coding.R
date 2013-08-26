@@ -317,8 +317,8 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     case(n <- length(x),
       stop("empty 'x' argument in 'sentence' mode"),
       x,
-      paste(x, collapse = get_last_sep(last)),
-      paste(paste(x[-n], collapse = ", "), x[n], sep = get_last_sep(last))
+      paste0(x, collapse = get_last_sep(last)),
+      paste(paste0(x[-n], collapse = ", "), x[n], sep = get_last_sep(last))
     )
   }
 
@@ -417,9 +417,9 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     x <- do_prepend(sprintf(style, names(x), x), prepend)
   )
   if (identical(collapse, hf.collapse))
-    paste(c(header, x, footer), collapse = collapse)
+    paste0(c(header, x, footer), collapse = collapse)
   else
-    paste(c(header, paste(x, collapse = collapse), footer),
+    paste0(c(header, paste0(x, collapse = collapse), footer),
       collapse = L(hf.collapse))
 }
 
