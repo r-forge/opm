@@ -67,7 +67,7 @@ run_ruby.numeric <- function(x, args = "-w", ruby = "ruby", ...) {
 run_ruby.character <- function(x, args = "-w", ruby = "ruby", ...) {
   if (!nzchar(ruby <- run_ruby(x = NULL, ruby = ruby)))
     stop(sprintf("cannot find executable '%s'", ruby))
-  command <- paste(c(ruby, setdiff(args, "--"), "--", x), collapse = " ")
+  command <- paste0(c(ruby, setdiff(args, "--"), "--", x), collapse = " ")
   do.call(system, list(command = command, ...))
 }
 

@@ -231,7 +231,7 @@ check_keywords.Rd <- function(x, file = NULL, list.only = FALSE, ...) {
   else
     PKGUTILS_OPTIONS$rd.keywords <- known.kw <- check_keywords()
   if (length(bad <- setdiff(kw, known.kw)))
-    problem(paste("unknown keywords:", paste(bad, collapse = ", ")), file)
+    problem(paste("unknown keywords:", paste0(bad, collapse = ", ")), file)
   else if ("internal" %in% kw && length(kw) > 1L)
     problem("'internal' combined with other keyword(s)", file)
   else if (length(doctype <- unlist(subset(x, "docType", values = TRUE))))

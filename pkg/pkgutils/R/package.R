@@ -285,8 +285,8 @@ run_R_CMD.character <- function(x, what = "check", ...,
   pat <- "%s --vanilla CMD %s %s %s"
   if (sudo)
     pat <- paste("sudo", pat)
-  args <- paste(prepare_options(unlist(c(...))), collapse = " ")
-  cmd <- sprintf(pat, r.exe, what, args, paste(x, collapse = " "))
+  args <- paste0(prepare_options(unlist(c(...))), collapse = " ")
+  cmd <- sprintf(pat, r.exe, what, args, paste0(x, collapse = " "))
   do.call(system, c(list(command = cmd), system.args))
 }
 
@@ -318,7 +318,7 @@ delete_o_files <- function(x, ...) UseMethod("delete_o_files")
 delete_o_files.character <- function(x, ext = "o", ignore = NULL, ...) {
   ext <- tolower(c(ext, .Platform$dynlib.ext))
   ext <- unique.default(tolower(sub("^\\.", "", ext, perl = TRUE)))
-  ext <- sprintf("\\.(%s)$", paste(ext, collapse = "|"))
+  ext <- sprintf("\\.(%s)$", paste0(ext, collapse = "|"))
   x <- pkg_files(x, what = "src", installed = FALSE, ignore = ignore, ...)
   if (length(x <- x[grepl(ext, x, perl = TRUE, ignore.case = TRUE)]))
     file.remove(x)
@@ -486,7 +486,7 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     roxygen.space = 1L, comma = TRUE, ops = TRUE, parens = TRUE,
     assign = TRUE, modify = FALSE, ignore = NULL, accept.tabs = FALSE,
     three.dots = TRUE, what = "R", encoding = "", ...) {
-  spaces <- function(n) paste(rep.int(" ", n), collapse = "")
+  spaces <- function(n) paste0(rep.int(" ", n), collapse = "")
   LL(lwd, indention, roxygen.space, modify, comma, ops, parens, assign,
     accept.tabs, three.dots)
   roxygen.space <- sprintf("^#'%s", spaces(roxygen.space))
