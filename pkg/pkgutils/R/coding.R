@@ -373,6 +373,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     else if (is.null(names(x)))
       stop("need either named vector 'x' or explicitly provided column name")
     x <- escape_sql(x, NA, level)
+    op <- ifelse(x == "NULL", "IS", op)
     x <- paste0(sprintf("%s %s %s", names(x), op, x), collapse = " OR ")
     sprintf("SELECT * FROM %s WHERE %s;", tablename, x)
   }
@@ -390,7 +391,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
         names(id) <- "id"
       id <- escape_sql(id, NA)
     } else
-      stop("non_empty ID column indicator must be numeric or character scalar")
+      stop("non-empty ID column indicator must be numeric or character scalar")
     x <- paste0(sprintf("%s = %s", names(x), x), collapse = ", ")
     sprintf("UPDATE %s SET %s WHERE %s = %s;", tablename, x, names(id), id)
   }
@@ -406,6 +407,9 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     sentence = x <- sentence(x, match.arg(last.sep), prepend),
     m4 = x <- to_m4(x, FALSE),
     M4 = x <- to_m4(x, TRUE),
+    # The SQL modes are currently undocumented and might be removed again
+    # in future versions. The 'select' modes are probably useful, but for the
+    # other modes RODBC, for instance, provides better alternatives.
     insert = return(sql_for_insert(x, header)),
     select = return(sql_for_select(x, 0L, header, footer)),
     select0 =,
