@@ -336,108 +336,6 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     sprintf("define(%s, %s)dnl", do_quote(y, TRUE), do_quote(x, single))
   }
 
-  escape_sql <- function(x, single, level = 0L) {
-    isna <- is.na(x)
-    if (is.na(single)) {
-      if (is.null(names(x)))
-        x <- escape_sql(x, TRUE, level)
-      else
-        x <- structure(escape_sql(x, TRUE, level),
-          names = escape_sql(names(x), FALSE, level))
-    } else if (single) {
-      case(level,
-        NULL, # 0
-        NULL, # 1
-        x <- gsub("\\W", "_", x, FALSE, TRUE), # 2
-        x <- gsub("\\W+", "%", x, FALSE, TRUE), # 3
-        x <- paste0(gsub("\\W+", "%", x, FALSE, TRUE), "%"), # 4
-        x <- paste0("%", gsub("\\W+", "%", x, FALSE, TRUE)), # 5
-        x <- paste0("%", gsub("\\W+", "%", x, FALSE, TRUE), "%") # 6
-      )
-      x <- sprintf("'%s'", gsub("'", "''", x, FALSE, FALSE, TRUE))
-    } else {
-      x <- sprintf('"%s"', gsub('"', '""', x, FALSE, FALSE, TRUE))
-    }
-    x[isna] <- "NULL"
-    x
-  }
-
-  sql_for_insert <- function(x, tablename) {
-    tablename <- escape_sql(L(tablename), FALSE)
-    x <- escape_sql(x, NA)
-    if (is.null(names(x)))
-      sprintf("INSERT INTO %s VALUES (%s);", tablename,
-        paste0(x, collapse = ", "))
-    else
-      sprintf("INSERT INTO %s (%s) VALUES (%s);", tablename,
-        paste0(names(x), collapse = ", "), paste0(x, collapse = ", "))
-  }
-
-  sql_for_update <- function(x, tablename, id) {
-    tablename <- escape_sql(L(tablename), FALSE)
-    x <- escape_sql(x, NA)
-    if (!length(id))
-      id <- 1L
-    if (is.numeric(id)) {
-      id <- structure(x[[pos <- id]], names = names(x)[[id]])
-      x <- x[-pos]
-    } else if (is.character(id) && length(id) == 1L) {
-      if (is.null(names(id)))
-        names(id) <- "id"
-      id <- escape_sql(id, NA)
-    } else
-      stop("non-empty ID column indicator must be numeric or character scalar")
-    x <- paste0(sprintf("%s = %s", names(x), x), collapse = ", ")
-    sprintf("UPDATE %s SET %s WHERE %s = %s;", tablename, x, names(id), id)
-  }
-
-  sql_for_select <- function(x, level, tablename, column, output, ignore.case) {
-    output_columns <- function(x) {
-      if (is.character(x) || is.factor(x))
-        paste0(escape_sql(x, FALSE), collapse = ", ")
-      else
-        "*"
-    }
-    inner_sql <- function(x, op, escape) {
-      isnull <- x == "NULL"
-      x <- sprintf("%s %s %s%s", names(x), ifelse(isnull, "IS", op), x,
-        ifelse(escape & !isnull, " ESCAPE '%'", ""))
-      case(length(x), stop("empty SQL subquery"), x,
-        paste0("(", paste0(x, collapse = " OR "), ")"))
-    }
-    if (!length(x))
-      case(length(tablename), return(""),
-        return(sprintf("SELECT %s FROM %s;", output_columns(output),
-          escape_sql(tablename, FALSE))),
-        stop("'tablename' must have length 0 or 1"))
-    if (length(column))
-      names(x) <- rep_len(column, length(x))
-    else if (is.null(names(x)))
-      stop("need either named vector 'x' or explicitly provided column name")
-    if (level) {
-      if (ignore.case) {
-        op <- "ILIKE"
-        escape <- FALSE
-      } else {
-        op <- "LIKE"
-        escape <- FALSE
-      }
-    } else if (ignore.case) {
-      op <- "ILIKE"
-      escape <- TRUE
-    } else {
-      op <- "="
-      escape <- FALSE
-    }
-    x <- escape_sql(x, NA, level) # also escapes the names
-    x <- split.default(x, names(x)) # keeps the names in each list element, too
-    x <- paste0(lapply(x, inner_sql, op, escape), collapse = " AND ")
-    case(length(tablename), x,
-      sprintf("SELECT %s FROM %s WHERE %s;", output_columns(output),
-        escape_sql(tablename, FALSE), x),
-      stop("'tablename' must have length 0 or 1"))
-  }
-
   LL(style, collapse, force.numbers, hf.collapse)
   if ((is.null(names(x)) && style != "insert") || force.numbers)
     names(x) <- seq_along(x)
@@ -449,21 +347,6 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
     sentence = x <- sentence(x, match.arg(last.sep), prepend),
     m4 = x <- to_m4(x, FALSE),
     M4 = x <- to_m4(x, TRUE),
-    # The SQL modes are currently undocumented and might be removed again
-    # in future versions. The 'select' modes are probably useful, but for the
-    # other modes RODBC, for instance, actually provides better alternatives.
-    insert = return(sql_for_insert(x, header)),
-    select =, SELECT =,
-    select0 =, SELECT0 =,
-    select1 =, SELECT1 =,
-    select2 =, SELECT2 =,
-    select3 =, SELECT3 =,
-    select4 =, SELECT4 =,
-    select5 =, SELECT5 =,
-    select6 =, SELECT6 = return(sql_for_select(x,
-      as.integer(paste0(0L, substring(style, 7L, 7L))),
-      header, footer, prepend, grepl("[A-Z]", style, FALSE, TRUE))),
-    update = return(sql_for_update(x, header, footer)),
     x <- do_prepend(sprintf(style, names(x), x), prepend)
   )
   if (identical(collapse, hf.collapse))
