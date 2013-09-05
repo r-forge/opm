@@ -96,7 +96,7 @@ This is the tutorial of \pkg{opm} in the version of \today{}.
 
 \section[Introduction]{Introduction}\label{introduction}
 
-\subsection[]{}\label{}
+%\subsection[]{}\label{}
 
 After comparative analyses of Phenotype Microarray data, users might be interested in mapping the data on pathway maps for biological interpretation of higher-level systemic functions.
 % erklaeren, wozu man die daten nutzen kann, wenn man grafik und gruppenvergleiche gemacht hat
@@ -108,17 +108,11 @@ KEGG is a database resource for understanding high-level functions and utilities
 Pathway Mapping
 KEGG PATHWAY mapping is the process to map molecular datasets, especially large-scale datasets in genomics, transcriptomics, proteomics, and metabolomics, to the KEGG pathway maps for biological interpretaion of higher-level systemic functions. 
 
-\subsection[]{}\label{}
+%\subsection[]{}\label{}
 
 \section[Acknowledgements]{Acknowledgements}
 
-The help of Nora Buddruhs (DSMZ) and Anne Fiebig (DSMZ), who contributed a lot to the stored substrate information and to examples in earlier versions of this tutorial, is gratefully acknowledged.
-We owe very much to Hans-Peter Klenk (DSMZ), who brought the OmniLog\textregistered \ instrument to the DSMZ and supported this project in numerous ways.
-We thank Barry Bochner (BIOLOG Inc.), John Kirkish (BIOLOG Inc.), Andre Chouankam (BIOLOG Inc.), Jan Meier-Kolthoff (DSMZ), Pia W\"{u}st (DSMZ), Stefan Ehrentraut (DSMZ) and J\"{o}rn Petersen (DSMZ) for helpful advice, as well as Victoria Michael (DSMZ) for technical support.
-The integration of missing OmniLog\textregistered \ substrates into ChEBI by the ChEBI staff is gratefully acknowledged.
-We are also grateful to the maintainers of R-Forge and CRAN for providing the online resources used by this project.
-This work was supported by the German Research Foundation (DFG) SFB/TRR 51 and by the Microme project within the Framework 7 programme of the European Commission, which is gratefully acknowledged.
-JS gratefully acknowledges his support by DFG grant SI 1352/1-2.
+See the acknowledgements section in the main \pkg{opm} vignette.
 
 
 \bibliography{opm}

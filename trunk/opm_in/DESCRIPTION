@@ -1,6 +1,6 @@
 Package: opm
-Version: 0.10.38
-Date: 2013-09-04
+Version: 0.10.39
+Date: 2013-09-05
 Title: Tools for analysing OmniLog(R) Phenotype Microarray data
 Author: Markus Goeker, with contributions by Benjamin Hofner, Lea A.I.
         Vaas, Johannes Sikorski, Nora Buddruhs and Anne Fiebig
@@ -21,6 +21,8 @@ Description: Tools for analysing OmniLog(R) and Microstation Phenotype
         batch conversion of large numbers of files.
 License: GPL (>= 2)
 URL: http://opm.dsmz.de/
+MailingList:
+        http://lists.r-forge.r-project.org/mailman/listinfo/opm-support
 Collate: 'substrate-info.R' 'well-map.R' 'plate-map.R' 'imports.R'
         'package.R' 'constants.R' 'classes.R' 'auxiliary.R' 'kmeans.R'
         'naming.R' 'metadata.R' 'getter.R' 'conversion.R'
