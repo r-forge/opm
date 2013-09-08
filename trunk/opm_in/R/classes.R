@@ -554,7 +554,7 @@ setMethod("opms_problems", "list", function(object) {
   }
   if (!isTRUE(isuni <- is_uniform(vapply(object, plate_type, ""))))
     errs <- c(errs, paste("plate types are not uniform:",
-      paste(isuni, collapse = " <=> ")))
+      paste0(isuni, collapse = " <=> ")))
   if (!isTRUE(is_uniform(lapply(object, wells))))
     errs <- c(errs, "wells are not uniform")
   if (!length(errs) &&
