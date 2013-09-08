@@ -1,25 +1,14 @@
 \documentclass[nojss]{jss}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % GENERAL HINTS: STYLE OF THIS DOCUMENT
 %
-% Use \pkg{} for package names.
-% Use \proglang{} for classes.
-% Use \code{} for R commands.
-% Use `` and '' for opening and closing double quotes, respectively.
-% Put a single sentence in a single line, i.e. start a new line for each new sentence.
-% Use empty lines for indicating paragraphs.
-% Put several empty lines before the start of a new section.
-% Put several empty lines surrounding a figure caption.
-% Put words such as "via" in italics.
-% Put taxon names in italics (but not strain names).
-% Put TODOs in \rcsmark or \rcscom tags and remove them once done.
-% Be concise and avoid repetitions, as they cause a huge maintenance problem.
-% Avoid the term "functionality". It had been used way too frequently.
+% See the according section in the Rnw file for the main tutorial 
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %% Add Revision Control System (RCS) Markups
 \usepackage{ulem}      % use this for sout
@@ -34,32 +23,41 @@
 %Yellow box (paragraph)
 \def\rcscom#1{\noindent\newline\vspace*{0.5cm}\colorbox{yellow}{\parbox{\textwidth}{#1}}\vspace*{0.5cm}}
 
+
 %% needed for CRAN checking
-%\VignetteIndexEntry{Using opm}
+%\VignetteIndexEntry{Substrate information in opm}
+
 
 % authors, first page
-\author{Johannes Sikorski\\Leibniz Institute DSMZ  \And
-        Lea A.I. Vaas\\Leibniz Institute DSMZ \AND
-        Benjamin Hofner\\Universit\"{a}t \\Erlangen-N\"{u}rnberg \And
+\author{Lea A.I. Vaas\\Leibniz Institute DSMZ \And
+        Johannes Sikorski\\Leibniz Institute DSMZ  \And
         Markus G\"{o}ker\\Leibniz Institute DSMZ}
 
+
 % title, first page
-\title{\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype MicroArray Data}
+\title{Working with substrate information in \pkg{opm}}
+
 
 % authors, header on every 2nd page
-\Plainauthor{J. Sikorski, L.A.I. Vaas, B. Hofner, M. G\"{o}ker}
+\Plainauthor{L.A.I. Vaas, J. Sikorski, M. G\"{o}ker}
+
 
 % main title, first page
-\Plaintitle{opm: An R package for analysing OmniLog Phenotype MicroArray Data}
+\Plaintitle{Working with substrate information in opm}
+
 
 % short title, header on every 2nd page
-\Shorttitle{Phenotype MicroArray Data (\today)}
+\Shorttitle{Substrates in \pkg{opm} (\today)}
+
 
 \Abstract{
 here some abstrac-text.
 This is the tutorial of \pkg{opm} in the version of \today{}.
 
 }
+
+
+%% TODO: keywords would need to be adapted later on
 
 \Keywords{Bootstrap, Cell Lines, \pkg{grofit}, Growth Curves, \pkg{lattice}, Metadata, Microbiology, Respiration Kinetics, Splines, \proglang{YAML}, \proglang{JSON}, \proglang{CSV}}
 
