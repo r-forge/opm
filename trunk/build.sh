@@ -117,9 +117,10 @@ check_vignettes()
       [ -e "$sweave_file" ] || break
       pdf_file=$indir/inst/doc/${sweave_file##*/}
       pdf_file=${pdf_file%.*}.pdf
-      if [ "$sweave_file" -nt "$pdf_file" ]; then
+      if [ "$sweave_file" -nt "$pdf_file" ] || ! [ -e "$pdf_file" ]; then
         built_pdf_file=${sweave_file%.*}.pdf
-        if [ "$built_pdf_file" -nt "$pdf_file" ]; then
+        if [ "$built_pdf_file" -nt "$pdf_file" ] ||
+            [ -e "$built_pdf_file" -a ! -e "$pdf_file" ]; then
           cp -v "$built_pdf_file" "$pdf_file" 1>&2
           echo >&2
         else
@@ -683,7 +684,7 @@ fi
 # the package directory or archive, if requested.
 #
 delete_pat="(.*[.](css|bbl|blg|html|aux|yml|epf|R|gz|log|out|tex)|"
-delete_pat="vignettes/$delete_pat(Rplots|opm|.*-[0-9]{3,3})[.]pdf)\$"
+delete_pat="vignettes/$delete_pat(Rplots|opm-(.+-)?figure)[.]pdf)\$"
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --modify --preprocess --S4methods --junk "$delete_pat" \
