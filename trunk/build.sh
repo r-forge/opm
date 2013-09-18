@@ -483,7 +483,8 @@ run_Stangle()
 {
   local indir
   for indir; do
-    find "$indir" -type f -name '*.Rnw' -exec R CMD Stangle \{\} +
+    echo "$indir" >&2
+    echo find "$indir" -type f -name '*.Rnw' -exec R CMD Stangle \{\} \;
   done
 }
 
