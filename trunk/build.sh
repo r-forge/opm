@@ -596,6 +596,7 @@ case $RUNNING_MODE in
 	  -c	Check the copy of the package directory.
 	  -i	Check and install the copy of the package directory.
 	  -o no-vignettes,no-build-vignettes	Skip the time-consuming parts.
+	  -o no-examples,no-tests,no-manual	Skip checks to focus on vignettes.
 	  -u	Turn off checking altogether (used together with -i or -y).
 	  -y	Build a package tar archive.
 
