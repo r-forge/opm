@@ -685,8 +685,8 @@ fi
 # Conduct checks defined in 'docu.R', as far as requested, and build/check of
 # the package directory or archive, if requested.
 #
-delete_pat="(.*[.](css|bbl|blg|html|aux|yml|epf|R|gz|log|out|tex)|"
-delete_pat="vignettes/$delete_pat(Rplots|opm-(.+-)?figure)[.]pdf)\$"
+delete_pat="[.](aux|bbl|blg|css|epf|gz|html|log|out|png|R|tex|yml|xml)"
+delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
   --modify --preprocess --S4methods --junk "$delete_pat" \
