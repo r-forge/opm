@@ -422,6 +422,13 @@ show_test_warnings()
         print > "/dev/stderr"
         next
       }
+      /Warning message:$/ { # explicit warnings outside of tests
+        cnt++
+        print "Warning message:" > "/dev/stderr"
+        getline
+        print > "/dev/stderr"
+        next
+      }
       /^Warning message:/, /^>/ { # from tests not based on testthat
         cnt++
         if ($0 !~ /^>/)
