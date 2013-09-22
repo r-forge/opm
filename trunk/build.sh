@@ -531,6 +531,39 @@ extract_examples()
 ################################################################################
 
 
+# Search for all *.Rout files, then search within these for the results from
+# running the examples of one to several given functions.
+#
+show_example_results()
+{
+  [ $# -eq 0 ] && return
+  find . -name '*-Ex.Rout' -exec awk -v query="$*" '
+      BEGIN {
+        nq = split(query, field)
+        for (i = 1; i <= nq; i++)
+          wanted[field[i]]++
+        must_print = 0
+      }
+      /^> +#+ +[*] +/ {
+        must_print = ($NF in wanted)
+        if (must_print) {
+          sub(/^> +/, "")
+          printf "%s [%s]\n", $0, FILENAME
+        }
+      }
+      /^> +#+ +[*][*] +Examples/, /^> +base:+/ {
+        if (must_print && $0 !~ /^> +(base:+|#+ +[*][*] +Examples)/) {
+          sub(/^> +/, "")
+          print
+        }
+      }
+    ' \{\} +
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -580,13 +613,14 @@ case $RUNNING_MODE in
 	  dnorm   Normal build of the opmdata package.
 	  docu    Check whether the 'docu.R' script can be found, then exit.
 	  erase   Remove directories left over by R CMD check.
-	  example Extract R code from the examples within specified files.
+	  example Extract R code from the examples within specified Rd files.
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  pfull   Full build of the pkgutils package.
 	  pnorm   Normal build of the pkgutils package.
 	  rnw     Run R CMD Stangle on the *.Rnw files.
+	  rout    Show results of the examples, if any, for given function names.
 	  space   Remove trailing whitespace from R code files.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  time    Show the timings of the last examples, if any, in order.
@@ -623,6 +657,10 @@ ____EOF
   ;;
   rnw )
     run_Stangle opm_in opmdata_in pkgutils_in
+    exit $?
+  ;;
+  rout )
+    show_example_results "$@"
     exit $?
   ;;
   space )
