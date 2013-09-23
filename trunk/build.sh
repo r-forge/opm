@@ -484,6 +484,29 @@ remove_R_CMD_check_dirs()
 ################################################################################
 
 
+# Clean up directories if they have a *_in counterpart.
+#
+remove_dirs_carefully()
+{
+  local indir
+  local errs=0
+  for indir; do
+    # missing directories are OK because they may already have been removed
+    [ -d "$indir" ] || continue
+    if [ -d "${indir}_in" ]; then
+      rm -rf "$indir"
+    else
+      echo "directory '$indir' given, but '${indir}_in' is missing" >&2
+      errs=$(($errs + 1))
+    fi
+  done
+  return $errs
+}
+
+
+################################################################################
+
+
 # Run R CMD Stangle on all vignette code files.
 #
 run_Stangle()
@@ -564,6 +587,18 @@ show_example_results()
 ################################################################################
 
 
+# Show 'todo' entries in R files. This will find all uppercase, separate-word
+# entries, irrespective of whether or not they are outcommented.
+#
+show_todos()
+{
+  find . -type f -name '*.R' -exec grep -Fnw TODO \{\} +
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -587,7 +622,7 @@ case $RUNNING_MODE in
     :
   ;;
   erase )
-    remove_R_CMD_check_dirs
+    remove_R_CMD_check_dirs && remove_dirs_carefully pkgutils opm opmdata
     exit $?
   ;;
   example )
@@ -612,7 +647,7 @@ case $RUNNING_MODE in
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
 	  docu    Check whether the 'docu.R' script can be found, then exit.
-	  erase   Remove directories left over by R CMD check.
+	  erase   Remove directories left over by R CMD check and docu.R, if any.
 	  example Extract R code from the examples within specified Rd files.
 	  full    Full build of the opm package.
 	  help    Print this message.
@@ -624,6 +659,7 @@ case $RUNNING_MODE in
 	  space   Remove trailing whitespace from R code files.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  time    Show the timings of the last examples, if any, in order.
+	  todo    Show TODO entries (literally!) in R source files.
 
 	A 'full' build includes copying to the local copy of the pkg directory.
 	Other details of the build process depend on the options.
@@ -673,6 +709,10 @@ ____EOF
   ;;
   time )
     show_example_timings opm opmdata pkgutils
+    exit $?
+  ;;
+  todo )
+    show_todos
     exit $?
   ;;
   * )
