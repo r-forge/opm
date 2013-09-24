@@ -442,12 +442,12 @@ do_test -i csv -d "$testfile_dir" \
   -k 'TIME:Setup Time,ID' >> "$outfile" &&
     cat "$tmpfile" >> "$errfile"
 
-echo "Testing template-collection mode..."
+echo "Testing template-collection mode with machine ID and normalization..."
 do_test -i csv -d "$testfile_dir" \
   -w "$testfile_dir/md.template" -l "$tmpfile" \
   -f "$tmpdir/md.template" -q "$failedfile_dir" \
   Rscript --vanilla "$run_opm" -p "$np" -r template -m "$tmpdir/md.template" \
-  -i '*.csv' >> "$outfile" &&
+  -i '*.csv' -y 5 -v >> "$outfile" &&
     cat "$tmpfile" >> "$errfile"
 
 echo "Testing template-collection mode with other field separator..."

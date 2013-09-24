@@ -1,20 +1,20 @@
-"Setup Time"	"Position"	"File"
-"8/30/2010 11:28:54 AM"	"21-B"	"external_tests/tests/Example_Johannes_1.csv"
-"8/30/2010 12:31:46 PM"	"15-A"	"external_tests/tests/Example_Johannes_2.csv"
-"8/30/2010 1:53:08 PM"	" 9-A"	"external_tests/tests/Example_Johannes_3.csv"
-"Aug 22 2012 12:18"	"1"	"external_tests/tests/Example_Microstation_ECO.csv"
-"Aug 22 2012 12:20"	"1"	"external_tests/tests/Example_Microstation_ECO.csv"
-"Aug 22 2012 12:21"	"4"	"external_tests/tests/Example_Microstation_ECO.csv"
-"Aug 22 2012 12:22"	"4"	"external_tests/tests/Example_Microstation_ECO.csv"
-"Aug 22 2012 12:23"	"5"	"external_tests/tests/Example_Microstation_ECO.csv"
-"Aug 22 2012 12:25"	"5"	"external_tests/tests/Example_Microstation_ECO.csv"
-"Feb 05 2009 14:24"	"1"	"external_tests/tests/Example_Microstation_GN2.csv"
-"9/27/2010 5:44:04 PM"	"21-A"	"external_tests/tests/Example_Multiline_Johannes_1.csv"
-"9/27/2010 5:44:04 PM"	"21-B"	"external_tests/tests/Example_Multiline_Johannes_2.csv"
-"9/27/2010 5:44:04 PM"	"20-A"	"external_tests/tests/Example_Multiline_Johannes_3.csv"
-"9/27/2010 5:44:04 PM"	"20-B"	"external_tests/tests/Example_Multiline_Johannes_4.csv"
-"27.07.2011 13:55:26"	"22-A"	"external_tests/tests/Example_Old_Style_Anne_1.csv"
-"Apr 11 2011 5:08 PM"	"12-A"	"external_tests/tests/Example_Old_Style_Nora_1.csv"
-"Apr 11 2011 5:08 PM"	"16-B"	"external_tests/tests/Example_Old_Style_Nora_2.csv"
-"11.04.2011 17:08:05"	"8-B"	"external_tests/tests/Example_Old_Style_Nora_3.csv"
-"9/28/2010 10:40:22 AM"	" 4-A"	"external_tests/tests/Nora_Roseobacter_1.csv"
+"Setup Time"	"Position"	"File"	"Instrument"
+"2010-08-30 11:28:54"	"21-B"	"external_tests/tests/Example_Johannes_1.csv"	5
+"2010-08-30 12:31:46"	"15-A"	"external_tests/tests/Example_Johannes_2.csv"	5
+"2010-08-30 13:53:08"	"09-A"	"external_tests/tests/Example_Johannes_3.csv"	5
+"2012-08-22 12:18:00"	"01-?"	"external_tests/tests/Example_Microstation_ECO.csv"	5
+"2012-08-22 12:20:00"	"01-?"	"external_tests/tests/Example_Microstation_ECO.csv"	5
+"2012-08-22 12:21:00"	"04-?"	"external_tests/tests/Example_Microstation_ECO.csv"	5
+"2012-08-22 12:22:00"	"04-?"	"external_tests/tests/Example_Microstation_ECO.csv"	5
+"2012-08-22 12:23:00"	"05-?"	"external_tests/tests/Example_Microstation_ECO.csv"	5
+"2012-08-22 12:25:00"	"05-?"	"external_tests/tests/Example_Microstation_ECO.csv"	5
+"2009-02-05 14:24:00"	"01-?"	"external_tests/tests/Example_Microstation_GN2.csv"	5
+"2010-09-27 17:44:04"	"21-A"	"external_tests/tests/Example_Multiline_Johannes_1.csv"	5
+"2010-09-27 17:44:04"	"21-B"	"external_tests/tests/Example_Multiline_Johannes_2.csv"	5
+"2010-09-27 17:44:04"	"20-A"	"external_tests/tests/Example_Multiline_Johannes_3.csv"	5
+"2010-09-27 17:44:04"	"20-B"	"external_tests/tests/Example_Multiline_Johannes_4.csv"	5
+"2011-07-27 13:55:26"	"22-A"	"external_tests/tests/Example_Old_Style_Anne_1.csv"	5
+"2011-04-11 17:08:00"	"12-A"	"external_tests/tests/Example_Old_Style_Nora_1.csv"	5
+"2011-04-11 17:08:00"	"16-B"	"external_tests/tests/Example_Old_Style_Nora_2.csv"	5
+"2011-04-11 17:08:05"	"08-B"	"external_tests/tests/Example_Old_Style_Nora_3.csv"	5
+"2010-09-28 10:40:22"	"04-A"	"external_tests/tests/Nora_Roseobacter_1.csv"	5
