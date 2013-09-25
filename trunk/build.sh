@@ -599,6 +599,20 @@ show_todos()
 ################################################################################
 
 
+# Remove files left over from interactive or non-interactive R sessions.
+#
+remove_R_session_files()
+{
+  local pattern
+  for pattern in .RData .Rhistory "*.Rout"; do
+    find . -name "$pattern" -delete
+  done
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -629,6 +643,10 @@ case $RUNNING_MODE in
     extract_examples "$@"
     exit $?
   ;;
+  forget )
+    remove_R_session_files
+    exit $?
+  ;;
   full|norm )
     PKG_DIR=opm_in
     CHECK_R_TESTS=yes
@@ -649,6 +667,7 @@ case $RUNNING_MODE in
 	  docu    Check whether the 'docu.R' script can be found, then exit.
 	  erase   Remove directories left over by R CMD check and docu.R, if any.
 	  example Extract R code from the examples within specified Rd files.
+	  forget  Remove .RData, .Rhistory and *.Rout files.
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  norm    [DEFAULT] Normal build of the opm package.
