@@ -1,0 +1,162 @@
+
+
+
+################################################################################
+################################################################################
+#
+# Package constants and (unexported) helper functions.
+#
+
+
+# See the opm package for why this is needed.
+#
+SEALED <- FALSE #|| SEALED <- TRUE
+
+
+NOT_YET <- "not yet implemented"
+
+
+# Used for the measurements slot.
+#
+MEASUREMENT_COLUMN_MAP <- c(Well = "well_id", Time = "time", Value = "value")
+
+
+################################################################################
+
+
+#' Print
+#'
+#' Print \code{\link{DBTABLES}} summaries to the screen.
+#'
+#' @param x Object of class \sQuote{DBTABLES_Summary}.
+#' @param ... Optional arguments passed to and from other methods.
+#' @return \code{x} is returned invisibly.
+#' @keywords internal
+#' @name print
+#'
+NULL
+
+#' @rdname print
+#' @method print DBTABLES_Summary
+#' @export
+#'
+print.DBTABLES_Summary <- function(x, ...) {
+  cat("An object of class ", x[["Class"]], ".\n", sep = "")
+  cat("Defined cross-references between tables:\n")
+  cr <- x[["Crossrefs"]]
+  cr <- structure(paste(cr[, "to.tbl"], cr[, "to.col"], sep = "."),
+    names = paste(cr[, "from.tbl"], cr[, "from.col"], sep = "."))
+  cat(formatDL(cr), ..., sep = "\n")
+  invisible(x)
+}
+
+
+################################################################################
+
+
+#' Conversion helper functions
+#'
+#' Internal helper functions for the \code{as} methods defined in this package.
+#'
+#' @param from List or one of the S4 objects defined in this package.
+#' @param x List with aggregation or discretization settings.
+#' @param plate.id Integer scalar.
+#' @return List.
+#' @keywords internal
+#' @name conversion
+#'
+NULL
+
+#' @rdname conversion
+#'
+settings_forward <- function(x, plate.id) {
+  x$options <- toJSON(x$options)
+  data.frame(id = 1L, plate_id = plate.id, x, stringsAsFactors = FALSE,
+    check.names = FALSE)
+}
+
+#' @rdname conversion
+#'
+settings_backward <- function(x) {
+  x <- x[, c("method", "options", "software", "version"), drop = TRUE]
+  x$options <- fromJSON(x$options)
+  x
+}
+
+#' @rdname conversion
+#'
+forward_OPM_to_list <- function(from) {
+  p <- data.frame(id = 1L, plate_type = plate_type(from),
+    setup_time = csv_data(from, what = "setup_time", normalize = TRUE),
+    position = csv_data(from, what = "position", normalize = TRUE),
+    machine_id = opm_opt("machine.id"), stringsAsFactors = FALSE,
+    csv_data = toJSON(csv_data(from)), check.names = FALSE)
+  if (any(bad <- names(md <- from@metadata) %in% colnames(p)))
+    stop("use of forbidden metadata name: ", names(md)[bad][1L])
+  p <- cbind(p, md, stringsAsFactors = FALSE)
+  w <- wells(from)
+  w <- data.frame(id = seq_along(w), plate_id = 1L, coordinate = w,
+    stringsAsFactors = FALSE, check.names = FALSE)
+  m <- flatten(object = from, numbers = TRUE)
+  names(m) <- map_values(names(m), MEASUREMENT_COLUMN_MAP)
+  list(plates = p, wells = w, measurements = cbind(id = seq.int(nrow(m)), m))
+}
+
+#' @rdname conversion
+#'
+backward_OPM_to_list <- function(from) {
+  to_measurements <- function(m, w) {
+    m[, "well_id"] <- w[match(m[, "well_id"], w[, "id"]), "coordinate"]
+    m <- split.data.frame(m, m[, "well_id"]) # <= probably most time-consuming
+    c(list(Hour = sort.int(m[[1]][, "time"])),
+      lapply(m, function(x) x[order(x[, "time"]), "value"]))
+  }
+  if (nrow(p <- from@plates) != 1L)
+    stop("object does not contain a single plate")
+  list(measurements = to_measurements(from@measurements, from@wells),
+    metadata = p[, setdiff(colnames(p), c("id", "plate_type", "setup_time",
+      "position", "machine_id", "csv_data")), drop = TRUE],
+    csv_data = unlist(fromJSON(p[, "csv_data"])))
+}
+
+#' @rdname conversion
+#'
+forward_OPMA_to_list <- function(from) {
+  aggr_forward <- function(x, coords) data.frame(check.names = FALSE,
+    id = seq_along(x), aggr_setting_id = 1L, stringsAsFactors = FALSE,
+    well_id = rep(match(colnames(x), coords), each = nrow(x)),
+    parameter = rownames(x), value = as.vector(x))
+  x <- forward_OPM_to_list(from)
+  x$aggregated <- aggr_forward(from@aggregated, x$wells[, "coordinate"])
+  x$aggr_settings <- settings_forward(from@aggr_settings, x$plates[, "id"])
+  x
+}
+
+#' @rdname conversion
+#'
+backward_OPMA_to_list <- function(from) {
+  aggr_backward <- function(a, w) {
+    a[, "well_id"] <- w[match(a[, "well_id"], w[, "id"]), "coordinate"]
+    a <- split.data.frame(a, a[, "well_id"])
+    lapply(a, function(x) structure(x[, "value"], names = x[, "parameter"]))
+  }
+  c(backward_OPM_to_list(from), list(
+    aggr_settings = settings_backward(from@aggr_settings),
+    aggregated = aggr_backward(from@aggregated, from@wells)))
+}
+
+#' @rdname conversion
+#'
+backward_OPMD_to_list <- function(from) {
+  disc_backward <- function(d, w) as.list(structure(d[, "value"],
+    names = w[match(d[, "well_id"], w[, "id"]), "coordinate"]))
+  c(backward_OPMA_to_list(from), list(
+    disc_settings = settings_backward(from@disc_settings),
+    discretized = disc_backward(from@discretized, from@wells)))
+}
+
+
+################################################################################
+
+
+

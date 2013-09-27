@@ -1,0 +1,19 @@
+Package: opmDB
+Version: 0.0.2
+Date: 2013-09-28
+Title: Connecting opm to databases
+Author: Markus Goeker
+Maintainer: Markus Goeker <markus.goeker@dsmz.de>
+Imports: methods, rjson (>= 0.2.12), opm (>= 0.10.52)
+Suggests: RODBC, testthat
+Description: The package `opm' provides tools for analyzing OmniLog(R)
+        Phenotype Microarray (PM) data as produced by the device
+        distributed by BIOLOG Inc. The package `opmDB' augments `opm'
+        with methods for database I/O.
+License: GPL (>= 2)
+URL: http://opm.dsmz.de/
+MailingList:
+        http://lists.r-forge.r-project.org/mailman/listinfo/opm-support
+Collate: 'package.R' 'auxiliary.R' 'classes.R'
+LazyData: yes
+LazyDataCompression: bzip2

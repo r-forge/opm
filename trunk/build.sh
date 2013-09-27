@@ -789,7 +789,8 @@ fi
 # Conduct checks defined in 'docu.R', as far as requested, and build/check of
 # the package directory or archive, if requested.
 #
-delete_pat="[.](aux|bbl|blg|css|epf|gz|html|log|out|png|R|tex|yml|xml)"
+delete_pat="[.](aux|bbl|blg|bst|cls|css|epf|gz|html|log|out|png|R|tex|yml|xml)"
+# 'jss.cls' and 'jss.bst' are in R and cause a NOTE during checking
 delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
