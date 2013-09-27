@@ -1,31 +1,11 @@
 %%
 %% This is file `jss.cls',
-%% generated with the docstrip utility.
-%%
-%% The original source files were:
-%%
-%% jss.dtx  (with options: `class')
-%% 
-%% IMPORTANT NOTICE:
-%% 
-%% For the copyright see the source file.
-%% 
-%% Any modified versions of this file must be renamed
-%% with new filenames distinct from jss.cls.
-%% 
-%% For distribution of the original source see the terms
-%% for copying and modification in the file jss.dtx.
-%% 
-%% This generated file may be distributed as long as the
-%% original source files, as listed above, are part of the
-%% same distribution. (The sources need not necessarily be
-%% in the same archive or directory.)
-\def\fileversion{2.0}
+\def\fileversion{2.3}
 \def\filename{jss}
-\def\filedate{2009/09/24}
+\def\filedate{2013/09/05}
 %%
 %% Package `jss' to use with LaTeX2e for JSS publications (http://www.jstatsoft.org/)
-%% License: GPL-2
+%% License: GPL-2 | GPL-3
 %% Copyright: (C) Achim Zeileis
 %% Please report errors to Achim.Zeileis@R-project.org
 %%
@@ -41,6 +21,7 @@
 \newif\if@nojss
 \newif\if@notitle
 \newif\if@noheadings
+\newif\if@nofooter
 
 \@articletrue
 \@codesnippetfalse
@@ -51,6 +32,7 @@
 \@nojssfalse
 \@notitlefalse
 \@noheadingsfalse
+\@nofooterfalse
 
 \DeclareOption{article}{\@articletrue%
   \@codesnippetfalse \@bookreviewfalse \@softwarereviewfalse}
@@ -64,11 +46,12 @@
 \DeclareOption{nojss}{\@nojsstrue}
 \DeclareOption{notitle}{\@notitletrue}
 \DeclareOption{noheadings}{\@noheadingstrue}
+\DeclareOption{nofooter}{\@nofootertrue}
 
 \ProcessOptions
 \LoadClass[11pt,a4paper,twoside]{article}
 %% required packages
-\RequirePackage{graphicx,a4wide,color,ae,fancyvrb}
+\RequirePackage{graphicx,color,ae,fancyvrb}
 \RequirePackage[T1]{fontenc}
 \IfFileExists{upquote.sty}{\RequirePackage{upquote}}{}
 %% bibliography
@@ -79,6 +62,17 @@
 \fi
 \bibpunct{(}{)}{;}{a}{}{,}
 \bibliographystyle{jss}
+%% page layout
+\topmargin 0pt
+\textheight 46\baselineskip
+\advance\textheight by \topskip
+\oddsidemargin 0.1in
+\evensidemargin 0.15in
+\marginparwidth 1in
+\oddsidemargin 0.125in
+\evensidemargin 0.125in
+\marginparwidth 0.75in
+\textwidth 6.125in
 %% paragraphs
 \setlength{\parskip}{0.7ex plus0.1ex minus0.1ex}
 \setlength{\parindent}{0em}
@@ -203,15 +197,13 @@
   \Seconddate{\textit{Accepted:} \@Acceptdate}
 \fi
 %% Sweave(-like)
-
-
-\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl, fontsize=\small}
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
-\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl, fontsize=\small}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl}
 \newenvironment{Schunk}{}{}
-\DefineVerbatimEnvironment{Code}{Verbatim}{fontsize=\small}
-\DefineVerbatimEnvironment{CodeInput}{Verbatim}{fontshape=sl, fontsize=\small}
-\DefineVerbatimEnvironment{CodeOutput}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{Code}{Verbatim}{}
+\DefineVerbatimEnvironment{CodeInput}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{CodeOutput}{Verbatim}{}
 \newenvironment{CodeChunk}{}{}
 \setkeys{Gin}{width=0.8\textwidth}
 %% footer
@@ -250,7 +242,11 @@
     \end{samepage}
   \fi
 }
-\AtEndDocument{\makefooter}
+\if@nofooter
+  %% \AtEndDocument{\makefooter}
+\else
+  \AtEndDocument{\makefooter}
+\fi
 %% required packages
 \RequirePackage{hyperref}
 %% new \maketitle
@@ -393,8 +389,7 @@
 \newcommand{\jsssubsubsec}[2][default]{\vskip \preSskip%
   \pdfbookmark[3]{#1}{Subsubsection.\thesubsubsection.#1}%
   \refstepcounter{subsubsection}%
-  %\textbf{\large \textit{#2}} \nopagebreak
-  {\large \thesubsubsection. #2} \nopagebreak
+  {\large \textit{#2}} \nopagebreak
   \vskip \postSskip \nopagebreak}
 \newcommand{\jsssubsubsecnn}[1]{\vskip \preSskip%
   {\textit{\large #1}} \nopagebreak
@@ -472,15 +467,17 @@
   \AtBeginDocument{\maketitle}
 \fi
 %% commands
-\makeatletter
 \newcommand\code{\bgroup\@makeother\_\@makeother\~\@makeother\$\@codex}
 \def\@codex#1{{\normalfont\ttfamily\hyphenchar\font=-1 #1}\egroup}
-\makeatother
 %%\let\code=\texttt
 \let\proglang=\textsf
 \newcommand{\pkg}[1]{{\fontseries{b}\selectfont #1}}
 \newcommand{\email}[1]{\href{mailto:#1}{\normalfont\texttt{#1}}}
-\newcommand{\doi}[1]{\href{http://dx.doi.org/#1}{\normalfont\texttt{doi:#1}}}
+\ifx\csname urlstyle\endcsname\relax
+  \newcommand\@doi[1]{doi:\discretionary{}{}{}#1}\else
+  \newcommand\@doi{doi:\discretionary{}{}{}\begingroup
+\urlstyle{tt}\Url}\fi
+\newcommand{\doi}[1]{\href{http://dx.doi.org/#1}{\normalfont\texttt{\@doi{#1}}}}
 \newcommand{\E}{\mathsf{E}}
 \newcommand{\VAR}{\mathsf{VAR}}
 \newcommand{\COV}{\mathsf{COV}}

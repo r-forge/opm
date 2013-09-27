@@ -61,9 +61,8 @@ CREATE TABLE aggr_settings (
   software varchar (25) NOT NULL,
   version varchar (25) NOT NULL,
   method varchar (25) NOT NULL,
-  -- "options" is intended for a JSON or YAML dump of the option list
-  options text NOT NULL
-  -- a UNIQUE constraint would involve quite a few comparisons
+  options text NOT NULL -- intended for a JSON dump of the option list
+  -- a sensible UNIQUE constraint would involve quite a few comparisons here
 );
 
 
@@ -92,9 +91,8 @@ CREATE TABLE disc_settings (
   software varchar (25) NOT NULL,
   version varchar (25) NOT NULL,
   method varchar (25) NOT NULL,
-  -- "options" is intended for a JSON or YAML dump of the option list
-  options text NOT NULL
-  -- a UNIQUE constraint would involve quite a few comparisons
+  options text NOT NULL -- intended for a JSON dump of the option list
+  -- a sensible UNIQUE constraint would involve quite a few comparisons here
 );
 
 
@@ -106,11 +104,11 @@ CREATE TABLE discretized (
   id integer PRIMARY KEY,
   well_id integer NOT NULL REFERENCES wells,
   disc_setting_id integer NOT NULL REFERENCES disc_settings,
-  -- NULL is allowed because it means intermediate/ambiguous
-  value boolean,
+  value boolean, -- NULL is allowed because it means intermediate/ambiguous
   UNIQUE (well_id, disc_setting_id)
 );
 
 
 --------------------------------------------------------------------------------
+
 
