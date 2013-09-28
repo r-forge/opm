@@ -52,6 +52,7 @@ setClass("DBTABLES",
 #'
 #' @param object \code{\link{DBTABLES}} object.
 #' @param x \code{\link{DBTABLES}} object.
+#' @param data \code{\link{DBTABLES}} object.
 #' @param incr Numeric vector or \code{NULL}. If a numeric vector and named, the
 #'   names must be the slot names; otherwise they are inserted, in order. Each
 #'   value of \code{incr} defines an increment for the primary key in the
@@ -74,7 +75,11 @@ setClass("DBTABLES",
 #'   applied to each \code{\link{DBTABLES}} object that is an element of the
 #'   resulting list, with \code{incr} set to \code{NULL} and \code{drop} set to
 #'   \code{TRUE}.
-#' @param fun Function to be applied to each table in turn. Should accept a
+#' @param INDICES Optional vector used for selecting a subset of the tables and 
+#'   modifying their order (which might not be make sense, see 
+#'   \code{\link{DBTABLES}}). If it has names, these will be passed to
+#'   \code{FUN} instead of the original names of the slots.
+#' @param FUN Function to be applied to each table in turn. Should accept a
 #'   data frame and a character scalar (name of the table) as the first two
 #'   (unnamed) arguments.
 #' @param ... Objects of the same class as \code{x}, or optional further
@@ -82,15 +87,15 @@ setClass("DBTABLES",
 #' @param simplify Logical scalar passed to \code{mapply} as \sQuote{SIMPLIFY}
 #'   argument.
 #' @return
-#'   \code{primary_keys} yields a character vector with the (expected) name of
-#'   the primary key column for each table. \code{foreign_keys} returns a matrix
+#'   \code{pkeys} yields a character vector with the (expected) name of
+#'   the primary key column for each table. \code{fkeys} returns a matrix
 #'   that describes the (expected) relations between the tables. For using
 #'   another naming scheme for the keys, at least on of these methods has to be
 #'   overwritten in a child class. The same holds if slots should be included
 #'   that are not treated as data base tables. \code{split} should then also
 #'   be overwritten to not ignore these other slots.
 #'
-#'   \code{foreign_keys_valid} and \code{primary_keys_valid} return \code{TRUE}
+#'   \code{fkeys_valid} and \code{pkeys_valid} return \code{TRUE}
 #'   if successful and a character vector describing the problems otherwise.
 #'   These functions can thus be used as \code{validity} argument of
 #'   \code{setClass}.
@@ -99,7 +104,7 @@ setClass("DBTABLES",
 #'   is used by \code{show}).
 #'
 #'   \code{length} returns the number of rows of the data frame in the slot
-#'   defined by the first entry of \code{foreign_keys}.
+#'   defined by the first entry of \code{fkeys}.
 #'
 #'   \code{head} and \code{tail} return the minimum and maximum available
 #'   primary key, respectively, for all contained tables.
@@ -111,7 +116,7 @@ setClass("DBTABLES",
 #'
 #'   \code{split} is the approximate inverse of \code{c} for the \code{DBTABLES}
 #'   class. It uses \code{f} for splitting the first table returned by
-#'   \code{primary_keys} and then proceeds by accordingly splitting the tables
+#'   \code{pkeys} and then proceeds by accordingly splitting the tables
 #'   that refer to it.
 #' @name DBTABLES-methods
 #' @seealso methods::setClass
@@ -122,15 +127,15 @@ setClass("DBTABLES",
 #'
 NULL
 
-#= foreign_keys DBTABLES-methods
+#= fkeys DBTABLES-methods
 
 #' @rdname DBTABLES-methods
 #' @export
 #'
-setGeneric("foreign_keys", function(object) standardGeneric("foreign_keys"))
+setGeneric("fkeys", function(object) standardGeneric("fkeys"))
 
-setMethod("foreign_keys", "DBTABLES", function(object) {
-  pk <- primary_keys(object)
+setMethod("fkeys", "DBTABLES", function(object) {
+  pk <- pkeys(object)
   do.call(rbind, lapply(names(pk), function(n) {
       refs <- grep("^\\w+_id$", colnames(slot(object, n)), FALSE, TRUE, TRUE)
       if (length(refs))
@@ -141,28 +146,28 @@ setMethod("foreign_keys", "DBTABLES", function(object) {
     }))
 }, sealed = SEALED)
 
-#= primary_keys DBTABLES-methods
+#= pkeys DBTABLES-methods
 
 #' @rdname DBTABLES-methods
 #' @export
 #'
-setGeneric("primary_keys", function(object) standardGeneric("primary_keys"))
+setGeneric("pkeys", function(object) standardGeneric("pkeys"))
 
-setMethod("primary_keys", "DBTABLES", function(object) {
+setMethod("pkeys", "DBTABLES", function(object) {
   x <- slotNames(object)
   structure(rep.int("id", length(x)), names = x)
 }, sealed = SEALED)
 
-#= foreign_keys_valid DBTABLES-methods
+#= fkeys_valid DBTABLES-methods
 
 #' @rdname DBTABLES-methods
 #' @export
 #'
-setGeneric("foreign_keys_valid",
-  function(object) standardGeneric("foreign_keys_valid"))
+setGeneric("fkeys_valid",
+  function(object) standardGeneric("fkeys_valid"))
 
-setMethod("foreign_keys_valid", "DBTABLES", function(object) {
-  x <- foreign_keys(object)[-1L, , drop = FALSE]
+setMethod("fkeys_valid", "DBTABLES", function(object) {
+  x <- fkeys(object)[-1L, , drop = FALSE]
   bad <- is.na(x[, "from.col"])
   errs <- sprintf("no references in slot '%s'", x[bad, "from.tbl"])
   x <- x[!bad, , drop = FALSE]
@@ -184,16 +189,16 @@ setMethod("foreign_keys_valid", "DBTABLES", function(object) {
     TRUE
 }, sealed = SEALED)
 
-#= primary_keys_valid DBTABLES-methods
+#= pkeys_valid DBTABLES-methods
 
 #' @rdname DBTABLES-methods
 #' @export
 #'
-setGeneric("primary_keys_valid",
-  function(object) standardGeneric("primary_keys_valid"))
+setGeneric("pkeys_valid",
+  function(object) standardGeneric("pkeys_valid"))
 
-setMethod("primary_keys_valid", "DBTABLES", function(object) {
-  pk <- primary_keys(object)
+setMethod("pkeys_valid", "DBTABLES", function(object) {
+  pk <- pkeys(object)
   result <- mapply(function(slotname, colname) tryCatch({
       if (anyDuplicated(slot(object, slotname)[, colname]))
         stop("non-unique IDs")
@@ -208,7 +213,7 @@ setMethod("primary_keys_valid", "DBTABLES", function(object) {
 #= summary DBTABLES-methods
 
 setMethod("summary", "DBTABLES", function(object) {
-  structure(list(Class = class(object), Crossrefs = foreign_keys(object)),
+  structure(list(Class = class(object), Crossrefs = fkeys(object)),
     class = "DBTABLES_Summary")
 }, sealed = SEALED)
 
@@ -221,7 +226,7 @@ setMethod("show", "DBTABLES", function(object) {
 #= length DBTABLES-methods
 
 setMethod("length", "DBTABLES", function(x) {
-  nrow(slot(x, names(primary_keys(x))[1L]))
+  nrow(slot(x, names(pkeys(x))[1L]))
 }, sealed = SEALED)
 
 #= head DBTABLES-methods
@@ -232,7 +237,7 @@ setMethod("length", "DBTABLES", function(x) {
 setGeneric("head")
 
 setMethod("head", "DBTABLES", function(x) {
-  pk <- primary_keys(x)
+  pk <- pkeys(x)
   mapply(function(slotname, colname) min(slot(x, slotname)[, colname]),
     names(pk), pk)
 }, sealed = SEALED)
@@ -245,7 +250,7 @@ setMethod("head", "DBTABLES", function(x) {
 setGeneric("tail")
 
 setMethod("tail", "DBTABLES", function(x) {
-  pk <- primary_keys(x)
+  pk <- pkeys(x)
   mapply(function(slotname, colname) max(slot(x, slotname)[, colname]),
     names(pk), pk)
 }, sealed = SEALED)
@@ -270,7 +275,7 @@ setMethod("update", "DBTABLES", function(object, incr, drop = TRUE) {
     incr <- 1L - head(object)
   if (any(is.na(incr)))
     stop("'incr' contains missing values")
-  pk <- primary_keys(object)
+  pk <- pkeys(object)
   if (is.null(names(incr)))
     names(incr) <- names(pk)[seq_along(incr)]
   if (drop)
@@ -278,7 +283,7 @@ setMethod("update", "DBTABLES", function(object, incr, drop = TRUE) {
       slot(object, tn) <- unrowname(slot(object, tn))
   if (!length(incr <- incr[!!incr]))
     return(object)
-  crs <- foreign_keys(object)
+  crs <- fkeys(object)
   for (i in seq_along(incr)) {
     tn <- names(incr)[i]
     slot(object, tn) <- add(slot(object, tn), pk[[tn]], incr[i])
@@ -299,7 +304,7 @@ setMethod("c", "DBTABLES", function(x, ..., recursive = FALSE) {
   if (missing(..1))
     return(x)
   klass <- class(x)
-  pk <- primary_keys(x)
+  pk <- pkeys(x)
   x <- list(x, ...)
   for (i in seq_along(x)[-1L])
     x[[i]] <- update(x[[i]], tail(x[[i - 1L]]), recursive)
@@ -317,12 +322,12 @@ setMethod("c", "DBTABLES", function(x, ..., recursive = FALSE) {
 setGeneric("split")
 
 setMethod("split", c("DBTABLES", "missing", "missing"), function(x, f, drop) {
-  f <- primary_keys(x)[1L]
+  f <- pkeys(x)[1L]
   split(x, slot(x, names(f))[, f], TRUE)
 }, sealed = SEALED)
 
 setMethod("split", c("DBTABLES", "missing", "logical"), function(x, f, drop) {
-  f <- primary_keys(x)[1L]
+  f <- pkeys(x)[1L]
   split(x, slot(x, names(f))[, f], drop)
 }, sealed = SEALED)
 
@@ -340,9 +345,9 @@ setMethod("split", c("DBTABLES", "ANY", "logical"), function(x, f, drop) {
     unlist(x, FALSE, TRUE)
   }
   class.arg <- list(Class = class(x))
-  result <- as.list(primary_keys(x))
+  result <- as.list(pkeys(x))
   result[[1L]] <- split(slot(x, names(result)[1L]), f, TRUE)
-  crs <- foreign_keys(x)
+  crs <- fkeys(x)
   for (i in seq_along(result)[-1L]) {
     this <- names(result)[i]
     cr <- crs[crs[, "from.tbl"] == this, , drop = FALSE][1L, ]
@@ -358,12 +363,26 @@ setMethod("split", c("DBTABLES", "ANY", "logical"), function(x, f, drop) {
   result
 }, sealed = SEALED)
 
-#= oapply DBTABLES-methods
+#= by DBTABLES-methods
 
-setMethod("oapply", "DBTABLES", function(object, fun, ...,
-    simplify = TRUE) {
-  tn <- names(primary_keys(object))
-  mapply(FUN = fun, lapply(tn, slot, object = object), tn,
+#' @rdname DBTABLES-methods
+#' @export
+#'
+setGeneric("by")
+
+setMethod("by", c("DBTABLES", "missing", "function"), function(data, INDICES,
+    FUN, ..., simplify = TRUE) {
+  tn <- names(pkeys(data))
+  mapply(FUN = FUN, lapply(tn, slot, object = data), tn,
+    MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
+}, sealed = SEALED)
+
+setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES, FUN,
+    ..., simplify = TRUE) {
+  tn1 <- names(pkeys(data))[INDICES]
+  if (is.null(tn2 <- names(INDICES)))
+    tn2 <- tn1
+  mapply(FUN = FUN, lapply(tn1, slot, object = data), tn2,
     MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
@@ -414,7 +433,7 @@ setMethod("oapply", "DBTABLES", function(object, fun, ...,
 #' length(x)
 #'
 #' # conduct some checks
-#' stopifnot(foreign_keys_valid(x), primary_keys_valid(x), length(x) == 1)
+#' stopifnot(fkeys_valid(x), pkeys_valid(x), length(x) == 1)
 #'
 #' # get first and last primary keys for each table
 #' head(x)
@@ -427,7 +446,7 @@ setMethod("oapply", "DBTABLES", function(object, fun, ...,
 #' head(y)
 #' tail(y)
 #' stopifnot(head(y) == head(x) + offset, tail(y) == tail(x) + offset)
-#' stopifnot(foreign_keys_valid(y), primary_keys_valid(y))
+#' stopifnot(fkeys_valid(y), pkeys_valid(y))
 #' y <- update(y, NULL) # revert the previous action
 #' head(y)
 #' tail(y)
@@ -437,7 +456,7 @@ setMethod("oapply", "DBTABLES", function(object, fun, ...,
 #' (y <- c(x, x))
 #' length(y)
 #' stopifnot(length(y) == 2 * length(x), class(y) == class(x))
-#' stopifnot(foreign_keys_valid(y), primary_keys_valid(y))
+#' stopifnot(fkeys_valid(y), pkeys_valid(y))
 #'
 #' # split them again
 #' (y <- split(y))
@@ -447,7 +466,7 @@ setMethod("oapply", "DBTABLES", function(object, fun, ...,
 #' ## with OPMS object as starting point
 #' (x <- as(vaas_4, "OPMD_DB"))
 #' length(x)
-#' stopifnot(foreign_keys_valid(x), primary_keys_valid(x), length(x) == 4)
+#' stopifnot(fkeys_valid(x), pkeys_valid(x), length(x) == 4)
 #' (y <- split(x))
 #' stopifnot(is.list(y), sapply(y, class) ==  "OPMD_DB", length(y) == 4)
 #' (y <- do.call(c, y)) # join the datasets again
@@ -469,7 +488,7 @@ setClass("OPM_DB",
   contains = "DBTABLES",
   representation = representation(plates = "data.frame",
     wells = "data.frame", measurements = "data.frame"),
-  validity = foreign_keys_valid,
+  validity = fkeys_valid,
   sealed = SEALED
 )
 
@@ -485,7 +504,7 @@ setClass("OPMA_DB",
   representation = representation(plates = "data.frame",
     wells = "data.frame", measurements = "data.frame",
     aggr_settings = "data.frame", aggregated = "data.frame"),
-  validity = foreign_keys_valid,
+  validity = fkeys_valid,
   sealed = SEALED
 )
 
@@ -502,7 +521,7 @@ setClass("OPMD_DB",
     wells = "data.frame", measurements = "data.frame",
     aggr_settings = "data.frame", aggregated = "data.frame",
     disc_settings = "data.frame", discretized = "data.frame"),
-  validity = foreign_keys_valid,
+  validity = fkeys_valid,
   sealed = SEALED
 )
 
