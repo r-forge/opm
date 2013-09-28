@@ -627,6 +627,11 @@ fi
 remind_of_external_tests=
 
 case $RUNNING_MODE in
+  bnorm )
+    PKG_DIR=opmDB_in
+    RUNNING_MODE=${RUNNING_MODE#b}
+    CHECK_R_TESTS=yes
+  ;;
   dfull|dnorm )
     PKG_DIR=opmdata_in
     RUNNING_MODE=${RUNNING_MODE#d}
@@ -636,7 +641,8 @@ case $RUNNING_MODE in
     :
   ;;
   erase )
-    remove_R_CMD_check_dirs && remove_dirs_carefully pkgutils opm opmdata
+    remove_R_CMD_check_dirs &&
+      remove_dirs_carefully pkgutils opm opmdata opmDB
     exit $?
   ;;
   example )
@@ -662,6 +668,7 @@ case $RUNNING_MODE in
 	Usage: $0 [mode] [options]
 
 	Possible values for 'mode':
+	  bnorm   Normal build of the opmDB package.
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
 	  docu    Check whether the 'docu.R' script can be found, then exit.
@@ -692,7 +699,7 @@ case $RUNNING_MODE in
 	  -c	Check the copy of the package directory.
 	  -i	Check and install the copy of the package directory.
 	  -o no-vignettes,no-build-vignettes	Skip the time-consuming parts.
-	  -o no-examples,no-tests,no-manual	Skip checks to focus on vignettes.
+	  -o no-codoc,no-examples,no-tests,no-manual	Check vignettes only.
 	  -u	Turn off checking altogether (used together with -i or -y).
 	  -y	Build a package tar archive.
 
