@@ -1,13 +1,21 @@
 
 
-DROP TABLE discretized;
-DROP TABLE disc_settings;
+-- -----------------------------------------------------------------------------
+--
+-- Code for removing the tables that hold PM data. Tested with PostgreSQL (9.1),
+-- SQLite (3.7.9) and MySQL (5.5.32).
+--
+-- -----------------------------------------------------------------------------
 
-DROP TABLE aggregated;
-DROP TABLE aggr_settings;
 
-DROP TABLE measurements;
-DROP TABLE wells;
-DROP TABLE plates;
+DROP TABLE IF EXISTS discretized;
+DROP TABLE IF EXISTS disc_settings;
+
+DROP TABLE IF EXISTS aggregated;
+DROP TABLE IF EXISTS aggr_settings;
+
+DROP TABLE IF EXISTS measurements;
+DROP TABLE IF EXISTS wells;
+DROP TABLE IF EXISTS plates;
 
 

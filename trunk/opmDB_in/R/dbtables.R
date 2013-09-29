@@ -531,6 +531,51 @@ setMethod("by", c("DBTABLES", "function", "ANY"), function(data, INDICES, FUN,
     MoreArgs = list(FUN, ...), SIMPLIFY = simplify, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
+#= collect DBTABLES-methods
+
+#' @rdname DBTABLES-methods
+#' @export
+#'
+setGeneric("collect", function(x, what, ...) standardGeneric("collect"))
+
+setMethod("collect", c("DBTABLES", "numeric"), function(x, what, FUN, ...,
+    .sql = TRUE, .mapping = NULL) {
+  storage.mode(.mapping) <- "character"
+  map_fun <- if (length(.mapping) && !is.null(names(.mapping)))
+      function(x) if (pos <- match(x, names(.mapping), 0L))
+          .mapping[pos]
+        else
+          x
+    else
+      identity
+  get_fun <- if (.sql)
+      function(.TBL, .COL, .IDX, ...) {
+        dq <- function(x) if (grepl("\\W", x, FALSE, TRUE))
+            sprintf('"%s"', gsub('"', '""', x, FALSE, TRUE, TRUE))
+          else
+            x
+        x <- paste(dq(.COL), .IDX, sep = " = ", collapse = " OR ")
+        FUN(sprintf("SELECT * FROM %s WHERE %s;", dq(.TBL), x), ...)
+      }
+    else
+      FUN
+  pk <- pkeys(x)
+  result <- lapply(as.list(pk), as.null)
+  result[[1L]] <- as.data.frame(get_fun(map_fun(names(result)[1L]), pk[i],
+    what, ...))
+  crs <- fkeys(x)
+  crs <- crs[!is.na(crs[, "to.tbl"]), , drop = FALSE]
+  for (i in seq_len(nrow(crs))) {
+    cr <- crs[i, ]
+    if (!is.null(result)[[cr[["from.tbl"]]]])
+      next
+    what <- result[[cr[["to.tbl"]]]][, cr[["to.col"]]]
+    result[[cr[["from.tbl"]]]] <- as.data.frame(get_fun(map_fun(
+      cr[["from.tbl"]]), cr[["from.col"]], what, ...))
+  }
+  do.call(new, c(list(Class = class(x)), result))
+}, sealed = SEALED)
+
 
 ################################################################################
 
