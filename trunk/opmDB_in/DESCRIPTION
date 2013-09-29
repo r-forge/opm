@@ -1,6 +1,6 @@
 Package: opmDB
-Version: 0.0.2
-Date: 2013-09-28
+Version: 0.0.3
+Date: 2013-09-29
 Title: Connecting opm to databases
 Author: Markus Goeker
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
@@ -14,6 +14,6 @@ License: GPL (>= 2)
 URL: http://opm.dsmz.de/
 MailingList:
         http://lists.r-forge.r-project.org/mailman/listinfo/opm-support
-Collate: 'package.R' 'auxiliary.R' 'classes.R'
+Collate: 'package.R' 'dbtables.R' 'auxiliary.R' 'opm_db.R'
 LazyData: yes
 LazyDataCompression: bzip2

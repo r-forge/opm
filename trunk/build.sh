@@ -630,7 +630,7 @@ case $RUNNING_MODE in
   bnorm )
     PKG_DIR=opmDB_in
     RUNNING_MODE=${RUNNING_MODE#b}
-    CHECK_R_TESTS=yes
+    CHECK_R_TESTS=
   ;;
   dfull|dnorm )
     PKG_DIR=opmdata_in

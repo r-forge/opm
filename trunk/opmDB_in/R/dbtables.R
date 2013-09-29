@@ -3,7 +3,7 @@
 ################################################################################
 ################################################################################
 #
-# Class definitions and associated methods.
+# DBTABLES class definitions and associated methods.
 #
 
 
@@ -24,21 +24,59 @@
 #' preceding slot named \code{paste0(x, "s")}. Irregular plurals are not
 #' currently understood. The two columns must be setequal.
 #'
+#' For using another naming scheme for the keys, at least on of the methods
+#' \code{\link{pkeys}} and \code{\link{fkeys}} has to be overwritten in a child
+#' class, but none of the other methods. The same holds if slots should be
+#' included that are not treated as data base tables. \code{\link{split}} might
+#' then also need to be overwritten to not ignore these other slots when
+#' creating new objects of the class.
+#'
 #' For real classes inheriting from \code{DBTABLES}, see \code{\link{OPM_DB}}.
 #'
 #' For the methods of \code{DBTABLES}, see \code{\link{DBTABLES-methods}}.
-#' @name DBTABLES
+#' @name DBTABLES-class
 #' @docType class
 #' @export
-#' @aliases DBTABLES-class
+#' @aliases DBTABLES
 #' @seealso methods::Methods
-#' @family classes
+#' @family dbtables
 #' @keywords methods classes
 #'
 setClass("DBTABLES",
   contains = "VIRTUAL",
   sealed = SEALED
 )
+
+
+################################################################################
+
+
+#' Print
+#'
+#' Print \code{\link{DBTABLES}} summaries to the screen.
+#'
+#' @param x Object of class \sQuote{DBTABLES_Summary}.
+#' @param ... Optional arguments passed to and from other methods.
+#' @return \code{x} is returned invisibly.
+#' @keywords internal
+#' @name print
+#'
+NULL
+
+#' @rdname print
+#' @method print DBTABLES_Summary
+#' @export
+#'
+print.DBTABLES_Summary <- function(x, ...) {
+  cat("An object of class ", sQuote(x[["Class"]]), ".\n", sep = "")
+  cat("Defined cross-references between tables:\n")
+  cr <- x[["Crossrefs"]]
+  cr[is.na(cr)] <- "<MISSING>"
+  cr <- structure(paste(cr[, "to.tbl"], cr[, "to.col"], sep = "."),
+    names = paste(cr[, "from.tbl"], cr[, "from.col"], sep = "."))
+  cat(formatDL(cr), ..., sep = "\n")
+  invisible(x)
+}
 
 
 ################################################################################
@@ -53,13 +91,14 @@ setClass("DBTABLES",
 #' @param object \code{\link{DBTABLES}} object.
 #' @param x \code{\link{DBTABLES}} object.
 #' @param data \code{\link{DBTABLES}} object.
-#' @param incr Numeric vector or \code{NULL}. If a numeric vector and named, the
-#'   names must be the slot names; otherwise they are inserted, in order. Each
-#'   value of \code{incr} defines an increment for the primary key in the
-#'   respective table. \code{update} takes care that the foreign keys referring
-#'   to this table are modified in the same way.
+#' @param decreasing Logical scalar. If missing, \code{FALSE} is used instead.
+#' @param start Numeric vector or \code{NULL}. If a numeric vector and named,
+#'   the names must be the slot names; otherwise these are inserted, in order.
+#'   Each value of \code{start} defines an new starting point (minimum) for the
+#'   primary key in the respective table. \code{update} takes care that the
+#'   foreign keys referring to this table are modified in the same way.
 #'
-#'   If \code{NULL}, \code{incr} is set to a vector that causes all output
+#'   If \code{NULL}, \code{start} is set to a vector that causes all output
 #'   primary keys to start at 1. This can be used to revert a previous call of
 #'   \code{update}.
 #' @param recursive Logical scalar passed from \code{c} as \code{drop} argument
@@ -73,27 +112,28 @@ setClass("DBTABLES",
 #'   For \code{split}, \code{drop} is either missing or a logical scalar.
 #'   \code{TRUE} is the default. If so, after splitting, \code{update} is
 #'   applied to each \code{\link{DBTABLES}} object that is an element of the
-#'   resulting list, with \code{incr} set to \code{NULL} and \code{drop} set to
+#'   resulting list, with \code{start} set to \code{NULL} and \code{drop} set to
 #'   \code{TRUE}.
-#' @param INDICES Optional vector used for selecting a subset of the tables and 
-#'   modifying their order (which might not be make sense, see 
+#' @param INDICES Optional vector used for selecting a subset of the tables and
+#'   modifying their order (which might not be make sense, see
 #'   \code{\link{DBTABLES}}). If it has names, these will be passed to
 #'   \code{FUN} instead of the original names of the slots.
+#'
+#'   Note that \code{INDICES} may also be a function. If so, it is used in place
+#'   of \code{FUN}, which, unless missing, is passed as first additional
+#'   argument to \code{INDICES}.
 #' @param FUN Function to be applied to each table in turn. Should accept a
-#'   data frame and a character scalar (name of the table) as the first two
-#'   (unnamed) arguments.
-#' @param ... Objects of the same class as \code{x}, or optional further
-#'   arguments of \code{fun}.
+#'   character scalar (name of the table) and a data frame (the table) as the
+#'   first two (unnamed) arguments. \code{FUN} well be replaced by
+#'   \code{INDICES} if the latter is a function; see above for details.
+#' @param ... Objects of the same class as \code{x} for \code{c}, optional
+#'   further arguments of \code{FUN} for \code{by}.
 #' @param simplify Logical scalar passed to \code{mapply} as \sQuote{SIMPLIFY}
 #'   argument.
 #' @return
 #'   \code{pkeys} yields a character vector with the (expected) name of
 #'   the primary key column for each table. \code{fkeys} returns a matrix
-#'   that describes the (expected) relations between the tables. For using
-#'   another naming scheme for the keys, at least on of these methods has to be
-#'   overwritten in a child class. The same holds if slots should be included
-#'   that are not treated as data base tables. \code{split} should then also
-#'   be overwritten to not ignore these other slots.
+#'   that describes the (expected) relations between the tables.
 #'
 #'   \code{fkeys_valid} and \code{pkeys_valid} return \code{TRUE}
 #'   if successful and a character vector describing the problems otherwise.
@@ -109,21 +149,88 @@ setClass("DBTABLES",
 #'   \code{head} and \code{tail} return the minimum and maximum available
 #'   primary key, respectively, for all contained tables.
 #'
+#'   \code{sort} sorts all tables by their primary keys and returns an object
+#'   of the same class.
+#'
 #'   \code{update} and \code{c} return an object of the same class than
 #'   \code{object} and \code{x}, respectively. \code{c} runs \code{update} on
 #'   all objects in \code{...} to yield overall unique IDs and then runs
 #'   \code{rbind} on all tables.
 #'
-#'   \code{split} is the approximate inverse of \code{c} for the \code{DBTABLES}
-#'   class. It uses \code{f} for splitting the first table returned by
+#'   \code{split} uses \code{f} for splitting the first table returned by
 #'   \code{pkeys} and then proceeds by accordingly splitting the tables
-#'   that refer to it.
+#'   that refer to it. \code{c} can be used to get the original object back.
+#'
+#'   \code{by} returns the result of \code{FUN} or \code{INDICES} as a list or
+#'   other kind of object, depending on \code{simplify}.
 #' @name DBTABLES-methods
 #' @seealso methods::setClass
-#' @family classes-functions
+#' @family dbtables
 #' @keywords attribute
 #' @examples
-#' ## see the examples for the non-virtual classes inheriting from DBTABLES
+#'
+#' # example class, with 'results' referring to 'experiments'
+#' setClass("myclass",
+#'   contains = "DBTABLES",
+#'   representation = representation(experiments = "data.frame",
+#'     results = "data.frame"))
+#'
+#' x <- new("myclass",
+#'   experiments = data.frame(id = 3:1, researcher = "Jane Doe"),
+#'   results = data.frame(id = 1:5, experiment_id = c(1L, 3L, 2L, 1L, 3L),
+#'     type = c("A", "B", "A", "B", "A"), value = runif(5)))
+#'
+#' summary(x)
+#' length(x) # not the number of slots
+#' pkeys(x)
+#' fkeys(x) # NA entries are used for table without foreign keys
+#'
+#' # conduct some checks
+#' stopifnot(fkeys_valid(x), pkeys_valid(x), length(x) == 3)
+#' stopifnot(any(is.na(fkeys(x))), !all(is.na(fkeys(x))))
+#'
+#' # originally the primary keys are not in order here
+#' (y <- sort(x))
+#' slot(y, "experiments")
+#' slot(y, "results")
+#' stopifnot(!identical(x, y))
+#'
+#' # get first and last primary keys for each table
+#' head(x)
+#' tail(x)
+#' stopifnot(head(x) == 1, tail(x) >= head(x))
+#'
+#' # modify the primary keys
+#' start <- 3:4 # one value per table
+#' y <- update(x, start)
+#' head(y)
+#' tail(y)
+#' stopifnot(head(y) == start, tail(y) > start)
+#' stopifnot(fkeys_valid(y), pkeys_valid(y)) # must still be OK
+#' (y <- update(y, NULL))
+#' head(y)
+#' tail(y)
+#' stopifnot(head(y) == 1, tail(y) > 1)
+#' stopifnot(fkeys_valid(y), pkeys_valid(y))
+#'
+#' # split the data
+#' (y <- split(x))
+#' stopifnot(sapply(y, length) == 1)
+#' stopifnot(sapply(y, fkeys_valid), sapply(y, pkeys_valid))
+#'
+#' # combine data again
+#' (y <- do.call(c, y))
+#' stopifnot(length(y) == length(x), class(x) == class(y))
+#' stopifnot(fkeys_valid(y), pkeys_valid(y))
+#' ## ids are not necessarily the same than before but still OK
+#'
+#' # traverse the object
+#' (y <- by(x, TRUE, function(a, b) is.data.frame(b)))
+#' stopifnot(y, !is.null(names(y)))
+#' (z <- by(x, c(2, 1), function(a, b) is.character(a)))
+#' stopifnot(z, names(z) == rev(names(y))) # other order
+#' (z <- by(x, c(A = 1, B = 2), function(a, b) nrow(b)))
+#' stopifnot(names(z) == c("A", "B")) # renaming
 #'
 NULL
 
@@ -200,7 +307,7 @@ setGeneric("pkeys_valid",
 setMethod("pkeys_valid", "DBTABLES", function(object) {
   pk <- pkeys(object)
   result <- mapply(function(slotname, colname) tryCatch({
-      if (anyDuplicated(slot(object, slotname)[, colname]))
+      if (anyDuplicated.default(slot(object, slotname)[, colname]))
         stop("non-unique IDs")
       NA_character_
     }, error = conditionMessage), names(pk), pk)
@@ -255,6 +362,25 @@ setMethod("tail", "DBTABLES", function(x) {
     names(pk), pk)
 }, sealed = SEALED)
 
+#= sort DBTABLES-methods
+
+#' @rdname DBTABLES-methods
+#' @export
+#'
+setGeneric("sort")
+
+setMethod("sort", c("DBTABLES", "missing"), function(x, decreasing) {
+  sort(x, FALSE)
+}, sealed = SEALED)
+
+setMethod("sort", c("DBTABLES", "logical"), function(x, decreasing) {
+  sort_by_id <- function(x, idx) x[sort.list(x[, idx], NULL, TRUE,
+    decreasing), , drop = FALSE]
+  for (i in seq_along(pk <- pkeys(x)))
+    slot(x, tn) <- sort_by_id(slot(x, tn <- names(pk)[i]), pk[i])
+  x
+}, sealed = SEALED)
+
 #= update DBTABLES-methods
 
 #' @rdname DBTABLES-methods
@@ -262,35 +388,41 @@ setMethod("tail", "DBTABLES", function(x) {
 #'
 setGeneric("update")
 
-setMethod("update", "DBTABLES", function(object, incr, drop = TRUE) {
+setMethod("update", "DBTABLES", function(object, start, drop = TRUE) {
   unrowname <- function(x) {
     rownames(x) <- NULL
     x
   }
-  add <- function(x, where, by) {
-    x[, where] <- x[, where] + as.integer(by)
+  reset <- function(x, where, start) {
+    if (add <- start - min(x[, where]))
+      x[, where] <- x[, where] + add
     x
   }
-  if (is.null(incr))
-    incr <- 1L - head(object)
-  if (any(is.na(incr)))
-    stop("'incr' contains missing values")
   pk <- pkeys(object)
-  if (is.null(names(incr)))
-    names(incr) <- names(pk)[seq_along(incr)]
+  if (is.null(start)) {
+    start <- rep.int(1L, length(pk))
+    names(start) <- names(pk)
+  } else {
+    if (any(is.na(start)))
+      stop("'start' contains missing values")
+    if (is.null(names(start)))
+      names(start) <- names(pk)[seq_along(start)]
+  }
   if (drop)
     for (tn in names(pk))
       slot(object, tn) <- unrowname(slot(object, tn))
-  if (!length(incr <- incr[!!incr]))
+  storage.mode(start) <- "integer"
+  if (!length(start <- start[!!start]))
     return(object)
   crs <- fkeys(object)
-  for (i in seq_along(incr)) {
-    tn <- names(incr)[i]
-    slot(object, tn) <- add(slot(object, tn), pk[[tn]], incr[i])
+  crs <- crs[!is.na(crs[, "to.tbl"]), , drop = FALSE]
+  for (i in seq_along(start)) {
+    tn <- names(start)[i]
+    slot(object, tn) <- reset(slot(object, tn), pk[[tn]], start[i])
     cr <- crs[crs[, "to.tbl"] == tn, , drop = FALSE]
     for (j in seq_len(nrow(cr))) {
       tn <- cr[j, "from.tbl"]
-      slot(object, tn) <- add(slot(object, tn), cr[j, "from.col"], incr[i])
+      slot(object, tn) <- reset(slot(object, tn), cr[j, "from.col"], start[i])
     }
   }
   object
@@ -307,12 +439,11 @@ setMethod("c", "DBTABLES", function(x, ..., recursive = FALSE) {
   pk <- pkeys(x)
   x <- list(x, ...)
   for (i in seq_along(x)[-1L])
-    x[[i]] <- update(x[[i]], tail(x[[i - 1L]]), recursive)
+    x[[i]] <- update(x[[i]], tail(x[[i - 1L]]) + 1L, recursive)
   result <- sapply(X = names(pk), simplify = FALSE,
     FUN = function(slotname) do.call(rbind, lapply(x, slot, slotname)))
   do.call(new, c(list(Class = klass), result))
 }, sealed = SEALED)
-
 
 #= split DBTABLES-methods
 
@@ -373,7 +504,7 @@ setGeneric("by")
 setMethod("by", c("DBTABLES", "missing", "function"), function(data, INDICES,
     FUN, ..., simplify = TRUE) {
   tn <- names(pkeys(data))
-  mapply(FUN = FUN, lapply(tn, slot, object = data), tn,
+  mapply(FUN = FUN, tn, lapply(tn, slot, object = data),
     MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
@@ -382,256 +513,26 @@ setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES, FUN,
   tn1 <- names(pkeys(data))[INDICES]
   if (is.null(tn2 <- names(INDICES)))
     tn2 <- tn1
-  mapply(FUN = FUN, lapply(tn1, slot, object = data), tn2,
+  mapply(FUN = FUN, tn2, lapply(tn1, slot, object = data),
     MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
+}, sealed = SEALED)
+
+setMethod("by", c("DBTABLES", "function", "missing"), function(data, INDICES,
+    FUN, ..., simplify = TRUE) {
+  tn <- names(pkeys(data))
+  mapply(FUN = INDICES, tn, lapply(tn, slot, object = data),
+    MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
+}, sealed = SEALED)
+
+setMethod("by", c("DBTABLES", "function", "ANY"), function(data, INDICES, FUN,
+    ..., simplify = TRUE) {
+  tn <- names(pkeys(data))
+  mapply(FUN = INDICES, tn, lapply(tn, slot, object = data),
+    MoreArgs = list(FUN, ...), SIMPLIFY = simplify, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
 
 ################################################################################
 
-
-#' Classes for opm database I/O
-#'
-#' These child classes of \code{\link{DBTABLES}} hold intermediary objects that
-#' can be used for database input and output of \acronym{OPMX} objects as
-#' created by \pkg{opm}.
-#'
-#' @details
-#'   See the \pkg{opm} documentation for details on \code{OPMX} objects
-#'   themselves. \pkg{opmDB} defines the following additional classes:
-#'   \describe{
-#'   \item{OPM_DB}{Holds all data that occur in an \acronym{OPM} object or in
-#'   several such objects, as contained in an \acronym{OPMS} object.}
-#'   \item{OPMA_DB}{The same for \acronym{OPMA} objects.}
-#'   \item{OPMD_DB}{The same for \acronym{OPMD} objects.}
-#'   }
-#'   The inheritance relationships thus mirror those of the \code{OPMX} objects
-#'   (with the exception of \acronym{OPMS}). Conversion with \code{as} is
-#'   implemented from all \acronym{OPMX} classes to all classes defined here.
-#'   List can also be converted provided they only contain \acronym{OPMX}
-#'   objects (or lists of such objects).
-#'
-#'   Conversion in the other direction, yielding one of the \acronym{OPMX}
-#'   classes, is also implemented. Attempting to convert several plates to an
-#'   \code{OPMX} calls other than \code{OPMS} will yield an error, however, as
-#'   well as trying to convert a single plate to \code{OPMS}, or several plates
-#'   with distinct plate types. In contrast, conversion to a list will work in
-#'   all instances, and such a list could further be processed with the
-#'   \code{opms} function from the \pkg{opm} package, irrespective of the number
-#'   of plates contained.
-#'
-#' @docType class
-#' @export
-#' @aliases OPM_DB-class
-#' @seealso methods::Methods methods::new opm::opms
-#' @family classes
-#' @keywords methods classes
-#' @examples
-#'
-#' library(opm)
-#' (x <- as(vaas_1, "OPMD_DB"))
-#' length(x)
-#'
-#' # conduct some checks
-#' stopifnot(fkeys_valid(x), pkeys_valid(x), length(x) == 1)
-#'
-#' # get first and last primary keys for each table
-#' head(x)
-#' tail(x)
-#' stopifnot(head(x) == 1, tail(x) >= head(x))
-#'
-#' # increment the primary keys
-#' offset <- 1:7 # one value per table
-#' y <- update(x, offset)
-#' head(y)
-#' tail(y)
-#' stopifnot(head(y) == head(x) + offset, tail(y) == tail(x) + offset)
-#' stopifnot(fkeys_valid(y), pkeys_valid(y))
-#' y <- update(y, NULL) # revert the previous action
-#' head(y)
-#' tail(y)
-#' stopifnot(identical(y, x))
-#'
-#' # combine data
-#' (y <- c(x, x))
-#' length(y)
-#' stopifnot(length(y) == 2 * length(x), class(y) == class(x))
-#' stopifnot(fkeys_valid(y), pkeys_valid(y))
-#'
-#' # split them again
-#' (y <- split(y))
-#' stopifnot(identical(y, list(x, x)))
-#' # i.e. approximate reverse of c(), but only under default settings
-#'
-#' ## with OPMS object as starting point
-#' (x <- as(vaas_4, "OPMD_DB"))
-#' length(x)
-#' stopifnot(fkeys_valid(x), pkeys_valid(x), length(x) == 4)
-#' (y <- split(x))
-#' stopifnot(is.list(y), sapply(y, class) ==  "OPMD_DB", length(y) == 4)
-#' (y <- do.call(c, y)) # join the datasets again
-#' stopifnot(identical(y, x))
-#'
-#' # conversions back and forth
-#' (x <- as(vaas_1, "OPMD_DB"))
-#' stopifnot(identical(as(x, "OPMA"), as(vaas_1, "OPMA")))
-#' (y <- try(as(x, "OPMS"), silent = TRUE))
-#' stopifnot(inherits(y, "try-error")) # does not work because only 1 plate
-#' (x <- as(vaas_4, "OPM_DB"))
-#' stopifnot(identical(as(x, "OPMS"), vaas_4[drop = TRUE]))
-#' (y <- try(as(x, "OPM"), silent = TRUE)) # does not work because > 1 plate
-#' stopifnot(inherits(y, "try-error"))
-#' (y <- as(x, "list")) # one can always go through a list
-#' stopifnot(sapply(y, is, "OPM")) # opms() could now be called
-#'
-setClass("OPM_DB",
-  contains = "DBTABLES",
-  representation = representation(plates = "data.frame",
-    wells = "data.frame", measurements = "data.frame"),
-  validity = fkeys_valid,
-  sealed = SEALED
-)
-
-#' @rdname OPM_DB
-#' @name OPMA_DB
-#' @aliases OPMA_DB-class
-#' @docType class
-#' @export
-#'
-setClass("OPMA_DB",
-  contains = "OPM_DB",
-  # the superclass slots must be repeated here to enforce the ordering
-  representation = representation(plates = "data.frame",
-    wells = "data.frame", measurements = "data.frame",
-    aggr_settings = "data.frame", aggregated = "data.frame"),
-  validity = fkeys_valid,
-  sealed = SEALED
-)
-
-#' @rdname OPM_DB
-#' @name OPMD_DB
-#' @aliases OPMD_DB-class
-#' @docType class
-#' @export
-#'
-setClass("OPMD_DB",
-  contains = "OPMA_DB",
-  # the superclass slots must be repeated here to enforce the ordering
-  representation = representation(plates = "data.frame",
-    wells = "data.frame", measurements = "data.frame",
-    aggr_settings = "data.frame", aggregated = "data.frame",
-    disc_settings = "data.frame", discretized = "data.frame"),
-  validity = fkeys_valid,
-  sealed = SEALED
-)
-
-
-################################################################################
-#
-# Conversions with as()
-#
-
-
-setAs("OPM", "OPM_DB", function(from) {
-  x <- forward_OPM_to_list(from)
-  new("OPM_DB", plates = x$plates, wells = x$wells,
-    measurements = x$measurements)
-})
-
-setAs("OPM_DB", "OPM", function(from) {
-  as(backward_OPM_to_list(from), "OPM")
-})
-
-setAs("OPMA", "OPMA_DB", function(from) {
-  x <- forward_OPMA_to_list(from)
-  new("OPMA_DB", plates = x$plates, wells = x$wells,
-    measurements = x$measurements, aggr_settings = x$aggr_settings,
-    aggregated = x$aggregated)
-})
-
-setAs("OPMA_DB", "OPMA", function(from) {
-  as(backward_OPMA_to_list(from), "OPMA")
-})
-
-setAs("OPMD", "OPMD_DB", function(from) {
-  x <- forward_OPMA_to_list(from)
-  dsets <- settings_forward(from@disc_settings, x$plates[, "id"])
-  ddata <- from@discretized
-  ddata <- data.frame(id = seq_along(ddata), stringsAsFactors = FALSE,
-    well_id = match(names(ddata), x$wells[, "coordinate"]),
-    disc_setting_id = 1L, value = unname(ddata), check.names = FALSE)
-  new("OPMD_DB", plates = x$plates, wells = x$wells,
-    measurements = x$measurements, aggr_settings = x$aggr_settings,
-    aggregated = x$aggregated, disc_settings = dsets, discretized = ddata)
-})
-
-setAs("OPMD_DB", "OPMD", function(from) {
-  as(backward_OPMD_to_list(from), "OPMD")
-})
-
-
-################################################################################
-#
-# Conversion to and from lists
-#
-
-
-setAs("list", "OPM_DB", function(from) {
-  do.call(c, rapply(object = from, f = as, Class = "OPM_DB"))
-})
-
-setAs("list", "OPMA_DB", function(from) {
-  do.call(c, rapply(object = from, f = as, Class = "OPMA_DB"))
-})
-
-setAs("list", "OPMD_DB", function(from) {
-  do.call(c, rapply(object = from, f = as, Class = "OPMD_DB"))
-})
-
-setAs("OPM_DB", "list", function(from) {
-  lapply(split(from), as, "OPM")
-})
-
-setAs("OPMA_DB", "list", function(from) {
-  lapply(split(from), as, "OPMA")
-})
-
-setAs("OPMD_DB", "list", function(from) {
-  lapply(split(from), as, "OPMD")
-})
-
-
-################################################################################
-#
-# Conversion to and from OPMS objects
-#
-
-
-setAs("OPMS", "OPM_DB", function(from) {
-  do.call(c, lapply(from@plates, as, "OPM_DB"))
-})
-
-setAs("OPMS", "OPMA_DB", function(from) {
-  do.call(c, lapply(from@plates, as, "OPMA_DB"))
-})
-
-setAs("OPMS", "OPMD_DB", function(from) {
-  do.call(c, lapply(from@plates, as, "OPMD_DB"))
-})
-
-setAs("OPM_DB", "OPMS", function(from) {
-  as(lapply(split(from), backward_OPM_to_list), "OPMS")
-})
-
-setAs("OPMA_DB", "OPMS", function(from) {
-  as(lapply(split(from), backward_OPMA_to_list), "OPMS")
-})
-
-setAs("OPMD_DB", "OPMS", function(from) {
-  as(lapply(split(from), backward_OPMD_to_list), "OPMS")
-})
-
-
-################################################################################
 
 
