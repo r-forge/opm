@@ -1,15 +1,15 @@
 
 
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 --
--- Code for creating the tables that hold PM data. Tested with PostgreSQL (9.1)
--- and SQLite (3.7.9).
+-- Code for creating the tables that hold PM data. Tested with PostgreSQL (9.1),
+-- SQLite (3.7.9) and MySQL (5.5.32).
 --
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 
 
--- DROP TABLE plates;
-CREATE TABLE plates (
+-- DROP TABLE IF EXISTS plates;
+CREATE TABLE IF NOT EXISTS plates (
   id integer PRIMARY KEY,
   plate_type varchar (10) NOT NULL,
   -- one might need other datatype in other RDBMS, should cover date AND time:
@@ -24,12 +24,17 @@ CREATE TABLE plates (
   UNIQUE (setup_time, position, machine_id)
 );
 
+-- NB: THIS TABLE MIGHT NEED ADDITIONS BY THE USER!
+-- The metadata of interest should be added as columns to the 'plates' table
+-- after finding appropriate data types. We do not fix them here because OPMX
+-- objects can contain any kinds of metadata.
 
---------------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
 
 
--- DROP TABLE wells;
-CREATE TABLE wells (
+-- DROP TABLE IF EXISTS wells;
+CREATE TABLE IF NOT EXISTS wells (
   id integer PRIMARY KEY,
   plate_id integer NOT NULL REFERENCES plates,
   -- string length does not vary, but this type is efficient in PostgreSQL:
@@ -38,11 +43,11 @@ CREATE TABLE wells (
 );
 
 
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 
 
--- DROP TABLE measurements;
-CREATE TABLE measurements (
+-- DROP TABLE IF EXISTS measurements;
+CREATE TABLE IF NOT EXISTS measurements (
   id integer PRIMARY KEY,
   well_id integer NOT NULL REFERENCES wells,
   time real NOT NULL,
@@ -51,11 +56,11 @@ CREATE TABLE measurements (
 );
 
 
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 
 
--- DROP TABLE aggr_settings;
-CREATE TABLE aggr_settings (
+-- DROP TABLE IF EXISTS aggr_settings;
+CREATE TABLE IF NOT EXISTS aggr_settings (
   id integer PRIMARY KEY,
   plate_id integer NOT NULL REFERENCES plates,
   software varchar (25) NOT NULL,
@@ -66,11 +71,11 @@ CREATE TABLE aggr_settings (
 );
 
 
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 
 
--- DROP TABLE aggregated;
-CREATE TABLE aggregated (
+-- DROP TABLE IF EXISTS aggregated;
+CREATE TABLE IF NOT EXISTS aggregated (
   id integer PRIMARY KEY,
   well_id integer NOT NULL REFERENCES wells,
   aggr_setting_id integer NOT NULL REFERENCES aggr_settings,
@@ -81,11 +86,11 @@ CREATE TABLE aggregated (
 
 
 
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 
 
--- DROP TABLE disc_settings;
-CREATE TABLE disc_settings (
+-- DROP TABLE IF EXISTS disc_settings;
+CREATE TABLE IF NOT EXISTS disc_settings (
   id integer PRIMARY KEY,
   plate_id integer NOT NULL REFERENCES plates,
   software varchar (25) NOT NULL,
@@ -96,11 +101,11 @@ CREATE TABLE disc_settings (
 );
 
 
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 
 
--- DROP TABLE discretized;
-CREATE TABLE discretized (
+-- DROP TABLE IF EXISTS discretized;
+CREATE TABLE IF NOT EXISTS discretized (
   id integer PRIMARY KEY,
   well_id integer NOT NULL REFERENCES wells,
   disc_setting_id integer NOT NULL REFERENCES disc_settings,
@@ -109,6 +114,6 @@ CREATE TABLE discretized (
 );
 
 
---------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
 
 

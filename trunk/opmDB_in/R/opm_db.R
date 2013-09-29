@@ -15,9 +15,9 @@
 #'   \describe{
 #'   \item{OPM_DB}{Holds all data that occur in an \acronym{OPM} object, or in
 #'   several such objects as contained in an \acronym{OPMS} object.}
-#'   \item{OPMA_DB}{Holds all data that occur in an \acronym{OPMA} object, or in 
+#'   \item{OPMA_DB}{Holds all data that occur in an \acronym{OPMA} object, or in
 #'   several such objects as contained in an \acronym{OPMS} object.}
-#'   \item{OPMD_DB}{Holds all data that occur in an \acronym{OPMD} object, or in 
+#'   \item{OPMD_DB}{Holds all data that occur in an \acronym{OPMD} object, or in
 #'   several such objects as contained in an \acronym{OPMS} object.}
 #'   }
 #'   The inheritance relationships thus mirror those of the \code{OPMX} objects
@@ -61,8 +61,8 @@
 #'   function(i) all.equal(unclass(y[i]), unclass(vaas_4[i]))))
 #' (y <- try(as(x, "OPMD"), silent = TRUE)) # does not work because > 1 plate
 #' stopifnot(inherits(y, "try-error"))
-#' (y <- as(x, "list")) # one can always go through a list
-#' stopifnot(sapply(y, is, "OPMD")) # opms() could now be called
+#' ##(y <- as(x, "list")) # one can always go through a list
+#' ##stopifnot(sapply(y, is, "OPMD")) # opms() could now be called
 #'
 setClass("OPM_DB",
   contains = "DBTABLES",
