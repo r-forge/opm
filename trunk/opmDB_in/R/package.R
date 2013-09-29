@@ -3,7 +3,7 @@
 ################################################################################
 ################################################################################
 #
-# Package description and imports
+# Package description, imports and constants
 #
 
 
@@ -19,13 +19,16 @@
 #' For the underlying type of data, see the documentation of \pkg{opm}.
 #'
 #' For the principle of conversion to database tables, see the virtual class
-#' \code{\link{DBTABLES}} and its methods, \code{\link{DBTABLES-methods}}.
+#' \code{\link{DBTABLES}} and the according \code{\link{DBTABLES-methods}}.
 #'
 #' For the application of these conversions to \pkg{opm} data objects, see the
-#' \code{\link{OPM_DB}} class.
+#' \code{\link{OPM_DB-classes}}.
 #' @keywords package
 #'
 NULL
+
+
+################################################################################
 
 #' @importFrom stats update
 #'
@@ -38,3 +41,16 @@ NULL
 #' @importFrom rjson toJSON fromJSON
 #'
 NULL
+
+
+################################################################################
+
+
+# See the opm package for why this is needed.
+#
+SEALED <- FALSE #|| SEALED <- TRUE
+
+
+################################################################################
+
+

@@ -8,47 +8,9 @@
 #
 
 
-# See the opm package for why this is needed.
-#
-SEALED <- FALSE #|| SEALED <- TRUE
-
-
-NOT_YET <- "not yet implemented"
-
-
 # Used for the measurements slot.
 #
 MEASUREMENT_COLUMN_MAP <- c(Well = "well_id", Time = "time", Value = "value")
-
-
-################################################################################
-
-
-#' Print
-#'
-#' Print \code{\link{DBTABLES}} summaries to the screen.
-#'
-#' @param x Object of class \sQuote{DBTABLES_Summary}.
-#' @param ... Optional arguments passed to and from other methods.
-#' @return \code{x} is returned invisibly.
-#' @keywords internal
-#' @name print
-#'
-NULL
-
-#' @rdname print
-#' @method print DBTABLES_Summary
-#' @export
-#'
-print.DBTABLES_Summary <- function(x, ...) {
-  cat("An object of class ", x[["Class"]], ".\n", sep = "")
-  cat("Defined cross-references between tables:\n")
-  cr <- x[["Crossrefs"]]
-  cr <- structure(paste(cr[, "to.tbl"], cr[, "to.col"], sep = "."),
-    names = paste(cr[, "from.tbl"], cr[, "from.col"], sep = "."))
-  cat(formatDL(cr), ..., sep = "\n")
-  invisible(x)
-}
 
 
 ################################################################################
