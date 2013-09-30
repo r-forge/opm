@@ -718,7 +718,7 @@ ____EOF
     CHECK_R_TESTS=
   ;;
   rnw )
-    run_Stangle opm_in opmdata_in pkgutils_in
+    run_Stangle opm_in opmdata_in pkgutils_in opmDB_in
     exit $?
   ;;
   rout )
@@ -734,7 +734,7 @@ ____EOF
     exit $?
   ;;
   time )
-    show_example_timings opm opmdata pkgutils
+    show_example_timings opm opmdata pkgutils opmDB
     exit $?
   ;;
   todo )

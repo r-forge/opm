@@ -53,9 +53,11 @@ forward_OPM_to_list <- function(from) {
     position = csv_data(from, what = "position", normalize = TRUE),
     machine_id = opm_opt("machine.id"), stringsAsFactors = FALSE,
     csv_data = toJSON(csv_data(from)), check.names = FALSE)
-  if (any(bad <- names(md <- from@metadata) %in% colnames(p)))
-    stop("use of forbidden metadata name: ", names(md)[bad][1L])
-  p <- cbind(p, md, stringsAsFactors = FALSE)
+  if (length(md <- from@metadata)) {
+    if (any(bad <- names(md) %in% colnames(p)))
+      stop("use of forbidden metadata name: ", names(md)[bad][1L])
+    p <- cbind(p, md, stringsAsFactors = FALSE)
+  }
   w <- wells(from)
   w <- data.frame(id = seq_along(w), plate_id = 1L, coordinate = w,
     stringsAsFactors = FALSE, check.names = FALSE)
@@ -84,10 +86,10 @@ backward_OPM_to_list <- function(from) {
 #' @rdname conversion
 #'
 forward_OPMA_to_list <- function(from) {
-  aggr_forward <- function(x, coords) data.frame(check.names = FALSE,
-    id = seq_along(x), aggr_setting_id = 1L, stringsAsFactors = FALSE,
+  aggr_forward <- function(x, coords) data.frame(id = seq_along(x),
     well_id = rep(match(colnames(x), coords), each = nrow(x)),
-    parameter = rownames(x), value = as.vector(x))
+    aggr_setting_id = 1L, parameter = rownames(x), value = as.vector(x),
+    check.names = FALSE, stringsAsFactors = FALSE)
   x <- forward_OPM_to_list(from)
   x$aggregated <- aggr_forward(from@aggregated, x$wells[, "coordinate"])
   x$aggr_settings <- settings_forward(from@aggr_settings, x$plates[, "id"])

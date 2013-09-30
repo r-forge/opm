@@ -68,9 +68,10 @@ NULL
 #' @export
 #'
 print.DBTABLES_Summary <- function(x, ...) {
-  cat("An object of class ", sQuote(x[["Class"]]), ".\n", sep = "")
+  cat("An object of class ", sQuote(x$Class), ".\n", sep = "")
+  cat("Number of rows in first table: ", x$Size, "\n", sep = "")
   cat("Defined cross-references between tables:\n")
-  cr <- x[["Crossrefs"]]
+  cr <- x$Crossrefs
   cr[is.na(cr)] <- "<MISSING>"
   cr <- structure(paste(cr[, "to.tbl"], cr[, "to.col"], sep = "."),
     names = paste(cr[, "from.tbl"], cr[, "from.col"], sep = "."))
@@ -115,21 +116,37 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   resulting list, with \code{start} set to \code{NULL} and \code{drop} set to
 #'   \code{TRUE}.
 #' @param INDICES Optional vector used for selecting a subset of the tables and
-#'   modifying their order (which might not be make sense, see
+#'   modifying their order (which might not make sense, see
 #'   \code{\link{DBTABLES}}). If it has names, these will be passed to
 #'   \code{FUN} instead of the original names of the slots.
 #'
 #'   Note that \code{INDICES} may also be a function. If so, it is used in place
 #'   of \code{FUN}, which, unless missing, is passed as first additional
 #'   argument to \code{INDICES}.
-#' @param FUN Function to be applied to each table in turn. Should accept a
-#'   character scalar (name of the table) and a data frame (the table) as the
-#'   first two (unnamed) arguments. \code{FUN} well be replaced by
-#'   \code{INDICES} if the latter is a function; see above for details.
+#' @param FUN Function to be applied to each table in turn. In the case of
+#'   \code{by}, it should accept a data frame (the table) and a character scalar
+#'   (name of that table) as the first two (unnamed) arguments. \code{FUN} can
+#'   be replaced by \code{INDICES} if the latter is a function; see above for
+#'   details.
+#'
+#'   In the case of \code{collect}, if \code{.sql} is \code{FALSE}, \code{FUN}
+#'   should accept three first arguments (in addition to those in \code{...}, if
+#'   any), in order: the name of a table (database table or data frame), the
+#'   name of a column in that table, and a vector of numeric indexes to match
+#'   that column. It should return a data frame with all matched rows. If
+#'   \code{.sql} is \code{TRUE}, \code{FUN} should accept a character scalar
+#'   (\acronym{SQL} statement) as single first argument in addition to those in
+#'   \code{...}, and use this to retreieve columns from a database table.
 #' @param ... Objects of the same class as \code{x} for \code{c}, optional
 #'   further arguments of \code{FUN} for \code{by}.
 #' @param simplify Logical scalar passed to \code{mapply} as \sQuote{SIMPLIFY}
 #'   argument.
+#' @param what Vector of primary keys for the first table. Selection of rows
+#'   from subsequent tables works via the defined foreign keys.
+#' @param .sql Logical scalar indicating whether \acronym{SQL} should be
+#'   generated and passed to \code{FUN}. See their for details.
+#' @param .mapping Optional vector for mapping the slot names in \code{x} before
+#'   passing them to \code{FUN}.
 #' @return
 #'   \code{pkeys} yields a character vector with the (expected) name of
 #'   the primary key column for each table. \code{fkeys} returns a matrix
@@ -163,6 +180,15 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'
 #'   \code{by} returns the result of \code{FUN} or \code{INDICES} as a list or
 #'   other kind of object, depending on \code{simplify}.
+#'
+#'   \code{collect} creates a novel \code{INDICES} object. It starts with
+#'   passing \code{what} as indexes (optionaly within an \acronym{SQL}
+#'   statement) to \code{FUN}, which should yield a data frame to be inserted
+#'   as first table. Further \code{what} arguments are generated using the
+#'   information returned by \code{fkeys} to fill the object. Child classes
+#'   might need to define a prototype with data frames that might be empty but
+#'   already contain the column naming that defines the cross references.
+#'
 #' @name DBTABLES-methods
 #' @seealso methods::setClass
 #' @family dbtables
@@ -172,8 +198,7 @@ print.DBTABLES_Summary <- function(x, ...) {
 #' # example class, with 'results' referring to 'experiments'
 #' setClass("myclass",
 #'   contains = "DBTABLES",
-#'   representation = representation(experiments = "data.frame",
-#'     results = "data.frame"))
+#'   slots = c(experiments = "data.frame", results = "data.frame"))
 #'
 #' x <- new("myclass",
 #'   experiments = data.frame(id = 3:1, researcher = "Jane Doe"),
@@ -225,12 +250,33 @@ print.DBTABLES_Summary <- function(x, ...) {
 #' ## ids are not necessarily the same than before but still OK
 #'
 #' # traverse the object
-#' (y <- by(x, TRUE, function(a, b) is.data.frame(b)))
+#' (y <- by(x, TRUE, function(a, b) is.data.frame(a)))
 #' stopifnot(y, !is.null(names(y)))
-#' (z <- by(x, c(2, 1), function(a, b) is.character(a)))
+#' (z <- by(x, c(2, 1), function(a, b) is.character(b)))
 #' stopifnot(z, names(z) == rev(names(y))) # other order
-#' (z <- by(x, c(A = 1, B = 2), function(a, b) nrow(b)))
-#' stopifnot(names(z) == c("A", "B")) # renaming
+#' (z <- by(x, c(A = 1, B = 2), function(a, b) b)) # watch renaming
+#' stopifnot(z == c("A", "B")) # new names passed as 2nd argument to FUN
+#'
+#' # to illustrate collect(), we use a function that simply yields the already
+#' # present slots
+#' col_fun <- function(data, tbl, col, idx) {
+#'   tmp <- slot(data, tbl)
+#'   tmp[tmp[, col] %in% idx, , drop = FALSE]
+#' }
+#'
+#' (y <- collect(x, slot(x, "experiments")[, "id"], col_fun, data = x,
+#'   .sql = FALSE))
+#' stopifnot(identical(y, x))
+#'
+#' # select only a subset of the indexes
+#' (y <- collect(x, c(2L, 1L), col_fun, data = x, .sql = FALSE))
+#' stopifnot(length(y) == 2)
+#'
+#' # try a mapping that does not work
+#' (y <- try(collect(x, c(2L, 1L), col_fun, data = x, .sql = FALSE,
+#'   .mapping = c(results = "notthere")), silent = TRUE))
+#' stopifnot(inherits(y, "try-error"))
+#' ## note that non-matching names would be silently ignored
 #'
 NULL
 
@@ -320,8 +366,8 @@ setMethod("pkeys_valid", "DBTABLES", function(object) {
 #= summary DBTABLES-methods
 
 setMethod("summary", "DBTABLES", function(object) {
-  structure(list(Class = class(object), Crossrefs = fkeys(object)),
-    class = "DBTABLES_Summary")
+  structure(list(Class = class(object), Size = length(object),
+    Crossrefs = fkeys(object)), class = "DBTABLES_Summary")
 }, sealed = SEALED)
 
 #= show DBTABLES-methods
@@ -504,7 +550,7 @@ setGeneric("by")
 setMethod("by", c("DBTABLES", "missing", "function"), function(data, INDICES,
     FUN, ..., simplify = TRUE) {
   tn <- names(pkeys(data))
-  mapply(FUN = FUN, tn, lapply(tn, slot, object = data),
+  mapply(FUN = FUN, sapply(tn, slot, object = data, simplify = FALSE), tn,
     MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
@@ -513,21 +559,21 @@ setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES, FUN,
   tn1 <- names(pkeys(data))[INDICES]
   if (is.null(tn2 <- names(INDICES)))
     tn2 <- tn1
-  mapply(FUN = FUN, tn2, lapply(tn1, slot, object = data),
+  mapply(FUN = FUN, sapply(tn1, slot, object = data, simplify = FALSE), tn2,
     MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
 setMethod("by", c("DBTABLES", "function", "missing"), function(data, INDICES,
     FUN, ..., simplify = TRUE) {
   tn <- names(pkeys(data))
-  mapply(FUN = INDICES, tn, lapply(tn, slot, object = data),
+  mapply(FUN = INDICES, sapply(tn, slot, object = data, simplify = FALSE), tn,
     MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
 setMethod("by", c("DBTABLES", "function", "ANY"), function(data, INDICES, FUN,
     ..., simplify = TRUE) {
   tn <- names(pkeys(data))
-  mapply(FUN = INDICES, tn, lapply(tn, slot, object = data),
+  mapply(FUN = INDICES, sapply(tn, slot, object = data, simplify = FALSE), tn,
     MoreArgs = list(FUN, ...), SIMPLIFY = simplify, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
@@ -561,13 +607,13 @@ setMethod("collect", c("DBTABLES", "numeric"), function(x, what, FUN, ...,
       FUN
   pk <- pkeys(x)
   result <- lapply(as.list(pk), as.null)
-  result[[1L]] <- as.data.frame(get_fun(map_fun(names(result)[1L]), pk[i],
+  result[[1L]] <- as.data.frame(get_fun(map_fun(names(result)[1L]), pk[1L],
     what, ...))
   crs <- fkeys(x)
   crs <- crs[!is.na(crs[, "to.tbl"]), , drop = FALSE]
   for (i in seq_len(nrow(crs))) {
     cr <- crs[i, ]
-    if (!is.null(result)[[cr[["from.tbl"]]]])
+    if (!is.null(result[[cr[["from.tbl"]]]]))
       next
     what <- result[[cr[["to.tbl"]]]][, cr[["to.col"]]]
     result[[cr[["from.tbl"]]]] <- as.data.frame(get_fun(map_fun(
