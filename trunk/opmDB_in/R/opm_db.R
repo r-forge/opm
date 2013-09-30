@@ -10,7 +10,7 @@
 #' created by \pkg{opm}.
 #'
 #' @details
-#'   See the \pkg{opm} documentation for details on \code{OPMX} objects
+#'   See the \pkg{opm} documentation for details on \acronym{OPMX} objects
 #'   themselves. \pkg{opmDB} defines the following additional classes:
 #'   \describe{
 #'   \item{OPM_DB}{Holds all data that occur in an \acronym{OPM} object, or in
@@ -35,6 +35,13 @@
 #'   \code{opms} function from the \pkg{opm} package, irrespective of the number
 #'   of plates contained.
 #'
+#'   In contrast to the \acronym{OPMX} classes, the three ones defined here can
+#'   be created using \code{new}, yielding empty objects. These cannot neither
+#'   be converted to \acronym{OPMX} objects nor combined with them using
+#'   \code{\link{c}}. Instead, they are useful in conjunction with
+#'   \code{\link{collect}}. They contain all \code{\link{fkeys}} information and
+#'   can be filled using a suitable \code{FUN} argument.
+#'
 #' @docType class
 #' @export
 #' @name OPM_DB-classes
@@ -44,8 +51,6 @@
 #' @family opm_db-functions
 #' @keywords methods classes
 #' @examples
-#'
-#' library(opm)
 #'
 #' ## conversions back and forth, OPMD as starting point
 #' (x <- as(vaas_1, "OPMD_DB"))
@@ -61,13 +66,21 @@
 #'   function(i) all.equal(unclass(y[i]), unclass(vaas_4[i]))))
 #' (y <- try(as(x, "OPMD"), silent = TRUE)) # does not work because > 1 plate
 #' stopifnot(inherits(y, "try-error"))
-#' ##(y <- as(x, "list")) # one can always go through a list
-#' ##stopifnot(sapply(y, is, "OPMD")) # opms() could now be called
+#' (y <- as(x, "list")) # one can always go through a list
+#' stopifnot(sapply(y, is, "OPMD")) # opms() could now be called
+#'
+#' ## one can create new objects without data
+#' (y <- new("OPMD_DB"))
+#' stopifnot(fkeys_valid(y), fkeys(y) == fkeys(x), !length(y))
+#' # such objects cannot be converted to OPMX but can be filled using collect()
 #'
 setClass("OPM_DB",
   contains = "DBTABLES",
-  representation = representation(plates = "data.frame",
-    wells = "data.frame", measurements = "data.frame"),
+  slots = c(plates = "data.frame", wells = "data.frame",
+    measurements = "data.frame"),
+  prototype = list(plates = data.frame(id = integer(), machine_id = integer()),
+    wells = data.frame(id = integer(), plate_id = integer()),
+    measurements = data.frame(id = integer(), well_id = integer())),
   validity = fkeys_valid,
   sealed = SEALED
 )
@@ -81,9 +94,15 @@ setClass("OPM_DB",
 setClass("OPMA_DB",
   contains = "OPM_DB",
   # the superclass slots must be repeated here to enforce the ordering
-  representation = representation(plates = "data.frame",
-    wells = "data.frame", measurements = "data.frame",
-    aggr_settings = "data.frame", aggregated = "data.frame"),
+  slots = c(plates = "data.frame", wells = "data.frame",
+    measurements = "data.frame", aggr_settings = "data.frame",
+    aggregated = "data.frame"),
+  prototype = list(plates = data.frame(id = integer(), machine_id = integer()),
+    wells = data.frame(id = integer(), plate_id = integer()),
+    measurements = data.frame(id = integer(), well_id = integer()),
+    aggr_settings = data.frame(id = integer(), plate_id = integer()),
+    aggregated = data.frame(id = integer(), well_id = integer(),
+      aggr_setting_id = integer())),
   validity = fkeys_valid,
   sealed = SEALED
 )
@@ -97,10 +116,19 @@ setClass("OPMA_DB",
 setClass("OPMD_DB",
   contains = "OPMA_DB",
   # the superclass slots must be repeated here to enforce the ordering
-  representation = representation(plates = "data.frame",
-    wells = "data.frame", measurements = "data.frame",
-    aggr_settings = "data.frame", aggregated = "data.frame",
-    disc_settings = "data.frame", discretized = "data.frame"),
+  slots = c(plates = "data.frame", wells = "data.frame",
+    measurements = "data.frame", aggr_settings = "data.frame",
+    aggregated = "data.frame", disc_settings = "data.frame",
+    discretized = "data.frame"),
+  prototype = list(plates = data.frame(id = integer(), machine_id = integer()),
+    wells = data.frame(id = integer(), plate_id = integer()),
+    measurements = data.frame(id = integer(), well_id = integer()),
+    aggr_settings = data.frame(id = integer(), plate_id = integer()),
+    aggregated = data.frame(id = integer(), well_id = integer(),
+      aggr_setting_id = integer()),
+    disc_settings = data.frame(id = integer(), plate_id = integer()),
+    discretized = data.frame(id = integer(), well_id = integer(),
+      disc_setting_id = integer())),
   validity = fkeys_valid,
   sealed = SEALED
 )

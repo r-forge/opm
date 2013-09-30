@@ -12,7 +12,10 @@
 #
 # SET UP DATABASE FOR MYSQL
 # =========================
+# ## in the command line, enter (without the '$'):
 # $ mysql -u root -p
+# ## in the mysl prompt, enter (without 'mysql> ' and after replacing $USER
+# ## with your username:
 # mysql> CREATE DATABASE IF NOT EXISTS pmdata;
 # mysql> GRANT USAGE ON pmdata.* TO $USER@localhost;
 # mysql> GRANT ALL PRIVILEGES ON pmdata.* TO $USER@localhost;
@@ -76,7 +79,7 @@ outcome=0
 sqlite3_dbname=pmdata
 postgreqsql_dbname=pmdata
 mysql_dbname=pmdata
-[ $# -eq 0 ] && set `find . -iname '*.sql'` # must not contain whitespace
+[ $# -eq 0 ] && set `find opmDB_in -iname '*.sql'` # must not contain whitespace
 
 
 ################################################################################
