@@ -129,15 +129,10 @@ This is the substrate-information tutorial of \pkg{opm} in the version of \today
 
 A detailed description of the OmniLog\textregistered \ Phenotype MicroArray (PM) system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype MicroArray Data'' (called ``main tutorial'' in the following).
 The description of the methods below presupposes that the user is familiar with the usage of \pkg{opm} and has studied the main tutorial as well as the entries of the \pkg{opm} manual relevant to her or his research.
+Especially the concept and structure of the different object-classes should be made clear before starting with this tutorial. 
 
-In addition to visual inspection or statistical comparative analyses of Phenotype Microarray data as described in the main manual, users might be interested in specific information on the substrates used in PM assays.
-The \pkg{opm} package offers a variety of additional data on PM substrates.
-In conjunction with other packages, it is possible to visualize PM results directly in pathway maps as delivered by the KEGG database.
-This can be done directly for the estimated curve parameters from one to several plates.
-But visualization of the results of an \proglang{opm\_mcp} analysis is also possible, which offers more (statistically interesting) opportunities for making sense of the PM data in the context of pathways.
-The \code{annotated} methods described in detail below also generates datasets that can be used for analyses of interdependencies of substrate features and PM results.
-This can be used to determine which pathways are actually of interest before proceeding with the visualization of the PM results within these pathways.
-
+In addition to visual inspection or statistical comparative analyses of Phenotype Microarray data, as described in the main manual, users might be interested in specific information on the substrates used in PM assays.
+The \pkg{opm} package contains a large variety of additional data on PM substrates. Beside methods for assessing these information directly, this tutorial introduces strategies for visualization of the measured PM results by mapping on pathway-maps and introduces analysis methods for modelling and identification of informative and less informative substrates. 
 
 \section[Preparation]{Preparation}\label{preparation}
 
@@ -150,15 +145,14 @@ options(useFancyQuotes = FALSE)
 library("methods")
 @
 
-Before starting, both the \pkg{opm} package and \pkg{opmdata}, containing example data introduced and explained in detail in the main tutorial, should be loaded into an \proglang{R} session as follows:
+Before starting, install the package \pkg{pathview} (not shown below) and then load it together with the \pkg{opm} package, into an \proglang{R} session. Please, make sure, that you this is done in the stated order, otherwise \pkg{pathview} does not work properly.
 
 <<label=load-library>>=
+library("pathview")
 library("opm")
 data(vaas_et_al, package = "opmdata")
 @
-
-% maybe special section for it, but no redundancies relative to the main tutorial!!!
-
+% not sure yet, if vaas_et_al is needed
 
 \section[Available plate information]{Available plate information}\label{plateInfo}
 
@@ -169,14 +163,14 @@ An overview about the plate types available in the respective version of \pkg{op
 plate_type(full = TRUE)
 @
 
-These not only include OmniLog\textregistered \ plates; see the manual and the main tutorial for further details.
-Using other values for \code{full}, or additional arguments, distinct spelling variants can be obtained.
+The resulting vector of names does not only include OmniLog\textregistered \ plates; see the manual and the main tutorial for further details.
+Using other values for \code{full}, or additional arguments, distinct spelling variants of the plate names can be obtained.
 
 
 \section[Accessing substrate information]{Accessing substrate information}\label{application substrates}
 
 The \pkg{opm} package contains a number of functions suitable for accessing precomputed information on the substrates within certain wells and entire plates.
-In the manual and help pages these functions are contained in the family ``naming-functions'' with according cross-references.
+In the manual and help pages these functions are explained within the family ``naming-functions'' with according cross-references.
 One usually would start a search by determining the exact spelling of an internally used name with \code{find\_substrate()}:
 
 <<label=find-substrate-exact-substring, results=hide>>=
@@ -236,21 +230,48 @@ Another use of \code{substrate\_info()} is to convert substrate names to lower c
 See the manual for further details, help page \code{?substrate\_info}.
 
 
-%\section[Visualisation by integration in pathway maps]{Visualisation by integration in pathway maps}\label{vis-pathway}
-%
-%% preparation to make the annotated vector of PM-data available
-%%here: prepare an OPMS-object containing also results from multiple comparisons using \proglang{opm\_mcp}.
-%%explain pathway based data integration and visualization; map and render user data on relevant pathway graphs
-%
-%
-%\href{http://www.genome.jp/kegg/}{KEGG} is a database resource for understanding high-level functions and utilities of the biological system, such as the cell, the organism and the ecosystem, from molecular-level information, especially large-scale molecular datasets generated by genome sequencing and other high-throughput experimental technologies.
-%Pathway Mapping
-%KEGG PATHWAY mapping is the process to map molecular datasets, especially large-scale datasets in genomics, transcriptomics, proteomics, and metabolomics, to the KEGG pathway maps for biological interpretaion of higher-level systemic functions. 
+\section[Visualisation by integration in pathway maps]{Visualisation by integration in pathway maps}\label{vis-pathway}
+
+In conjunction with other packages, it is possible to visualize PM results directly in pre-existing pathway maps as, for example, delivered by the KEGG database.
+Those maps are essentially manually drawn pathway maps representing the currently available knowledge about genes, substrates and their connection in pathways. 
+Depending on availability of genome and gene-annotation information within KEGG about a certain organism, individual maps are allocateable.
+The mapping itself is simply the introduction of PM-measurement data into those maps, as it can be done similarly with several other types of OMICS-data. For details, please see the description on the KEGG-homepage: (\url{http://www.genome.jp/kegg/}).
+
+Here we will use the function \code{pathview} from the package of same name \citep{Luo2013}. 
+This function downloads the stated pathway map and maps and renders user data into it.
+
+The workflow starts either with on object of class \code{OPM}, \code{OPMS} or \code{OPMX} object containing the agregated values or the results of an \proglang{opm\_mcp} analysis. 
+Here we start with the former situation, while the latter case will be discussed further below.
+The first step is to bring the PM-results in a suitable format, which is a named vector created by \code{annotated}. 
+
+<<label=annotated>>=
+# here provide the annotated vector from vaas_1
+xx <- annotated(vaas_1)
+head(xx)
+@
+
+The resulting vector basically contains the numeric values (selected parameter estimates or \code{opm_mcp} results, as explained below) as well as an annotation of the according substrates. 
+With the \code{what}-argument, passed as eponymous argument to \code{substrate_info}, the user can indicate which kind of information should be used for the annotation.
+\code{annotated} works directly on \code{OPMS}-objects containing aggregated data for single plates or bundles of plates. 
+However, please note, that the output allows for only one value per substrate. 
+When applying \code{annotated} to a set of plates, make sure, that only one experimental group is comprised, since the resulting values are averages per well over all plates.
+Using the \code{output}-argument, one is able to choose which parameter should be adressed, for example AUC instead of maximum height:
+
+<<label=annotated-param>>=
+y <- annotated(vaas_1, output = param_names()[4])
+head(y)
+@
+
+Further options allow for indication of categorical (\code{different}) and for the \code{opm_glht} method, binary outcomes (\code{smaller}, \code{larger} and \code{equal}).
+
+But visualization of the results of an \proglang{opm\_mcp} analysis is also possible, which offers more (statistically interesting) opportunities for making sense of the PM data in the context of pathways.
+This can be used to determine which pathways are actually of interest before proceeding with the visualization of the PM results within these pathways.
+
+ko - KEGG orthology: manually defined ortholog groups (KO entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes. 
+
 %% erklaeren, wozu man die daten nutzen kann, wenn man grafik und gruppenvergleiche gemacht hat
-%
-%% DO NOT REPEAT LITERATURE INFORMATION HERE, INCLUDE THE REFERENCES!
-%
-%package \pkg{pathview} \citep{Luo2013}:
+
+%package \pkg{pathview} :
 %All users need is to supply their gene or compound data and specify the target pathway. 
 %Pathview automatically downloads the pathway graph data, parses the data file, maps user data to the pathway, and renders pathway graph with the mapped data. 
 %Although built as a stand-alone program, pathview may seamlessly integrate with pathway (and functional) analysis tools for a large-scale and fully automated analysis pipeline. 
@@ -273,15 +294,8 @@ See the manual for further details, help page \code{?substrate\_info}.
 %% * explain why detach() is necessary (ask MG)
 %%   
 %
-%<<label=pathview-map>>=
-%detach(package:opm)
-%suppressPackageStartupMessages(library("pathview"))
-%library("opm")
-%# here provide the annotated vector from vaas_1
-%xx <- annotated(vaas_1)
-%
 %# here map the PM data stored in xx onto the pathway-map for galactose-metabolism
-%
+%<<label=pathview-map-plot>>=
 %vaas_1_KEGG_native <- pathview(gene.data = NULL,
 %                           cpd.data = xx , na.col="grey",
 %                           low = list(gene = "white", cpd = "white"),
