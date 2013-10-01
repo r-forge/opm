@@ -7,8 +7,10 @@
 # ====================
 #
 # sudo apt-get install mysql-server
-# sudo apt-get install sqlite3 ## earlier versions do not work
+# sudo apt-get install libmysqlclient-dev ## for compiling RMySQL
 #
+# sudo apt-get install sqlite3 ## earlier versions do not work
+#   ## RSQLite brings its own SQLite source code
 #
 # SET UP DATABASE FOR MYSQL
 # =========================

@@ -2,8 +2,8 @@
 
 -- -----------------------------------------------------------------------------
 --
--- Code for creating the tables that hold PM data. Tested with PostgreSQL (9.1),
--- SQLite (3.7.9) and MySQL (5.5.32).
+-- Code for creating the tables that hold PM data in the correct order. Tested
+-- with PostgreSQL (9.1), SQLite (3.7.9) and MySQL (5.5.32).
 --
 -- -----------------------------------------------------------------------------
 
