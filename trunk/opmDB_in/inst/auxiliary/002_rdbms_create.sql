@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS aggregated (
   well_id integer NOT NULL REFERENCES wells,
   aggr_setting_id integer NOT NULL REFERENCES aggr_settings,
   parameter varchar (25) NOT NULL,
-  value real NOT NULL,
+  value double precision NOT NULL,
   UNIQUE (well_id, aggr_setting_id, parameter)
 );
 
