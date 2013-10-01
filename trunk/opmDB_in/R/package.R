@@ -38,6 +38,10 @@ NULL
 #'
 NULL
 
+#' @importFrom pkgutils collect
+#'
+NULL
+
 #' @importFrom rjson toJSON fromJSON
 #'
 NULL

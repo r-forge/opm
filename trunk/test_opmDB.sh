@@ -57,7 +57,7 @@ test_sql_with_mysql()
   shift
   local infile
   for infile; do
-    mysql --show-warnings -U -B -s "$dbname" < "$infile" > /dev/null || return 1
+    mysql --show-warnings -B -s "$dbname" < "$infile" > /dev/null || return 1
   done
 }
 
@@ -79,7 +79,7 @@ outcome=0
 sqlite3_dbname=pmdata
 postgreqsql_dbname=pmdata
 mysql_dbname=pmdata
-[ $# -eq 0 ] && set `find opmDB_in -iname '*.sql'` # must not contain whitespace
+[ $# -eq 0 ] && set `find opmDB_in -iname '*.sql' -exec ls \{\} +`
 
 
 ################################################################################
@@ -99,5 +99,7 @@ errs=$((errs + outcome))
 
 bla $errs
 exit $errs
+
+
 
 

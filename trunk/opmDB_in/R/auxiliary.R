@@ -112,7 +112,7 @@ backward_OPMA_to_list <- function(from) {
 #' @rdname conversion
 #'
 backward_OPMD_to_list <- function(from) {
-  disc_backward <- function(d, w) as.list(structure(d[, "value"],
+  disc_backward <- function(d, w) as.list(structure(as.logical(d[, "value"]),
     names = w[match(d[, "well_id"], w[, "id"]), "coordinate"]))
   c(backward_OPMA_to_list(from), list(
     disc_settings = settings_backward(from@disc_settings),

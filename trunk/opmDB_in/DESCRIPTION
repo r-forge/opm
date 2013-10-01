@@ -1,10 +1,10 @@
 Package: opmDB
-Version: 0.0.4
-Date: 2013-09-30
+Version: 0.0.5
+Date: 2013-10-01
 Title: Connecting opm to databases
 Author: Markus Goeker
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
-Imports: methods, rjson (>= 0.2.12)
+Imports: methods, rjson (>= 0.2.12), pkgutils (>= 0.5.0)
 Depends: opm (>= 0.10.52)
 Suggests: RODBC, testthat
 Description: The package `opm' provides tools for analyzing OmniLog(R)
