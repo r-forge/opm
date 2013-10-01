@@ -145,15 +145,18 @@ options(useFancyQuotes = FALSE)
 library("methods")
 @
 
-Before starting, install the package \pkg{pathview} (not shown below) and then load it together with the \pkg{opm} package, into an \proglang{R} session. Please, make sure, that you this is done in the stated order, otherwise \pkg{pathview} does not work properly.
+Before starting, install the package \pkg{pathview} from \proglang{Bioconductor} (\url{http://bioconductor.org/packages/2.12/bioc/html/pathview.html}) and load it together with the \pkg{opm} package, into an \proglang{R} session. 
+Please note, that it is important to load \pkg{pathview} before \pkg{opm}, since otherwise some functions are not visible and the package does not work properly. In this vignette this is catched by the \code{if}-construct.
 
 <<label=load-library>>=
-library("pathview")
+suppressPackageStartupMessages(library("pathview"))
+if ("package:opm" %in% search())
+  detach("package:opm")
 library("opm")
 data(vaas_et_al, package = "opmdata")
 @
 % not sure yet, if vaas_et_al is needed
-
+% detach opm mit if-abfrage
 \section[Available plate information]{Available plate information}\label{plateInfo}
 
 Currently substrate layouts of various plates are available within \pkg{opm}.
@@ -235,12 +238,14 @@ See the manual for further details, help page \code{?substrate\_info}.
 In conjunction with other packages, it is possible to visualize PM results directly in pre-existing pathway maps as, for example, delivered by the KEGG database.
 Those maps are essentially manually drawn pathway maps representing the currently available knowledge about genes, substrates and their connection in pathways. 
 Depending on availability of genome and gene-annotation information within KEGG about a certain organism, individual maps are allocateable.
-The mapping itself is simply the introduction of PM-measurement data into those maps, as it can be done similarly with several other types of OMICS-data. For details, please see the description on the KEGG-homepage: (\url{http://www.genome.jp/kegg/}).
+
+The mapping itself is simply the introduction of PM-measurement data as colour-coding of nodes (here, representing the substrates) into those maps, as it can be done similarly with several other types of OMICS-data. For details, please see the description on the KEGG-homepage: (\url{http://www.genome.jp/kegg/}).
 
 Here we will use the function \code{pathview} from the package of same name \citep{Luo2013}. 
-This function downloads the stated pathway map and maps and renders user data into it.
+This function downloads the user-defined pathway map and subsequently maps and renders the given PM-data into it. 
+Please note, that it has to be loaded \emph{before} loading package \pkg{opm} into an \proglang{R} session.
 
-The workflow starts either with on object of class \code{OPM}, \code{OPMS} or \code{OPMX} object containing the agregated values or the results of an \proglang{opm\_mcp} analysis. 
+The workflow starts with either an \code{OPMX} object containing the agregated values or the results of an \proglang{opm\_mcp} analysis. 
 Here we start with the former situation, while the latter case will be discussed further below.
 The first step is to bring the PM-results in a suitable format, which is a named vector created by \code{annotated}. 
 
@@ -249,6 +254,8 @@ The first step is to bring the PM-results in a suitable format, which is a named
 xx <- annotated(vaas_1)
 head(xx)
 @
+
+% explain the NA values
 
 The resulting vector basically contains the numeric values (selected parameter estimates or \code{opm_mcp} results, as explained below) as well as an annotation of the according substrates. 
 With the \code{what}-argument, passed as eponymous argument to \code{substrate_info}, the user can indicate which kind of information should be used for the annotation.
@@ -262,14 +269,14 @@ y <- annotated(vaas_1, output = param_names()[4])
 head(y)
 @
 
-Further options allow for indication of categorical (\code{different}) and for the \code{opm_glht} method, binary outcomes (\code{smaller}, \code{larger} and \code{equal}).
+Further options allow for indication of categorical (\code{different}) and for the \code{opm_glht} method, binary outcomes (\code{smaller}, \code{larger} or \code{equal}).
 
 But visualization of the results of an \proglang{opm\_mcp} analysis is also possible, which offers more (statistically interesting) opportunities for making sense of the PM data in the context of pathways.
 This can be used to determine which pathways are actually of interest before proceeding with the visualization of the PM results within these pathways.
 
-ko - KEGG orthology: manually defined ortholog groups (KO entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes. 
-
 %% erklaeren, wozu man die daten nutzen kann, wenn man grafik und gruppenvergleiche gemacht hat
+
+ko - KEGG orthology: manually defined ortholog groups (KO entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes. 
 
 %package \pkg{pathview} :
 %All users need is to supply their gene or compound data and specify the target pathway. 
