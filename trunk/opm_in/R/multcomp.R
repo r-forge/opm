@@ -529,23 +529,31 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'   character scalars:
 #'   \describe{
 #'     \item{numeric}{Return the coefficients.}
-#'     \item{different}{Return -1, 1 or 0 indicating whether the coefficients
-#'     are significantly smaller or larger than, or insignificantly different
-#'     from the cutoff given by \code{opm_opt("threshold")}. This is calculated
-#'     from the confidence intervals stored in \code{object}.}
-#'     \item{smaller}{Return 1 or 0 indicating whether or not the coefficients
-#'     are significantly smaller than the default cutoff.}
-#'     \item{larger}{Return 1 or 0 indicating whether or not the coefficients
-#'     are significantly larger than the default cutoff.}
-#'     \item{equal}{Return 1 or 0 indicating whether or not the coefficients
-#'     are insignificantly different from the default cutoff.}
+#'     \item{upwards}{Return \code{FALSE}, \code{NA}, or \code{TRUE} indicating
+#'     whether the coefficients are significantly smaller or larger than, or
+#'     insignificantly different from the cutoff given by
+#'     \code{opm_opt("threshold")}. This is calculated from the confidence
+#'     intervals stored in \code{object}.}
+#'     \item{downwards}{Return \code{TRUE}, \code{NA}, or \code{FALSE}
+#'     indicating whether the coefficients are significantly smaller or larger
+#'     than, or insignificantly different from the default cutoff.}
+#'     \item{smaller}{Return \code{TRUE} or \code{FALSE} indicating whether or
+#'     not the coefficients are significantly smaller than the default cutoff.}
+#'     \item{larger}{Return \code{TRUE} or \code{FALSE} indicating whether or
+#'     not the coefficients are significantly larger than the default cutoff.}
+#'     \item{equal}{Return \code{TRUE} or \code{FALSE} indicating whether or not
+#'     the coefficients are insignificantly different from the default cutoff.}
+#'     \item{different}{Return \code{TRUE} or \code{FALSE} indicating whether or
+#'     not the coefficients are significantly different from the default
+#'     cutoff.}
 #'   }
 #'   Alternatively, character scalars such as \sQuote{!75.0}, \sQuote{<100},
-#'   \sQuote{>150} or \sQuote{=85.0} can be provided, with the first character
-#'   translated to the corresponding meaning in the list above and the remaining
-#'   string coerced to the cutoff to be used. If a numeric scalar is provided,
-#'   it is used as cutoff in conjunction with the \sQuote{different} mode
-#'   described above.
+#'   \sQuote{>150}, \sQuote{=85.0}, \sQuote{,3.0} or \sQuote{'11.5} can be
+#'   provided, with the first character translated to the corresponding meaning
+#'   in the list above (with \sQuote{,} for \sQuote{downwards} and \sQuote{'}
+#'   for \sQuote{upwards}) and the remaining string coerced to the cutoff to be
+#'   used. If a numeric scalar is provided, it is used as cutoff in conjunction
+#'   with the \sQuote{different} mode described above.
 #' @param lmap Vector to be used for mapping the created logical values, if any.
 #'   See \code{\link{map_values}} and the examples below for details. If
 #'   \code{NULL}, ignored. Also ignored if numeric instead of logical values are
@@ -642,7 +650,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #' stopifnot(is.numeric(y), y > 0, identical(names(y), names(x)))
 #'
 #' ## opm_glht method
-#' 
+#'
 #' # create opm_ghlt object
 #' y <- opm_mcp(vaas_4[, ,c( 1:12)], model = ~ J(Well, Species),
 #'   m.type = "aov", linfct = c(Pairs.Well = 1), full = FALSE)
@@ -651,20 +659,18 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #' head(anno_glht <- annotated(y))
 #' stopifnot(is.numeric(anno_glht), !is.null(names(anno_glht)))
 #'
-#' # generation of logic vector indication, if the compared groups are equal on 
+#' # generation of logic vector indication, if the compared groups are equal on
 #' # the considered substrates
 #' head(anno_glht_equal <- annotated(y, output = "equal", lmap = 1:3))
-#' stopifnot(anno_glht_equal > 0, 
+#' stopifnot(anno_glht_equal > 0,
 #'   identical(names(anno_glht_equal), names(x)[1:12]))
-#' 
-#' # generation of numeric vector with FALSE => 1, NA => 2 and TRUE => 3 and 
+#'
+#' # generation of numeric vector with FALSE => 1, NA => 2 and TRUE => 3 and
 #' # substrate names after translation of relevant characters to Greek letters
-#' head(anno_glht_eg <- annotated(y, output = "equal", what = "greek", 
+#' head(anno_glht_eg <- annotated(y, output = "equal", what = "greek",
 #'   lmap = 1:3))
 #' stopifnot(is.numeric(anno_glht_eg), !is.null(names(anno_glht_eg)))
-#' 
-
-
+#'
 setGeneric("annotated", function(object, ...) standardGeneric("annotated"))
 
 setMethod("annotated", "OPMA", function(object, what = "kegg", how = "ids",
@@ -773,17 +779,18 @@ setMethod("annotated", "opm_glht", function(object, what = "kegg", how = "ids",
   create_vector <- function(x, how, cutoff, lmap) {
     if (!is.matrix(x))
       stop("expected matrix, got ", class(x))
-    structure(case(how,
-      numeric = x[, "Estimate"],
-      different = if (length(lmap))
-        map_values(ifelse(x[, "lwr"] > cutoff, TRUE,
-          ifelse(x[, "upr"] < cutoff, FALSE, NA)), lmap)
-      else
-        x[, "lwr"] > cutoff | x[, "upr"] < cutoff,
-      equal = map_values(cutoff > x[, "lwr"] & cutoff < x[, "upr"], lmap),
-      larger = map_values(x[, "lwr"] > cutoff, lmap),
-      smaller = map_values(x[, "upr"] < cutoff, lmap)
-    ), names = rownames(x), how = how, cutoff = cutoff, lmap = lmap)
+    if (how == "numeric")
+      return(x[, "Estimate"])
+    structure(map_values(case(how,
+      downwards = ifelse(x[, "lwr"] > cutoff, FALSE, ifelse(x[, "upr"] < cutoff,
+        TRUE, NA)),
+      upwards = ifelse(x[, "lwr"] > cutoff, TRUE, ifelse(x[, "upr"] < cutoff,
+        FALSE, NA)),
+      different = x[, "lwr"] > cutoff | x[, "upr"] < cutoff,
+      equal = cutoff > x[, "lwr"] & cutoff < x[, "upr"],
+      larger = x[, "lwr"] > cutoff,
+      smaller = x[, "upr"] < cutoff
+    ), lmap), names = rownames(x), how = how, cutoff = cutoff, lmap = lmap)
   }
 
   if (is.numeric(L(output))) {
@@ -792,7 +799,8 @@ setMethod("annotated", "opm_glht", function(object, what = "kegg", how = "ids",
   } else if (grepl("^[!=<>]", output, FALSE, TRUE)) {
     cutoff <- must(as.numeric(substr(output, 2L, nchar(output))))
     output <- c(`!` = "different", `=` = "equal", `<` = "smaller",
-      `>` = "larger")[[substr(output, 1L, 1L)]]
+      `>` = "larger", `'` = "upwards",
+      `,` = "downwards")[[substr(output, 1L, 1L)]]
   } else {
     output <- tolower(output)
     cutoff <- get("threshold", OPM_OPTIONS)
