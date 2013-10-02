@@ -796,7 +796,7 @@ setMethod("annotated", "opm_glht", function(object, what = "kegg", how = "ids",
   if (is.numeric(L(output))) {
     cutoff <- output
     output <- "different"
-  } else if (grepl("^[!=<>]", output, FALSE, TRUE)) {
+  } else if (grepl("^[!=<>,']", output, FALSE, TRUE)) {
     cutoff <- must(as.numeric(substr(output, 2L, nchar(output))))
     output <- c(`!` = "different", `=` = "equal", `<` = "smaller",
       `>` = "larger", `'` = "upwards",

@@ -235,9 +235,9 @@ See the manual for further details, help page \code{?substrate\_info}.
 
 \section[Visualisation by integration in pathway maps]{Visualisation by integration in pathway maps}\label{vis-pathway}
 
-In conjunction with other packages, it is possible to visualize PM results directly in pre-existing pathway maps as, for example, delivered by the KEGG database.
+In conjunction with other packages, it is possible to visualize PM results directly in pre-existing pathway maps as, for example, from the KEGG database.
 Those maps are essentially manually drawn pathway maps representing the currently available knowledge about genes, substrates and their connection in pathways. 
-Depending on availability of genome and gene-annotation information within KEGG about a certain organism, individual maps are allocateable.
+Depending on availability of genome and gene-annotation information within KEGG about a certain organism, individual maps are allocateable \citep{Kanehisa01012010}.
 
 The mapping itself is simply the introduction of PM-measurement data as colour-coding of nodes (here, representing the substrates) into those maps, as it can be done similarly with several other types of OMICS-data. For details, please see the description on the KEGG-homepage: (\url{http://www.genome.jp/kegg/}).
 
@@ -245,9 +245,8 @@ Here we will use the function \code{pathview} from the package of same name \cit
 This function downloads the user-defined pathway map and subsequently maps and renders the given PM-data into it. 
 Please note, that it has to be loaded \emph{before} loading package \pkg{opm} into an \proglang{R} session.
 
-The workflow starts with either an \code{OPMX} object containing the agregated values or the results of an \proglang{opm\_mcp} analysis. 
-Here we start with the former situation, while the latter case will be discussed further below.
-The first step is to bring the PM-results in a suitable format, which is a named vector created by \code{annotated}. 
+The workflow starts with either an \code{OPMX} object containing the agregated values, or the result from an \proglang{opm\_mcp} analysis. 
+The first step in both cases is to bring the PM-results in a suitable format, which is a named vector created by \code{annotated}.
 
 <<label=annotated>>=
 # here provide the annotated vector from vaas_1
@@ -272,6 +271,31 @@ head(y)
 Further options allow for indication of categorical (\code{different}) and for the \code{opm_glht} method, binary outcomes (\code{smaller}, \code{larger} or \code{equal}).
 
 But visualization of the results of an \proglang{opm\_mcp} analysis is also possible, which offers more (statistically interesting) opportunities for making sense of the PM data in the context of pathways.
+The results from an \code{opm_mcp} procedure are treated with \code{annotated} as shown before with an \code{OPMX} object:
+
+<<label=annotated-opm_glht-plot>>=
+x <- opm_mcp(vaas_4[, , 1:10], output = "mcp", model = ~ Well,
+  linfct = c(`Dunnett.A05 (D-Cellobiose)` = 1))
+(annogl1 <- annotated(x))
+@
+% here CI-plot of mcp-procedure
+
+However, this method makes only sense, if each coefficient estimated by opm_mcp can be linked to a single substrate. This is usually only possible for the ``Dunnett'' and ``Pairs'' type of contrast if applied to the wells. 
+Further options allow for indication of categorical (\code{different}) and for the \code{opm_glht} method, binary outcomes (\code{smaller}, \code{larger} or \code{equal}).
+
+<<label=annotated-opm_glht-options>>=
+head(annogl1 <- annotated(x, output = "numeric"))
+head(annogl4 <- annotated(x, output = "equal"))
+@
+
+Using the argument \code{how= "value"} a numeric matrix containing the chosen computed values as first column together with data obtained via web service associated with the chosen database, in analogy to the download argument of \code{substrate_info} but after conversion to a numeric matrix. 
+This option is not available for all values of \code{what} and requires additional libraries. 
+See \code{substrate_info} for details.
+
+<<label=annotated-opm_glht-mat>>=
+anno_glht_mat <- annotated(x, how = "values")
+@
+
 This can be used to determine which pathways are actually of interest before proceeding with the visualization of the PM results within these pathways.
 
 %% erklaeren, wozu man die daten nutzen kann, wenn man grafik und gruppenvergleiche gemacht hat
