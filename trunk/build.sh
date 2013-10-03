@@ -3,12 +3,14 @@
 
 ################################################################################
 #
-# Documentation-generating script for the 'opm' package.
+# Build, analysis and test script for the 'opm' package.
 #
 # This script was tested using Bash and Dash. For details on portability, see
 # https://wiki.ubuntu.com/DashAsBinSh . Prerequisites for using this script in
-# most running modes are the 'docu.R' script from the 'pkgutils' R package and
-# the 'Rscript' executable present in the $PATH.
+# main running modes are the 'docu.R' script from the 'pkgutils' R package and
+# the 'Rscript' executable present in the $PATH. The working directory in which
+# to call this script is the parent directory of the R package directories one
+# is dealing with.
 #
 # Call this script with 'help' as first argument to get an overview of its
 # usage.
@@ -19,6 +21,13 @@
 # (C) 2013 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
 #
 ################################################################################
+
+
+# The folder in which the files for the external tests are placed (i.e. those
+# without an interactive R session). Must contain a subfolder "tests" with the
+# files used.
+#
+EXTERNAL_TEST_DIR=external_tests
 
 
 # 'docu.R' creates a logfile itself, which contains, e.g., information on style
@@ -613,6 +622,43 @@ remove_R_session_files()
 ################################################################################
 
 
+# Run the R code in the files delivered with opm as examples.
+#
+test_external_examples()
+{
+  local wdir=`pwd`
+  local tmpdir=`mktemp -d --tmpdir`
+  cd "$tmpdir"
+  local csv_file
+  for csv_file in "$wdir"/external_tests/tests/*.csv; do
+    case $csv_file in
+      *Multiline* ) continue;;
+    esac
+    ln -s "$csv_file" "${csv_file##*/}"
+  done
+  local rscript
+  local errs=0
+  for rscript in "$wdir"/"$1"/inst/examples/*.R; do
+    [ -s "$rscript" ] || continue
+    echo "TESTING ${rscript##*/}..."
+    if R CMD BATCH "$rscript"; then
+      echo "	<<<SUCCESS>>>"
+    else
+      echo "	<<<FAILURE>>>"
+      errs=$((errs + 1))
+      cp "${rscript##*/}out" "$wdir"
+    fi
+    echo
+  done
+  cd "$wdir"
+  rm -rf "$tmpdir"
+  return $errs
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -631,6 +677,10 @@ case $RUNNING_MODE in
     PKG_DIR=opmDB_in
     RUNNING_MODE=${RUNNING_MODE#b}
     CHECK_R_TESTS=
+  ;;
+  codex )
+    test_external_examples opm_in
+    exit $?
   ;;
   dfull|dnorm )
     PKG_DIR=opmdata_in
@@ -669,6 +719,7 @@ case $RUNNING_MODE in
 
 	Possible values for 'mode':
 	  bnorm   Normal build of the opmDB package.
+	  codex   Test the external code examples that come with opm.
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
 	  docu    Check whether the 'docu.R' script can be found, then exit.
