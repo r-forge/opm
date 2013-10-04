@@ -664,7 +664,7 @@ test_external_examples()
 show_lines_with_forbidden_characters()
 {
   [ $# -eq 0 ] && return
-  awk '/[^\n -~]/ {
+  awk '/[^\r -~]/ {
     printf "%s:%i\t%s\n", FILENAME, FNR, $0
   }' "$@"
 }
