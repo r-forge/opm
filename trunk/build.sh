@@ -655,6 +655,20 @@ test_external_examples()
   return $errs
 }
 
+################################################################################
+
+
+# Show lines that contain non-printable ASCII (except for space, carriage
+# return and line feed) or non-ASCII.
+#
+show_lines_with_forbidden_characters()
+{
+  [ $# -eq 0 ] && return
+  awk '/[^\n -~]/ {
+    printf "%s:%i\t%s\n", FILENAME, FNR, $0
+  }' "$@"
+}
+
 
 ################################################################################
 
@@ -673,6 +687,10 @@ fi
 remind_of_external_tests=
 
 case $RUNNING_MODE in
+  ascii )
+    show_lines_with_forbidden_characters "$@"
+    exit $?
+  ;;
   bnorm )
     PKG_DIR=opmDB_in
     RUNNING_MODE=${RUNNING_MODE#b}
@@ -718,6 +736,7 @@ case $RUNNING_MODE in
 	Usage: $0 [mode] [options]
 
 	Possible values for 'mode':
+	  ascii   Show lines that contain forbidden characters (such as non-ASCII).
 	  bnorm   Normal build of the opmDB package.
 	  codex   Test the external code examples that come with opm.
 	  dfull   Full build of the opmdata package.

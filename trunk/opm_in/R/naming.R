@@ -1085,7 +1085,26 @@ setMethod("find_positions", OPM, function(object, ...) {
 #'   \acronym{URL}s, and as a side effect tabs in the default web browser might
 #'   have been opened. For suitable values of \code{what}, setting
 #'   \code{download} to \code{TRUE} yielded special objects as described above.
-#' @details The generated \acronym{URL}s should provide plenty of information
+#' @details The query names must be written exactly as used in the stored plate
+#'   annotations. To determine their spelling, use \code{\link{find_substrate}}.
+#'   Each spelling might include a concentration indicator, but the same
+#'   underlying substrate name yielded the same \acronym{ID} irrespective of the
+#'   concentration.
+#'
+#'   Note that the information is only partially complete, depending on the well
+#'   and the database. While it is possible to link almost all substrates to,
+#'   say, \acronym{CAS} numbers, they are not necessarily contained in the other
+#'   databases. Thanks to the work of the \acronym{ChEBI} staff, which is
+#'   gratefully acknowledged, \acronym{ChEBI} information is complete as far as
+#'   possible (large molecules such as proteins or other polymers are not
+#'   covered by \acronym{ChEBI}).
+#'
+#'   For some wells, even a main substrate cannot be identified, causing all
+#'   its \acronym{ID}s to be missing. This holds for all control wells, for all
+#'   wells that contain a mixture of (usually two) substrates, and for all wells
+#'   that are only specified by a certain pH.
+#'
+#'   The generated \acronym{URL}s should provide plenty of information
 #'   on the respective substrate. In the case of \acronym{ChEBI}, \acronym{KEGG}
 #'   and \acronym{Metacyc}, much information is directly displayed on the page
 #'   itself, whereas the chosen \acronym{CAS} site contains a number of links
@@ -1118,21 +1137,6 @@ setMethod("find_positions", OPM, function(object, ...) {
 #'   Steinbeck, C. 2013 The ChEBI reference database and ontology for
 #'   biologically relevant chemistry: enhancements for 2013. \emph{Nucleic
 #'   Acids Research} \strong{41}: D456--D463.
-#' @details The query names must be written exactly as used in the stored plate
-#'   annotations. To determine their spelling, use \code{\link{find_substrate}}.
-#'   Each spelling might include a concentration indicator, but the same
-#'   underlying substrate name yielded the same \acronym{ID} irrespective of the
-#'   concentration.
-#'
-#'   Note that the information is only partially complete, depending on the well
-#'   and the database. While it is possible to link almost all substrates to,
-#'   say, \acronym{CAS} numbers, they are not necessarily contained in the other
-#'   databases.
-#'
-#'   For some wells, even a main substrate cannot be identified, causing its
-#'   \acronym{ID} to be missing. This holds for all control wells, for all
-#'   wells that contain a mixture of (usually two) substrates, and for all wells
-#'   that are only specified by a certain pH.
 #' @examples
 #'
 #' # Character method; compare correct and misspelled substrate name

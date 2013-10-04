@@ -14,7 +14,7 @@
 # components before plotting. Depending on the biological question, this might
 # be more interesting than drawing heat maps.
 #
-# Some BiodiversityR functions do not seem to work as intended, see the 
+# Some BiodiversityR functions do not seem to work as intended, see the
 # comments below.
 #
 # (C) 2013 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
