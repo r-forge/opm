@@ -245,6 +245,8 @@ Here we will use the function \code{pathview} from the package of same name \cit
 This function downloads the user-defined pathway map and subsequently maps and renders the given PM-data into it. 
 Please note, that it has to be loaded \emph{before} loading package \pkg{opm} into an \proglang{R} session.
 
+\subsection[Providing suitable input-data]{suitable input-data}\label{annotated-input}
+
 The workflow starts with either an \code{OPMX} object containing the agregated values, or the result from an \proglang{opm\_mcp} analysis. 
 The first step in both cases is to bring the PM-results in a suitable format, which is a named vector created by \code{annotated}.
 
@@ -254,11 +256,9 @@ xx <- annotated(vaas_1)
 head(xx)
 @
 
-% explain the NA values
-
-The resulting vector basically contains the numeric values (selected parameter estimates or \code{opm_mcp} results, as explained below) as well as an annotation of the according substrates. 
-With the \code{what}-argument, passed as eponymous argument to \code{substrate_info}, the user can indicate which kind of information should be used for the annotation.
-\code{annotated} works directly on \code{OPMS}-objects containing aggregated data for single plates or bundles of plates. 
+The resulting vector basically contains the numeric values (selected parameter estimates or \code{opm\_mcp} results, as explained below) as well as an annotation of the according substrates. 
+With the \code{what}-argument, passed as eponymous argument to \code{substrate\_info}, the user can indicate which kind of information should be used for the annotation.
+\code{annotated} works directly on \code{OPMX}-objects containing aggregated data for single plates or bundles of plates. 
 However, please note, that the output allows for only one value per substrate. 
 When applying \code{annotated} to a set of plates, make sure, that only one experimental group is comprised, since the resulting values are averages per well over all plates.
 Using the \code{output}-argument, one is able to choose which parameter should be adressed, for example AUC instead of maximum height:
@@ -268,95 +268,134 @@ y <- annotated(vaas_1, output = param_names()[4])
 head(y)
 @
 
-Further options allow for indication of categorical (\code{different}) and for the \code{opm_glht} method, binary outcomes (\code{smaller}, \code{larger} or \code{equal}).
+Further options allow for indication of categorical (\code{different}) and for the \code{opm\_glht} method, binary outcomes (\code{smaller}, \code{larger} or \code{equal}).
 
 But visualization of the results of an \proglang{opm\_mcp} analysis is also possible, which offers more (statistically interesting) opportunities for making sense of the PM data in the context of pathways.
-The results from an \code{opm_mcp} procedure are treated with \code{annotated} as shown before with an \code{OPMX} object:
+The results from an \code{opm\_mcp} procedure are treated with \code{annotated} as shown before with an \code{OPMX} object:
 
 <<label=annotated-opm_glht-plot>>=
-x <- opm_mcp(vaas_4[, , 1:10], output = "mcp", model = ~ Well,
-  linfct = c(`Dunnett.A05 (D-Cellobiose)` = 1))
-(annogl1 <- annotated(x))
-@
-% here CI-plot of mcp-procedure
-
-However, this method makes only sense, if each coefficient estimated by opm_mcp can be linked to a single substrate. This is usually only possible for the ``Dunnett'' and ``Pairs'' type of contrast if applied to the wells. 
-Further options allow for indication of categorical (\code{different}) and for the \code{opm_glht} method, binary outcomes (\code{smaller}, \code{larger} or \code{equal}).
-
-<<label=annotated-opm_glht-options>>=
-head(annogl1 <- annotated(x, output = "numeric"))
-head(annogl4 <- annotated(x, output = "equal"))
+x <- opm_mcp(vaas_4[, , 1:15], output = "mcp", model = ~ Well,
+  linfct = c(`Dunnett.A05` = 1), full = FALSE)
 @
 
-Using the argument \code{how= "value"} a numeric matrix containing the chosen computed values as first column together with data obtained via web service associated with the chosen database, in analogy to the download argument of \code{substrate_info} but after conversion to a numeric matrix. 
-This option is not available for all values of \code{what} and requires additional libraries. 
-See \code{substrate_info} for details.
+However, this method only makes sense, if each coefficient estimated by \code{opm\_mcp} can be linked to a single substrate. This is usually only possible for the ``Dunnett'' and ``Pairs'' type of contrast if applied to the wells. 
 
-<<label=annotated-opm_glht-mat>>=
-anno_glht_mat <- annotated(x, how = "values")
+
+\begin{center}
+\begin{figure}
+\scalebox{1}{
+<<label=annotated-opm-glht-figure, fig=TRUE, echo=FALSE, width=8>>=
+old.mar <- par(mar = c(3, 8, 3, 2)) # adapt plotting settings
+plot(x)
+par(old.mar) # reset plotting settings
+@
+}
+\caption{
+\label{fig:opm_mcp_CI_plotII}
+Point estimates and 95\% confidence intervals in a manually defined comparison of group means for a specifically selected set of wells (A01 to B03) from the \code{vaas\_4} exemplar object. 
+In this procedure each well is compared against A05. 
+The picture was obtained by running \code{opm\_mcp()} and then the plotting function for the resulting \code{opm\_glht}-object. See the main tutorial for details.
+}
+\end{figure}
+\end{center}
+
+
+With this example, the options allowing for categorical output of \code{annotated} will be illustrated.
+Obviously, only three comparisons exhibit a statistically significant difference, namely the comparisons A10 - A05, A11 - A05 and A12 - A05, all in the way that A05 is smaller than A10, A11 and A12, respectively.
+
+Using the \code{output}-argument users are able to get various categorical results beside simple numerical output of the respective point estimator.
+The options \code{upwards} and \code{downwards} result classifications in three categories (FALSE, NA, or TRUE), giving an indication, if the CI is located in the positive or negative range with resulting NA, if zero is included and thus no decission possible.
+The options \code{different}, \code{smaller}, \code{larger} and \code{equal} work similarly, but use only the two categories TRUE and FALSE.
+
+
+<<label=annotated-opm_glht-options, results=hide>>=
+anno.nu <- annotated(x, output = "numeric")
+anno.up <- annotated(x, output = "upwards")
+anno.do <- annotated(x, output = "downwards")
+anno.di <- annotated(x, output = "different")
+anno.eq <- annotated(x, output = "equal")
+anno.sm <- annotated(x, output = "smaller")
+anno.la <- annotated(x, output = "larger")
 @
 
-This can be used to determine which pathways are actually of interest before proceeding with the visualization of the PM results within these pathways.
+A comprehensive overview of the results with the above stated example is facilitated by bundling the results of all possible options into one dataframe:
 
-%% erklaeren, wozu man die daten nutzen kann, wenn man grafik und gruppenvergleiche gemacht hat
+<<label=annotated-opm_glht-options-tab, result=hide>>=
+annotab <- data.frame(Comparison = rownames(confint(x)$confint), 
+  numeric = anno.nu, upwards = anno.up, downward = anno.do, 
+  different = anno.di, equal = anno.eq, smaller = anno.sm, larger = anno.la)
+annotab
+@
 
+Using the argument \code{how = "value"} a numeric matrix containing the chosen computed values together with their abundance in pathway maps can be investigated. 
+
+
+\subsection[Visualisation in pathway-maps using pathview]{Visualisation in pathway-maps using pathview}\label{pathview}
+
+Basically, \code{pathview} maps and renders data provided by \code{annotated} on pathway graphs.
+The user has to specify the pathway, provide the PM-data and all necessary steps (download of pathway graph data, parsing of data file, maping user's data to the pathway, and rendering of pathway graph with the mapped data) are executed automatically by \code{pathview}.
+
+Before you start with this section, please make sure, that you have installed the \pkg{pathview} package including all its dependencies from \proglang{Bioconductor} (\url{http://bioconductor.org/packages/2.12/bioc/html/pathview.html}).
+
+%TODO 
+%explain the wrapper
+To provide more convenient functionality for mapping PM-data on KEGG-pathway maps, we show a wrapper for the \code{pathview}-function. 
+All graphics below are produced using this wrapper, however, the user is free to use the original \code{pathview}-function with the respectively changed arguments. 
+
+<<label=pathview-wrapper>>=
+opm_path <- function(cpd.data, high = list(gene = "green4", cpd = "magenta4"), 
+  low = list(gene = "white", cpd = "white"),
+  mid = list(gene = "lightsteelblue1", cpd = "lightsteelblue1"),
+  pathway.id = "00052", species = "ko",  out.suffix = "non-native", 
+  kegg.native = F, key.pos = "bottomright", afactor = 1000,
+  limit = list(gene = 2, cpd = 400), bins = list(gene = 0.5, cpd = 20),
+  both.dirs = list(gene = FALSE, cpd = FALSE), cex = 0.7, 
+  sign.pos = "bottomleft", cpd.lab.offset = 0, same.layer = F, rank.dir = "TB",
+  pdf.size = c(10,7), gene.data = NULL, ...) {
+  
+  pathview(gene.data = gene.data, cpd.data = cpd.data, na.col ="grey",
+           low = low,
+           mid = mid,
+           high = high,
+           pathway.id = pathway.id, 
+           species = species, 
+           out.suffix = out.suffix,
+           kegg.native = kegg.native,
+           key.pos = key.pos,
+           afactor = afactor,
+           limit = limit,
+           bins = bins,
+           both.dirs = both.dirs,
+           cex = cex, sign.pos = sign.pos, cpd.lab.offset = cpd.lab.offset,
+           same.layer = same.layer,
+           pdf.size = pdf.size,
+           rank.dir = rank.dir,
+           ...)
+}
+@
+
+%TODO
+% explain the two types of maps in KEGG
 ko - KEGG orthology: manually defined ortholog groups (KO entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes. 
 
-%package \pkg{pathview} :
-%All users need is to supply their gene or compound data and specify the target pathway. 
-%Pathview automatically downloads the pathway graph data, parses the data file, maps user data to the pathway, and renders pathway graph with the mapped data. 
-%Although built as a stand-alone program, pathview may seamlessly integrate with pathway (and functional) analysis tools for a large-scale and fully automated analysis pipeline. 
-%
-%
-%
-%%TODO
-%% enter such comments as COMMENTS, not as text:
-%
-%% describe the installation of  \pkg{pathview}
-%% draw attention to dependencies
-%
-%%TODO
-%% * please improve the English
-%
-%% * remove ALL default arguments from function calls, reduce them to
-%%   arguments deviating from the default
-%% * use appropriate indentation
-%% * use appropriate names for figures (see instructions in main tutorial)
-%% * explain why detach() is necessary (ask MG)
-%%   
-%
-%# here map the PM data stored in xx onto the pathway-map for galactose-metabolism
-%<<label=pathview-map-plot>>=
-%vaas_1_KEGG_native <- pathview(gene.data = NULL,
-%                           cpd.data = xx , na.col="grey",
-%                           low = list(gene = "white", cpd = "white"),
-%                           mid = list(gene = "lightsteelblue1", cpd = "lightsteelblue1"),
-%                           high = list(gene = "green4", cpd = "magenta4"),
-%                           pathway.id = "00052", species = "ko", out.suffix = "KEGG-native",
-%                           keys.align = "x", kegg.native = T,
-%                           key.pos = "topright",
-%                           map.cpdname = TRUE,
-%                           is.signal =TRUE,
-%                           limit = list(gene=2, cpd=400),
-%                           bins = list(gene=0.5, cpd=20),
-%                           discrete = list(gene=FALSE, cpd=FALSE),
-%                           both.dirs = list(gene = FALSE, cpd = FALSE),
-%                           cex = 0.25, sign.pos = "bottomleft", cpd.lab.offset = 0,
-%                           same.layer = F,
-%                           rank.dir="TB") 
-%file.rename("ko00052.KEGG-native.png", "ko00052_KEGG-native.png")
-%@
-%
-%
-%\begin{figure}
-%\scalebox{1.225}{
-%\includegraphics{ko00052_KEGG-native}
-%}
-%\caption{\label{fig:pathview}
-%Map of galactose metabolisms in the native KEGG representation available in ko00052.png.  
-%}
-%\end{figure}
-%
+
+<<label=pathview-wrapper-plot>>=
+xx <- annotated(vaas_1)
+test.pdf <- opm_path(cpd.data = xx)
+str(test.pdf)
+@
+% explain the content of test.pdf
+
+
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics[type=pdf,ext=.pdf,read=.pdf,page=1]{ko00052.non-native}
+}
+\caption{\label{fig:pathview}
+Map of galactose metabolisms in the native KEGG representation available in xxx.  
+}
+\end{figure}
+
 %
 %<<label=pathview-map>>=
 %vaas_1 <- pathview(gene.data = NULL,
@@ -391,12 +430,25 @@ ko - KEGG orthology: manually defined ortholog groups (KO entries) for all prote
 %% update the discussion
 %% clearly we do not need the JSS manuscript approach anymore
 %% avoid ALL unnecessary text
-%
-%
-%
-%An enhancement of the \pkg{opm} package would be to include much more precomputed information about the substrates, thus greatly facilitating data arrangement and hypothesis testing.
-%At the moment only the translation of well coordinates to substrate names is provided, as well as access to MeSH names and CAS, ChEBI, KEGG and Metacyc IDs (and the according web pages) for the majority of the substrates.
-%More substrate information could be integrated into the package, particularly for arranging the substrate into groups, thus easing testing of phenotypic hypotheses.
+
+
+\section[Model-building approach using random forest]{Model-building approach using random forest}\label{random-forest}
+Using the argument \code{how= "value"} a numeric matrix containing the chosen computed values together with their abundance in pathway maps can be investigated. 
+In analogy to the download argument of \code{substrate\_info} the information are convertet into a numeric matrix. Please note, that this option is not available for all values of \code{what} and requires additional libraries. 
+See \code{substrate\_info} for details.
+
+<<label=annotated-opm_glht-mat-dig, echo=FALSE, result=hide>>=
+old.op <- options()
+options(digits = 2)
+@
+
+<<label=annotated-opm_glht-mat>>=
+anno.glht.mat <- annotated(x, how = "values")
+anno.glht.mat
+@
+
+The obtained information about the pathway certain substrates are involved in can be used to determine manually which pathways are actually of interest or can serve as input for model-building procedures as, for example, random forest approaches, which is demonstrated below.
+
 
 \section[Acknowledgements]{Acknowledgements}
 The integration of missing OmniLog\textregistered \ substrates into ChEBI by the ChEBI staff is gratefully acknowledged.
