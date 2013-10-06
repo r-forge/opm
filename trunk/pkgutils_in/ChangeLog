@@ -2,6 +2,8 @@
 
 - the 'merge.R' script gets two new options -i and -f
 
+- the 'docu.R' scripts gets a new option -L
+
 2012-09-18 (5th release on CRAN)
 
 - fixed bug in 'docu.R' that caused wrong archive file name to be passed to 'R

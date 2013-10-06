@@ -673,12 +673,12 @@ show_lines_with_forbidden_characters()
 ################################################################################
 
 
-# Simple poutput utility used by test_sql().
+# Simple output utility used by test_sql().
 #
 print_test_result()
 {
   local result
-  [ "$1" -gt 0 ] && result=FAILED || result=SUCCEEDED
+  [ "$1" -gt 0 ] && result=FAILURE || result=SUCCESS
   [ $# -gt 1 ] && echo "* $2 TEST: $result ($3)" ||
     echo "*** TESTS: $result ***"
   echo
@@ -846,7 +846,7 @@ case $RUNNING_MODE in
 	  rnw     Run R CMD Stangle on the *.Rnw files.
 	  rout    Show results of the examples, if any, for given function names.
 	  space   Remove trailing whitespace from R code files.
-	  sql     Test the SQL that comes with opmDB. Requires database access.
+	  sql     SQL-based tests. Call $0 sql -h for a description.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  time    Show the timings of the last examples, if any, in order.
 	  todo    Show TODO entries (literally!) in R source files.
@@ -895,7 +895,7 @@ ____EOF
   ;;
   sql )
     [ $# -eq 0 ] && set `find opmDB_in -iname '*.sql' -exec ls \{\} +`
-    test_sql "$@"
+    test_sql "$@" && test_external_examples opmDB_in
     exit $?
   ;;
   tags )
@@ -969,7 +969,7 @@ delete_pat="[.](aux|bbl|blg|bst|cls|css|epf|gz|html|log|out|png|R|tex|yml|xml)"
 # 'jss.cls' and 'jss.bst' are in R and cause a NOTE during checking
 delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
-Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" \
+Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --modify --preprocess --S4methods --junk "$delete_pat" \
   --good well-map.R,substrate-info.R,plate-map.R "$PKG_DIR"
 

@@ -80,6 +80,13 @@ do_split <- function(x, sep = ",") {
 }
 
 
+remove_comments_and_reduce_empty_lines <- function(x) {
+  x <- grep("^#", x, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE)
+  ne <- nzchar(x)
+  x[ne | c(FALSE, ne[-length(ne)])]
+}
+
+
 ################################################################################
 
 
@@ -165,7 +172,8 @@ option.parser <- OptionParser(option_list = list(
     help = "Logfile to use for problem messages [default: %default]",
     metavar = "FILE"),
 
-  # L
+  make_option(c("-L", "--lines-reduce"), action = "store_true", default = FALSE,
+    help = "Reduce number of lines in R code [default: %default]"),
 
   make_option(c("-m", "--modify"), action = "store_true", default = FALSE,
     help = paste("Potentially modify R sources when style checking",
@@ -396,6 +404,12 @@ for (i in seq_along(package.dirs)) {
   if (opt$preprocess) {
     message("Preprocessing R code of", msg)
     errs <- errs + swap_code(out.dir, ruby = opt$exec)
+  }
+
+  if (opt$`lines-reduce` && !identical(in.dir, out.dir)) {
+    message("Removing comments and reducing empty lines of", msg)
+    map_files(list.files(file.path(out.dir, "R"), full.names = TRUE),
+      remove_comments_and_reduce_empty_lines)
   }
 
   if (!opt$zapoff) {
