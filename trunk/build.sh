@@ -1,16 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 
 
 ################################################################################
 #
-# Build, analysis and test script for the 'opm' package.
+# Build, analysis and test script for the 'opm' package and its accompanying
+# packages.
 #
 # This script was tested using Bash and Dash. For details on portability, see
 # https://wiki.ubuntu.com/DashAsBinSh . Prerequisites for using this script in
 # main running modes are the 'docu.R' script from the 'pkgutils' R package and
 # the 'Rscript' executable present in the $PATH. The working directory in which
 # to call this script is the parent directory of the R package directories one
-# is dealing with.
+# is dealing with. The 'test' running mode needs an installed opm package, with
+# an available 'run_opm.R' script.
 #
 # Call this script with 'help' as first argument to get an overview of its
 # usage.
@@ -18,7 +20,7 @@
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
 #
-# (C) 2013 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
+# (C) 2012, 2013 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
 #
 ################################################################################
 
@@ -53,13 +55,15 @@ BUILT_PACKAGES=misc/built_packages
 set -eu
 
 
-# Find the script 'docu.R' (from the 'pkgutils' R package) either in the
-# environment variable $DOCU_R_SCRIPT or in the $PATH or within the 'pkgutils'
-# subdirectory of the default R installation directory.
+################################################################################
+
+
+# Find the script with the name given as first argument either in the variable
+# $PATH or within the 'opm' subdirectory of the R installation directory.
 #
-find_docu_script()
+find_R_script()
 {
-  local result=${DOCU_R_SCRIPT:-`which docu.R`}
+  local result=`which "$1"`
   if [ "$result" ] && [ -s "$result" ]; then
     echo "$result"
     return 0
@@ -67,7 +71,7 @@ find_docu_script()
   local r_dir=`R RHOME`
   local subdir
   for subdir in library site-library; do
-    result=$r_dir/$subdir/pkgutils/scripts/docu.R
+    result=$r_dir/$subdir/opm/scripts/$1
     if [ -s "$result" ]; then
       echo "$result"
       return 0
@@ -75,6 +79,22 @@ find_docu_script()
   done
   echo
   return 1
+}
+
+
+################################################################################
+
+
+# Find the script 'docu.R' (from the 'pkgutils' R package) either in the
+# environment variable $DOCU_R_SCRIPT or via find_R_script().
+#
+find_docu_script()
+{
+  if [ "${DOCU_R_SCRIPT:-}" ]; then
+    echo "$DOCU_R_SCRIPT"
+  else
+    find_R_script docu.R
+  fi
 }
 
 
@@ -325,6 +345,434 @@ check_roxygen_tags()
       exit(problems)
     }
   ' "$@"
+}
+
+
+################################################################################
+
+
+# If a given number of CPUs is larger than the number of available ones, reduce
+# it accordingly.
+#
+correct_num_cpus()
+{
+  local wanted=$(($1 + 0))
+  local got=`grep -wc processor /proc/cpuinfo 2> /dev/null || echo 0`
+  if [ $got -lt $wanted ]; then
+    echo "WARNING: number of used CPUs reduced from $wanted to $got" >&2
+    echo >&2
+    echo "$got"
+  else
+    echo "$wanted"
+  fi
+}
+
+
+################################################################################
+
+
+# Used by do_test().
+#
+format_basename()
+{
+  local filename=${1##*/}
+  printf "$2" ${filename%.*}
+}
+
+
+################################################################################
+
+
+# Conduct a certain kind of test based on file comparison.
+#
+do_test()
+{
+  local qdir=
+  local outfmt=
+  local wantedfmt=
+  local indir=
+  local inext=
+  local logfile=/dev/stderr
+
+  local opt
+  OPTIND=1
+  while getopts d:f:i:l:q:w: opt; do
+    case $opt in
+      d ) indir=$OPTARG;;
+      f ) outfmt=$OPTARG;;
+      i ) inext=$OPTARG;;
+      l ) logfile=$OPTARG;;
+      q ) qdir=$OPTARG;;
+      w ) wantedfmt=$OPTARG;;
+      * ) return 1;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+  if [ $# -eq 0 ] || [ -z "$outfmt" ] || [ -z "$wantedfmt" ] ||
+    [ -z "$indir" ] || [ -z "$inext" ] || [ -z "$qdir" ]
+  then
+    echo "arguments -d, -f, -i, -q and -w must be provided" >&2
+    return 1
+  fi
+
+  "$@" "$indir"/*."$inext" 2> "$logfile" || true
+
+  local infile
+  local wantfile
+  local gotfile
+  local lastfile=
+
+  for infile in "$indir"/*."$inext"; do
+    wantfile=`format_basename "$infile" "$wantedfmt"`
+    gotfile=`format_basename "$infile" "$outfmt"`
+    [ "$lastfile" ] && [ "$lastfile" = "$gotfile" ] && continue
+    lastfile=$gotfile
+    echo
+    echo "TESTING $infile => $wantfile..."
+    if [ -s "$gotfile" ]; then
+      if diff -q "$wantfile" "$gotfile"; then
+        echo "	<<<SUCCESS>>>"
+        echo
+        rm -f "$gotfile"
+      else
+        echo "	<<<FAILURE>>>"
+        echo
+        mv "$gotfile" "$qdir"
+      fi
+    else
+      echo "	<<<ERROR>>>"
+      echo
+      rm -f "$gotfile"
+    fi
+  done
+}
+
+
+################################################################################
+
+
+# Modify the version entry within opm-generated JSON files.
+#
+change_json_version()
+{
+  local version=$1
+  shift
+  sed -i "v; s/\(\"version\"\):\"[^\"]\+\"/\1:\"$version\"/g" "$@"
+}
+
+
+################################################################################
+
+
+# Modify the version entry within opm-generated YAML files.
+#
+change_yaml_version()
+{
+  local version=$1
+  local tmpfile=`mktemp --tmpdir`
+  shift
+  local infile
+  for infile; do
+    if awk -v version="$version" '
+      $1 == "version:" {sub($2, version)}
+      {print}
+      ' "$infile" > "$tmpfile"
+    then
+      mv "$tmpfile" "$infile"
+    else
+      rm -f "$tmpfile"
+      return 1
+    fi
+  done
+}
+
+
+################################################################################
+
+
+# Modify the version entry within opm-generated CSV files.
+#
+change_csv_version()
+{
+  local version=$1
+  shift
+  sed -i "v; s/\(\"opm\";\"\)[^\"]\+\(\";\)/\1$version\2/g" "$@"
+}
+
+
+################################################################################
+
+
+# Used for showing the failed files.
+#
+show_files_of()
+{  
+  local files
+  mkdir -p "$1"
+  files=`ls "$1"`
+  if [ "$files" ]; then
+    echo "File(s) within '$1':"
+    local f
+    for f in $files; do
+      echo "$f"
+    done
+  else
+    echo "No files found within '$1'."
+  fi
+}
+
+
+################################################################################
+
+
+# Helper function for comparing JSON files (which is easier after conversion to
+# YAML).
+#
+reyaml()
+{
+  local cmd='for (file in commandArgs(TRUE))'
+  cmd="$cmd  write(yaml::as.yaml(yaml::yaml.load_file(file)), \"\")"
+  Rscript --vanilla -e "$cmd" "$@"
+}
+
+
+################################################################################
+
+
+# Call diff on failed files, giving their directory, the test directory, and
+# the file extension.
+#
+compare_files_of()
+{
+  local failed
+  failed=`find "$1" -type f -name "*.$3"`
+  if [ -z "$failed" ]; then
+    echo "No files with extension '$3' found." >&2
+    return 1
+  fi
+  local failed_file
+  local other_file
+  local tmpfile=`mktemp --tmpdir`
+  for failed_file in $failed; do
+    other_file=$2/${failed_file##*/}
+    echo "$failed_file"
+    case $3 in
+      json )
+        reyaml "$failed_file" > "$tmpfile"
+        reyaml "$other_file" | diff "$tmpfile" - || :
+      ;;
+      * )
+        diff "$failed_file" "$other_file" || :
+      ;;
+    esac
+    echo
+  done
+  rm -f "$tmpfile"
+}
+
+
+################################################################################
+
+
+# For testing the 'run_opm.R' script that comes with the opm package.
+#
+run_external_tests()
+{
+
+  local output_mode=run_tests
+  local help_msg=
+  local np=4 # using more cores yielded only little speedup
+  local run_opm=
+  local testdir=$EXTERNAL_TEST_DIR
+  local version=opm_in/DESCRIPTION
+  local extension
+
+  local opt
+  OPTIND=1
+  while getopts c:d:fhp:s:v: opt; do
+    case $opt in
+      c ) output_mode=compare_failed; extension=$OPTARG;;
+      d ) testdir=$OPTARG;;
+      f ) output_mode=show_failed;;
+      h ) help_msg=yes;;
+      p ) np=$(($OPTARG + 0));;
+      s ) run_opm=$OPTARG;;
+      v ) version=$OPTARG;;
+      * ) return 1;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+  if [ "$help_msg" ] || [ $# -gt 0 ]; then
+    cat >&2 <<-____EOF
+	Test the opm package via its 'run_opm.R' script. For testing the current opm
+	version, it must be installed beforehand.
+
+	As usual, this running mode must be executed in the parent directory of the
+	project's R package source directories.
+
+	Options:
+	  -c x  Ignore tests; show differences for failed files with extension x.
+	  -d x  Use x as test directory (must contain subdirectory 'tests').
+	  -f    Do not run tests; list all failed files (if any).
+	  -h    Print this message.
+	  -p x  Use x processors (cores) for running the tests.
+	  -s x  Use x as 'run_opm.R' script for running the tests.
+	  -v x  Insert opm version x (x can also be an R package DESCRIPTION file).
+
+	The default is to read the version to use during the tests from the opm
+	DESCRIPTION file from the opm code directory within the working directory.
+	So if tests fail but the resulting files show no differences, this usually
+	means an old opm version was used for testing.
+
+____EOF
+    return 1
+  fi
+
+  testfile_dir=$testdir/tests # must not be local variable for use with trap()
+  if ! [ -d "$testfile_dir" ]; then
+    echo "directory '$testfile_dir' does not exist, exiting now" >&2
+    exit 1
+  fi
+  # created if necessary; must not be local variable for use with trap()
+  failedfile_dir=$testdir/failed_files
+  mkdir -p "$failedfile_dir"
+
+  local errfile=$testdir/tests.err
+  local outfile=$testdir/tests.out
+
+  case $output_mode in
+    compare_failed )
+      compare_files_of "$failedfile_dir" "$testfile_dir" "$extension"
+      exit $?
+    ;;
+    show_failed )
+      show_files_of "$failedfile_dir"
+      exit $?
+    ;;
+    run_tests )
+      :
+    ;;
+    * )
+      echo "unknown \$output_mode '$output_mode'" >&2
+      exit 1
+    ;;
+  esac
+
+  [ "$run_opm" ] || run_opm=`find_R_script run_opm.R || :`
+  if [ -s "$run_opm" ]; then
+    echo "Using script '$run_opm' (`stat -c %y "$run_opm"`)..." >&2
+    echo "NOTE: Make sure this is the opm version you want to test!" >&2
+    echo >&2
+  else
+    echo "script 'run_opm.R' not found and not provided, exiting now" >&2
+    return 1
+  fi
+
+  if [ "$version" ]; then
+    [ -s "$version" ] &&
+      version=`awk '$1 == "Version:" {print $2; exit}' "$version"`
+  else
+    echo "opm version to insert not found and not provided, exiting now" >&2
+    return 1
+  fi
+
+  np=`correct_num_cpus "$np"`
+
+  rm -rf "$failedfile_dir"/*
+  rm -f "$errfile" "$outfile"
+  local tmpdir=`mktemp --tmpdir -d`
+  local tmpfile=`mktemp --tmpdir`
+
+  # Update the version to let the YAML, JSON and CSV tests pass the test
+  # irrespective of the actual version. This must later on be reversed, see
+  # below.
+  #
+  change_yaml_version "$version" "$testfile_dir"/*.yml
+  change_json_version "$version" "$testfile_dir"/*.json
+  change_csv_version "$version" "$testfile_dir"/*.tab
+
+  # Fix the version in the YAML, JSON and CSV files to avoid SVN updates. Do
+  # this in the quarantined files, too, if any, to avoid annoying reports when
+  # manually calling diff.
+  #
+  trap '
+    change_yaml_version 0.0.0 "$testfile_dir"/*.yml
+    change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
+    change_json_version 0.0.0 "$testfile_dir"/*.json
+    change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
+    change_csv_version 0.0.0 "$testfile_dir"/*.tab
+    change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
+  ' 0
+
+  echo "Testing plot mode..."
+  do_test -i csv -d "$testfile_dir" \
+    -w "$testfile_dir/%s.ps" -l "$tmpfile" \
+    -f "$tmpdir/%s.ps" -q "$failedfile_dir" \
+    Rscript --vanilla "$run_opm" -p "$np" -r xyplot -d "$tmpdir" -i '*.csv' \
+    -k 'TIME:Setup Time,ID' >> "$outfile" &&
+      cat "$tmpfile" >> "$errfile"
+
+  echo "Testing split mode..."
+  # This test only guarantees that if there is nothing to split the original
+  # file results.
+  do_test -i csv -d "$testfile_dir" \
+    -w "$testfile_dir"/%s.csv -l "$tmpfile" \
+    -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
+    Rscript --vanilla "$run_opm" -p "$np" -s , -r split -d "$tmpdir" \
+    -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+      cat "$tmpfile" >> "$errfile"
+
+  echo "Testing template-collection mode with machine ID and normalization..."
+  do_test -i csv -d "$testfile_dir" \
+    -w "$testfile_dir/md.template" -l "$tmpfile" \
+    -f "$tmpdir/md.template" -q "$failedfile_dir" \
+    Rscript --vanilla "$run_opm" -p "$np" -r template \
+    -m "$tmpdir/md.template" -i '*.csv' -y 5 -v >> "$outfile" &&
+      cat "$tmpfile" >> "$errfile"
+
+  echo "Testing template-collection mode with other field separator..."
+  do_test -i csv -d "$testfile_dir" \
+    -w "$testfile_dir/md.template2" -l "$tmpfile" \
+    -f "$tmpdir/md.template2" -q "$failedfile_dir" \
+    Rscript --vanilla "$run_opm" -p "$np" -m "$tmpdir/md.template2" \
+    -r template -s , -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+      cat "$tmpfile" >> "$errfile"
+
+  echo "Testing YAML mode..."
+  do_test -i csv -d "$testfile_dir" \
+    -w "$testfile_dir/%s.yml" -l "$tmpfile" \
+    -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
+    Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r yaml \
+    -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+      cat "$tmpfile" >> "$errfile"
+
+  echo "Testing JSON mode..."
+  do_test -i csv -d "$testfile_dir" \
+    -w "$testfile_dir/%s.json" -l "$tmpfile" \
+    -f "$tmpdir/%s.json" -q "$failedfile_dir" \
+    Rscript --vanilla "$run_opm" -z -p "$np" -a smooth -b 0 -r json \
+    -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+      cat "$tmpfile" >> "$errfile"
+
+  echo "Testing CSV mode..."
+  do_test -i csv -d "$testfile_dir" \
+    -w "$testfile_dir/%s.tab" -l "$tmpfile" \
+    -f "$tmpdir/%s.tab" -q "$failedfile_dir" \
+    Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r csv -d "$tmpdir" \
+    -u ';' -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+      cat "$tmpfile" >> "$errfile"
+
+  rm -rf "$tmpdir" "$tmpfile"
+
+  echo
+  printf "RESULT: "
+  printf "`grep -F -c '<<<SUCCESS>>>' "$outfile"` successes, "
+  printf "`grep -F -c '<<<FAILURE>>>' "$outfile"` failures, "
+  printf "`grep -F -c '<<<ERROR>>>' "$outfile"` errors, "
+  echo "`ls "$failedfile_dir" | wc -l` quarantined files."
+  echo
 }
 
 
@@ -821,7 +1269,7 @@ case $RUNNING_MODE in
   ;;
   help )
     cat >&2 <<-____EOF
-	$0 -- build the opm package using the 'docu.R' script.
+	$0 -- build or test the opm package or one of its auxiliary packages.
 
 	This script must be executed in the parent directory of the project's R
 	package source directories.
@@ -835,7 +1283,7 @@ case $RUNNING_MODE in
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
 	  docu    Check whether the 'docu.R' script can be found, then exit.
-	  erase   Remove directories left over by R CMD check and docu.R, if any.
+	  erase   Remove directories left over by R CMD check and 'docu.R', if any.
 	  example Extract R code from the examples within specified Rd files.
 	  forget  Remove .RData, .Rhistory and *.Rout files.
 	  full    Full build of the opm package.
@@ -846,8 +1294,9 @@ case $RUNNING_MODE in
 	  rnw     Run R CMD Stangle on the *.Rnw files.
 	  rout    Show results of the examples, if any, for given function names.
 	  space   Remove trailing whitespace from R code files.
-	  sql     SQL-based tests. Call $0 sql -h for a description.
+	  sql     SQL-based tests. Call '$0 sql -h' for a description.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
+	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
 	  time    Show the timings of the last examples, if any, in order.
 	  todo    Show TODO entries (literally!) in R source files.
 
@@ -900,6 +1349,10 @@ ____EOF
   ;;
   tags )
     count_roxygen_tags
+    exit $?
+  ;;
+  test )
+    run_external_tests "$@"
     exit $?
   ;;
   time )
