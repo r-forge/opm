@@ -673,6 +673,99 @@ show_lines_with_forbidden_characters()
 ################################################################################
 
 
+# Simple poutput utility used by test_sql().
+#
+print_test_result()
+{
+  local result
+  [ "$1" -gt 0 ] && result=FAILED || result=SUCCEEDED
+  [ $# -gt 1 ] && echo "* $2 TEST: $result ($3)" ||
+    echo "*** TESTS: $result ***"
+  echo
+}
+
+
+################################################################################
+
+
+# Test the database I/O functions of opmDB. Fails unless the test databases are
+# accessible.
+#
+test_sql()
+{
+  local default_dbname=pmdata
+  local sqlite3_dbname=$default_dbname
+  local mysql_dbname=$default_dbname
+  local postgresql_dbname=$default_dbname
+  local help_msg=
+
+  local opt
+  OPTIND=1
+  while getopts hm:p:s: opt; do
+    case $opt in
+      h ) help_msg=yes;;
+      m ) mysql_dbname=$OPTARG;;
+      p ) postgresql_dbname=$OPTARG;;
+      s ) sqlite3_dbname=$OPTARG;;
+      * ) return 1;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+  if [ "$help_msg" ]; then
+    cat >&2 <<-____EOF
+	Test the SQL included in the opmDB package. Requires access to SQLite, MySQL
+	and/or PostgreSQL databases with read/write access for the current user.
+
+	Options:
+	  -h    Print this message.
+	  -m x  Use MySQL database x.
+	  -p x  Use PostgreSQL database x.
+	  -s x  Use SQLite database x.
+
+	The default database name is 'pmdata'. An empty database name turns off the
+	according test. Unless explicitly provided, SQL files to test are search in
+	the 'opmDB_in' directory.
+
+____EOF
+    return 1
+  fi
+
+  local errs=0
+  local outcome
+  local infile
+  if [ "$sqlite3_dbname" ]; then
+    for infile; do
+      sqlite3 -bail -batch "$sqlite3_dbname" < "$infile" > /dev/null &&
+        outcome=0 || outcome=1
+      print_test_result $outcome SQLITE3 "$infile"
+      errs=$((errs + outcome))
+    done
+  fi
+  if [ "$mysql_dbname" ]; then
+    for infile; do
+      mysql --show-warnings -B -s "$mysql_dbname" < "$infile" > /dev/null &&
+        outcome=0 || outcome=1
+      print_test_result $outcome MYSQL "$infile"
+      errs=$((errs + outcome))
+    done
+  fi
+  if [ "$postgresql_dbname" ]; then
+    for infile; do
+      psql -q -1 -o /dev/null -d "$postgresql_dbname" -f "$infile" &&
+        outcome=0 || outcome=1
+      print_test_result $outcome POSTGRESQL "$infile"
+      errs=$((errs + outcome))
+    done
+  fi
+
+  return $errs
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -753,6 +846,7 @@ case $RUNNING_MODE in
 	  rnw     Run R CMD Stangle on the *.Rnw files.
 	  rout    Show results of the examples, if any, for given function names.
 	  space   Remove trailing whitespace from R code files.
+	  sql     Test the SQL that comes with opmDB. Requires database access.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  time    Show the timings of the last examples, if any, in order.
 	  todo    Show TODO entries (literally!) in R source files.
@@ -797,6 +891,11 @@ ____EOF
   ;;
   space )
     remove_trailing_whitespace
+    exit $?
+  ;;
+  sql )
+    [ $# -eq 0 ] && set `find opmDB_in -iname '*.sql' -exec ls \{\} +`
+    test_sql "$@"
     exit $?
   ;;
   tags )
