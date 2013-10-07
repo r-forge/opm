@@ -136,7 +136,6 @@ The \pkg{opm} package contains a large variety of additional data on PM substrat
 
 \section[Preparation]{Preparation}\label{preparation}
 
-%\subsection[]{}\label{}
 <<label=chunk-setup, echo=FALSE>>=
 options(width=90)
 options(prompt = "R> ")
@@ -156,7 +155,7 @@ library("opm")
 data(vaas_et_al, package = "opmdata")
 @
 % not sure yet, if vaas_et_al is needed
-% detach opm mit if-abfrage
+
 \section[Available plate information]{Available plate information}\label{plateInfo}
 
 Currently substrate layouts of various plates are available within \pkg{opm}.
@@ -332,15 +331,35 @@ Using the argument \code{how = "value"} a numeric matrix containing the chosen c
 
 \subsection[Visualisation in pathway-maps using pathview]{Visualisation in pathway-maps using pathview}\label{pathview}
 
-Basically, \code{pathview} maps and renders data provided by \code{annotated} on pathway graphs.
+Basically, \code{pathview} maps and renders pathway graphs (from KEGG) and integrates additional data provided from other sources, mainly experimental data from various OMICS-approaches. 
+Here the functions serves to integrate and visualize PM data provided by \code{annotated}.
 The user has to specify the pathway, provide the PM-data and all necessary steps (download of pathway graph data, parsing of data file, maping user's data to the pathway, and rendering of pathway graph with the mapped data) are executed automatically by \code{pathview}.
+
+Generally, a pathway map is described as ``[...]a molecular interaction/reaction network diagram represented in terms of the KEGG Orthology (KO) groups [...]''(see \url{http://www.genome.jp/kegg/kegg3a.html} for further details).
+KEGG contains a collection of different types of pathway maps, precisely identifiable by the combination of 2-4 letter code and 5 digit number. 
+
+The letter prefixes have the following meanings:
+
+\begin{itemize}
+\item[map -] Reference pathway
+\item[ko -] Reference pathway (KO)
+\item[ec -] Reference pathway (EC)
+\item[rn -] Reference pathway (Reaction)
+\item[org -] Organism-specific pathway map
+\end{itemize}
+
+Only the first reference pathway map is manually drawn; all other maps are computationally generated. 
+\code{pathview} allows only for usage of KEGG orthology (the \emph{ko}-maps) or species specific letter code (see \url{http://www.genome.jp/kegg/catalog/org_list.html} for an up-to-date list of organisms with complete genome information in KEGG).
+The \emph{ko}-maps contain the manually defined ortholog groups (\emph{ko} entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes, whereas the species specific maps contain 
 
 Before you start with this section, please make sure, that you have installed the \pkg{pathview} package including all its dependencies from \proglang{Bioconductor} (\url{http://bioconductor.org/packages/2.12/bioc/html/pathview.html}).
 
 %TODO 
 %explain the wrapper
-To provide more convenient functionality for mapping PM-data on KEGG-pathway maps, we show a wrapper for the \code{pathview}-function. 
+To provide more convenient functionality for mapping PM-data on KEGG-pathway maps, we wrote a wrapper for the \code{pathview}-function. 
+This wrapper provides mainly fine tuned settings for the convenient application of \code{pathview} on PM-data.
 All graphics below are produced using this wrapper, however, the user is free to use the original \code{pathview}-function with the respectively changed arguments. 
+
 
 <<label=pathview-wrapper>>=
 opm_path <- function(cpd.data, high = list(gene = "green4", cpd = "magenta4"), 
@@ -351,7 +370,7 @@ opm_path <- function(cpd.data, high = list(gene = "green4", cpd = "magenta4"),
   limit = list(gene = 2, cpd = 400), bins = list(gene = 0.5, cpd = 20),
   both.dirs = list(gene = FALSE, cpd = FALSE), cex = 0.7, 
   sign.pos = "bottomleft", cpd.lab.offset = 0, same.layer = F, rank.dir = "TB",
-  pdf.size = c(10,7), gene.data = NULL, ...) {
+  pdf.size = c(14,10), gene.data = NULL, ...) {
   
   pathview(gene.data = gene.data, cpd.data = cpd.data, na.col ="grey",
            low = low,
@@ -374,17 +393,33 @@ opm_path <- function(cpd.data, high = list(gene = "green4", cpd = "magenta4"),
 }
 @
 
-%TODO
-% explain the two types of maps in KEGG
-ko - KEGG orthology: manually defined ortholog groups (KO entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes. 
 
+<<label=pathview-wrapper-plot-native>>=
+xx <- annotated(vaas_1)
+test.png <- opm_path(cpd.data = xx, kegg.native = T, cex = 0.25, 
+  out.suffix = "native")
+str(test.png)
+@
+%TODO
+% explain the content of test.png
+
+
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.native}
+}
+\caption{\label{fig:pathview}
+Map of KEGG onthology galactose metabolisms in the native KEGG representation.  
+}
+\end{figure}
+
+Here the same in non-native KEGG representation.
 
 <<label=pathview-wrapper-plot>>=
 xx <- annotated(vaas_1)
 test.pdf <- opm_path(cpd.data = xx)
 str(test.pdf)
 @
-% explain the content of test.pdf
 
 
 \begin{figure}
@@ -392,43 +427,29 @@ str(test.pdf)
 \includegraphics[type=pdf,ext=.pdf,read=.pdf,page=1]{ko00052.non-native}
 }
 \caption{\label{fig:pathview}
-Map of galactose metabolisms in the native KEGG representation available in xxx.  
+Map of galactose metabolisms in the non-native KEGG representation available in xxx.  
 }
 \end{figure}
 
-%
-%<<label=pathview-map>>=
-%vaas_1 <- pathview(gene.data = NULL,
-%  cpd.data = xx , na.col ="grey",
-%  low = list(gene = "white", cpd = "white"),
-%  mid = list(gene = "lightsteelblue1", cpd = "lightsteelblue1"),
-%  high = list(gene = "green4", cpd = "magenta4"),
-%  pathway.id = "00052", species = "ko", out.suffix = "non-native",
-%  keys.align = "x", kegg.native = F,
-%  key.pos = "bottomright", map.cpdname = TRUE,
-%  is.signal = TRUE, afactor = 1000,
-%  limit = list(gene = 2, cpd = 400),
-%  bins = list(gene = 0.5, cpd = 20),
-%  discrete = list(gene=FALSE, cpd=FALSE),
-%  both.dirs = list(gene = FALSE, cpd = FALSE),
-%  cex = 0.7, sign.pos = "bottomleft", cpd.lab.offset = 0,
-%  same.layer = F,
-%  pdf.size = c(10,7),
-%  rank.dir = "TB") 
-%file.rename("ko00052.non-native.pdf", "ko00052_non-native.pdf")
-%@
-%\begin{figure}
-%\scalebox{1.225}{
-%\includegraphics{ko00052_non-native}
-%}
-%\caption{\label{fig:pathview}
-%Map of galactose metabolisms in the non-native KEGG representation.  
-%}
-%\end{figure}
+% here in kegg-native with species specific map from human
+<<label=pathview-kegg-native>>=
+test.map.pdf <- opm_path(cpd.data = xx, species = "hsa", out.suffix = "hsa", 
+  cex = 0.25, kegg.native = T)
+@
+  
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics[type=png,ext=.png,read=.png,page=1]{hsa00052.hsa}
+}
+\caption{\label{fig:pathview-keggnative}
+Map of galactose metabolisms for humans in native KEGG representation.  
+}
+\end{figure}
+
+
 %
 %%TODO
 %% update the discussion
-%% clearly we do not need the JSS manuscript approach anymore
 %% avoid ALL unnecessary text
 
 
