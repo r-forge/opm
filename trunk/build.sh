@@ -110,6 +110,7 @@ check_graphics_files()
 {
   local source_dir=$1
   local target_dir=$2
+  [ -d "$target_dir" ] || return
   local errs=0
   local source_file
   local target_file
@@ -507,7 +508,7 @@ change_csv_version()
 # Used for showing the failed files.
 #
 show_files_of()
-{  
+{
   local files
   mkdir -p "$1"
   files=`ls "$1"`

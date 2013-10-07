@@ -1,6 +1,8 @@
 2012-XX-XX (6th release on CRAN)
 
-- TODO
+- the 'merge.R' script gets two new options -i and -f
+
+- the 'docu.R' scripts gets a new option -L
 
 2012-09-18 (5th release on CRAN)
 
