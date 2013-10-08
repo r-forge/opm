@@ -13,6 +13,8 @@
 %% Add Revision Control System (RCS) Markups
 \usepackage{ulem}      % use this for sout
 \usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
 %\usepackage{fancyvrb}
 \normalem              % set \emph to \textit again
 % Additions (in blue)
@@ -154,7 +156,7 @@ if ("package:opm" %in% search())
 library("opm")
 data(vaas_et_al, package = "opmdata")
 @
-% not sure yet, if vaas_et_al is needed
+
 
 \section[Available plate information]{Available plate information}\label{plateInfo}
 
@@ -232,7 +234,7 @@ Another use of \code{substrate\_info()} is to convert substrate names to lower c
 See the manual for further details, help page \code{?substrate\_info}.
 
 
-\section[Visualisation by integration in pathway maps]{Visualisation by integration in pathway maps}\label{vis-pathway}
+\section[Visualisation by integration of PM data in pathway maps]{Visualisation by integration of PM data in pathway maps}\label{vis-pathway}
 
 In conjunction with other packages, it is possible to visualize PM results directly in pre-existing pathway maps as, for example, those from the KEGG database.
 These maps are essentially manually drawn pathway maps representing the currently available knowledge about genes, substrates and their connection in pathways. 
@@ -275,7 +277,9 @@ However, this method only makes sense, if each coefficient estimated by \code{op
 
 First an \code{opm\_glht} object is generated from the \code{vaas\_4} exemplar object by performing an Dunnett-type multiple comparison among the first fiften wells agains well A05 as control group.
 
+% here comparison of e.coli strains from vaas_et_al
 <<label=annotated-opm_glht-plot>>=
+
 x <- opm_mcp(vaas_4[, , 1:15], output = "mcp", model = ~ Well,
   linfct = c(`Dunnett.A05` = 1), full = FALSE)
 @
@@ -323,7 +327,8 @@ A comprehensive overview of the results is provided by bundling the results of a
 <<label=annotated-opm_glht-options-tab, result=hide>>=
 annotab <- data.frame(Comparison = rownames(confint(x)$confint), 
   numeric = anno.nu, upwards = anno.up, downward = anno.do, 
-  different = anno.di, equal = anno.eq, smaller = anno.sm, larger = anno.la)
+  different = anno.di, equal = anno.eq, smaller = anno.sm, 
+  larger = anno.la)
 annotab
 @
 
@@ -354,9 +359,28 @@ The letter prefixes have the following meanings:
 
 Only the first reference pathway map is manually drawn; all other maps are computationally generated. 
 \code{pathview} allows only for usage of KEGG orthology (the \emph{ko}-maps) or species specific letter code (see \url{http://www.genome.jp/kegg/catalog/org_list.html} for an up-to-date list of organisms with complete genome information in KEGG).
-The \emph{ko}-maps contain the manually defined ortholog groups (\emph{ko} entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes, whereas the species specific maps contain 
+The \emph{ko}-maps contain the manually defined ortholog groups (\emph{ko} entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes, whereas the species specific maps contain. 
+A list of the existing maps and their corresponding numbers are available under \url{http://www.genome.jp/kegg-bin/get_htext#B1}.
 
 Before you start with this section, please make sure, that you have installed the \pkg{pathview} package including all its dependencies from \proglang{Bioconductor} (\url{http://bioconductor.org/packages/2.12/bioc/html/pathview.html}).
+
+For demonstration purposes, we use a subset of \code{vaas_et_al} comprehending the \textit{Escherichia coli} strains from the first biological repetition. 
+
+<<label=example-data>>=
+# subset the data
+e.coli.sub <- subset(vaas_et_al, list(Species = "Escherichia coli", 
+  Experiment = "First replicate"))
+e.coli.k12 <-  subset(vaas_et_al, list(Strain = "DSM18039"))
+e.coli.typ <-  subset(vaas_et_al, list(Strain = "DSM30083T"))
+@
+
+Afterwards we provide the annotated vectors for the two groups separately
+<<label=example-data-anno>>=
+# annotated from single strains
+anno.k12 <- annotated(e.coli.k12)
+anno.typ <- annotated(e.coli.typ)
+@
+
 
 %TODO 
 % explain the different situation of available information for analysis
@@ -395,56 +419,99 @@ All graphics below are produced using this wrapper, however, the user is free to
 
 
 <<label=pathview-wrapper>>=
-opm_path <- function(cpd.data, high = list(gene = "green4", cpd = "magenta4"), 
+opm_path <- function(cpd.data, 
+  high = list(gene = "green4", cpd = "magenta4"), 
   low = list(gene = "white", cpd = "white"),
   mid = list(gene = "lightsteelblue1", cpd = "lightsteelblue1"),
   pathway.id = "00052", species = "ko",  out.suffix = "non-native", 
-  kegg.native = F, key.pos = "bottomright", afactor = 1000,
+  key.pos = "bottomright", afactor = 1000,
   limit = list(gene = 2, cpd = 400), bins = list(gene = 0.5, cpd = 20),
-  both.dirs = list(gene = FALSE, cpd = FALSE), cex = 0.7, 
-  sign.pos = "bottomleft", cpd.lab.offset = 0, same.layer = F, rank.dir = "TB",
-  pdf.size = c(14,10), gene.data = NULL, ...) {
+  both.dirs = list(gene = FALSE, cpd = FALSE), 
+  sign.pos = "bottomleft", cpd.lab.offset = 0, same.layer = F, 
+  rank.dir = "TB", gene.data = NULL, ...) {
   
-  pathview(gene.data = gene.data, cpd.data = cpd.data, na.col ="grey",
-           low = low,
-           mid = mid,
-           high = high,
-           pathway.id = pathway.id, 
-           species = species, 
-           out.suffix = out.suffix,
-           kegg.native = kegg.native,
-           key.pos = key.pos,
-           afactor = afactor,
-           limit = limit,
-           bins = bins,
-           both.dirs = both.dirs,
-           cex = cex, sign.pos = sign.pos, cpd.lab.offset = cpd.lab.offset,
-           same.layer = same.layer,
-           pdf.size = pdf.size,
-           rank.dir = rank.dir,
-           ...)
+  pathview(gene.data = gene.data, cpd.data = cpd.data, na.col ="white",
+    low = low, mid = mid, high = high, pathway.id = pathway.id, 
+    species = species, out.suffix = out.suffix, key.pos = key.pos,
+    afactor = afactor, limit = limit, bins = bins,
+    both.dirs = both.dirs, sign.pos = sign.pos, 
+    cpd.lab.offset = cpd.lab.offset, same.layer = same.layer,
+    rank.dir = rank.dir, ...)
 }
 @
 
-
+First we show the results of the two strain on separate maps in Figure~\ref{fig:pathview-native-sep-strains}.
+ 
 <<label=pathview-wrapper-plot-native>>=
-xx <- annotated(vaas_1)
-test.png <- opm_path(cpd.data = xx, kegg.native = T, cex = 0.25, 
-  out.suffix = "native")
-str(test.png)
+e.coli.map.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
+  out.suffix = "k12.ko", pathway.id = "00052")
+e.coli.map.typ <- opm_path(cpd.data = anno.typ, species = "ko", 
+  out.suffix = "typ.ko", pathway.id = "00052")
 @
 %TODO
-% explain the content of test.png, refer to the pathview vignette
+% explain the content of the objects resulting from opm_path(), refer to the pathview vignette
 
 %TODO
 % explain the content of the figures in more details, which type of map, which genomic information, etc.
+\begin{figure}
+ \centering
+        \begin{subfigure}[b]{1.0\textwidth}
+                \centering
+                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.k12.ko}}
+                \caption{PM data of \textit{Escherichia coli} strain K12 mapped on KEGG galactose pathway.}
+                \label{fig:1a}
+        \end{subfigure}
+        \\
+        \vspace{20pt}
+        \begin{subfigure}[b]{1.0\textwidth}
+                \centering
+                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.typ.ko}}
+                \caption{PM data of \textit{Escherichia coli} type strain DSM30083T mapped on KEGG galactose pathway.}
+                \label{fig:1b}
+        \end{subfigure}
+        \\
+        \caption{TODO: write caption, draw attention to the substrates Raffinose, Stachyose and Sucrose (in the middle of the map), which exhibit }
+        \label{fig:pathview-native-sep-strains}
+\end{figure}
+
+Now we compute an multiple comparison between the 13 substrates included in the galactose-pathway-map. The test compares the results of the type-strain vs. the K12, corresponding 95\% CI for differences of means are shown in Figure~\ref{fig:e_coli_comp_ci}.
+
+<<label=pathview-e_coli-comp>>=
+colicomp <- opm_mcp(
+  e.coli.sub[, , c(7, 9, 13, 14, 15, 20, 25, 26, 27, 28, 37, 40, 41)], 
+  output = "mcp", model = ~ J(Well + Strain), linfct = c(`Pairs` = 1))
+@
+
+\begin{center}
+\begin{figure}
+\scalebox{1.225}{
+<<label=e_coli_comp_ci_figure, fig=TRUE, echo=FALSE, width=12>>=
+old.mar <- par(mar = c(3, 43, 3, 2)) # adapt plotting settings
+plot(colicomp, xlim = c(-10, 300))
+par(old.mar) # reset plotting settings
+@
+}
+\caption{
+\label{fig:e_coli_comp_ci}
+Point estimates and 95\% confidence intervals for the differences of means between the two \textit{E. coli} strains for the subset of substrate represented in the galactose pathway map.
+}
+\end{figure}
+\end{center}
+
+The annotation vector for the differences of means is provided by application of \code{annotated} on the \code{opm\_glht} object, which directly facilitates the mapping of the differences on the galactose pathway, as it is shown in Figure~\ref{fig:pathview-native}
+
+<<label=pathview-e.coli-comp-map>>=
+anno.colicomp <- annotated(colicomp)
+e.coli.comp.map <- opm_path(cpd.data = anno.colicomp, species = "ko", 
+  out.suffix = "e.coli.comp.ko", pathway.id = "00052")
+@
 
 \begin{figure}
 \scalebox{1.225}{
-\includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.native}
+\includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.e.coli.comp.ko}
 }
-\caption{\label{fig:pathview-native}
-Map of KEGG onthology galactose metabolisms in the native KEGG representation.  
+\caption{\label{fig:pathview.native}
+Mapping of differences between \textit{E. coli} K12 and type strain DSM30083T galactose pathway.  
 }
 \end{figure}
 
@@ -456,30 +523,30 @@ test.pdf <- opm_path(cpd.data = xx)
 str(test.pdf)
 @
 
-
-\begin{figure}
-\scalebox{1.225}{
-\includegraphics[type=pdf,ext=.pdf,read=.pdf,page=1]{ko00052.non-native}
-}
-\caption{\label{fig:pathview-non-native}
-Map of galactose metabolisms in the non-native KEGG representation available in xxx.  
-}
-\end{figure}
+%
+%\begin{figure}
+%\scalebox{1.225}{
+%\includegraphics[type=pdf,ext=.pdf,read=.pdf,page=1]{ko00052.non-native}
+%}
+%\caption{\label{fig:pathview-non-native}
+%Mapping of differences between \textit{E. coli} K12 and type strain DSM30083T galactose pathway.  
+%}
+%\end{figure}
 
 % here in kegg-native with species specific map from human
-<<label=pathview-kegg-native>>=
+<<label=pathview.kegg.native>>=
 test.map.pdf <- opm_path(cpd.data = xx, species = "hsa", out.suffix = "hsa", 
   cex = 0.25, kegg.native = T)
 @
-  
-\begin{figure}
-\scalebox{1.225}{
-\includegraphics[type=png,ext=.png,read=.png,page=1]{hsa00052.hsa}
-}
-\caption{\label{fig:pathview-keggnative}
-Map of galactose metabolisms for humans in native KEGG representation.  
-}
-\end{figure}
+%  
+%\begin{figure}
+%\scalebox{1.225}{
+%\includegraphics[type=png,ext=.png,read=.png,page=1]{hsa00052.hsa}
+%}
+%\caption{\label{fig:pathview-keggnative}
+%Map of galactose metabolisms for humans in native KEGG representation.  
+%}
+%\end{figure}
 
 
 %
