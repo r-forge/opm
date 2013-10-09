@@ -15,6 +15,7 @@
 \usepackage{hyperref}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{enumitem}
 %\usepackage{fancyvrb}
 \normalem              % set \emph to \textit again
 % Additions (in blue)
@@ -344,25 +345,30 @@ Basically, \code{pathview} maps and renders pathway graphs (from KEGG) and integ
 Here the functions serves to integrate and visualize PM data provided by \code{annotated}.
 The user has to specify the pathway, provide the PM-data and all necessary steps (download of pathway graph data, parsing of data file, maping user's data to the pathway, and rendering of pathway graph with the mapped data) are executed automatically by \code{pathview}.
 
-Generally, a pathway map is described as ``[...]a molecular interaction/reaction network diagram represented in terms of the KEGG Orthology (KO) groups [...]''(see \url{http://www.genome.jp/kegg/kegg3a.html} for further details).
+Generally, a pathway map is described as ``[...]a molecular interaction/reaction network diagram represented in terms of the KEGG Orthology (KO) groups [...]'' (see \url{http://www.genome.jp/kegg/kegg3a.html} for further details).
 KEGG contains a collection of different types of pathway maps, precisely identifiable by the combination of 2-4 letter code and 5 digit number. 
 
 The letter prefixes have the following meanings:
-
-\begin{itemize}
+%\begin{addmargin}[0,5cm]{0,5cm}
+\begin{itemize}[leftmargin=2cm]
 \item[map -] Reference pathway
 \item[ko -] Reference pathway (KO)
 \item[ec -] Reference pathway (EC)
 \item[rn -] Reference pathway (Reaction)
 \item[org -] Organism-specific pathway map
 \end{itemize}
-
+%\end{addmargin}
 Only the first reference pathway map is manually drawn; all other maps are computationally generated. 
+The \emph{ko}-maps contain the manually defined ortholog groups (\emph{ko} entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes, whereas the (\emph{ko} entries) are converted to gene identifiers if organism-specific pathways maps are generated.
+A list of the existing maps and their corresponding numbers are available under \url{http://www.genome.jp/kegg-bin/get_htext?query=01100&htext=br08901.keg&option=-a}.
+
 \code{pathview} allows only for usage of KEGG orthology (the \emph{ko}-maps) or species specific letter code (see \url{http://www.genome.jp/kegg/catalog/org_list.html} for an up-to-date list of organisms with complete genome information in KEGG).
-The \emph{ko}-maps contain the manually defined ortholog groups (\emph{ko} entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes, whereas the species specific maps contain. 
-A list of the existing maps and their corresponding numbers are available under \url{http://www.genome.jp/kegg-bin/get_htext#B1}.
 
 Before you start with this section, please make sure, that you have installed the \pkg{pathview} package including all its dependencies from \proglang{Bioconductor} (\url{http://bioconductor.org/packages/2.12/bioc/html/pathview.html}).
+
+Generally, the user has to provide a vector with the PM values which are named by the corresponding substrate IDs. 
+This vector then serves as input for the visualization procedure based on \code{pathview}.
+The function is able to integrate other sources of \emph{OMICS}-data, like for example, transcriptomics or proteomics, see the corresponding chapter in the \code{pathview}-vignette for details: \url{http://bioconductor.org/packages/2.12/bioc/vignettes/pathview/inst/doc/pathview.pdf}.
 
 For demonstration purposes, we use a subset of \code{vaas_et_al} comprehending the \textit{Escherichia coli} strains from the first biological repetition. 
 
@@ -381,42 +387,14 @@ anno.k12 <- annotated(e.coli.k12)
 anno.typ <- annotated(e.coli.typ)
 @
 
-
-%TODO 
-% explain the different situation of available information for analysis
-% I. descriptive measurements:
-% 		i) nothing known or genome known, pathway unknown
-%		ii) only pathway known
-%		iii) both genome and pathway known
-% II. differential approach: comparison between two (or more strains)
-% 		i) nothing known or genome known, pathway unknown
-%		ii) only pathway known
-%		iii) one or both genome and relevant pathway known
-% 
-% explain the different resulting experimental questions
-% 	i) descriptive with following improvement of genome annotation)
-% 	ii) differential with exploratory character: just describe the difference between strains
-%	iii) differential with functional approach: knock-out experiments, investigations of cases where other experiments did not  result in satisfying answers (authismus-paper)
-% 
-% improve the structure of the text below
-% set up a suitable example:
-% use vaas_et_al, compare the two E.coli strains, pick a set of substrates, which map all in one pathway, put also one or two substrates which are not represented to demonstrate that they are not plotted in the map
-% use this to provide descriptive maps: results from the two strain in distinct maps plus the result of an opm_mcp-procedure
-% use the opm_mcp-results for also demonstrating the binary outcome option, use upwards or downwards to show the three categories
-% explain the colour-arguments and the scaling properly.
-% 
-% show the non-native KEGG-maps at the very end with listing the poor options for tuning the font sizes or size of symbols in the graphic
-% also the colouring is not similarly possible like in the native maps
-
-%TODO 
-% explain the wrapper
-% change the default of kegg.native to TRUE
-% explain, why the output of .png is choosen as default
-% 
 To provide more convenient functionality for mapping PM-data on KEGG-pathway maps, we wrote a wrapper for the \code{pathview}-function. 
 This wrapper provides mainly fine tuned settings for the convenient application of \code{pathview} on PM-data.
 All graphics below are produced using this wrapper, however, the user is free to use the original \code{pathview}-function with the respectively changed arguments. 
 
+%TODO 
+% explain the wrapper
+% explain, why native = TRUE and the output of .png is choosen as default
+% 
 
 <<label=pathview-wrapper>>=
 opm_path <- function(cpd.data, 
@@ -439,6 +417,18 @@ opm_path <- function(cpd.data,
     rank.dir = rank.dir, ...)
 }
 @
+
+
+%TODO 
+% improve the structure of the text below
+% set up a suitable example:
+% use vaas_et_al, compare the two E.coli strains, pick a set of substrates, which map all in one pathway, put also one or two substrates which are not represented to demonstrate that they are not plotted in the map
+% use this to provide descriptive maps: results from the two strain in distinct maps plus the result of an opm_mcp-procedure
+% use the opm_mcp-results for also demonstrating the binary outcome option, use upwards or downwards to show the three categories
+% explain the colour-arguments and the scaling properly.
+% 
+% show the non-native KEGG-maps at the very end with listing the poor options for tuning the font sizes or size of symbols in the graphic
+% also the colouring is not similarly possible like in the native maps
 
 First we show the results of the two strain on separate maps in Figure~\ref{fig:pathview-native-sep-strains}.
  
@@ -485,8 +475,9 @@ colicomp <- opm_mcp(
 \begin{center}
 \begin{figure}
 \scalebox{1.225}{
-<<label=e_coli_comp_ci_figure, fig=TRUE, echo=FALSE, width=12>>=
-old.mar <- par(mar = c(3, 43, 3, 2)) # adapt plotting settings
+<<label=e_coli_comp_ci_figure, fig=TRUE, echo=FALSE>>=
+old.mar <- par(mar = c(3, 8, 3, 2))
+par(mar = c(3, 20, 3, 2)) # adapt plotting settings
 plot(colicomp, xlim = c(-10, 300))
 par(old.mar) # reset plotting settings
 @
@@ -494,6 +485,34 @@ par(old.mar) # reset plotting settings
 \caption{
 \label{fig:e_coli_comp_ci}
 Point estimates and 95\% confidence intervals for the differences of means between the two \textit{E. coli} strains for the subset of substrate represented in the galactose pathway map.
+}
+\end{figure}
+\end{center}
+
+%TODO
+% identify the substrates which are represented in the galactose pathway
+% put ci_plot of the substrates with different means
+
+And here, we show the A-values from the distinct measurements:
+
+<<label=ecoli.ci_plot, fig=FALSE, echo=FALSE, result=FALSE, eval=FALSE>>=
+x <- ci_plot(e.coli.sub[, , c(7, 9, 13, 14, 15, 20, 25, 26, 27, 28, 37, 40, 41)], 
+  as.labels = list("Species", "Strain"), subset = "A", x = "bottomright", 
+  legend.field = NULL)
+@
+
+\begin{center}
+\begin{figure}
+\scalebox{1}{
+<<label=e_coli_comp_ci_figure, fig=TRUE, echo=FALSE, height=12>>=
+ci_plot(e.coli.sub[, , c(7, 9, 13, 14, 15, 20, 25, 26, 27, 28, 37, 40, 41)], 
+  as.labels = list("Species", "Strain"), subset = "A", x = "bottomright", 
+  legend.field = NULL)
+@
+}
+\caption{
+\label{fig:e_coli_single_ci}
+Point estimates and 95\% confidence intervals for the single measurements of the two \textit{E. coli} strains for the subset of substrate represented in the galactose pathway map.
 }
 \end{figure}
 \end{center}
@@ -515,13 +534,32 @@ Mapping of differences between \textit{E. coli} K12 and type strain DSM30083T ga
 }
 \end{figure}
 
-Here the same in non-native KEGG representation.
+% explain the different situation of available information for analysis
+% I. descriptive measurements:
+% 		i) nothing known or genome known, pathway unknown
+%		ii) only pathway known
+%		iii) both genome and pathway known
+% II. differential approach: comparison between two (or more strains)
+% 		i) nothing known or genome known, pathway unknown
+%		ii) only pathway known
+%		iii) one or both genome and relevant pathway known
+% 
+% explain the different resulting experimental questions
+% 	i) descriptive with following improvement of genome annotation)
+% 	ii) differential with exploratory character: just describe the difference between strains
+%	iii) differential with functional approach: knock-out experiments, investigations of cases where other experiments did not  result in satisfying answers (authismus-paper)
+% 
 
-<<label=pathview-wrapper-plot>>=
-xx <- annotated(vaas_1)
-test.pdf <- opm_path(cpd.data = xx)
-str(test.pdf)
-@
+
+
+
+%Here the same in non-native KEGG representation.
+%
+%<<label=pathview-wrapper-plot>>=
+%xx <- annotated(vaas_1)
+%test.pdf <- opm_path(cpd.data = xx)
+%str(test.pdf)
+%@
 
 %
 %\begin{figure}
@@ -533,11 +571,11 @@ str(test.pdf)
 %}
 %\end{figure}
 
-% here in kegg-native with species specific map from human
-<<label=pathview.kegg.native>>=
-test.map.pdf <- opm_path(cpd.data = xx, species = "hsa", out.suffix = "hsa", 
-  cex = 0.25, kegg.native = T)
-@
+%% here in kegg-native with species specific map from human
+%<<label=pathview.kegg.native>>=
+%test.map.pdf <- opm_path(cpd.data = xx, species = "hsa", out.suffix = "hsa", 
+%  cex = 0.25, kegg.native = T)
+%@
 %  
 %\begin{figure}
 %\scalebox{1.225}{
@@ -559,16 +597,16 @@ test.map.pdf <- opm_path(cpd.data = xx, species = "hsa", out.suffix = "hsa",
 Using the argument \code{how= "value"} a numeric matrix containing the chosen computed values together with their abundance in pathway maps can be investigated. 
 In analogy to the download argument of \code{substrate\_info} the information are convertet into a numeric matrix. Please note, that this option is not available for all values of \code{what} and requires additional libraries. 
 See \code{substrate\_info} for details.
-
-<<label=annotated-opm_glht-mat-dig, echo=FALSE, result=hide>>=
-old.op <- options()
-options(digits = 2)
-@
-
-<<label=annotated-opm_glht-mat>>=
-anno.glht.mat <- annotated(x, how = "values")
-anno.glht.mat
-@
+%
+%<<label=annotated-opm_glht-mat-dig, echo=FALSE, result=hide>>=
+%old.op <- options()
+%options(digits = 2)
+%@
+%
+%<<label=annotated-opm_glht-mat>>=
+%anno.glht.mat <- annotated(x, how = "values")
+%anno.glht.mat
+%@
 
 The obtained information about the pathway certain substrates are involved in can be used to determine manually which pathways are actually of interest or can serve as input for model-building procedures as, for example, random forest approaches, which is demonstrated below.
 
