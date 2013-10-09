@@ -1,8 +1,10 @@
 2012-XX-XX (6th release on CRAN)
 
-- the 'merge.R' script gets two new options -i and -f
+- repair_docu() gets an 'drop.interal' argument
 
-- the 'docu.R' scripts gets a new option -L
+- the 'merge.R' script gets new options -i and -f
+
+- the 'docu.R' scripts gets new options -L and -N
 
 2012-09-18 (5th release on CRAN)
 

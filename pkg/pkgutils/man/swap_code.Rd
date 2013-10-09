@@ -16,12 +16,15 @@
   details.}
 
   \item{...}{Optional arguments, currently passed as
-  arguments additional to \sQuote{x} to
-  \code{\link{run_ruby}}. See there for details.}
+  \code{args} arguments to \code{\link{run_ruby}}. See
+  there for details. The sole exception is an \code{sargs}
+  argument, which is a character vector of options passed
+  to the Ruby script. See below.}
 
   \item{ignore}{\code{NULL} or character vector with names
-  of files to ignore.  Passed to \code{\link{pkg_files}},
-  see there for details of how names are matched.}
+  of \R code files to ignore. Passed to
+  \code{\link{pkg_files}}, see there for details of how
+  names are matched.}
 }
 \value{
   Currently the return value of the call to

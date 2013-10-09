@@ -336,17 +336,20 @@ class Array
 
   # Use self as array of file names from which to collect S4_method objects.
   # Return hash table with Rd file as key and arrays of S4_method objects as
-  # values.
+  # values. _ignore_ is an array of filenames to ignore.
   #
-  def collect_s4_methods
+  def collect_s4_methods ignore = []
     s4_methods = collect(&:all_s4_methods).flatten
     result = Hash.new {|h, k| h[k] = []}
     s4_methods.each do |s4_method|
       if (rdfile = s4_method.existing_rd_file)
         result[rdfile] << s4_method
       else
-        raise "Rd files for method #{s4_method.name} " +
-          "(#{s4_method.possible_rd_files.join(", ")}) do not exist!"
+        possible = s4_method.possible_rd_files
+        unless possible.all? {|file| ignore.include? file}
+          raise "Rd files for method #{s4_method.name} " +
+            "(#{possible.join(", ")}) do not exist!"
+        end
       end
     end
     result
@@ -366,9 +369,9 @@ class Hash
   # arrays of S4_method objects whose description shall be written to such a
   # file.
   #
-  def write_s4_methods args
+  def write_s4_methods verbose
     each_pair do |rdfile, s4_methods|
-      warn "Adding to #{rdfile}" if args[:verbose]
+      warn "Adding to #{rdfile}" if verbose
       File.open(rdfile, "a") do |file|
         file.puts s4_methods.first.doctype
         generic, current = true, s4_methods.first.name
@@ -398,13 +401,14 @@ end
 ################################################################################
 
 
-help_msg, verbose = false, true
-
+help_msg, verbose, ignore = false, true, []
 
 opts = OptionParser.new
 opts.on('-h', '--help', 'Print help message and exit') {|v| help_msg = true}
 opts.on('-q', '--quiet', 'Run quietly') {|v| verbose = false}
-
+opts.on('-sMANDATORY LIST', '--skip=MANDATORY FILE',
+  'Comma-separated list of missing Rd output files to silently skip', String
+) {|v| ignore = v.split(",").collect(&:strip)}
 
 filenames = opts.parse ARGV
 
@@ -417,7 +421,7 @@ end
 ################################################################################
 
 
-filenames.collect_s4_methods.write_s4_methods(verbose: verbose)
+filenames.collect_s4_methods(ignore).write_s4_methods(verbose = verbose)
 
 
 ################################################################################
