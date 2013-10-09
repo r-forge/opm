@@ -874,6 +874,11 @@ setMethod("listing", OPMS, function(x, as.groups, cutoff = opm_opt("min.mode"),
 #'   alternatively a list, an S3 object of class \sQuote{substrate_match}, an
 #'   \code{\link{OPM}} or an \code{\link{OPMS}} object.
 #'
+#' @param type Ignored if empty or \code{FALSE}. Otherwise, passed to
+#'   \code{\link{plate_type}} for normalization and then used to restrict the
+#'   positions to those in that plate. Changes the output object to a vector;
+#'   see below for details. In the case of \code{\link{OPMX}} objects, this can
+#'   be set to \code{TRUE}, causing the use of the plate of \code{object}.
 #' @param search Character scalar indicating the search mode. \describe{
 #'   \item{exact}{Query names must exactly match (parts of) the well
 #'   annotations.}
@@ -950,6 +955,10 @@ setMethod("listing", OPMS, function(x, as.groups, cutoff = opm_opt("min.mode"),
 #' (y <- find_positions(as.factor(c("D-Glucose", "D-Gloucose"))))
 #' stopifnot(identical(y, x))
 #'
+#' # Restrict to  a certain plate
+#' (x <- find_positions(c("D-Glucose", "D-Gloucose"), type = "Gen III"))
+#' stopifnot(is.character(x), any(is.na(x)), !all(is.na(x)))
+#'
 #' # List method
 #' x <- find_positions(find_substrate(c("D-Glucose", "D-Gloucose")))
 #' x[[1]][1:3]
@@ -1000,7 +1009,11 @@ setOldClass("substrate_match")
 setGeneric("find_positions",
   function(object, ...) standardGeneric("find_positions"))
 
-setMethod("find_positions", "character", function(object, ...) {
+setMethod("find_positions", "character", function(object, type = NULL, ...) {
+  if (length(type) && !identical(type, FALSE)) {
+    x <- WELL_MAP[, plate_type(type)[1L], "name"]
+    return(structure(names(x)[match(object, x)], names = object))
+  }
   plates <- colnames(WELL_MAP)
   sapply(object, FUN = function(name) {
     result <- which(WELL_MAP[, , "name"] == name, arr.ind = TRUE)
@@ -1018,8 +1031,12 @@ setMethod("find_positions", "list", function(object, ...) {
     how = "list", ...)
 }, sealed = SEALED)
 
-setMethod("find_positions", OPM, function(object, ...) {
-  find_positions(wells(object, full = TRUE, in.parens = FALSE), ...)
+setMethod("find_positions", OPM, function(object, type = NULL, ...) {
+  object <- wells(object, full = TRUE, in.parens = FALSE)
+  if (isTRUE(type))
+    structure(names(object), names = object)
+  else
+    find_positions(object, ...)
 }, sealed = SEALED)
 
 
