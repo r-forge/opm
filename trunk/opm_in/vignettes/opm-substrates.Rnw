@@ -76,28 +76,17 @@
 
 \Abstract{
 
-%TODO
-% Write suitable abstract, avoid ALL redundancies.
-% This one is just a copy from the main tutorial -- why?
-
-%The OmniLog\textregistered \ Phenotype Microarray system is able to monitor simultaneously, on a longitudinal time scale, the phenotypic reaction of single-celled organisms such as bacteria, fungi, and animal cell cultures to up to 2,000 environmental challenges spotted on sets of 96-well microtiter plates.
-%The phenotypic reactions are recorded as respiration kinetics with a shape comparable to growth curves.
-%Tools for storing the curve kinetics, aggregating the curve parameters, recording associated metadata of organisms and experimental settings as well as methods for analysing graphically and statistically these highly complex data sets are increasingly in demand.
-%
-%The \pkg{opm} \proglang{R} package facilitates management, visualization and statistical analysis of Phenotype Microarray data.
-%Raw measurements can be easily input into \proglang{R}, combined with relevant meta-information and accordingly analysed.
-%The kinetics can be aggregated by estimating curve parameters using several methods.
-%Containers of \pkg{opm} data can easily be queried for and subset by using the integrated metadata and other information.
-%Using \href{http://www.genome.jp/kegg/}{KEGG}, a database resource for understanding high-level functions and utilities of the biological system, \pkg{opm} offers functionality to map and render PM data on relevant pathway graphs in customized manner.
-%All methods are exemplified using real-world data sets that are part of the \pkg{opm} \proglang{R} package or are included in the accompanying data package \pkg{opmdata}.
-
 This is the substrate-information tutorial of \pkg{opm} in the version of \today{}.
-
+The precomputed information on the known Phenotype Microarray (PM) substrates is explained, as well as the methods available to query this information.
+IDs for a variety of databases are stored within \pkg{opm}, which can be used to conduct web queries to obtain comprehensive data on the substrates of interest.
+We show how these data can be used to visualize results from PM experiments, including the outcome from advanced multiple-comparison statistics, within biochemical pathway maps.
+Moreover, methods are described to automatically detect the substrate features that potentially explain a given experimental outcome.
+This includes determining the relevant pathways to be used in the visualizations.
 }
 
-\Keywords{Cell Lines, Metadata, Microbiology, Respiration Kinetics, Pathway, \proglang{KEGG}, \pkg{pathview}}
+\Keywords{Respiration Kinetics, pathways, CAS, MeSH, ChEBI, Metacyc, KEGG, \pkg{pathview}}
 
-\Plainkeywords{cell Lines, metadata, microbiology, respiration kinetics, pathway, KEGG, pathview}
+\Plainkeywords{respiration kinetics, pathways, CAS, MeSH, ChEBI, Metacyc, KEGG, pathview}
 
 \Address{
   Markus G\"{o}ker\\
@@ -128,16 +117,16 @@ This is the substrate-information tutorial of \pkg{opm} in the version of \today
 %\newpage
 
 
-\section[Introduction]{Introduction}\label{introduction}
+\section{Introduction}\label{introduction}
 
 A detailed description of the OmniLog\textregistered \ Phenotype MicroArray (PM) system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype MicroArray Data'' (called ``main tutorial'' in the following).
 The description of the methods below presupposes that the user is familiar with the usage of \pkg{opm} and has studied the main tutorial as well as the entries of the \pkg{opm} manual relevant to her or his research.
-Especially the concept and structure of the different object-classes should be made clear before starting with this tutorial. 
+Especially the concepts behind, and the methods available for, the different classes of \pkg{opm} objects should be known before starting with this tutorial. 
 
-In addition to visual inspection or statistical comparative analyses of Phenotype Microarray data, as described in the main manual, users might be interested in specific information on the substrates used in PM assays.
-The \pkg{opm} package contains a large variety of additional data on PM substrates. Beside methods for assessing these information directly, this tutorial introduces strategies for visualization of the measured PM results by mapping on pathway-maps and introduces analysis methods for modelling and identification of informative and less informative substrates. 
+In addition to visual inspection or statistical comparative analyses of Phenotype Microarray data, as described in the main tutorial, users might be interested in specific information on the substrates used in PM assays.
+The \pkg{opm} package contains a large variety of additional data on PM substrates. Beside methods for assessing these information directly, this tutorial introduces strategies for visualization of the measured PM results by mapping on pathway maps and introduces analysis methods for modelling and identification of informative and less informative substrates. 
 
-\section[Preparation]{Preparation}\label{preparation}
+\section{Preparation}\label{preparation}
 
 <<label=chunk-setup, echo=FALSE>>=
 options(width=90)
@@ -147,8 +136,11 @@ options(useFancyQuotes = FALSE)
 library("methods")
 @
 
-Before starting, install the package \pkg{pathview} from \proglang{Bioconductor} (\url{http://bioconductor.org/packages/2.12/bioc/html/pathview.html}) and load it together with the \pkg{opm} package, into an \proglang{R} session. 
-Please note, that it is important to load \pkg{pathview} before \pkg{opm}, since otherwise some functions are not visible and the package does not work properly. In this vignette this is catched by the \code{if}-construct.
+For just downloading information from KEGG (see Section~\ref{plate-information}), install the \proglang{Bioconductor} package \pkg{KEGGREST}.
+It needs not be loaded into your \proglang{R} session.
+For also drawing PM information into KEGG pathway maps (see Section~\ref{vis-pathway}), install the \proglang{Bioconductor} package \pkg{pathview} and load it into your session. 
+Note that it is important to load \pkg{pathview} before \pkg{opm}, which is needed throughout this tutorial, since otherwise some methods are not visible and the package does not work properly.
+In this vignette this is enforced by optionally detaching \pkg{opm} and loading it again as follows:
 
 <<label=load-library>>=
 suppressPackageStartupMessages(library("pathview"))
@@ -159,10 +151,10 @@ data(vaas_et_al, package = "opmdata")
 @
 
 
-\section[Available plate information]{Available plate information}\label{plateInfo}
+\section{Available plate information}\label{plate-information}
 
 Currently substrate layouts of various plates are available within \pkg{opm}.
-An overview about the plate types available in the respective version of \pkg{opm} is obtained by entering
+An overview of the plate types available in the respective version of \pkg{opm} is obtained by entering
 
 <<label=plate-types, results=hide>>=
 plate_type(full = TRUE)
@@ -172,7 +164,7 @@ The resulting vector of names does not only include OmniLog\textregistered \ pla
 Using other values for \code{full}, or additional arguments, distinct spelling variants of the plate names can be obtained.
 
 
-\section[Accessing substrate information]{Accessing substrate information}\label{application substrates}
+\section{Accessing substrate information}\label{substrate-information}
 
 The \pkg{opm} package contains a number of functions suitable for accessing precomputed information on the substrates within certain wells and entire plates.
 In the manual and help pages these functions are explained within the family ``naming-functions'' with according cross-references.
@@ -235,54 +227,54 @@ Another use of \code{substrate\_info()} is to convert substrate names to lower c
 See the manual for further details, help page \code{?substrate\_info}.
 
 
-\section[Visualisation by integration of PM data in pathway maps]{Visualisation by integration of PM data in pathway maps}\label{vis-pathway}
+\section{Visualisation of PM information within pathway maps}\label{vis-pathway}
 
-In conjunction with other packages, it is possible to visualize PM results directly in pre-existing pathway maps as, for example, those from the KEGG database.
-These maps are essentially manually drawn pathway maps representing the currently available knowledge about genes, substrates and their connection in pathways. 
-Depending on availability of genome and gene-annotation information within KEGG, organism-specific, individual maps are allocateable \citep{Kanehisa01012010}.
+In conjunction with other \proglang{R} packages, it is possible to visualize PM results directly in pre-existing pathway maps as, for example, those from the KEGG database.
+These maps are essentially manually drawn biochemical pathway maps representing the currently available knowledge on substrates, enzymes and genes and their connections within pathways. 
+Depending on the availability of genome and gene-annotation information within KEGG, organism-specific, individual maps can be obtained \citep{Kanehisa01012010}.
 
-The mapping itself is simply the introduction of PM-measurement data as colour-coding of nodes (here, representing the substrates) into those maps, as it can be done similarly with several other types of \emph{OMICS}-data. For details, please see the description on the KEGG-homepage: (\url{http://www.genome.jp/kegg/}).
+The mapping itself works by using information produced by \pkg{opm} for a colour coding of the nodes (here, representing the substrates) within those maps, as can be done similarly with several other types of ``OMICS'' data.
+% TODO: would need an example for the OMICS claim
+For details, see the description on the KEGG website (\url{http://www.genome.jp/kegg/}).
 
-Here we will use the function \code{pathview} from the package of same name \citep{Luo2013}. 
-This function downloads the user-defined pathway map and subsequently maps and renders the given PM-data into it. 
-Please note the mandatory ordering when loading the packages;\code{pathview} must be loaded \emph{before} loading package \pkg{opm} into an \proglang{R} session.
 
-\subsection[Providing suitable input-data]{suitable input-data}\label{annotated-input}
+\subsection{Providing suitable input data}\label{annotated-input}
 
-The workflow starts with either an \code{OPMX} object containing the agregated values, or the result from an \proglang{opm\_mcp} analysis. 
-The first step in both cases is to bring the PM-results in a suitable format, which is a named vector created by the function \code{annotated}.
+The work flow starts with either an \code{OPMX} object containing the aggregated values or the result from an \proglang{opm\_mcp} analysis.
+The first step in both cases is to convert the data into a suitable format, which is a named vector created by the function \code{annotated}.
 
 <<label=annotated>>=
-# here provide the annotated vector from vaas_1
-xx <- annotated(vaas_1)
-head(xx)
+x <- annotated(vaas_1)
+head(x)
 @
 
-The resulting vector basically contains the numeric values (selected parameter estimates or \code{opm\_mcp} results, as explained below) as well as an annotation of the according substrates. 
-With the \code{what}-argument, passed as eponymous argument to \code{substrate\_info}, the user can indicate which kind of information should be used for the annotation.
+The resulting vector contains the numeric values (selected parameter estimates or \code{opm\_mcp} results, as explained below) as well as an annotation of the according substrates. 
+The \code{what} argument, passed as eponymous argument to \code{substrate\_info}, selects the kind of information to be used for the annotation.
 
-Although \code{annotated} works directly on \code{OPMX}-objects containing aggregated data for single plates or bundles of plates, please note, that the output allows for only one value per substrate. 
-Thus, when applying \code{annotated} to a set of plates, make sure, that only one experimental group is comprised, since the resulting values are averaged per well over all plates in the input object.
-Using the \code{output}-argument, one is able to choose which parameter should be adressed, for example AUC instead of maximum height:
+Although \code{annotated} works directly on \code{OPMX} objects containing aggregated data for single plates or bundles of plates, please note, that the output allows for only one value per substrate. 
+Thus, when applying \code{annotated} to a set of plates, make sure that only one experimental group is comprised, since the resulting values are averaged per well over all plates in the input object.
+Using the \code{output} argument, one can select the parameter of interest, for example area under the curve instead of maximum height:
 
 <<label=annotated-param>>=
-y <- annotated(vaas_1, output = param_names()[4])
-head(y)
+x <- annotated(vaas_1, output = param_names()[4])
+head(x)
 @
 
-Further options allow for indication of categorical (\code{different}) and for the \code{opm\_glht} method, binary outcomes (\code{smaller}, \code{larger} or \code{equal}).
+%Further options allow for indication of categorical (\code{different}) and for the \code{opm\_glht} method, binary outcomes (\code{smaller}, \code{larger} or \code{equal}).
 
-But visualization of the results of an \proglang{opm\_mcp} analysis is also possible, which offers more (statistically interesting) opportunities for making sense of the PM data in the context of pathways.
+Visualization of the results of an \proglang{opm\_mcp} analysis is also possible, which offers more (statistically interesting) opportunities for making sense of the PM data in the context of pathways.
+However, this method only makes sense if each coefficient estimated by \code{opm\_mcp} can be linked to a single substrate.
+This is usually only possible for the ``Dunnett'' and ``Pairs'' type of contrasts if applied to the wells.
+See the main tutorial and the manual for details on this restriction.
 
-However, this method only makes sense, if each coefficient estimated by \code{opm\_mcp} can be linked to a single substrate. This is usually only possible for the ``Dunnett'' and ``Pairs'' type of contrast if applied to the wells. 
-
-First an \code{opm\_glht} object is generated from the \code{vaas\_4} exemplar object by performing an Dunnett-type multiple comparison among the first fiften wells agains well A05 as control group.
+The results from an \code{opm\_mcp} procedure are treated with \code{annotated} as shown before with an \code{OPMX} object, but additional options are available.
+In the following example, first an \code{opm\_glht} object is generated from the \code{vaas\_4} exemplar object by performing a Dunnett-type multiple comparison among the first 15 wells against well A05 as control group.
 
 % here comparison of e.coli strains from vaas_et_al
 <<label=annotated-opm_glht-plot>>=
 
 x <- opm_mcp(vaas_4[, , 1:15], output = "mcp", model = ~ Well,
-  linfct = c(`Dunnett.A05` = 1), full = FALSE)
+  linfct = c(Dunnett.A05 = 1), full = FALSE)
 @
 
 The resulting 95\% confidence intervals for the difference of means are plotted in Figure~\ref{fig:opm_mcp_CI_plotII}.
@@ -300,55 +292,48 @@ par(old.mar) # reset plotting settings
 \label{fig:opm_mcp_CI_plotII}
 Point estimates and 95\% confidence intervals in a manually defined comparison of group means for a specifically selected set of wells (A01 to B03) from the \code{vaas\_4} exemplar object. 
 In this procedure each well is compared against A05. 
-The picture was obtained by running \code{opm\_mcp()} and then the plotting function for the resulting \code{opm\_glht}-object. See the main tutorial for details.
+The picture was obtained by running \code{opm\_mcp()} and then the plotting function for the resulting \code{opm\_glht} object.
+See the main tutorial for details.
 }
 \end{figure}
 \end{center}
 
-Using the above generated \code{opm\_glht} example, the options allowing for categorical output of \code{annotated} will be illustrated.
-Obviously, only three comparisons exhibit a statistically significant difference, namely the comparisons A10 - A05, A11 - A05 and A12 - A05, all showing that A05 is smaller than A10, A11 and A12, respectively.
+Using the above generated \code{opm\_glht} object, the options modifying the output of \code{annotated} will be illustrated.
+Apparently only three comparisons exhibit a statistically significant difference, namely the comparisons A10 - A05, A11 - A05 and A12 - A05, all showing that the reactions A05 are weaker than those in A10, A11 and A12, respectively.
 
-Using the \code{output}-argument users are able to get various categorical results beside simple numerical output of the respective point estimator.
-The options \code{upwards} and \code{downwards} result classifications in three categories (FALSE, NA, or TRUE), giving an indication, if the CI is located in the positive or negative range with resulting NA, if zero is included and thus no decission possible.
-The options \code{different}, \code{smaller}, \code{larger} and \code{equal} work similarly, but use only the two categories TRUE and FALSE.
+Using the \code{output} argument users are able to obtain various statistically relevant categorical results instead of the simple numerical output of the respective point estimator.
+The options \code{upwards} and \code{downwards} result in a classification into three categories (\code{FALSE}, \code{NA}, or \code{TRUE}).
+These indicate whether or not the cut-off (zero per default) is included in the confidence interval (\code{NA}) and thus a decision possible.
+If not, the category indicates the direction of the shift relative to the cut-off.
+The options \code{different}, \code{smaller}, \code{larger} and \code{equal} work similarly, but use only the two categories \code{TRUE} and \code{FALSE}.
 
+A comprehensive overview of the possible results is shown for object \code{x} in the following data frame:
 
-<<label=annotated-opm_glht-options, results=hide>>=
-anno.nu <- annotated(x, output = "numeric")
-anno.up <- annotated(x, output = "upwards")
-anno.do <- annotated(x, output = "downwards")
-anno.di <- annotated(x, output = "different")
-anno.eq <- annotated(x, output = "equal")
-anno.sm <- annotated(x, output = "smaller")
-anno.la <- annotated(x, output = "larger")
-@
-
-A comprehensive overview of the results is provided by bundling the results of all possible options into one dataframe:
-
-<<label=annotated-opm_glht-options-tab, result=hide>>=
-annotab <- data.frame(Comparison = rownames(confint(x)$confint), 
-  numeric = anno.nu, upwards = anno.up, downward = anno.do, 
-  different = anno.di, equal = anno.eq, smaller = anno.sm, 
-  larger = anno.la)
+<<label=annotated-opm_glht-options, echo=FALSE>>=
+annotab <- c("numeric", "upwards", "downwards", "different", "equal", "smaller", "larger")
+annotab <- mapply(output = annotab, annotated, MoreArgs = list(object = x), SIMPLIFY = FALSE)
+annotab <- data.frame(Comparison = rownames(confint(x)$confint), annotab)
 annotab
 @
 
-Using the argument \code{how = "value"} a numeric matrix containing the chosen computed values together with their abundance in pathway maps can be investigated. 
-
-% describe, how the annotation vector is derived
-The results from an \code{opm\_mcp} procedure are treated with \code{annotated} as shown before with an \code{OPMX} object:
+All these results are obtained with the setting \code{how = "ids"}; for the usage of \code{how = "value"} see Section ~\ref{finding-pathways}.
 
 
-\subsection[Visualisation in pathway-maps using pathview]{Visualisation in pathway-maps using pathview}\label{pathview}
+\subsection{Visualisation in pathway maps using pathview}\label{pathview}
 
-Basically, \code{pathview} maps and renders pathway graphs (from KEGG) and integrates additional data provided from other sources, mainly experimental data from various OMICS-approaches. 
-Here the functions serves to integrate and visualize PM data provided by \code{annotated}.
-The user has to specify the pathway, provide the PM-data and all necessary steps (download of pathway graph data, parsing of data file, maping user's data to the pathway, and rendering of pathway graph with the mapped data) are executed automatically by \code{pathview}.
+Here we will use the function \code{pathview} from the package of the same name \citep{Luo2013}. 
+This function can download a user-defined pathway graph from KEGG, optionally integrate additional data from other sources, and render the result.
+For integrating experimental data from other ``OMICS'' approaches (such as transcriptomics and proteomics), see the corresponding chapter in the \code{pathview} vignette for details. 
 
-Generally, a pathway map is described as ``[...]a molecular interaction/reaction network diagram represented in terms of the KEGG Orthology (KO) groups [...]'' (see \url{http://www.genome.jp/kegg/kegg3a.html} for further details).
-KEGG contains a collection of different types of pathway maps, precisely identifiable by the combination of 2-4 letter code and 5 digit number. 
+Here the \code{pathview} function serves for integrating and visualizing information produced by \pkg{opm} and provided by \code{annotated}.
+The user only has to specify the pathway and provide the \pkg{opm} data.
+All other necessary steps (download of pathway graph data, parsing of this data file, integrating user-defined data into the pathway representation, and rendering of final graph) are automatically  conducted by \code{pathview}.
 
-The letter prefixes have the following meanings:
+In the case of KEGG, a pathway map is described as ``a molecular interaction/reaction network diagram represented in terms of the KEGG Orthology (KO) groups'' (see \url{http://www.genome.jp/kegg/kegg3a.html} for further details).
+KEGG contains a collection of distinct types of pathway maps identified by a code containing between two and four letters as a prefix, followed by five digits.
+%TODO here we have only up to three letters -- why?
+
+The prefixes have the following meanings:
 %\begin{addmargin}[0,5cm]{0,5cm}
 \begin{itemize}[leftmargin=2cm]
 \item[map -] Reference pathway
@@ -358,57 +343,51 @@ The letter prefixes have the following meanings:
 \item[org -] Organism-specific pathway map
 \end{itemize}
 %\end{addmargin}
-Only the first reference pathway map is manually drawn; all other maps are computationally generated. 
+Only the first reference pathway map is drawn manually; all other maps are computationally generated. 
 The \emph{ko}-maps contain the manually defined ortholog groups (\emph{ko} entries) for all proteins and functional RNAs that correspond to KEGG pathway nodes, BRITE hierarchy nodes, and KEGG module nodes, whereas the (\emph{ko} entries) are converted to gene identifiers if organism-specific pathways maps are generated.
 A list of the existing maps and their corresponding numbers are available under \url{http://www.genome.jp/kegg-bin/get_htext?query=01100&htext=br08901.keg&option=-a}.
+%TODO unlikely to be permanent; replace if possible
 
-\code{pathview} allows only for usage of KEGG orthology (the \emph{ko}-maps) or species specific letter code (see \url{http://www.genome.jp/kegg/catalog/org_list.html} for an up-to-date list of organisms with complete genome information in KEGG).
+\code{pathview} allows only for using KEGG orthology (the \emph{ko} maps) or species-specific letter codes.
+See \url{http://www.genome.jp/kegg/catalog/org_list.html} for an up-to-date list of organisms with complete genome information in KEGG.
 
-Before you start with this section, please make sure, that you have installed the \pkg{pathview} package including all its dependencies from \proglang{Bioconductor} (\url{http://bioconductor.org/packages/2.12/bioc/html/pathview.html}).
-
-Generally, the user has to provide a vector with the PM values which are named by the corresponding substrate IDs. 
-This vector then serves as input for the visualization procedure based on \code{pathview}.
-The function is able to integrate other sources of \emph{OMICS}-data, like for example, transcriptomics or proteomics, see the corresponding chapter in the \code{pathview}-vignette for details: \url{http://bioconductor.org/packages/2.12/bioc/vignettes/pathview/inst/doc/pathview.pdf}.
-
-For demonstration purposes, we use a subset of \code{vaas_et_al} comprehending the \textit{Escherichia coli} strains from the first biological repetition. 
+A vector as returned by \code{annotated} (see Section~\ref{annotated-input}) serves as input for the visualization procedure based on \code{pathview}.
+For demonstration purposes, we use subsets of \code{vaas_et_al} containing the \textit{Escherichia coli} strains from the first biological repetition. 
 
 <<label=example-data>>=
-# subset the data
 e.coli.sub <- subset(vaas_et_al, list(Species = "Escherichia coli", 
   Experiment = "First replicate"))
-e.coli.k12 <-  subset(vaas_et_al, list(Strain = "DSM18039"))
-e.coli.typ <-  subset(vaas_et_al, list(Strain = "DSM30083T"))
+e.coli.k12 <- subset(vaas_et_al, list(Strain = "DSM18039"))
+e.coli.type <- subset(vaas_et_al, list(Strain = "DSM30083T"))
 @
 
-Afterwards we provide the annotated vectors for the two groups separately
+Afterwards we create the annotated vectors containing the average maximum curve heights for the two groups separately:
+
 <<label=example-data-anno>>=
-# annotated from single strains
 anno.k12 <- annotated(e.coli.k12)
-anno.typ <- annotated(e.coli.typ)
+anno.type <- annotated(e.coli.type)
 @
 
-To provide more convenient functionality for mapping PM-data on KEGG-pathway maps, we wrote a wrapper for the \code{pathview}-function. 
-This wrapper provides mainly fine tuned settings for the convenient application of \code{pathview} on PM-data.
-All graphics below are produced using this wrapper, however, the user is free to use the original \code{pathview}-function with the respectively changed arguments. 
+For a more convenient drawing of \pkg{opm} data on KEGG pathway maps, we suggest a wrapper for the \code{pathview} function, providing other default settings for some arguments.
+All graphics below are produced using this wrapper, but the user is of course free to use the original \code{pathview} function or write an alternative wrapper.
 
 %TODO 
 % explain the wrapper
 % explain, why native = TRUE and the output of .png is choosen as default
-% 
+% bring the arguments in the same order as in the argument list of pathview
 
 <<label=pathview-wrapper>>=
 opm_path <- function(cpd.data, 
-  high = list(gene = "green4", cpd = "magenta4"), 
-  low = list(gene = "white", cpd = "white"),
-  mid = list(gene = "lightsteelblue1", cpd = "lightsteelblue1"),
-  pathway.id = "00052", species = "ko",  out.suffix = "non-native", 
-  key.pos = "bottomright", afactor = 1000,
-  limit = list(gene = 2, cpd = 400), bins = list(gene = 0.5, cpd = 20),
-  both.dirs = list(gene = FALSE, cpd = FALSE), 
-  sign.pos = "bottomleft", cpd.lab.offset = 0, same.layer = F, 
-  rank.dir = "TB", gene.data = NULL, ...) {
-  
-  pathview(gene.data = gene.data, cpd.data = cpd.data, na.col ="white",
+    high = list(gene = "green4", cpd = "magenta4"), 
+    low = list(gene = "white", cpd = "white"),
+    mid = list(gene = "lightsteelblue1", cpd = "lightsteelblue1"),
+    pathway.id = "00052", species = "ko",  out.suffix = "non-native", 
+    key.pos = "bottomright", afactor = 1000,
+    limit = list(gene = 2, cpd = 400), bins = list(gene = 0.5, cpd = 20),
+    both.dirs = list(gene = FALSE, cpd = FALSE), 
+    sign.pos = "bottomleft", cpd.lab.offset = 0, same.layer = FALSE, 
+    rank.dir = "TB", gene.data = NULL, na.col = "white", ...) {
+  pathview(gene.data = gene.data, cpd.data = cpd.data, na.col = na.col,
     low = low, mid = mid, high = high, pathway.id = pathway.id, 
     species = species, out.suffix = out.suffix, key.pos = key.pos,
     afactor = afactor, limit = limit, bins = bins,
@@ -430,13 +409,13 @@ opm_path <- function(cpd.data,
 % show the non-native KEGG-maps at the very end with listing the poor options for tuning the font sizes or size of symbols in the graphic
 % also the colouring is not similarly possible like in the native maps
 
-First we show the results of the two strain on separate maps in Figure~\ref{fig:pathview-native-sep-strains}.
+First we show the results for the two strain on separate maps in Figure~\ref{fig:pathview-native-sep-strains}.
  
 <<label=pathview-wrapper-plot-native>>=
 e.coli.map.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
   out.suffix = "k12.ko", pathway.id = "00052")
-e.coli.map.typ <- opm_path(cpd.data = anno.typ, species = "ko", 
-  out.suffix = "typ.ko", pathway.id = "00052")
+e.coli.map.type <- opm_path(cpd.data = anno.type, species = "ko", 
+  out.suffix = "type.ko", pathway.id = "00052")
 @
 %TODO
 % explain the content of the objects resulting from opm_path(), refer to the pathview vignette
@@ -455,16 +434,17 @@ e.coli.map.typ <- opm_path(cpd.data = anno.typ, species = "ko",
         \vspace{20pt}
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.typ.ko}}
-                \caption{PM data of \textit{Escherichia coli} type strain DSM30083T mapped on KEGG galactose pathway.}
+                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.type.ko}}
+                \caption{PM data of \textit{Escherichia coli} type strain DSM 30083\textsuperscript{T} mapped on KEGG galactose pathway.}
                 \label{fig:1b}
         \end{subfigure}
         \\
-        \caption{TODO: write caption, draw attention to the substrates Raffinose, Stachyose and Sucrose (in the middle of the map), which exhibit }
+        \caption{TODO: write caption, draw attention to the substrates Raffinose, Stachyose and Sucrose (in the middle of the map), which exhibit...}
         \label{fig:pathview-native-sep-strains}
 \end{figure}
 
-Now we compute an multiple comparison between the 13 substrates included in the galactose-pathway-map. The test compares the results of the type-strain vs. the K12, corresponding 95\% CI for differences of means are shown in Figure~\ref{fig:e_coli_comp_ci}.
+Now we compute a multiple comparison between the 13 substrates included in the Galactose pathway map.
+The test compares the results for the type strain with those for K12; corresponding 95\% CIs for differences of means are shown in Figure~\ref{fig:e_coli_comp_ci}.
 
 <<label=pathview-e_coli-comp>>=
 colicomp <- opm_mcp(
@@ -484,7 +464,7 @@ par(old.mar) # reset plotting settings
 }
 \caption{
 \label{fig:e_coli_comp_ci}
-Point estimates and 95\% confidence intervals for the differences of means between the two \textit{E. coli} strains for the subset of substrate represented in the galactose pathway map.
+Point estimates and 95\% confidence intervals for the differences of means between the two \textit{E. coli} strains for the subset of substrates represented in the Galactose pathway map.
 }
 \end{figure}
 \end{center}
@@ -492,8 +472,9 @@ Point estimates and 95\% confidence intervals for the differences of means betwe
 %TODO
 % identify the substrates which are represented in the galactose pathway
 % put ci_plot of the substrates with different means
+% figure seems to be out-of-range, not printable on a single page
 
-And here, we show the A-values from the distinct measurements:
+And here, we show the maximum curve height values from the distinct measurements:
 
 <<label=ecoli.ci_plot, fig=FALSE, echo=FALSE, result=FALSE, eval=FALSE>>=
 x <- ci_plot(e.coli.sub[, , c(7, 9, 13, 14, 15, 20, 25, 26, 27, 28, 37, 40, 41)], 
@@ -529,8 +510,8 @@ e.coli.comp.map <- opm_path(cpd.data = anno.colicomp, species = "ko",
 \scalebox{1.225}{
 \includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.e.coli.comp.ko}
 }
-\caption{\label{fig:pathview.native}
-Mapping of differences between \textit{E. coli} K12 and type strain DSM30083T galactose pathway.  
+\caption{\label{fig:pathview-native}
+Mapping of differences between \textit{E. coli} K12 and type strain DSM 30083\textsuperscript{T} Galactose pathway.  
 }
 \end{figure}
 
@@ -593,9 +574,10 @@ Mapping of differences between \textit{E. coli} K12 and type strain DSM30083T ga
 %% avoid ALL unnecessary text
 
 
-\section[Model-building approach using random forest]{Model-building approach using random forest}\label{random-forest}
-Using the argument \code{how= "value"} a numeric matrix containing the chosen computed values together with their abundance in pathway maps can be investigated. 
-In analogy to the download argument of \code{substrate\_info} the information are convertet into a numeric matrix. Please note, that this option is not available for all values of \code{what} and requires additional libraries. 
+\section{Finding the pathways of interest}\label{finding-pathways}
+Using the argument \code{how = "value"} a numeric matrix containing the chosen computed values together with their abundance in pathway maps can be investigated. 
+%In analogy to the download argument of \code{substrate\_info} the information are converted into a numeric matrix.
+Please note, that this option is not available for all values of \code{what} and requires additional libraries. 
 See \code{substrate\_info} for details.
 %
 %<<label=annotated-opm_glht-mat-dig, echo=FALSE, result=hide>>=
@@ -613,6 +595,7 @@ The obtained information about the pathway certain substrates are involved in ca
 
 \section[Acknowledgements]{Acknowledgements}
 The integration of missing OmniLog\textregistered \ substrates into ChEBI by the ChEBI staff is gratefully acknowledged.
+%TODO thank Barry for substrate and plate information
 
 
 \bibliography{opm}
