@@ -1,14 +1,25 @@
 repair_docu <- function(x, ...) UseMethod("repair_docu")
 
-repair_docu.character <- function(x, ignore = NULL, ...) {
+repair_docu.character <- function(x, ignore = NULL, drop.internal = FALSE,
+    ...) {
   do_repair <- function(x) {
     data <- repair_docu(parse_Rd(file = x), ...)
-    check_keywords(data, file = x, list.only = FALSE)
+    kw <- check_keywords(data, file = x, list.only = FALSE)
     check_examples(data, file = x)
-    puts(data, file = x)
+    if (drop.internal)
+      if (identical(kw, "internal")) {
+        unlink(x)
+        TRUE
+      } else {
+        puts(data, file = x)
+        FALSE
+      }
+    else
+      puts(data, file = x)
   }
+  LL(drop.internal)
   x <- pkg_files(x, what = "man", installed = FALSE, ignore = ignore)
-  invisible(sapply(x, do_repair, simplify = FALSE))
+  invisible(sapply(x, do_repair, simplify = drop.internal))
 }
 
 repair_docu.Rd <- function(x, remove.dups = FALSE, ...) {

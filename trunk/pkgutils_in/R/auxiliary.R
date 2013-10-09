@@ -67,7 +67,8 @@ run_ruby.numeric <- function(x, args = "-w", ruby = "ruby", ...) {
 run_ruby.character <- function(x, args = "-w", ruby = "ruby", ...) {
   if (!nzchar(ruby <- run_ruby(x = NULL, ruby = ruby)))
     stop(sprintf("cannot find executable '%s'", ruby))
-  command <- paste0(c(ruby, setdiff(args, "--"), "--", x), collapse = " ")
+  args <- c(setdiff(as.character(args), "--"), "--")
+  command <- paste0(c(ruby, args, x), collapse = " ")
   do.call(system, list(command = command, ...))
 }
 
@@ -191,7 +192,9 @@ subset.pack_descs <- function(x, ...) {
 #' @inheritParams repair_S4_docu
 #' @param script Character scalar indicating the name of the script to use
 #'   (without directory name).
-#' @param ... Optional arguments passed to \code{\link{run_ruby}}.
+#' @param sargs Character vector with optional arguments passed to the script.
+#' @param ... Optional arguments passed to \code{\link{run_ruby}} as
+#'   \code{args} argument.
 #' @return Result of a call to \code{\link{run_ruby}}.
 #' @keywords internal
 #'
@@ -200,11 +203,11 @@ run_pkgutils_ruby <- function(x, ...) UseMethod("run_pkgutils_ruby")
 #' @rdname run_pkgutils_ruby
 #' @method run_pkgutils_ruby character
 #'
-run_pkgutils_ruby.character <- function(x, script, ignore, ...) {
+run_pkgutils_ruby.character <- function(x, script, ignore, sargs = NULL, ...) {
   aux.file <- pkg_files("pkgutils", what = "auxiliary")
   aux.file <- L(aux.file[tolower(basename(aux.file)) == tolower(script)])
   x <- pkg_files(x, what = "R", installed = FALSE, ignore = ignore)
-  errs <- run_ruby(x = c(aux.file, x), ...)
+  errs <- run_ruby(x = c(aux.file, x, prepare_options(sargs)), ...)
   if (is.integer(errs) && !identical(errs, 0L))
     run_ruby(x = 1.9, ...) # to show Ruby version problems, if any
   errs
@@ -237,8 +240,8 @@ prepare_options.NULL <- function(x) {
 #' @method prepare_options character
 #'
 prepare_options.character <- function(x) {
-  x <- sub("^-+", "", x, perl = TRUE)
-  len1 <- nchar(sub("=.*$", "", x, perl = TRUE)) == 1L
+  x <- sub("^-+", "", x, FALSE, TRUE)
+  len1 <- nchar(sub("=.*$", "", x, FALSE, TRUE)) == 1L
   x[len1] <- sprintf("-%s", x[len1])
   x[!len1] <- sprintf("--%s", x[!len1])
   x

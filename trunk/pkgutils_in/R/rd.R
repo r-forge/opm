@@ -32,12 +32,16 @@
 #' @param full Logical scalar indicating whether the full content of the
 #'   \sQuote{KEYWORDS.db} file should be returned, not just the list of
 #'   keywords.
+#' @param drop.internal Logical scalar indicating whether Rd files whose only
+#'   keyword is \sQuote{internal} should be deleted.
 #' @param list.only Logical scalar indicating whether the keywords should just
 #'   be collected, not checked against the database.
 #'
 #' @export
 #' @return The \sQuote{Rd} method of \code{repair_docu} returns an object of
 #'   class \sQuote{Rd}, the character method a list of such objects, invisibly.
+#'   If \code{drop.internal} is \code{TRUE}, it returns a logical vector
+#'   indicating whether it was attempted to remove the file.
 #'
 #'   \code{check_keywords} returns a character vector. As a side effect, problem
 #'   messages are printed to \code{stderr}. See \code{\link{logfile}} for how to
@@ -92,15 +96,26 @@ repair_docu <- function(x, ...) UseMethod("repair_docu")
 #' @method repair_docu character
 #' @export
 #'
-repair_docu.character <- function(x, ignore = NULL, ...) {
+repair_docu.character <- function(x, ignore = NULL, drop.internal = FALSE,
+    ...) {
   do_repair <- function(x) {
     data <- repair_docu(parse_Rd(file = x), ...)
-    check_keywords(data, file = x, list.only = FALSE)
+    kw <- check_keywords(data, file = x, list.only = FALSE)
     check_examples(data, file = x)
-    puts(data, file = x)
+    if (drop.internal)
+      if (identical(kw, "internal")) {
+        unlink(x)
+        TRUE
+      } else {
+        puts(data, file = x)
+        FALSE
+      }
+    else
+      puts(data, file = x)
   }
+  LL(drop.internal)
   x <- pkg_files(x, what = "man", installed = FALSE, ignore = ignore)
-  invisible(sapply(x, do_repair, simplify = FALSE))
+  invisible(sapply(x, do_repair, simplify = drop.internal))
 }
 
 #' @rdname repair_docu
@@ -286,11 +301,13 @@ check_examples.Rd <- function(x, file = NULL, ...) {
 #'   directories. The latter will be expanded as appropriate. \code{x} is
 #'   passed to \code{\link{pkg_files}} with the \sQuote{installed} argument
 #'   set to \code{FALSE}. See there for further details.
-#' @param ... Optional arguments, currently passed as arguments additional to
-#'   \sQuote{x} to \code{\link{run_ruby}}. See there for details.
-#' @param ignore \code{NULL} or character vector with names of files to ignore.
-#'   Passed to \code{\link{pkg_files}}, see there for details of how names
-#'   are matched.
+#' @param ... Optional arguments, currently passed as \code{args} arguments
+#'   to \code{\link{run_ruby}}. See there for details. The sole exception is
+#'   an \code{sargs} argument, which is a character vector of options passed to
+#'   the Ruby script. See below.
+#' @param ignore \code{NULL} or character vector with names of \R code files
+#'   to ignore. Passed to \code{\link{pkg_files}}, see there for details of how
+#'   names are matched.
 #' @return Currently the return value of the call to \code{\link{run_ruby}}.
 #' @details This reparation process is currently implemented in a Ruby script
 #'   that comes with the package. It is automatically found in the installation

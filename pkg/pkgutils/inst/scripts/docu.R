@@ -184,7 +184,8 @@ option.parser <- OptionParser(option_list = list(
   make_option(c("-n", "--nosudo"), action = "store_true", default = FALSE,
     help = "In conjunction with -i, do not use sudo [default: %default]"),
 
-  # N
+  make_option(c("-N", "--no-internal"), action = "store_true", default = FALSE,
+    help = "Remove Rd files with 'internal' as keyword [default: %default]"),
 
   make_option(c("-o", "--options"), type = "character", default = "as-cran",
     help = "'R CMD check' options, comma-separated list [default: %default]",
@@ -391,11 +392,16 @@ for (i in seq_along(package.dirs)) {
   roxygenize(out.dir)
 
   message("Repairing documentation for", msg)
-  repair_docu(out.dir, remove.dups = !opt$quick)
+  skip <- repair_docu(out.dir, remove.dups = !opt$quick,
+    drop.internal = opt$`no-internal`)
+  if (is.logical(skip))
+    skip <- paste0("--skip=", paste0(names(skip)[skip], collapse = ","))
+  else
+    skip <- ""
 
   if (opt$S4methods) {
     message("Repairing S4 method documentation for", msg)
-    errs <- errs + repair_S4_docu(out.dir, ruby = opt$exec)
+    errs <- errs + repair_S4_docu(out.dir, ruby = opt$exec, sargs = skip)
   }
 
   if (suppressWarnings(file.remove(file.path(out.dir, "inst"))))

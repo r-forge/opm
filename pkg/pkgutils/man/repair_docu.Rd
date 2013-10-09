@@ -13,7 +13,8 @@
 \usage{
   repair_docu(x, ...)
 
-  \method{repair_docu}{character} (x, ignore = NULL, ...)
+  \method{repair_docu}{character} (x, ignore = NULL,
+    drop.internal = FALSE, ...)
 
   \method{repair_docu}{Rd} (x, remove.dups = FALSE, ...)
 
@@ -63,6 +64,10 @@
   content of the \sQuote{KEYWORDS.db} file should be
   returned, not just the list of keywords.}
 
+  \item{drop.internal}{Logical scalar indicating whether Rd
+  files whose only keyword is \sQuote{internal} should be
+  deleted.}
+
   \item{list.only}{Logical scalar indicating whether the
   keywords should just be collected, not checked against
   the database.}
@@ -78,7 +83,9 @@
 \value{
   The \sQuote{Rd} method of \code{repair_docu} returns an
   object of class \sQuote{Rd}, the character method a list
-  of such objects, invisibly.
+  of such objects, invisibly.  If \code{drop.internal} is
+  \code{TRUE}, it returns a logical vector indicating
+  whether it was attempted to remove the file.
 
   \code{check_keywords} returns a character vector. As a
   side effect, problem messages are printed to
