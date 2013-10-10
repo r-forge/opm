@@ -233,13 +233,13 @@ In conjunction with other \proglang{R} packages, it is possible to visualize PM 
 These maps are essentially manually drawn biochemical pathway maps representing the currently available knowledge on substrates, enzymes and genes and their connections within pathways. 
 Depending on the availability of genome and gene-annotation information within KEGG, organism-specific, individual maps can be obtained \citep{Kanehisa01012010}.
 
-The mapping itself works by using information produced by \pkg{opm} for a colour coding of the nodes (here, representing the substrates) within those maps, as can be done similarly with several other types of ``OMICS'' data, like for example transcriptomics or proteomics data.
+The mapping itself works by using information produced by \pkg{opm} for a colour coding of the nodes (here, representing the substrates) within those maps, as can be done similarly with several other types of ``OMICS'' data such as transcriptomics or proteomics data.
 For details, see the description on the KEGG website (\url{http://www.genome.jp/kegg/}).
 
 
 \subsection{Providing suitable input data}\label{annotated-input}
 
-%TODO
+% TODO LATER
 % need a graphical overview of the workflow
 % maybe connected to the existing one in the main tutorial?
 
@@ -338,7 +338,7 @@ The prefixes have the following meanings:
 \item[ko -] Reference pathway (KO)
 \item[ec -] Reference pathway (EC)
 \item[rn -] Reference pathway (Reaction)
-\item[org -] Organism-specific pathway map; ``org'' is a wild-card for the organism specific abbreviation composed of two to four letters
+\item[\textit{org} -] Organism-specific pathway map (\textit{org} is a wild-card for the organism-specific abbreviation composed of two to four letters)
 \end{itemize}
 
 Only the first reference pathway map is drawn manually; all other maps are computationally generated. 
@@ -368,17 +368,12 @@ anno.type <- annotated(e.coli.type)
 For a more convenient drawing of \pkg{opm} data on KEGG pathway maps, we suggest a wrapper for the \code{pathview} function, providing other default settings for some arguments.
 All graphics below are produced using this wrapper, but the user is of course free to use the original \code{pathview} function or write an alternative wrapper.
 
-%TODO 
-% explain the wrapper
-% explain, why native = TRUE and the output of .png is choosen as default
-% bring the arguments in the same order as in the argument list of pathview
-
 <<label=pathview-wrapper>>=
 opm_path <- function(cpd.data, gene.data = NULL,
     high = list(gene = "green4", cpd = "blue"), 
     mid = list(gene = "lightsteelblue1", cpd = "red"),
     low = list(gene = "white", cpd = "yellow"),
-    pathway.id = "00052", species = "ko",  out.suffix = "non-native", 
+    pathway.id = "00052", species = "ko", out.suffix = "non-native", 
     key.pos = "bottomright", afactor = 1000,
     limit = list(gene = 2, cpd = 400), 
     bins = list(gene = 0.5, cpd = 40),
@@ -386,17 +381,18 @@ opm_path <- function(cpd.data, gene.data = NULL,
     sign.pos = "topleft", cpd.lab.offset = 0, 
     same.layer = FALSE, 
     na.col = "white", ...) {
-    
-    pathview(gene.data = gene.data, cpd.data = cpd.data, na.col = na.col,
-    low = low, mid = mid, high = high, pathway.id = pathway.id, 
+  pathview(cpd.data = cpd.data, gene.data = gene.data,
+    high = high, mid = mid, low = low, pathway.id = pathway.id, 
     species = species, out.suffix = out.suffix, key.pos = key.pos,
     afactor = afactor, limit = limit, bins = bins,
     both.dirs = both.dirs, sign.pos = sign.pos, 
     cpd.lab.offset = cpd.lab.offset, same.layer = same.layer, 
-    ...)
-    
+    na.col = na.col, ...)   
 }
 @
+
+
+%% END FROZEN TEXT
 
 
 %TODO 
@@ -423,6 +419,10 @@ e.coli.map.type <- opm_path(cpd.data = anno.type, species = "ko",
 
 %TODO
 % explain the content of the figures in more details, which type of map, which genomic information, etc.
+
+%TODO
+% Do not write "PM data" -- say what it is.
+% "PM data" are the original measurements unless otherwise specified.
 \begin{figure}
  \centering
         \begin{subfigure}[b]{1.0\textwidth}
@@ -440,19 +440,23 @@ e.coli.map.type <- opm_path(cpd.data = anno.type, species = "ko",
                 \label{fig:1b}
         \end{subfigure}
         \\
-        \caption{TODO: write caption, draw attention to the substrates Raffinose, Stachyose and Sucrose (in the middle of the map), which exhibit...}
+        \caption{Pathway maps for the two \textit{E. coli} strains showing \rcsmark{TODO}. Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle of the map), which exhibit \rcsmark{TODO}.}
         \label{fig:pathview-native-sep-strains}
 \end{figure}
 
-Note, that from the annotation objects, \code{anno.k12} or \code{anno.typ} respectively, comprehending 96 substrates, only 13 are represented in the shown pathway map in Figure~\ref{fig:pathview-native-sep-strains}.
+Note that from the annotation objects \code{anno.k12} or \code{anno.typ}, respectively, comprehending 96 substrates, only 13 are represented in the shown pathway map in Figure~\ref{fig:pathview-native-sep-strains}.
 As described in section~\ref{annotated-input}, for some substrates, like ``pH5'' or ``positive Control'' no KEGG ID is available, which results in NA in the vector.
-Accordingly, those substrates are not mapable to pathway maps. 
+%TODO Use the spelling of substrate names as in opm.
+%TODO If this is described in another section, do not repeat it here. Guess why.
+Accordingly, those substrates cannot be marked within pathway maps. 
 Further not all substrates from one plate are represented in one single pathway, but only substrate groups are represented in pathway maps.
-By using the option \code{how = ``value''}, \code{annotated} results a numeric matrix with substrate names as rownames and pathway identifiers as column names. 
+By using the option \code{how = "value"}, \code{annotated} results a numeric matrix with substrate names as row names and pathway identifiers as column names. 
 Ones and zeros indicate, if a certain substrate (rows) is element of a given pathway (columns), or not. 
 NAs indicate, that the substrate has no KEGG ID, as for example well A01 with substrate ``positive Control''.
 
 However, by summing up the columns and sorting the resulting vector, the user gets a ranking of the columns (pathways) representing how many substrates. 
+
+%TODO too complicated
 
 <<label=anno_sum_mat_col>>=
 anno.k12.mat <- annotated(e.coli.k12, how = "value")
