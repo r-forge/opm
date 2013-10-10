@@ -989,7 +989,9 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #' @param xpd Logical scalar. Also passed to that function.
 #' @param vline Numeric scalar with the position on the y-axis of a vertical
 #'   line to be drawn. Ignored if \code{NULL}.
-#' @param ... Optional other arguments passed to \code{legend}, or arguments
+#' @param crr Numeric scalar (column-row-ratio) interpreted as number of columns
+#'   per number of rows. Determines the arrangement of the subplots.
+#' @param ... Optional arguments passed to \code{legend}, or arguments
 #'   passed from the \code{\link{OPMS}} method to the data frame method.
 #'
 #' @param split.at Character vector. See \code{\link{extract}}.
@@ -1024,7 +1026,7 @@ setGeneric("ci_plot", function(object, ...) standardGeneric("ci_plot"))
 setMethod("ci_plot", "data.frame", function(object, rowname.sep = " ",
     prop.offset = 0.04, align = "center", col = "blue", na.action = "warn",
     draw.legend = TRUE, legend.field = c(1, 1), x = "topleft", xpd = TRUE,
-    vline = 0, split.at = param_names("split.at"), ...) {
+    vline = 0, split.at = param_names("split.at"), crr = 0.75, ...) {
 
   single_plot <- function(col.pos) {
     plot(x = NULL, y = NULL, xlim = ranges[, col.pos], ylim = ylim,
@@ -1073,7 +1075,7 @@ setMethod("ci_plot", "data.frame", function(object, rowname.sep = " ",
   ylim <- best_range(chunk.pos, target = NULL, prop.offset = prop.offset)
 
   # Panel layout and plotting of individual panels
-  old.par <- par(mfcol = best_layout(ncol(object)))
+  old.par <- par(mfcol = best_layout(ncol(object), crr))
   on.exit(par(old.par))
   lapply(seq_len(ncol(object)), FUN = single_plot)
 
