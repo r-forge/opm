@@ -1142,7 +1142,7 @@ print_test_result()
 test_sql()
 {
   local default_dbname=pmdata
-  local sqlite3_dbname=$default_dbname
+  local sqlite3_dbname=misc/$default_dbname.db
   local mysql_dbname=$default_dbname
   local postgresql_dbname=$default_dbname
   local help_msg=
@@ -1183,6 +1183,8 @@ ____EOF
   local outcome
   local infile
   if [ "$sqlite3_dbname" ]; then
+    local dirpart=${sqlite3_dbname%/*}
+    [ "$dirpart" != "$sqlite3_dbname" ] && mkdir -p "$dirpart"
     for infile; do
       sqlite3 -bail -batch "$sqlite3_dbname" < "$infile" > /dev/null &&
         outcome=0 || outcome=1
@@ -1343,7 +1345,7 @@ ____EOF
     exit $?
   ;;
   sql )
-    [ $# -eq 0 ] && set `find opmDB_in -iname '*.sql' -exec ls \{\} +`
+    set -- "$@" -- `find opmDB_in -iname '*.sql' -exec ls \{\} +`
     test_sql "$@" && test_external_examples opmDB_in
     exit $?
   ;;
