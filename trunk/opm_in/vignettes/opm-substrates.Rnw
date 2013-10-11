@@ -151,7 +151,12 @@ data(vaas_et_al, package = "opmdata")
 @
 
 
-\section{Available plate information}\label{plate-information}
+
+\section{Accessing plate and substrate information}\label{plate-substrate-information}
+
+The \pkg{opm} package contains a number of functions suitable for accessing precomputed information on the substrates within certain wells and entire plates.
+
+\subsection{Available plate information}\label{plate-information}
 
 Currently substrate layouts of various plates are available within \pkg{opm}.
 An overview of the plate types available in the respective version of \pkg{opm} is obtained by entering
@@ -163,11 +168,10 @@ plate_type(full = TRUE)
 The resulting vector of names does not only include OmniLog\textregistered \ plates; see the manual and the main tutorial for further details.
 Using other values for \code{full}, or additional arguments, distinct spelling variants of the plate names can be obtained.
 
+\subsection{Available substrate information}\label{subsub-information}
 
-\section{Accessing substrate information}\label{substrate-information}
-
-The \pkg{opm} package contains a number of functions suitable for accessing precomputed information on the substrates within certain wells and entire plates.
 In the manual and help pages these functions are explained within the family ``naming-functions'' with according cross-references.
+
 One usually would start a search by determining the exact spelling of an internally used name with \code{find\_substrate()}:
 
 <<label=find-substrate-exact-substring, results=hide>>=
@@ -213,7 +217,7 @@ subst.info <- substrate_info(substrates)
 subst.info
 @
 
-By default this yields CAS numbers (\url{http://www.cas.org/content/chemical-substances/faqs}), but MeSH names (useful for conducting PubMed queries; see \url{http://www.ncbi.nlm.nih.gov/mesh/}) \citep{Coletti01072001}, ChEBI IDs \citep{Hastings01012013}, KEGG compound IDs, KEGG drug IDs \citep{Kanehisa01012010} and MetaCyc IDs \citep{Caspi01012012} IDs have also been collected for the majority of the substrates.
+By default this yields CAS numbers (\url{http://www.cas.org/content/chemical-substances/faqs}), but MeSH names (useful for conducting PubMed queries; see \url{http://www.ncbi.nlm.nih.gov/mesh/}) \citep{Coletti01072001}, ChEBI IDs \citep{Hastings01012013}, KEGG compound IDs, KEGG drug IDs \citep{Kanehisa01012010} and MetaCyc IDs \citep{Caspi01012012} have also been collected for the majority of the substrates.
 Using the ``browse'' argument, full URLs can be created and optionally also directly opened in the default web browser.
 Using the ``download'' argument, if KEGG drug or compound IDs have been selected, these can be downloaded from the KEGG server if the \pkg{KEGGREST} is available and converted into customized objects.
 It is possible to nicely display all available information at once:
@@ -252,6 +256,8 @@ head(x)
 @
 
 The resulting vector contains the numeric values (selected parameter estimates or \code{opm\_mcp} results, as explained below) as well as an annotation of the according substrates. 
+For substrates such as ``Positive Control'' or ``pH 5'' no KEGG ID is available, which results in \code{NA} values in the vector.
+Accordingly, those substrates cannot be marked within pathway maps (see section~\ref{pathview-group}). 
 The \code{what} argument, passed as eponymous argument to \code{substrate\_info}, selects the kind of information to be used for the annotation.
 
 Although \code{annotated} works directly on \code{OPMX} objects containing aggregated data for single plates or bundles of plates, please note, that the output allows for only one value per substrate. 
@@ -269,10 +275,11 @@ This is usually only possible for the ``Dunnett'' and ``Pairs'' type of contrast
 See the main tutorial and the manual for details on this restriction.
 
 The results from an \code{opm\_mcp} procedure are treated with \code{annotated} as shown before with an \code{OPMX} object, but additional options are available.
-In the following example, first an ``opm\_glht'' object is generated from the \code{vaas\_4} exemplar object by performing a Dunnett-type multiple comparison among the first 15 wells against well A05 as control group.
+In the following example, first an ``opm\_glht'' object is generated from the \code{vaas\_4} exemplar object by performing a Dunnett-type multiple comparison among the selected 13 wells against well A05 as control group.
 
 <<label=annotated-opm_glht-plot>>=
-x <- opm_mcp(vaas_4[, , 1:15], output = "mcp", model = ~ Well,
+x <- opm_mcp(vaas_4[, , c(1:15)], 
+output = "mcp", model = ~ Well,
   linfct = c(Dunnett.A05 = 1), full = FALSE)
 @
 
@@ -289,8 +296,8 @@ par(old.mar) # reset plotting settings
 }
 \caption{
 \label{fig:opm_mcp_CI_plotII}
-Point estimates and 95\% confidence intervals in a manually defined comparison of group means for a specifically selected set of wells (A01 to B03) from the \code{vaas\_4} exemplar object. 
-In this procedure each well is compared against A05. 
+Point estimates and 95\% confidence intervals in a manually defined comparison of group means for a specifically selected set of wells from the \code{vaas\_4} exemplar object. 
+In this procedure each selected well is compared against A05. 
 The picture was obtained by running \code{opm\_mcp()} and then the plotting function for the resulting ``opm\_glht'' object.
 See the main tutorial for details.
 }
@@ -437,19 +444,49 @@ Genes (boxes) are annotated with KEGG ontology numbers (set by choosing \code{sp
 Note that the \code{species} arguments offers the possibility to use species-specific genome information available in the KEGG directory; see above for the letter codes.
 The substrates (circles) in the maps get standard compound names, which are automatically retrieved from the CHEMBL database using the compound IDs. 
 
-Further, the function generates a list containing two data frames.
-The data frame ``plot.data.gene'' contains the data for mapping the genes and, analogously, ``plot.data.cpd'' stores the compound-related data.
+The data for the two strain can be shown analogously using the categorical output of \code{annotated}, see Figure~\ref{fig:pathview-cat-sep-strains}.
 
-<<label=pathview-wrapper-outob>>=
-str(e.coli.map.k12)
+<<label=example-data-anno-bin>>=
+anno.k12.bin <- annotated(e.coli.k12, output = param_names("disc.name"), lmap = 1:3)
+anno.type.bin <- annotated(e.coli.type, output = param_names("disc.name"), lmap = 1:3)
 @
- 
+The data for the two strain are shown on the correspondingly separated maps in Figure~\ref{fig:pathview-native-sep-strains}.
+
+<<label=pathview-wrapper-plot-bin>>=
+e.coli.map.k12.bin <- opm_path(cpd.data = anno.k12.bin, species = "ko", 
+  out.suffix = "k12.ko.bin", pathway.id = "00052",
+  limit = list(gene = 2, cpd = c(1,3)), bins = list(gene = 0.5, cpd = 3))
+e.coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko", 
+  out.suffix = "type.ko.bin", pathway.id = "00052",
+  limit = list(gene = 2, cpd = c(1,3)), bins = list(gene = 0.5, cpd = 3))
+@
+
+\begin{figure}
+ \centering
+        \begin{subfigure}[b]{1.0\textwidth}
+                \centering
+                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}}
+                \caption{Respiratory data (mean maximum height) in binary output of \textit{Escherichia coli} strain K12 mapped on the KEGG Galactose pathway.}
+                \label{fig:1a}
+        \end{subfigure}
+        \\
+        \vspace{20pt}
+        \begin{subfigure}[b]{1.0\textwidth}
+                \centering
+                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.type.ko.bin}}
+                \caption{Respiratory data (mean maximum height) in binary output of \textit{Escherichia coli} type strain DSM 30083\textsuperscript{T} mapped on the KEGG Galactose pathway.}
+                \label{fig:1b}
+        \end{subfigure}
+        \caption{
+        \label{fig:pathview-native-sep-strains}
+        Galactose metabolism pathway maps for the two \textit{E. coli} strains K12 and DSM 30083\textsuperscript{T} showing the mean maximum height on 13 substrates. 
+        The quantitative measurement data are converted in binary output and represented by according colours and mapped on the corresponding substrates (circles) in the graph. 
+        }
+\end{figure}
 
 Note that from the annotation objects \code{anno.k12} or \code{anno.type}, respectively, comprising 96 substrates, only 13 are represented in the shown pathway map in Figure~\ref{fig:pathview-native-sep-strains}.
-As described in section~\ref{annotated-input}, for substrates such as ``pH 5'' or ``Positive Control'' no KEGG ID is available, which results in \code{NA} values in the vector.
-Accordingly, those substrates cannot be marked within pathway maps. 
 
-Furthermore, not all substrates from a certain plate type are represented in a single pathway, but only substrate groups are represented in pathway maps.
+Furthermore, rather than all substrates from a certain plate type are represented in a single pathway, but only certain substrate groups are represented in selected pathway maps.
 By using the option \code{how = "value"}, \code{annotated} yields a numeric matrix with substrate names as row names and pathway identifiers as column names. 
 Ones and zeros indicate whether or not a certain substrate (row) is contained in a certain pathway (column). 
 \code{NA}s indicate that a substrate has no KEGG ID, as for example well A01 with substrate ``Negative Control''.
@@ -481,23 +518,22 @@ e.subs.pos
 \subsubsection{Visualisation of differences of group means in pathway maps}\label{pathview-group-diffs}
 
 First, we show the maximum-height values from the thirteen substrates represented in the Galactose pathway map (number ``00052'') in Figure~\ref{fig:e_coli_single_ci} to demonstrate the sizes of their differences.
-Note that the vector \code{e.subs.pos} contains the positions of the substrates of interest as a character string and thus can be used to subset \code{OPMX} objects.
+Note that the vector \code{e.subs.pos} contains the positions of the substrates of interest as a character string and thus can be used directly to subset \code{OPMX} objects.
 
 <<label=ecoli_ci_plot, eval=FALSE>>=
 ci_plot(e.coli.sub[, , e.subs.pos],
   as.labels = list("Species", "Strain"), subset = "A", x = "bottomright", 
   draw.legend = T, crr = 1.33)
 @
-\newpage 
 
 \begin{center}
 \begin{figure}
-\scalebox{1.1}{
-<<label=e_coli_single_ci_figure, fig=TRUE, echo=FALSE, height=16, width=10>>=
+\scalebox{1.2}{
+<<label=e_coli_single_ci_figure, fig=TRUE, echo=FALSE, height=14, width=20>>=
 ci_plot(e.coli.sub[, , c(e.subs.pos)], 
   as.labels = list("Species", "Strain"), subset = "A", 
   x = "bottomright", 
-  draw.legend = FALSE, crr = 1.33)
+  draw.legend = FALSE, crr = 1.5)
 @
 }
 \caption{
@@ -506,7 +542,6 @@ Point estimates and 95\% confidence intervals for the single maximum-height valu
 }
 \end{figure}
 \end{center}
-
 
 Straightforwardly, we compute a multiple comparison between only the 13 substrates included in the Galactose metabolism pathway map. 
 Our example compares the type strain with K12; corresponding 95\% CIs for differences of means for the chosen substrates are shown in Figure~\ref{fig:e_coli_comp_ci}.
@@ -518,7 +553,7 @@ colicomp <- opm_mcp(e.coli.sub[, , c(e.subs.pos)],
 
 \begin{center}
 \begin{figure}
-\scalebox{1}{
+\scalebox{1.1}{
 <<label=e_coli_comp_ci_figure, fig=TRUE, echo=FALSE, width=12>>=
 old.mar <- par(mar = c(3, 8, 3, 2))
 par(mar = c(3, 40, 3, 2)) # adapt plotting settings
@@ -551,11 +586,45 @@ Respiration differences between \textit{E. coli} K12 and DSM 30083\textsuperscri
 }
 \end{figure}
 
+
+\subsubsection{Visualisation of binary data in pathway maps}\label{pathview-binary}
 %TODO
 % use the opm_mcp-results for also demonstrating the binary outcome option, use upwards or downwards to show the three categories
 % explain the colour-arguments and the scaling properly
 
+Continuing with the multiple comparison example, here it is shown how to incorporate categorical or binary data in pathway maps (see section~\ref{annotated-input}).
+Analogously to the above shown examples , the function \code{annotated} can be used to provide categorical or binary annotation vectors for the differences of means.
 
+<<label=pathview-cat-anno>>=
+cat.comp.anno <- annotated(colicomp, output = "upwards", lmap = 1:3)
+bin.comp.anno <- annotated(colicomp, output = "different", lmap = 1:3)
+@
+
+Since in this example data set all comparisons for substrates mappable in the Galactose pathway result in clear statistically significancies, we also show \rcsmark{TODO}
+
+The direct mapping of these differences between the two strains on the Galactose pathway is shown in Figure~\ref{fig:pathview-native}.
+<<label=pathview-cat-anno-map>>=
+cat.coli.comp <- opm_path(cpd.data = cat.comp.anno, 
+  species = "ko", out.suffix = "cat-coli-comp", pathway.id = "00052",
+  limit = list(gene = 2, cpd = 2), bins = list(gene = 0.5, cpd = 3))
+@
+
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.cat-coli-comp}
+}
+\caption{\label{fig:pathview-native}
+Respiration differences between \textit{E. coli} K12 and DSM 30083\textsuperscript{T} regarding the maximum-height values mapped in binary format on the Galactose pathway.  
+}
+\end{figure}
+
+\subsubsection{Visualisation of pathway maps in de-novo layout}\label{pathview-denovo-layout}
+Further, the function generates a list containing two data frames.
+The data frame ``plot.data.gene'' contains the data for mapping the genes and, analogously, ``plot.data.cpd'' stores the compound-related data.
+
+<<label=pathview-wrapper-outob>>=
+str(e.coli.map.k12)
+@
 % show the non-native KEGG-maps at the very end with listing the poor options for tuning the font sizes or size of symbols in the graphic
 % also the colouring is not similarly possible like in the native maps
 
