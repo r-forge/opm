@@ -529,7 +529,7 @@ ci_plot(e.coli.sub[, , e.subs.pos],
 \begin{center}
 \begin{figure}
 \scalebox{1.2}{
-<<label=e_coli_single_ci_figure, fig=TRUE, echo=FALSE, height=14, width=20>>=
+<<label=fig_e_coli_single_ci, fig=TRUE, echo=FALSE, height=14, width=20>>=
 ci_plot(e.coli.sub[, , c(e.subs.pos)], 
   as.labels = list("Species", "Strain"), subset = "A", 
   x = "bottomright", 
@@ -571,7 +571,7 @@ Point estimates and 95\% confidence intervals for the differences of means betwe
 The annotation vector for the differences of means can be obtained by simply applying \code{annotated} to the ``opm\_glht'' object. 
 The direct mapping of these differences between the two strains on the Galactose pathway is shown in Figure~\ref{fig:pathview-native}.
 
-<<label=pathview-e.coli-comp-map>>=
+<<label=pathview_e_coli_comp_map>>=
 anno.colicomp <- annotated(colicomp)
 e.coli.comp.map <- opm_path(cpd.data = anno.colicomp, species = "ko", 
   out.suffix = "e.coli.comp.ko", pathway.id = "00052")
