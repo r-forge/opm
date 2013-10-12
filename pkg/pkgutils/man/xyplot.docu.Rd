@@ -14,5 +14,4 @@ data(xyplot.docu)
 stopifnot(inherits(xyplot.docu, "Rd"), is.list(xyplot.docu))
 }
 \keyword{datasets}
-\keyword{datasets}
 
