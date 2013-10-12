@@ -13,7 +13,7 @@
 # given, the working directory is checked for subdirectories that contain a
 # DESCRIPTION file, and it is then attempted to document those, if any.
 #
-# (C) 2012 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
+# (C) 2012/2013 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
 #
 # This program is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html

@@ -19,7 +19,7 @@ must_be <- function(got, wanted) if (!identical(got, wanted))
 # Use the package's own functionality to see what's there
 #
 
-must_be(length(x <- pkg_files(pkg, "scripts")), 2L)
+must_be(length(x <- pkg_files(pkg, "scripts")), 3L)
 stopifnot(!check_R_code(x))
 
 must_be(length(pkg_files(pkg, "highlighting")), 2L)
