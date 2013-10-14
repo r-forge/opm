@@ -424,7 +424,7 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
                 \centering
                 \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.k12.ko}}
                 \caption{Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the KEGG Galactose pathway.}
-                \label{fig:pathview-native-sep-strains-1a}
+                \label{fig:1a-pathview-native-sep-strains}
         \end{subfigure}
         \\
         \vspace{20pt}
@@ -432,7 +432,7 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
                 \centering
                 \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.type.ko}}
                 \caption{Respiratory data (mean maximum height) of \textit{Escherichia coli} type strain DSM 30083\textsuperscript{T} mapped on the KEGG Galactose pathway.}
-                \label{fig:pathview-native-sep-strains-1b}
+                \label{fig:1b-pathview-native-sep-strains}
         \end{subfigure}
         \caption{
         \label{fig:pathview-native-sep-strains}
@@ -562,7 +562,7 @@ colicomp <- opm_mcp(e.coli.sub[, , e.subs.pos],
 \scalebox{1.1}{
 <<label=e-coli-comp-ci-figure, fig=TRUE, echo=FALSE, width=12>>=
 old.mar <- par(mar = c(3, 8, 3, 2))
-par(mar = c(3, 40, 3, 2)) # adapt plotting settings
+par(mar = c(3, 20, 3, 2)) # adapt plotting settings
 plot(colicomp, xlim = c(-10, 300))
 par(old.mar) # reset plotting settings
 @
