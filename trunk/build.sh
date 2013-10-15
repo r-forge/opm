@@ -983,6 +983,10 @@ run_Stangle()
 #
 extract_examples()
 {
+  if [ $# -eq 0 ]; then
+    echo "No file names given, returning now." >&2
+    return 1
+  fi
   local infile
   local package
   for infile; do
@@ -1016,7 +1020,10 @@ extract_examples()
 #
 show_example_results()
 {
-  [ $# -eq 0 ] && return
+  if [ $# -eq 0 ]; then
+    echo "No function names given, returning now." >&2
+    return 1
+  fi
   find . -name '*-Ex.Rout' -exec awk -v query="$*" '
       BEGIN {
         nq = split(query, field)
@@ -1111,7 +1118,10 @@ test_external_examples()
 #
 show_lines_with_forbidden_characters()
 {
-  [ $# -eq 0 ] && return
+  if [ $# -eq 0 ]; then
+    echo "No file names given, returning now." >&2
+    return 1
+  fi
   awk '/[^\r -~]/ {
     printf "%s:%i\t%s\n", FILENAME, FNR, $0
   }' "$@"
@@ -1284,31 +1294,33 @@ case $RUNNING_MODE in
 	  codex   Test the external code examples that come with opm.
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
-	  docu    Check whether the 'docu.R' script can be found, then exit.
+	  docu    Show the 'docu.R' script to use if it can be found, then exit.
 	  erase   Remove directories left over by R CMD check and 'docu.R', if any.
 	  example Extract R code from the examples within specified Rd files.
-	  forget  Remove .RData, .Rhistory and *.Rout files.
+	  forget  Remove all .RData, .Rhistory and *.Rout files found.
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  pfull   Full build of the pkgutils package.
 	  pnorm   Normal build of the pkgutils package.
-	  rnw     Run R CMD Stangle on the *.Rnw files.
+	  rnw     Run R CMD Stangle on all *.Rnw files found.
 	  rout    Show results of the examples, if any, for given function names.
-	  space   Remove trailing whitespace from R code files.
+	  space   Remove trailing whitespace from all R code files found.
 	  sql     SQL-based tests. Call '$0 sql -h' for a description.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
 	  time    Show the timings of the last examples, if any, in order.
-	  todo    Show TODO entries (literally!) in R source files.
+	  todo    Show TODO entries (literally!) in all R source files found.
 
-	A 'full' build includes copying to the local copy of the pkg directory.
-	Other details of the build process depend on the options.
+	In contrast to a normal build, a full build includes copying to the local
+	copy of the pkg directory. Other details of the build process depend on the
+	options.
 
-	All options go to 'docu.R'. Use '-h' to display all of them. Missing options
-	in normal or full running mode means generating the test copy of the package
-	directory and the documentation and running the checks implemented in this
-	script, but not those via 'docu.R'.
+	In the normal and full running modes, all options go to 'docu.R'. Use '-h'
+	after the mode name to display all of them. Missing options in these running
+	modes imply generating the test copy of the package directory and the
+	documentation and running the checks implemented in this script, but not
+	those via 'docu.R'.
 
 	One frequently needs the following options:
 	  -c	Check the copy of the package directory.
