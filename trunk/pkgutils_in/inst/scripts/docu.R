@@ -394,7 +394,7 @@ for (i in seq_along(package.dirs)) {
   message("Repairing documentation for", msg)
   skip <- repair_docu(out.dir, remove.dups = !opt$quick,
     drop.internal = opt$`no-internal`)
-  if (is.logical(skip))
+  if (is.logical(skip) && any(skip))
     skip <- paste0("--skip=", paste0(names(skip)[skip], collapse = ","))
   else
     skip <- ""
