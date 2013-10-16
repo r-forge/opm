@@ -499,6 +499,7 @@ But export in some useful file formats is also possible.
 This scheme provides a detailed overview of the possible strategies and appropriate functions for data analysis using the \pkg{opm} package.
 Beginning with one to several CSV files containing raw kinetic data exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis}, or \proglang{YAML} or \proglang{JSON} files that have been generated in previous \pkg{opm} runs, a variety of work flows are possible for setting up  \proglang{OPM} or \proglang{OPMS} objects.
 Additionally, methods for metadata management, plotting the data in a customized manner, querying and sub-setting the generated objects, statistical comparison of multiple group means, and data-conversion tools including discretization, report generation and output in files are provided.
+How to use \code{annotated} to produce graphics is explained in a separate vignette, ``Working with substrate information in \pkg{opm}'', which is also available together with the package.
 }
 \end{figure}
 
