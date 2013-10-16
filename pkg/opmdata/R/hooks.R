@@ -1,5 +1,3 @@
-
-
 .onAttach <- function(...) {
   opm.version <- utils::packageVersion("opm")
   opmdata.version <- utils::packageVersion("opmdata")
@@ -22,5 +20,4 @@
     packageStartupMessage(msg)
   }
 }
-
 
