@@ -438,7 +438,7 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
         \label{fig:pathview-native-sep-strains}
         Galactose metabolism pathway maps for the two \textit{E. coli} strains K12 and DSM 30083\textsuperscript{T} showing the mean maximum height on 13 substrates. 
         The aggregated measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph. 
-        }
+   		}
 \end{figure}
 
 
@@ -595,35 +595,53 @@ Respiration differences between \textit{E. coli} K12 and DSM 30083\textsuperscri
 In analogy to the last example, the function \code{annotated} can be used to produce categorical annotation vectors for the differences of means.
 Such vectors are very useful because they can specifically highlight the statistically significant differences, and particularly those that are significantly larger than a certain biologically relevant minimum effect size.
 Thus the full power of the functions from the \pkg{multcomp} package underlying \code{opm\_mcp} (see the main tutorial and the manual for details) is available when visualizing PM data in pathway graphs.
-
-The mapping of significant differences between the two strains on the Galactose pathway is shown in Figure~\ref{fig:pathview-native-sig-differences}.
-
-<<label=pathview-cat-anno-map>>=
-cat.comp.anno <- annotated(colicomp, output = "upwards", lmap = 1:3)
-cat.coli.comp <- opm_path(cpd.data = cat.comp.anno, 
-  species = "ko", out.suffix = "cat-coli-comp", pathway.id = "00052",
-  limit = list(gene = 2, cpd = 2), bins = list(gene = 0.5, cpd = 3))
-@
-
-% TODO LATER: add example with the same data and a threshold larger than 0
-%   this should yield partially insignificant differences in another
-%   mapping of the categorical output
-
-\begin{figure}
-\scalebox{1.225}{
-\includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.cat-coli-comp}
-}
-\caption{\label{fig:pathview-native-sig-differences}
-Significant respiration differences between \textit{E. coli} K12 and DSM 30083\textsuperscript{T} regarding the maximum-height values mapped the Galactose pathway.
-For the direct mapping of the numeric differences see Figure~\ref{fig:pathview-native-differences}.
-}
-\end{figure}
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% END FROZEN PART
 %% DO NOT MODIFY ANyTHING ABOVE THIS LINE WITHOUT NEGOTIATING WITH MG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The mapping of significant differences between the two strains on the Galactose pathway is shown in Figure~\ref{fig:pathview-native-sig-differences}. One can directly compare the colour-mapping for substrates exhibit an statistically significant differences between the investigated strains (Figure ~\ref{fig:pathview-native-sig-differences-1a}) and the output of investigation differences according a given effect size. In the example substrates which show that DSM18039 has an at least 150 Units higher maximum height value are choosen (Figure ~\ref{fig:pathview-native-sig-differences-1b}).
+
+
+<<label=pathview-cat-anno-map>>=
+#
+# statistically significant differences
+#
+cat.comp.anno <- annotated(colicomp, output = "upwards", lmap = 1:3)
+cat.coli.comp <- opm_path(cpd.data = cat.comp.anno, 
+  species = "ko", out.suffix = "cat-coli-comp", pathway.id = "00052",
+  limit = list(gene = 2, cpd = 2), bins = list(gene = 0.5, cpd = 3))
+#
+# differences regarding an effect-size of at least 150 units upwards
+#
+cat.comp.anno.t <- annotated(colicomp, output = "'150", lmap = 1:3)
+cat.coli.comp.t <- opm_path(cpd.data = cat.comp.anno.t, 
+  species = "ko", out.suffix = "cat-coli-comp-t", pathway.id = "00052",
+  limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
+@
+
+\begin{figure}
+ \centering
+        \begin{subfigure}[b]{1.0\textwidth}
+                \centering
+                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.cat-coli-comp}}
+                \caption{Descretized respiration differences between \textit{E. coli} K12 and DSM 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.}
+                \label{fig:pathview-native-sig-differences-1a}
+        \end{subfigure}
+        \\
+        \vspace{20pt}
+        \begin{subfigure}[b]{1.0\textwidth}
+                \centering
+                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-t}}
+                \caption{Descretized respiration differences between \textit{E. coli} K12 and DSM 30083\textsuperscript{T} with minimal effect size of 150 units regarding the maximum-height values mapped on the Galactose pathway.}
+                \label{fig:pathview-native-sig-differences-1b}
+        \end{subfigure}
+        \caption{
+        \label{fig:pathview-native-sig-differences}
+        Significant respiration differences between \textit{E. coli} K12 and DSM 30083\textsuperscript{T} regarding the maximum-height values mapped the Galactose pathway.
+ For the direct mapping of the numeric differences see Figure~\ref{fig:pathview-native-differences}.
+        }
+\end{figure}
 
 
 \subsubsection{Visualisation of pathway maps in de-novo layout}\label{pathview-denovo-layout}
