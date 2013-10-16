@@ -35,7 +35,7 @@ source_location <- function() {
 #' loaded using \code{library()} (e.g., during \acronym{CRAN} checking) or using
 #' \code{source()} (optionally used during development).
 #'
-#' @param files Character vector. Optional list of of filenames to append to the
+#' @param files Character vector. Optional list of filenames to append to the
 #'   directory name. They would be removed again unless all of them did in fact
 #'   exist.
 #' @return Name of the directory in which the input files for testing reside.
