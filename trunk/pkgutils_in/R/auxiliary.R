@@ -351,7 +351,7 @@ problem.character <- function(x, infile = NULL, line = NULL, ...) {
 #'
 #' Load \R code files with \code{source} from the \pkg{base} package (which
 #' does only handle one file at a time). This is mainly useful for loading
-#' entire packages with \code{source}; the the \sQuote{what} argument of
+#' entire packages with \code{source}; see the \sQuote{what} argument of
 #' \code{\link{pack_desc}} for an example.
 #'
 #' @param x Character vector of file names, or object of class

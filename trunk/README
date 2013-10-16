@@ -15,12 +15,14 @@ Top level
 
 Build shell script, depending on 'docu.R' from the `pkgutils` R package, which
 needs Ruby >= 1.9.0 installed. Call 'build.sh help' for a description of its
-usage.
+usage. Among many other options, includes functions for testing the package via
+the 'run\_opm.R' script (which needs to be installed beforehand).
 
 
 ### 'external_tests'
 
-Folder with test files for 'run_tests.sh' and the results of running it.
+Folder with test files for running './build.sh test' and the results of running
+it.
 
 
 ### 'graphics'
@@ -47,6 +49,13 @@ Input package, converted to a novel 'opmdata' directory when running 'build.sh'
 under special settings. This is seldom necessary.
 
 
+### 'opmDB_in'
+
+Input package, converted to a novel 'opmDB' directory when running 'build.sh'
+under special settings. This is an experimental package not yet released on
+CRAN.
+
+
 ### 'pkgutils_in'
 
 Input package, converted to a novel 'pkgutils' directory when running 'build.sh'
@@ -57,13 +66,6 @@ under special settings. This is sometimes necessary.
 
 This file (in [Markdown](http://daringfireball.net/projects/markdown/) syntax,
 by the way).
-
-
-### 'run\_external_tests.sh'
-
-Bash script that tests the package via the 'run\_opm.R' script (which needs to
-be installed beforehand). Call 'run\_external_tests.sh -h' for a description of
-its usage.
 
 
 ********************************************************************************
@@ -87,7 +89,7 @@ control.
 
 ### 'tests.err', 'tests.out'
 
-STDERR and STDOUT output of 'run_tests.sh'. Do not put them under version
+STDERR and STDOUT output of './build.sh test'. Do not put them under version
 control.
 
 
@@ -157,13 +159,13 @@ Files within the 'opm_in/R' subdirectory
 
 * 'constants.R':
   All internal package variables (used effectively as constants but there is 
-  also `opm_opt()` which modifies settings).
+  also `opm_opt` which modifies settings).
 
 * 'package.R':
   `roxygen2` documentation of the opm package.
 
 * 'data.R':
-  Documentation of the datasets available via `data()` that come with the 
+  Documentation of the datasets available via `data` that come with the 
   package.
 
 
@@ -194,7 +196,7 @@ Coding style
 
 Please see
 
-* `check_R_code()` from the `pkgutils` package and its options
+* `check_R_code` from the `pkgutils` package and its options
 
 * the last chapter in the [manual](http://www.goeker.org/mg/rcourse/Course.pdf)
   of the DSMZ R programming course

@@ -179,7 +179,7 @@ print.print_easy <- function(x, ...) {
 #' of fields, or determine an optimal range for plotting, or draw a confidence
 #' interval, or returnthe maximal value of an object plus a certain offset.
 #'
-#' @param object Numeric vector or array, or numeric scalar, or or \sQuote{OPMX}
+#' @param object Numeric vector or array, or numeric scalar, or \sQuote{OPMX}
 #'   object. For \code{draw_ci}, a four-element numeric vector containing (i)
 #'   the left margin of the CI; (ii) the point estimate; (iii) the right margin;
 #'   (iv) the position on the y axis. The point estimate can be \code{NA} at any

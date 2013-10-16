@@ -783,7 +783,7 @@ setMethod("has_disc", OPM, function(object) {
 #' @param join Empty or character scalar. If empty, a list is returned; a nested
 #'   list in the case of \code{\link{OPMS}} objects with one sublist per plate.
 #'   Otherwise this nested list is converted to a matrix or data frame,
-#'   depending on the value of \code{join}. The following values yield a a
+#'   depending on the value of \code{join}. The following values yield a
 #'   matrix in character mode and differ in how they would convert non-scalar
 #'   values in a matrix in list mode, if encountered: \describe{
 #'     \item{json}{Converts to a \acronym{JSON} string.}
@@ -1632,7 +1632,7 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #'
 #'   \item The formula method attempts to evaluate the right side of the formula
 #'   in the context of the metadata of \code{table} and returns the result. For
-#'   the \code{\link{WMD}} method, is is up to the user to ensure that the
+#'   the \code{\link{WMD}} method, it is up to the user to ensure that the
 #'   result is a logical scalar, but the method would succeed anyway. The
 #'   \code{\link{OPMS}} method yields an error unless each plate yields a
 #'   logical scalar. Symbols that are not found within the metadata are looked

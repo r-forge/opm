@@ -219,7 +219,7 @@ predict.smooth.spline_model <- function(object, newdata = NULL, ...) {
 #' @param plot.spline Logical. Should the spline be plotted?
 #' @param confint Logical. Should the (point-wise) confidence interval
 #'   be plotted?
-#' @param level level of confidence interval.
+#' @param level Level of confidence interval.
 #' @param col Color of observed data. Per default a semi-transparent grey
 #'   value is used. For details see \code{\link{par}} (Section Color
 #'   Specification).
@@ -298,7 +298,7 @@ plot.opm_models <- function(x, which = NULL, plot.data = TRUE,
 #' @param x Spline fit.
 #' @param confint Logical. Should the (point-wise) confidence interval
 #'   be plotted?
-#' @param level level of confidence interval.
+#' @param level Level of confidence interval.
 #' @param col Color of fitted spline specified for example by a character
 #'   string. For details see \code{\link{par}} (Section Color Specification).
 #' @param lty Line type of fitted spline. For details see \code{\link{par}}.

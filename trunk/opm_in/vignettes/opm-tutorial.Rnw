@@ -482,7 +482,7 @@ The composition of \proglang{OPM} and \proglang{OPMS} objects, and the implement
 
 But a plethora of methods for querying other aspects of \proglang{OPM} and \proglang{OPMS} objects have also been implemented.
 Standard operations such as sorting objects and making them unique are also available for the \proglang{OPM} and \proglang{OPMS} classes.
-Of course, \proglang{OPMS} objects can not only be subset but it it also possible to build up larger \proglang{OPMS} objects by combining \proglang{OPMS} and \proglang{OPM} objects using specialized methods for the \code{c} generic function and the \code{+} operator as well as the very flexible function \code{opms}.
+Of course, \proglang{OPMS} objects can not only be subset but it is also possible to build up larger \proglang{OPMS} objects by combining \proglang{OPMS} and \proglang{OPM} objects using specialized methods for the \code{c} generic function and the \code{+} operator as well as the very flexible function \code{opms}.
 Moreover, an \proglang{OPMS} method for \code{merge} has been implemented, that allows for concatenating PM measurements that represent subsequent runs of the same plate.
 This has successfully been applied to slow-growing organisms in the bacterial genus \textit{Geodermatophilus}, which had to be measured three times consecutively in the OmniLog\textregistered \ instrument (up to twelve days in total) \citep{montero, montero2013}.
 
@@ -1380,6 +1380,7 @@ The default can by set with \code{opm\_opt(hm.colors = ...)}.
 }
 \end{figure}
 
+Additional example code on clustering curve parameters, including an assessment of the uncertainty of the branching, is available \textit{via} \code{opm\_files("examples")}.
 
 The function \code{radial\_plot} is able to plot numeric values as distances from the center of a circular field in directions defined by angles in radians.
 Some selection of wells should usually be applied beforehand for these plots to be useful.
@@ -1520,7 +1521,7 @@ Compare this with Figure~\ref{fig:ci_plot_groups}.
 }
 \end{figure}
 
-Additional example code on on visualizing curve parameters is available \textit{via} \code{opm\_files("examples")}.
+Additional example code on visualizing curve parameters is available \textit{via} \code{opm\_files("examples")}.
 It is indeed easy to conduct principal-component analysis (PCA) with matrices created with \code{extract}.
 Examples are given based on the \pkg{BiodiversityR} package \citep{Kindt2005}.
 \pagebreak
@@ -1791,7 +1792,7 @@ However, a \code{model} argument is necessary for definition of the factors that
 As the next example, we compare the overall performance of the tested organisms in the four wells A01 to A04. 
 
 Although the user typically expects these wells to be in order in an \proglang{OPMS} object, this actually may have been changed by a previous well selection.
-Moreover, details of the the implementation of the conversion of \proglang{OPMS} objects to data frames, and of reshaping these data frames, can be subject to change, which might also affect the order of factor levels within the final data passed to \code{glht}.
+Moreover, details of the implementation of the conversion of \proglang{OPMS} objects to data frames, and of reshaping these data frames, can be subject to change, which might also affect the order of factor levels within the final data passed to \code{glht}.
 Hence, it should be avoided to set up a contrast matrix fully by hand.
 Instead, \code{opm\_mcp(output = "contrast")} yields one to several template contrast matrices, which are guaranteed to match the used \proglang{OPMS} object.
 We highly recommend to generate those template matrices and modify them according to specific user needs.

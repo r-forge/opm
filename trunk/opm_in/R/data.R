@@ -23,7 +23,7 @@
 #' been added to fully describe the conducted PM experiments: this plate is the
 #' 6th technical replicate from the first biological replicate for the strain
 #' \emph{Escherichia coli} DSM30083T (yes, the type strain of \emph{E. coli}).
-#' This is a a subset of \code{vaas_4}.
+#' This is a subset of \code{vaas_4}.
 #'
 #' The complete data set is available as \code{vaas_et_al} in the \pkg{opmdata}
 #' package.
