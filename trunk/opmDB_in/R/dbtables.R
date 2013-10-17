@@ -115,38 +115,34 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   applied to each \code{\link{DBTABLES}} object that is an element of the
 #'   resulting list, with \code{start} set to \code{NULL} and \code{drop} set to
 #'   \code{TRUE}.
-#' @param INDICES Optional vector used for selecting a subset of the tables and
-#'   modifying their order (which might not make sense, see
-#'   \code{\link{DBTABLES}}). If it has names, these will be passed to
-#'   \code{FUN} instead of the original names of the slots.
+#' @param INDICES If \code{do_inline} is \code{FALSE}, a vector used for
+#'   selecting a subset of the tables and modifying their order (which might not
+#'   make sense, see  \code{\link{DBTABLES}}). Otherwise usually a vector of
+#'   primary keys for the first table. Selection of rows from subsequent tables
+#'   works via the defined foreign keys. Thus, used for querying for data slots
+#'   for a novel \code{\link{DBTABLES}} with \code{FUN}.
+#' @param FUN Function to be applied to each table in turn. If \code{do_inline}
+#'   is \code{FALSE}, it should accept a data frame (the table) and a character
+#'   scalar (name of that table) as the first two (unnamed) arguments.
 #'
-#'   Note that \code{INDICES} may also be a function. If so, it is used in place
-#'   of \code{FUN}, which, unless missing, is passed as first additional
-#'   argument to \code{INDICES}.
-#' @param FUN Function to be applied to each table in turn. In the case of
-#'   \code{by}, it should accept a data frame (the table) and a character scalar
-#'   (name of that table) as the first two (unnamed) arguments. \code{FUN} can
-#'   be replaced by \code{INDICES} if the latter is a function; see above for
-#'   details.
-#'
-#'   In the case of \code{collect}, if \code{.sql} is \code{FALSE}, \code{FUN}
-#'   should accept three first arguments (in addition to those in \code{...}, if
-#'   any), in order: the name of a table (database table or data frame), the
-#'   name of a column in that table, and a vector of numeric indexes to match
-#'   that column. It should return a data frame with all matched rows. If
-#'   \code{.sql} is \code{TRUE}, \code{FUN} should accept a character scalar
-#'   (\acronym{SQL} statement) as single first argument in addition to those in
-#'   \code{...}, and use this to retreieve columns from a database table.
+#'   If \code{do_inline} is \code{TRUE}, if \code{simplify} is \code{FALSE},
+#'   \code{FUN} should accept three first arguments (in addition to those in
+#'   \code{...}, if any), in order: the name of a table (database table or data
+#'   frame), the name of a column in that table, and a vector of numeric indexes
+#'   to match that column. It should return a data frame with all matched rows.
+#'   If \code{simplify} is \code{TRUE}, \code{FUN} should accept a character
+#'   scalar (\acronym{SQL} statement) as single first argument in addition to
+#'   those in \code{...}, and use this to retreieve columns from a database
+#'   table.
 #' @param ... Objects of the same class as \code{x} for \code{c}, optional
 #'   further arguments of \code{FUN} for \code{by}.
+#' @param do_map Optional vector for mapping the slot names in \code{data}
+#'   before passing them to \code{FUN}.
+#' @param do_inline Logical scalar indicating how \code{FUN} should be used and
+#'   which kind of return value should be produced.
 #' @param simplify Logical scalar passed to \code{mapply} as \sQuote{SIMPLIFY}
-#'   argument.
-#' @param what Vector of primary keys for the first table. Selection of rows
-#'   from subsequent tables works via the defined foreign keys.
-#' @param .sql Logical scalar indicating whether \acronym{SQL} should be
-#'   generated and passed to \code{FUN}. See their for details.
-#' @param .mapping Optional vector for mapping the slot names in \code{x} before
-#'   passing them to \code{FUN}.
+#'   argument if \code{do_inline} is \code{TRUE}. Otherwise indicating whether
+#'   \acronym{SQL} should be generated and passed to \code{FUN}, see above.
 #' @return
 #'   \code{pkeys} yields a character vector with the (expected) name of
 #'   the primary key column for each table. \code{fkeys} returns a matrix
@@ -179,15 +175,17 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   that refer to it. \code{c} can be used to get the original object back.
 #'
 #'   \code{by} returns the result of \code{FUN} or \code{INDICES} as a list or
-#'   other kind of object, depending on \code{simplify}.
+#'   other kind of object, depending on \code{simplify},  if \code{do_inline} is
+#'   \code{TRUE}.
 #'
-#'   \code{collect} creates a novel \code{INDICES} object. It starts with
-#'   passing \code{what} as indexes (optionaly within an \acronym{SQL}
-#'   statement) to \code{FUN}, which should yield a data frame to be inserted
-#'   as first table. Further \code{what} arguments are generated using the
-#'   information returned by \code{fkeys} to fill the object. Child classes
-#'   might need to define a prototype with data frames that might be empty but
-#'   already contain the column naming that defines the cross references.
+#'   If  \code{do_inline} is \code{FALSE}, \code{by} creates a novel
+#'   \code{DBTABLES} object. It starts with passing \code{INDICES} as indexes
+#'   (optionally within an \acronym{SQL} statement) to \code{FUN}, which should
+#'   yield a data frame to be inserted as first table. Further \code{INDICES}
+#'   arguments are generated using the information returned by \code{fkeys} to
+#'   fill the object. Child classes might need to define a prototype with data
+#'   frames that might be empty but already contain the column naming that
+#'   defines the cross references.
 #'
 #' @name DBTABLES-methods
 #' @seealso methods::setClass
@@ -252,29 +250,31 @@ print.DBTABLES_Summary <- function(x, ...) {
 #' # traverse the object
 #' (y <- by(x, TRUE, function(a, b) is.data.frame(a)))
 #' stopifnot(y, !is.null(names(y)))
-#' (z <- by(x, c(2, 1), function(a, b) is.character(b)))
+#' (z <- by(x, 2:1, function(a, b) is.character(b)))
 #' stopifnot(z, names(z) == rev(names(y))) # other order
-#' (z <- by(x, c(A = 1, B = 2), function(a, b) b)) # watch renaming
+#' (z <- by(x, 1:2, function(a, b) b,
+#'   do_map = c(experiments = "A", results = "B"))) # with renaming
 #' stopifnot(z == c("A", "B")) # new names passed as 2nd argument to FUN
 #'
 #' # to illustrate collect(), we use a function that simply yields the already
 #' # present slots
-#' col_fun <- function(data, tbl, col, idx) {
-#'   tmp <- slot(data, tbl)
+#' col_fun <- function(items, tbl, col, idx) {
+#'   tmp <- slot(items, tbl)
 #'   tmp[tmp[, col] %in% idx, , drop = FALSE]
 #' }
 #'
-#' (y <- collect(x, slot(x, "experiments")[, "id"], col_fun, data = x,
-#'   .sql = FALSE))
+#' (y <- by(x, slot(x, "experiments")[, "id"], col_fun, items = x,
+#'   do_inline = TRUE, simplify = FALSE))
 #' stopifnot(identical(y, x))
 #'
 #' # select only a subset of the indexes
-#' (y <- collect(x, c(2L, 1L), col_fun, data = x, .sql = FALSE))
+#' (y <- by(x, c(2L, 1L), col_fun, items = x, do_inline = TRUE,
+#'   simplify = FALSE))
 #' stopifnot(length(y) == 2)
 #'
 #' # try a mapping that does not work
-#' (y <- try(collect(x, c(2L, 1L), col_fun, data = x, .sql = FALSE,
-#'   .mapping = c(results = "notthere")), silent = TRUE))
+#' (y <- try(by(x, c(2L, 1L), col_fun, items = x, simplify = FALSE,
+#'   do_inline = TRUE, do_map = c(results = "notthere")), silent = TRUE))
 #' stopifnot(inherits(y, "try-error"))
 #' ## note that non-matching names would be silently ignored
 #'
@@ -547,83 +547,47 @@ setMethod("split", c("DBTABLES", "ANY", "logical"), function(x, f, drop) {
 #'
 setGeneric("by")
 
-setMethod("by", c("DBTABLES", "missing", "function"), function(data, INDICES,
-    FUN, ..., simplify = TRUE) {
-  tn <- names(pkeys(data))
-  mapply(FUN = FUN, sapply(tn, slot, object = data, simplify = FALSE), tn,
-    MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
-}, sealed = SEALED)
-
-setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES, FUN,
-    ..., simplify = TRUE) {
-  tn1 <- names(pkeys(data))[INDICES]
-  if (is.null(tn2 <- names(INDICES)))
-    tn2 <- tn1
-  mapply(FUN = FUN, sapply(tn1, slot, object = data, simplify = FALSE), tn2,
-    MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
-}, sealed = SEALED)
-
-setMethod("by", c("DBTABLES", "function", "missing"), function(data, INDICES,
-    FUN, ..., simplify = TRUE) {
-  tn <- names(pkeys(data))
-  mapply(FUN = INDICES, sapply(tn, slot, object = data, simplify = FALSE), tn,
-    MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
-}, sealed = SEALED)
-
-setMethod("by", c("DBTABLES", "function", "ANY"), function(data, INDICES, FUN,
-    ..., simplify = TRUE) {
-  tn <- names(pkeys(data))
-  mapply(FUN = INDICES, sapply(tn, slot, object = data, simplify = FALSE), tn,
-    MoreArgs = list(FUN, ...), SIMPLIFY = simplify, USE.NAMES = TRUE)
-}, sealed = SEALED)
-
-#= collect DBTABLES-methods
-
-#' @rdname DBTABLES-methods
-#' @export
-#'
-setGeneric("collect", function(x, what, ...) standardGeneric("collect"))
-
-setMethod("collect", c("DBTABLES", "numeric"), function(x, what, FUN, ...,
-    .sql = TRUE, .mapping = NULL) {
-  storage.mode(.mapping) <- "character"
-  map_fun <- if (length(.mapping) && !is.null(names(.mapping)))
-      function(x) if (pos <- match(x, names(.mapping), 0L))
-          .mapping[pos]
-        else
-          x
-    else
-      identity
-  get_fun <- if (.sql)
-      function(.TBL, .COL, .IDX, ...) {
-        dq <- function(x) if (grepl("\\W", x, FALSE, TRUE))
-            sprintf('"%s"', gsub('"', '""', x, FALSE, TRUE, TRUE))
-          else
-            x
-        x <- paste(dq(.COL), .IDX, sep = " = ", collapse = " OR ")
-        FUN(sprintf("SELECT * FROM %s WHERE %s;", dq(.TBL), x), ...)
-      }
-    else
-      FUN
-  pk <- pkeys(x)
-  result <- lapply(as.list(pk), as.null)
-  result[[1L]] <- as.data.frame(get_fun(map_fun(names(result)[1L]), pk[1L],
-    what, ...))
-  crs <- fkeys(x)
-  crs <- crs[!is.na(crs[, "to.tbl"]), , drop = FALSE]
-  for (i in seq_len(nrow(crs))) {
-    cr <- crs[i, ]
-    if (!is.null(result[[cr[["from.tbl"]]]]))
-      next
-    what <- result[[cr[["to.tbl"]]]][, cr[["to.col"]]]
-    result[[cr[["from.tbl"]]]] <- as.data.frame(get_fun(map_fun(
-      cr[["from.tbl"]]), cr[["from.col"]], what, ...))
+setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
+    FUN, ..., do_map = NULL, do_inline = FALSE, simplify = TRUE) {
+  dq <- function(x) sprintf('"%s"', gsub('"', '""', x, FALSE, TRUE, TRUE))
+  map_items <- function(x, mapping) {
+    if (!length(names(mapping)))
+      return(x)
+    pos <- match(x, names(mapping), 0L)
+    x[found] <- mapping[pos[found <- pos > 0L]]
+    x
   }
-  do.call(new, c(list(Class = class(x)), result))
+  if (do_inline) {
+    get_fun <- if (simplify)
+        function(.TBL, .COL, .IDX, ...) FUN(
+          sprintf("SELECT * FROM %s WHERE %s;", dq(.TBL),
+          paste(dq(.COL), .IDX, sep = " = ", collapse = " OR ")), ...)
+      else
+        FUN
+    pk <- pkeys(data)
+    result <- lapply(as.list(pk), as.null)
+    result[[1L]] <- as.data.frame(get_fun(
+      map_items(names(result)[1L], do_map), pk[1L], INDICES, ...))
+    crs <- fkeys(data)
+    crs <- crs[!is.na(crs[, "to.tbl"]), , drop = FALSE]
+    for (i in seq_len(nrow(crs))) {
+      cr <- crs[i, ]
+      if (!is.null(result[[cr[["from.tbl"]]]]))
+        next
+      INDICES <- result[[cr[["to.tbl"]]]][, cr[["to.col"]]]
+      result[[cr[["from.tbl"]]]] <- as.data.frame(get_fun(map_items(
+        cr[["from.tbl"]], do_map), cr[["from.col"]], INDICES, ...))
+    }
+    do.call(new, c(list(Class = class(data)), result))
+  } else {
+    tn1 <- names(pkeys(data))[INDICES]
+    tn2 <- map_items(tn1, do_map)
+    mapply(FUN = FUN, sapply(tn1, slot, object = data, simplify = FALSE), tn2,
+      MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
+  }
 }, sealed = SEALED)
 
 
 ################################################################################
-
 
 
