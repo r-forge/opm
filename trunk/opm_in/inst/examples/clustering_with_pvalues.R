@@ -29,16 +29,21 @@ library(opm)
 x <- t(extract(vaas_4, list("Species", "Strain")))
 
 # The default distance method is based on correlations, which makes not much
-# sense for the usual application of PM data, at least not for vaas_4. Several
+# sense for the usual application of PM data, at least not for vaas_4. (It could
+# be preferable to Euclidean distances if the overall reaction levels were
+# different between organisms because of experimental artifacts.) Several
 # other distance measures could be applicable, however, as well as clustering
 # algorithms other than the default average-linkage clustering.
 #
 x.pvc <- pvclust(x, method.dist = "euclidean")
 
 # The two kinds of support values are visible on the branches. We see that
-# E. coli is well differentiated from P. aeruginosa.
+# E. coli is comparatively well differentiated from P. aeruginosa, but only
+# if standard bootstrapping is considered. Calling pvclust::pvrect highlights
+# clusters with high support.
 #
 pdf("vaas_clustering_with_pvalues.pdf")
 plot(x.pvc, hang = -1)
+pvrect(x.pvc, pv = "bp") # for real analyses, omit 'pv = "bp"'
 dev.off()
 
