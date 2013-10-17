@@ -33,7 +33,7 @@ xDB <- as(x, "OPMD_DB")
 
 chan <- odbcConnect("test_opm;TextAsLongVarchar=1;MaxLongVarcharSize=8190")
 
-# 'rownames = FALSE' is crucial, otherwise seqfault.
+# 'rownames = FALSE' is crucial, otherwise segfault.
 #
 by(xDB, TRUE, sqlSave, channel = chan, append = TRUE, test = FALSE,
   rownames = FALSE, verbose = FALSE, fast = TRUE)
@@ -46,8 +46,8 @@ assertError(by(xDB, TRUE, sqlSave, channel = chan, append = TRUE, test = FALSE,
 # Receiving data again, using the known IDs.
 #
 y <- new("OPMD_DB")
-y <- collect(y, xDB@plates[, "id"], sqlQuery, channel = chan,
-  stringsAsFactors = FALSE)
+y <- by(y, xDB@plates[, "id"], sqlQuery, channel = chan,
+  stringsAsFactors = FALSE, do_inline = TRUE)
 
 ## TODO: add drop example
 
