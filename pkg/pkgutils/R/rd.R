@@ -22,7 +22,13 @@ repair_docu.character <- function(x, ignore = NULL, drop.internal = FALSE,
   invisible(sapply(x, do_repair, simplify = drop.internal))
 }
 
-repair_docu.Rd <- function(x, remove.dups = FALSE, ...) {
+repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
+    infile = attr(attr(x, "srcref"), "srcfile")$filename, ...) {
+  dup_str <- function(...) {
+    x <- paste0(..., collapse = " ")
+    m <- gregexpr("\\b(\\w+)(?:\\s+\\1\\b)+", x, FALSE, TRUE)
+    unlist(regmatches(x, m), FALSE, FALSE)
+  }
   cum_parts <- function(x) {
     x <- strsplit(x, ".", fixed = TRUE)
     x <- x[vapply(x, length, 0L) > 0L]
@@ -53,7 +59,12 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, ...) {
           `\\seealso` = if (removed) {
             x <- NULL
             removed <<- FALSE
-          }
+          },
+          if (text.dups && length(x))
+            if (length(dup <- dup_str(x))) {
+              dup <- listing(dup, style = I("'%s'"), collapse = ", ")
+              problem(paste("duplicated words:", dup), infile)
+            }
         )
         x
       },
@@ -87,7 +98,7 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, ...) {
     attributes(y) <- attributes(x)
     y
   }
-  LL(remove.dups)
+  LL(remove.dups, text.dups)
   repair_recursively(x, ".toplevel")
 }
 

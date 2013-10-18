@@ -1348,7 +1348,9 @@ case $RUNNING_MODE in
 	then in the \$PATH, then in the R installation directory. For an initial setup
 	of the build process it is usually necessary to install the pkgutils package
 	obtained from R-Forge manually via, e.g., R CMD INSTALL, and then to assure
-	that the installed 'docu.R' script is found.
+	that the installed 'docu.R' script is found. The same holds for updates in
+	this build script that refer to novel command-line options of the 'docu.R'
+	script.
 
 ____EOF
     exit 1
@@ -1452,7 +1454,8 @@ delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --no-internal --modify --preprocess --S4methods --junk "$delete_pat" \
-  --good well-map.R,substrate-info.R,plate-map.R "$PKG_DIR"
+  --mark-duplicates --good well-map.R,substrate-info.R,plate-map.R \
+  "$PKG_DIR"
 
 
 OUT_DIR=${PKG_DIR%_in}

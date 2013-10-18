@@ -16,7 +16,10 @@
   \method{repair_docu}{character} (x, ignore = NULL,
     drop.internal = FALSE, ...)
 
-  \method{repair_docu}{Rd} (x, remove.dups = FALSE, ...)
+  \method{repair_docu}{Rd} (x, remove.dups = FALSE,
+    text.dups = FALSE,
+    infile = attr(attr(x, "srcref"), "srcfile")$filename,
+    ...)
 
   check_keywords(x, ...)
 
@@ -55,10 +58,15 @@
   (probably) duplicate links in the \sQuote{seealso}
   section shall be removed.}
 
+  \item{text.dups}{Logical scalar indicating whether
+  duplicate words within text content should be noted.}
+
   \item{file}{Optional character scalar indicating the
   filename from which the \sQuote{Rd} object was read.
   Useful when creating messages describing a problem. See
   \code{\link{logfile}}.}
+
+  \item{infile}{Used like the \code{file} argument.}
 
   \item{full}{Logical scalar indicating whether the full
   content of the \sQuote{KEYWORDS.db} file should be
@@ -131,7 +139,7 @@
 }
 \examples{
 # 'Rd' objects
-summary(x <- repair_docu(xyplot.docu))
+summary(x <- repair_docu(xyplot.docu, remove.dups = TRUE, text.dups = TRUE))
 stopifnot(identical(x, xyplot.docu)) # nothing to repair here
 (x <- check_keywords(xyplot.docu))
 stopifnot(identical(x, "hplot"))

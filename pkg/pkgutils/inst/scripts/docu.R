@@ -179,7 +179,9 @@ option.parser <- OptionParser(option_list = list(
     help = paste("Potentially modify R sources when style checking",
     "[default: %default]")),
 
-  # M
+  make_option(c("-M", "--mark-duplicates"), action = "store_true",
+    help = "Mark duplicate words in Rd text [default: %default]",
+    default = FALSE),
 
   make_option(c("-n", "--nosudo"), action = "store_true", default = FALSE,
     help = "In conjunction with -i, do not use sudo [default: %default]"),
@@ -393,7 +395,7 @@ for (i in seq_along(package.dirs)) {
 
   message("Repairing documentation for", msg)
   skip <- repair_docu(out.dir, remove.dups = !opt$quick,
-    drop.internal = opt$`no-internal`)
+    drop.internal = opt$`no-internal`, text.dups = opt$`mark-duplicates`)
   if (is.logical(skip) && any(skip))
     skip <- paste0("--skip=", paste0(names(skip)[skip], collapse = ","))
   else
