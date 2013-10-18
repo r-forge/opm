@@ -422,7 +422,7 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
  \centering
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.k12.ko}}
+                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.k12.ko}}
                 \caption{Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the KEGG Galactose pathway.}
                 \label{fig:1a-pathview-native-sep-strains}
         \end{subfigure}
@@ -430,7 +430,7 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
         \vspace{20pt}
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.type.ko}}
+                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.type.ko}}
                 \caption{Respiratory data (mean maximum height) of \textit{Escherichia coli} type strain DSM 30083\textsuperscript{T} mapped on the KEGG Galactose pathway.}
                 \label{fig:1b-pathview-native-sep-strains}
         \end{subfigure}
@@ -470,7 +470,7 @@ e.coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
  \centering
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}}
+                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}}
                 \caption{Respiratory data (mean maximum height, discretized) of \textit{Escherichia coli} strain K12 mapped on the KEGG Galactose pathway.}
                 \label{fig:pathview-cat-sep-strains-1a}
         \end{subfigure}
@@ -478,7 +478,7 @@ e.coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
         \vspace{20pt}
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.type.ko.bin}}
+                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.type.ko.bin}}
                 \caption{Respiratory data (mean maximum height, discretized) of \textit{Escherichia coli} type strain DSM 30083\textsuperscript{T} mapped on the KEGG Galactose pathway.}
                 \label{fig:pathview-cat-sep-strains-1b}
         \end{subfigure}
@@ -566,12 +566,13 @@ colicomp <- opm_mcp(e.coli.sub[, , e.subs.pos],
 old.mar <- par(mar = c(3, 8, 3, 2))
 par(mar = c(3, 20, 3, 2)) # adapt plotting settings
 plot(colicomp, xlim = c(-10, 300))
+abline(v = 150, col = "blue", lty = 5, lwd = 2)
 par(old.mar) # reset plotting settings
 @
 }
 \caption{
 \label{fig:e_coli_comp_ci}
-Point estimates and 95\% confidence intervals for the differences of means between the two \textit{E. coli} strains for the subset of substrates represented in the Galactose pathway map.
+Point estimates and 95\% confidence intervals for the differences of means between the two \textit{E. coli} strains for the subset of substrates represented in the Galactose pathway map. The blue dashed line determines an choosen minimal effect size for analysis later on. 
 }
 \end{figure}
 \end{center}
@@ -613,7 +614,7 @@ Remember the use of the \code{lmap} argument.
 cat.coli.comp.0 <- opm_path(
   cpd.data = annotated(colicomp, output = "upwards", lmap = 1:3), 
   species = "ko", out.suffix = "cat-coli-comp-0", pathway.id = "00052",
-  limit = list(gene = 2, cpd = 2), bins = list(gene = 0.5, cpd = 3))
+  limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
 # 'upwards' comparison, 150 units as minimum effect size
 cat.coli.comp.150 <- opm_path(
   cpd.data = annotated(colicomp, output = "'150", lmap = 1:3), 
@@ -625,7 +626,7 @@ cat.coli.comp.150 <- opm_path(
  \centering
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-0}}
+                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-0}}
                 \caption{Using the default minimum effect size of 0.}
                 \label{fig:pathview-native-sig-differences-1a}
         \end{subfigure}
@@ -633,7 +634,7 @@ cat.coli.comp.150 <- opm_path(
         \vspace{20pt}
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=14cm,type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-150}}
+                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-150}}
                 \caption{Using a minimum effect size of 150.}
                 \label{fig:pathview-native-sig-differences-1b}
         \end{subfigure}
@@ -645,8 +646,6 @@ For the direct mapping of the numeric differences see Figure~\ref{fig:pathview-n
 Compare also Figure~\ref{fig:e_coli_comp_ci}, which directly depicts the significance of the differences.
         }
 \end{figure}
-
-%TODO is this printable? The bottom margin might be too low. Same questions holds for all previous pictures with two pathway maps.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -662,9 +661,6 @@ As return value, the function always generates a list containing two data frames
 The data frame ``plot.data.gene'' contains the data for mapping the genes and, analogously, ``plot.data.cpd'' stores the compound-related data.
 In the examples detailed above, a variety of such objects have already been generated, e.g.,
 
-<<label=pathview-wrapper-outob>>=
-str(e.coli.map.k12)
-@
 
 Next, we show how to produce graphics from these objects.
 \rcsmark{TODO}
@@ -700,6 +696,30 @@ Such results can be used as a starting point when searching for a causal explana
 They can also be used to simply determine the pathways to be used when drawing the \pkg{opm} results in a graph, as detailed in the previous sections.
 \rcsmark{TODO}
 
+<<label=pathview-wrapper-outob>>=
+anno.k12.mat <- annotated(e.coli.k12, how = "value")
+anno.type.mat <- annotated(e.coli.type, how = "value")
+
+# make a dataframe 
+df.12 <- data.frame(anno.k12.mat)
+df.12$strain <- gl(1, 96, labels = "k12")
+str(df.12)
+colnames(df.12)
+
+df.type <- data.frame(anno.type.mat)
+df.type$strain <- gl(1, 96, labels = "type")
+str(df.type)
+colnames(df.type)
+
+df.coli <- rbind(df.12, df.type)
+str(df.coli)
+cdf.coli <- na.omit(df.coli)
+
+library(randomForest)
+coli.rf <- randomForest(Value ~ ., data = cdf.coli, importance=TRUE,
+                        proximity=TRUE)
+varImpPlot(coli.rf)
+@
 % TODO LATER ask Barry for the measurements from the autism paper for using them as coding example
 
 \section[Acknowledgements]{Acknowledgements}
