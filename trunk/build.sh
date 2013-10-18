@@ -59,7 +59,8 @@ set -eu
 
 
 # Find the script with the name given as first argument either in the variable
-# $PATH or within the 'opm' subdirectory of the R installation directory.
+# $PATH or within the subdirectory (given as second argument) of the R
+# installation directory.
 #
 find_R_script()
 {
@@ -71,7 +72,7 @@ find_R_script()
   local r_dir=`R RHOME`
   local subdir
   for subdir in library site-library; do
-    result=$r_dir/$subdir/opm/scripts/$1
+    result=$r_dir/$subdir/$2/scripts/$1
     if [ -s "$result" ]; then
       echo "$result"
       return 0
@@ -93,7 +94,7 @@ find_docu_script()
   if [ "${DOCU_R_SCRIPT:-}" ]; then
     echo "$DOCU_R_SCRIPT"
   else
-    find_R_script docu.R
+    find_R_script docu.R pkgutils
   fi
 }
 
@@ -661,7 +662,7 @@ ____EOF
     ;;
   esac
 
-  [ "$run_opm" ] || run_opm=`find_R_script run_opm.R || :`
+  [ "$run_opm" ] || run_opm=`find_R_script run_opm.R opm || :`
   if [ -s "$run_opm" ]; then
     echo "Using script '$run_opm' (`stat -c %y "$run_opm"`)..." >&2
     echo "NOTE: Make sure this is the opm version you want to test!" >&2
@@ -1091,9 +1092,9 @@ remove_R_session_files()
 ################################################################################
 
 
-# Run the R code in the files delivered with opm as examples.
+# Run the R code in the files delivered with opm as demos.
 #
-test_external_examples()
+test_demos()
 {
   local wdir=`pwd`
   local tmpdir=`mktemp -d --tmpdir`
@@ -1107,7 +1108,7 @@ test_external_examples()
   done
   local rscript
   local errs=0
-  for rscript in "$wdir"/"$1"/inst/examples/*.R; do
+  for rscript in "$wdir"/"$1"/demo/*.R; do
     [ -s "$rscript" ] || continue
     echo "TESTING ${rscript##*/}..."
     if R CMD BATCH "$rscript"; then
@@ -1263,8 +1264,8 @@ case $RUNNING_MODE in
     RUNNING_MODE=${RUNNING_MODE#b}
     CHECK_R_TESTS=
   ;;
-  codex )
-    test_external_examples opm_in
+  demo )
+    test_demos opm_in
     exit $?
   ;;
   dfull|dnorm )
@@ -1305,7 +1306,7 @@ case $RUNNING_MODE in
 	Possible values for 'mode':
 	  ascii   Show lines that contain forbidden characters (such as non-ASCII).
 	  bnorm   Normal build of the opmDB package.
-	  codex   Test the external code examples that come with opm.
+	  demo    Test the demo code that comes with opm.
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
 	  docu    Show the 'docu.R' script to use if it can be found, then exit.
@@ -1374,7 +1375,7 @@ ____EOF
   ;;
   sql )
     set -- "$@" -- `find opmDB_in -iname '*.sql' -exec ls \{\} +`
-    test_sql "$@" && test_external_examples opmDB_in
+    test_sql "$@" && test_demos opmDB_in
     exit $?
   ;;
   tags )

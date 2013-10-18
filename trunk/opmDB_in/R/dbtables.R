@@ -22,7 +22,7 @@
 #' contain duplicates. Columns with foreign keys must be named like
 #' \code{paste0(x, "_id")} and then refer to the column \sQuote{id} in a
 #' preceding slot named \code{paste0(x, "s")}. Irregular plurals are not
-#' currently understood. The two columns must be setequal.
+#' currently understood. The two columns must be set-equal.
 #'
 #' For using another naming scheme for the keys, at least on of the methods
 #' \code{\link{pkeys}} and \code{\link{fkeys}} has to be overwritten in a child
@@ -125,15 +125,18 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   is \code{FALSE}, it should accept a data frame (the table) and a character
 #'   scalar (name of that table) as the first two (unnamed) arguments.
 #'
-#'   If \code{do_inline} is \code{TRUE}, if \code{simplify} is \code{FALSE},
+#'   If \code{do_inline} is \code{TRUE} and \code{simplify} is \code{FALSE},
 #'   \code{FUN} should accept three first arguments (in addition to those in
 #'   \code{...}, if any), in order: the name of a table (database table or data
 #'   frame), the name of a column in that table, and a vector of numeric indexes
 #'   to match that column. It should return a data frame with all matched rows.
-#'   If \code{simplify} is \code{TRUE}, \code{FUN} should accept a character
-#'   scalar (\acronym{SQL} statement) as single first argument in addition to
-#'   those in \code{...}, and use this to retreieve columns from a database
-#'   table.
+#'
+#'   If \code{do_inline} is \code{TRUE} and \code{simplify} is \code{TRUE},
+#'   \code{FUN} should accept a character scalar (\acronym{SQL} statement) as
+#'   single first argument in addition to those in \code{...}, and use this to
+#'   retrieve columns from a database table. The generated \acronym{SQL} uses
+#'   double-quoting for the table and column identifiers and single-quoting for
+#'   the query values (starting with \code{INDICES}) unless they are numeric.
 #' @param ... Objects of the same class as \code{x} for \code{c}, optional
 #'   further arguments of \code{FUN} for \code{by}.
 #' @param do_map Optional vector for mapping the slot names in \code{data}
@@ -256,8 +259,8 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   do_map = c(experiments = "A", results = "B"))) # with renaming
 #' stopifnot(z == c("A", "B")) # new names passed as 2nd argument to FUN
 #'
-#' # to illustrate collect(), we use a function that simply yields the already
-#' # present slots
+#' # to illustrate by() in inline mode, we use a function that simply yields
+#' # the already present slots
 #' col_fun <- function(items, tbl, col, idx) {
 #'   tmp <- slot(items, tbl)
 #'   tmp[tmp[, col] %in% idx, , drop = FALSE]
@@ -547,9 +550,19 @@ setMethod("split", c("DBTABLES", "ANY", "logical"), function(x, f, drop) {
 #'
 setGeneric("by")
 
+setMethod("by", c("DBTABLES", "ANY", "character"), function(data, INDICES,
+    FUN, ..., do_map = NULL, do_inline = FALSE, simplify = TRUE) {
+  by(data, INDICES, match.fun(FUN), ..., do_map = do_map,
+    do_inline = do_inline, simplify = simplify)
+}, sealed = SEALED)
+
 setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
     FUN, ..., do_map = NULL, do_inline = FALSE, simplify = TRUE) {
-  dq <- function(x) sprintf('"%s"', gsub('"', '""', x, FALSE, TRUE, TRUE))
+  dq <- function(x) sprintf('"%s"', gsub('"', '""', x, FALSE, FALSE, TRUE))
+  sq <- function(x) if (is.numeric(x))
+    x
+  else
+    sprintf("'%s'", gsub("'", "''", x, FALSE, FALSE, TRUE))
   map_items <- function(x, mapping) {
     if (!length(names(mapping)))
       return(x)
@@ -561,7 +574,7 @@ setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
     get_fun <- if (simplify)
         function(.TBL, .COL, .IDX, ...) FUN(
           sprintf("SELECT * FROM %s WHERE %s;", dq(.TBL),
-          paste(dq(.COL), .IDX, sep = " = ", collapse = " OR ")), ...)
+          paste(dq(.COL), sq(.IDX), sep = " = ", collapse = " OR ")), ...)
       else
         FUN
     pk <- pkeys(data)

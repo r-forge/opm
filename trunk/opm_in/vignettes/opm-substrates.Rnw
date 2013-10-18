@@ -54,7 +54,6 @@
 
 % authors, first page
 \author{Lea A.I. Vaas\\Leibniz Institute DSMZ \And
-        Johannes Sikorski\\Leibniz Institute DSMZ  \And
         Markus G\"{o}ker\\Leibniz Institute DSMZ}
 
 
@@ -63,7 +62,7 @@
 
 
 % authors, header on every 2nd page
-\Plainauthor{L.A.I. Vaas, J. Sikorski, M. G\"{o}ker}
+\Plainauthor{L.A.I. Vaas, M. G\"{o}ker}
 
 
 % main title, first page
@@ -572,7 +571,9 @@ par(old.mar) # reset plotting settings
 }
 \caption{
 \label{fig:e_coli_comp_ci}
-Point estimates and 95\% confidence intervals for the differences of means between the two \textit{E. coli} strains for the subset of substrates represented in the Galactose pathway map. The blue dashed line determines an choosen minimal effect size for analysis later on. 
+Point estimates and 95\% confidence intervals for the differences of means between the two \textit{E. coli} strains for the subset of substrates represented in the Galactose pathway map.
+The blue dashed line indicates a minimal effect size of 150 as used in Figure~\ref{fig:pathview-native-sig-differences-1b}.
+The default is 0, as used in Figure~\ref{fig:pathview-native-sig-differences-1a}.
 }
 \end{figure}
 \end{center}
@@ -648,18 +649,18 @@ Compare also Figure~\ref{fig:e_coli_comp_ci}, which directly depicts the signifi
 \end{figure}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% END FROZEN PART
-%% DO NOT MODIFY ANYTHING ABOVE THIS LINE WITHOUT NEGOTIATING WITH MG
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 \subsubsection{Visualisation of pathway maps in de-novo layout}\label{pathview-denovo-layout}
 
 In addition to the native KEGG visualization, \code{pathview} can use a \textit{de-novo} visualisation approach.
 As return value, the function always generates a list containing two data frames.
 The data frame ``plot.data.gene'' contains the data for mapping the genes and, analogously, ``plot.data.cpd'' stores the compound-related data.
 In the examples detailed above, a variety of such objects have already been generated, e.g.,
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% END FROZEN PART
+%% DO NOT MODIFY ANYTHING ABOVE THIS LINE WITHOUT NEGOTIATING WITH MG
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 Next, we show how to produce graphics from these objects.
@@ -696,23 +697,23 @@ Such results can be used as a starting point when searching for a causal explana
 They can also be used to simply determine the pathways to be used when drawing the \pkg{opm} results in a graph, as detailed in the previous sections.
 \rcsmark{TODO}
 
-<<label=pathview-wrapper-outob, fig=TRUE>>=
+In the next example, we use the \pkg{randomForest} package \citep{Liaw2002} for determining the substrate features that best predict the differences between the two \textit{E. coli} strains and depict these features within a ``Variable Importance Plot''.
 
-
-# results from mcp
-anno.colicomp <- annotated(colicomp, how = "value")
-
-# make a dataframe 
-anno.comp.df <- data.frame(anno.colicomp)
-str(anno.comp.df)
-# randomForest
-library(randomForest)
-# build model
-colicomp.rf <- randomForest(Value ~ ., data = anno.comp.df, importance=TRUE,
-                        proximity=TRUE)
-# plot of important variables
-varImpPlot(colicomp.rf)
+<<label=randomforest-figure, fig=TRUE>>=
+anno.colicomp <- as.data.frame(annotated(colicomp, how = "value"))
+suppressPackageStartupMessages(library("randomForest"))
+colicomp.rf <- randomForest(Value ~ ., data = anno.colicomp,
+ importance = TRUE, proximity = TRUE)
+varImpPlot(colicomp.rf, main = NULL)
 @
+
+%TODO separate figure from shown code, as for all other figures
+
+The output can be interpreted a follows. \rcsmark{TODO}
+
+%TODO Carbohydrates (and their subcategories) are nicely shown here, but isn't his just due to the preselection of substrates?
+% How time consuming is it to analyse all substrates of that plate?
+
 % TODO LATER ask Barry for the measurements from the autism paper for using them as coding example
 
 \section[Acknowledgements]{Acknowledgements}

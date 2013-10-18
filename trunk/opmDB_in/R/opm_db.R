@@ -39,8 +39,9 @@
 #'   be created using \code{new}, yielding empty objects. These cannot neither
 #'   be converted to \acronym{OPMX} objects nor combined with them using
 #'   \code{\link{c}}. Instead, they are useful in conjunction with
-#'   \code{\link{collect}}. They contain all \code{\link{fkeys}} information and
-#'   can be filled using a suitable \code{FUN} argument.
+#'   \code{\link{by}} with \code{do_inline} set to \code{TRUE}. They contain all
+#'   \code{\link{fkeys}} information and can be filled using a suitable
+#'   \code{FUN} argument.
 #'
 #' @docType class
 #' @export
@@ -72,7 +73,7 @@
 #' ## one can create new objects without data
 #' (y <- new("OPMD_DB"))
 #' stopifnot(fkeys_valid(y), fkeys(y) == fkeys(x), !length(y))
-#' # such objects cannot be converted to OPMX but can be filled using collect()
+#' # such objects cannot be converted to OPMX but can be filled using by()
 #'
 setClass("OPM_DB",
   contains = "DBTABLES",

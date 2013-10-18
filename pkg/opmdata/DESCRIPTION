@@ -1,6 +1,6 @@
 Package: opmdata
-Version: 0.5.3
-Date: 2013-10-17
+Version: 0.6.0
+Date: 2013-10-18
 Title: Example data for analyzing OmniLog(R) Phenotype Microarray data
 Author: Markus Goeker, with contributions by Lea A.I. Vaas and Johannes
     Sikorski

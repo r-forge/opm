@@ -79,8 +79,9 @@
 #'   \strong{7}, e34846.
 #' @references \url{http://www.yaml.org/}
 #' @keywords package
+#' @examples
+#' demo(package = "opm")
+#' # additional package installs are needed for some of the demos
 #'
 NULL
-
-
 
