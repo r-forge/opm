@@ -19,8 +19,10 @@
 #'       found here.}
 #'     \item{doc}{The vignette (documentation) in several formats, including
 #'       the extracted \R code.}
-#'     \item{examples}{Example \R code using the \pkg{opm} package that neither
-#'       fitted into these help pages nor into the vignette.}
+#'     \item{demo}{Example \R code using the \pkg{opm} package that neither
+#'       fitted into these help pages nor into the vignette. Can directly be
+#'       loaded via \code{demo(package = "opm")}}.
+#'     \item{examples}{\strong{Deprecated} synonym of \sQuote{demo}.}
 #'     \item{scripts}{\R script files for non-interactive uses of the
 #'       \pkg{opm} package, particularly for the batch processing of many files.
 #'       When called without input arguments or with the \sQuote{-h} switch, the
@@ -63,7 +65,7 @@
 #'   used for testing before doing some serious plotting.
 #'
 #' @family naming-functions
-#' @seealso pkgutils::pkg_files
+#' @seealso pkgutils::pkg_files utils::demo
 #'   grDevices::colors grDevices::rainbow grDevices::grey
 #' @keywords utilities color
 #' @references \url{http://www.colorbrewer.org}
@@ -73,7 +75,7 @@
 #' stopifnot(!isRfile(x))
 #' (x <- opm_files("doc"))
 #' stopifnot(!all(isRfile(x)), any(isRfile(x)))
-#' (x <- opm_files("examples"))
+#' (x <- opm_files("demo"))
 #' stopifnot(isRfile(x))
 #' (x <- opm_files("scripts"))
 #' stopifnot(isRfile(x))
@@ -98,8 +100,13 @@
 #' stopifnot(is.character(x), length(x) > 0L, identical(x, rev(y)))
 #'
 opm_files <- function(
-    what = c("scripts", "testdata", "auxiliary", "examples", "doc")) {
-  pkg_files(x = opm_string(), what = match.arg(what))
+    what = c("scripts", "testdata", "auxiliary", "demo", "examples", "doc")) {
+  what <- match.arg(what)
+  if (what == "examples") {
+    warning("'examples' is deprecated, use 'demo'")
+    what <- "demo"
+  }
+  pkg_files(x = opm_string(), what)
 }
 
 #' @rdname opm_files
