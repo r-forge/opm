@@ -1039,7 +1039,7 @@ show_example_results()
     echo "No function names given, returning now." >&2
     return 1
   fi
-  find . -name '*-Ex.Rout' -exec awk -v query="$*" '
+  find . -name '*-Ex.Rout' -type f -exec awk -v query="$*" '
       BEGIN {
         nq = split(query, field)
         for (i = 1; i <= nq; i++)
@@ -1084,7 +1084,7 @@ remove_R_session_files()
 {
   local pattern
   for pattern in .RData .Rhistory "*.Rout"; do
-    find . -name "$pattern" -delete
+    find . -type f -name "$pattern" -delete
   done
 }
 
@@ -1241,6 +1241,33 @@ ____EOF
 ################################################################################
 
 
+# Crop PDF given files and reduce their size with qpdf. Input files are
+# modified. When using Ubuntu, pdfcrop is available in the texlive-extra-utils
+# package; qpdf is directly available as package.
+#
+reduce_pdf_size()
+{
+  if [ $# -eq 0 ]; then
+    echo "No file names given, returning now." >&2
+    return 1
+  fi
+  local infile
+  local tmpfile=`mktemp --tmpdir`
+  for infile; do
+    if pdfcrop "$infile" "$tmpfile" > /dev/null && qpdf "$tmpfile" "$infile"
+    then
+      rm -f "$tmpfile"
+    else
+      rm -f "$tmpfile"
+      return 1
+    fi
+  done
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -1316,6 +1343,7 @@ case $RUNNING_MODE in
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  norm    [DEFAULT] Normal build of the opm package.
+	  pdf     Reduce size of PDF files either in ./graphics or given as arguments.
 	  pfull   Full build of the pkgutils package.
 	  pnorm   Normal build of the pkgutils package.
 	  rnw     Run R CMD Stangle on all *.Rnw files found.
@@ -1356,6 +1384,11 @@ case $RUNNING_MODE in
 ____EOF
     exit 1
   ;;
+  pdf )
+    [ $# -eq 0 ] && set -- `find graphics -type f -iname '*.pdf'`
+    reduce_pdf_size "$@"
+    exit $?
+  ;;
   pfull|pnorm )
     PKG_DIR=pkgutils_in
     RUNNING_MODE=${RUNNING_MODE#p}
@@ -1374,7 +1407,7 @@ ____EOF
     exit $?
   ;;
   sql )
-    set -- "$@" -- `find opmDB_in -iname '*.sql' -exec ls \{\} +`
+    set -- "$@" -- `find opmDB_in -type f -iname '*.sql' -exec ls \{\} +`
     test_sql "$@" && test_demos opmDB_in
     exit $?
   ;;
