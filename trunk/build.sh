@@ -1455,7 +1455,7 @@ delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --no-internal --modify --preprocess --S4methods --junk "$delete_pat" \
-  --mark-duplicates --good well-map.R,substrate-info.R,plate-map.R \
+  --mark-duplicates --good 00Index,well-map.R,substrate-info.R,plate-map.R \
   "$PKG_DIR"
 
 
