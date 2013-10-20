@@ -14,11 +14,17 @@
 #' originating from subsequent runs of the same experimental plate. Adjust the
 #' times accordingly.
 #'
-#' @param x \code{\link{OPMS}} object.
+#' @param x \code{\link{OPMX}} object.
 #' @param y Numeric vector indicating the time(s) (in hours) between two
 #'   subsequent plates. Must be positive throughout, and its length should fit
 #'   to the number of plates (e.g., either \code{1} or \code{length(x) - 1}
 #'   would work). If missing, \code{0.25} is used.
+#'
+#'   If \code{x} is an \code{\link{OPM}} object, a missing or numeric \code{y}
+#'   argument causes \code{merge} to just return \code{x} because there is
+#'   nothing to merge. But \code{y} can be an \code{\link{OPM}} object in that
+#'   case, which, if compatible, will be merge with \code{x}.
+#'
 #' @param sort.first Logical scalar. Sort the plates according to their setup
 #'   times before merging?
 #' @param parse Logical scalar. Ignored unless \code{sort.first} is \code{TRUE}.
@@ -54,10 +60,33 @@
 #' @family conversion-functions
 #' @keywords manip
 #' @examples
+#'
+#' ## OPM methods
+#' stopifnot(identical(merge(vaas_1, 0.5), vaas_1)) # nothing to merge
+#' summary(x <- merge(vaas_1, vaas_1)) # biologically unreasonable!
+#' stopifnot(is(x, "OPM"), dim(x) == c(2 * hours(vaas_1, "size"), 96))
+#'
+#' ## OPMS methods
 #' summary(x <- merge(vaas_4)) # biologically unreasonable for these data!
 #' stopifnot(is(x, "OPM"), dim(x) == c(sum(hours(vaas_4, "size")), 96))
 #'
 setGeneric("merge")
+
+setMethod("merge", c(OPM, "missing"), function(x, y, sort.first = TRUE,
+    parse = TRUE) {
+  x
+}, sealed = SEALED)
+
+setMethod("merge", c(OPM, "numeric"), function(x, y, sort.first = TRUE,
+    parse = TRUE) {
+  x
+}, sealed = SEALED)
+
+setMethod("merge", c(OPM, OPM), function(x, y, sort.first = TRUE,
+    parse = TRUE) {
+  x <- new(OPMS, plates = list(x, y))
+  merge(x = x, y = 0.25, sort.first = sort.first, parse = parse)
+}, sealed = SEALED)
 
 setMethod("merge", c(OPMS, "numeric"), function(x, y, sort.first = TRUE,
     parse = TRUE) {
@@ -79,7 +108,7 @@ setMethod("merge", c(OPMS, "numeric"), function(x, y, sort.first = TRUE,
     metadata = metadata(x[1L]))
 }, sealed = SEALED)
 
-setMethod("merge", c(OPMS, "missing"), function(x, sort.first = TRUE,
+setMethod("merge", c(OPMS, "missing"), function(x, y, sort.first = TRUE,
     parse = TRUE) {
   merge(x, 0.25, sort.first = sort.first, parse = parse)
 }, sealed = SEALED)

@@ -9,7 +9,10 @@
 
 #' The opm package
 #'
-#' Package for analysing OmniLog Phenotype MicroArray data.
+#' Package for analysing OmniLog\eqn{\textsuperscript{\textregistered}}{(R)}
+#' Phenotype MicroArray data. In addition to this manual, tutorials (vignettes)
+#' are available together with the package, as well as code examples accessible
+#' via \code{demo}.
 #'
 #' @name opm.package
 #' @docType package
@@ -49,7 +52,8 @@
 #'   one of the newer versions of \pkg{yaml} (>= v2.1.5). These are based on
 #'   libyaml as parser instead of Syck, are faster and contain some bug fixes.
 #'   The \acronym{YAML}-related functions of \pkg{opm} are \code{\link{to_yaml}}
-#'   and \code{\link{batch_opm}}.}
+#'   and \code{\link{batch_opm}}. Optionally, \acronym{JSON} code can be output,
+#'   which uses a subset of the \acronym{YAML} format.}
 #'
 #'   \item{running time}{Computations on such high-dimensional data may take
 #'   some time. The limiting steps are aggregating (curve-parameter estimation)
@@ -66,6 +70,7 @@
 #'   details. The other customized plotting functions of the package are
 #'   contained in the same method family.}
 #' }
+#'
 #' @references \url{http://www.biolog.com/}
 #' @references Bochner, B. R., Gadzinski, P., Panomitros, E. 2001 Phenotype
 #'   MicroArrays for high throughput phenotypic testing and assay of gene
@@ -78,10 +83,20 @@
 #'   efficient exploration of Phenotype Microarray kinetics. \emph{PLoS ONE}
 #'   \strong{7}, e34846.
 #' @references \url{http://www.yaml.org/}
+#' @references \url{http://www.json.org/}
 #' @keywords package
 #' @examples
+#' \dontrun{ ## demo of some I/O, plotting, text and table generation options
+#'
+#'   # Beforehand, set 'my.csv.dir' to the name of a directory that contains
+#'   # CSV files with input data (and no other kinds of CSV files) either
+#'   # directly or within its subdirectories.
+#'   setwd(my.csv.dir)
+#'   demo("multiple-plate-types", package = "opm")
+#' }
+#'
 #' demo(package = "opm")
-#' # additional package installs are needed for some of the demos
+#' # the other demos require additional libraries to be installed
 #'
 NULL
 
