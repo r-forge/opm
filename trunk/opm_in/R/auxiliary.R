@@ -1775,11 +1775,13 @@ setMethod("map_names", c("ANY", "missing"), function(object) {
 #
 
 
-#' Repair NAs
+#' Repair NAs or names with dots
 #'
 #' Replace \sQuote{NA} by \code{NA_character_}. When reading \acronym{YAML}
 #' input previously output by \R, \sQuote{NA} values cause numeric vectors to be
-#' interpreted as character. This function fixes this problem.
+#' interpreted as character; \code{repair_na_strings} fixes this problem. In
+#' contrast, \code{rescue_dots} replaces underscores by dots. Used for objects
+#' passed through \code{\link{to_yaml}}. Not fail-safe.
 #'
 #' @param object Character vector or list.
 #' @param type Character scalar denoting the type to which input character
@@ -1818,6 +1820,14 @@ repair_na_strings.list <- function(object,
       x
     }, warning = function(w) x)
   rapply(object, mapfun, "character", NULL, "replace")
+}
+
+#' @rdname repair_na_strings
+#'
+rescue_dots <- function(x) {
+  if (is.character(x) && any(bad <- grepl("^_[^_]*_", x, FALSE, TRUE)))
+    x[bad] <- chartr("_", ".", substr(x[bad], 2L, nchar(x[bad])))
+  x
 }
 
 

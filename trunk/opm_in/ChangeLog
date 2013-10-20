@@ -46,12 +46,13 @@
   specifying the 'base' for the 'Dunnett' contrast type is also easier now;
   the returned objects in 'mcp' mode are of class 'opm_ghlt', which inherits
   from 'glht'; novel explicit 'alternative' and 'rhs' arguments
+- to_yaml() gets a 'nodots' argument
 - opm_opt() gets 'max.chars', 'machine.id' and 'input.try.order' entries
 - 'run_opm.R' gets additional command-line options '-l', '-y' and '-v'
 
 - streamlined the documentation (merged many entries) in the manual
 - substrate-information processing is now explained in a 2nd vignette
-- new examples in the example-code directory
+- new examples in the example-code directory (now available via demo())
 
 
 ################################################################################

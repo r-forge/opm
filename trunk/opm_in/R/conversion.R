@@ -1285,6 +1285,12 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
 #'   its non-list elements should be converted to lists if they have names.
 #'   (Names of named vector are \strong{not} conserved by default in output
 #'   \acronym{YAML}).
+#' @param nodots Logical scalar indicating whether dots in list names should be
+#'   converted to underscores. This is necessary in some situations (we met this
+#'   problem when storing \acronym{JSON} documents in a document-oriented
+#'   database). Converted names will additionally be marked by prepending an
+#'   underscore, which assists in getting the original spelling back but is
+#'   anything else than fail-safe.
 #' @param ... Optional other arguments passed to \code{as.yaml} from the
 #'   \pkg{yaml} package.
 #' @export
@@ -1319,15 +1325,22 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
 setGeneric("to_yaml", function(object, ...) standardGeneric("to_yaml"))
 
 setMethod("to_yaml", YAML_VIA_LIST, function(object, sep = TRUE,
-    line.sep = "\n", json = FALSE, listify = FALSE, ...) {
+    line.sep = "\n", json = FALSE, listify = nodots, nodots = FALSE, ...) {
+  replace_dots <- function(x) {
+    if (any(bad <- grepl(".", x, FALSE, FALSE, TRUE)))
+      x[bad] <- paste0("_", chartr(".", "_", x[bad]))
+    x
+  }
   to_map <- function(items) if (is.null(names(items)))
     items
   else
     as.list(items)
-  LL(sep, line.sep, json, listify)
+  LL(sep, line.sep, json, listify, nodots)
   object <- as(object, "list")
   if (listify)
     object <- rapply(object, to_map, "ANY", NULL, "replace")
+  if (nodots)
+    object <- map_names(object, replace_dots)
   if (json) {
     result <- toJSON(object, "C")
   } else {
