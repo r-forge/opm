@@ -195,6 +195,7 @@ The interested user would nevertheless find them in Section~\ref{scientific intr
 All web resources regarding \pkg{opm} are linked on its main website \url{http://opm.dsmz.de/}.
 
 Note that details on how substrate information can be processed by \pkg{opm} are found in a separate vignette, ``Working with substrate information in \pkg{opm}'', which is also available together with the package.
+Finally, do not overlook that there is an \pkg{opm} manual that describes all functions and arguments in much greater detail than possible in any if the vignettes.
 
 
 \subsection[Scientific introduction]{Scientific introduction}\label{scientific introduction}
@@ -329,13 +330,14 @@ Example code, including the export of discretization results as  publication-rea
 Textual reports with or without formatting markup can also be produced, as exemplified in Section~\ref{application discrete-text}.
 The discretization settings can be modified in detail; see Section~\ref{application discrete-finetuning}.
 
-Furthermore, substrate information can be accessed, including CAS numbers, KEGG and Metacyc IDs as far as they are available.
+Furthermore, substrate information can be accessed, including CAS numbers, KEGG and Metacyc IDs as far as available (IDs for the ChEBI database are complete wherever applicable.) 
 Detailed explanations and code examples are included in the vignette ``Working with substrate information in \pkg{opm}''.
 
 Finally, it is possible to modify settings that have an effect on multiple functions and/or on frequently used arguments. 
 See Section~\ref{methods settings} for details and Section~\ref{application discrete-table} for a code example.
 
 After a successful installation of \pkg{opm}, the complete \proglang{R} code extracted from this vignette (as well as all other vignette files) can be found \textit{via} \code{opm\_files("doc")}.
+For the manual, see \code{help(package = "opm")}; for the code demonstrations that come with \pkg{opm}, enter \code{demo(package = "opm")}.
 
 
 \subsection[Data import]{Data import}\label{methods import}

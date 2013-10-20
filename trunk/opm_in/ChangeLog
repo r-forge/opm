@@ -21,6 +21,7 @@
 - well() gets a 'use.names' argument
 - find_positions() gets a 'type' argument
 - explicit length() method for OPM objects
+- new merge() methods for OPM objects
 - csv_data() gets 'what' and 'normalize' arguments
 - collect_template() gets 'normalize' and 'instrument' arguments
 - aggr_settings() and disc_settings() get a 'join' argument
