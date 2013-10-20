@@ -501,6 +501,8 @@ setMethod("metadata<-", c(OPMS, "ANY", "ANY"), function(object, key, value) {
 #'   \code{\link{map_values}}. If the left side of the formula is missing, the
 #'   entire metadata are replaced by the result, which is an error if the result
 #'   is not a list.
+#'   \item If \code{mapping} is missing, the behaviour is special; see the next
+#'   two arguments.
 #' }
 #' @param values Mostly a logical scalar. \itemize{
 #'   \item For the function and character-vector methods, if \code{FALSE},
@@ -736,9 +738,9 @@ setMethod("map_metadata", c(WMD, "missing"), function(object, mapping,
     values = TRUE, classes = "factor") {
   if (L(values))
     object@metadata <- rapply(object@metadata, function(x) if (all(is.na(x)))
-      NULL
-    else
-      x, "ANY", NULL, "replace")
+        NULL
+      else
+        x, "ANY", NULL, "replace")
   object@metadata <- map_values(object@metadata, NULL, classes)
   object
 }, sealed = SEALED)
