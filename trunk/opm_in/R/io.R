@@ -876,18 +876,20 @@ read_single_opm <- function(filename) {
 #'   object. The \code{\link{OPM}} and \code{\link{OPMS}} methods just collect a
 #'   data frame from their input object.
 #'
-#'   If a character vector is provided, it acts like the \code{names}
-#'   argument of \code{\link{read_opm}}. That is, if it is a directory name,
-#'   this is automatically scanned for all \acronym{CSV} and \acronym{YAML}
-#'   files it contains (unless restrictions with patterns are made). One can
-#'   also provide file names, or a mixture of file and directory names.
-#'   Regarding the supported input file formats, see
+#'   If a character vector is provided to \code{\link{collect_template}}, it
+#'   acts like the \code{names} argument of \code{\link{read_opm}}. That is, if
+#'   it is a directory name, this is automatically scanned for all \acronym{CSV}
+#'   and \acronym{YAML} files it contains (unless restrictions with patterns are
+#'   made). One can also provide file names, or a mixture of file and directory
+#'   names. Regarding the supported input file formats, see
 #'   \code{\link{read_single_opm}}.
 #'
-#'   \code{to_metadata} needs the name of an input file (character scalar), or
-#'   any object convertible to a data frame. Might also be \code{\link{WMD}} or
-#'   \code{\link{OPMS}} object.
-#'
+#'   \code{to_metadata} needs the name of an input file (unnamed character
+#'   scalar), or any object convertible to a data frame. Might also be
+#'   \code{\link{WMD}} or \code{\link{OPMS}} object. If a named character vector
+#'   with more than a single element, it is used as the first row of the
+#'   resulting data frame. This behaviour is mainly intended for using this
+#'   function after a call to the \code{\link{OPM}} method of \code{csv_data}.
 #' @param outfile Character scalar. Ignored if \code{NULL} or empty string.
 #'   Otherwise, interpreted as the name of a \acronym{CSV} output file. If
 #'   metadata have already been collected in an older file with the same name,
@@ -896,7 +898,8 @@ read_single_opm <- function(filename) {
 #'   version can use two distinct names for novel and old files; see
 #'   \code{previous}.
 #' @param sep Character scalar. \acronym{CSV} field separator for
-#'   \code{outfile} and for the input files of \code{to_metadata}.
+#'   \code{outfile} and for the input files of \code{to_metadata} (which ignores
+#'   the argument unless \code{object} is interpreted as input file).
 #' @param previous Ignored if \code{NULL}. Otherwise passed to
 #'   \code{\link{to_metadata}}. If it is a filename different from
 #'   \code{outfile}, it is an error if the file does not exist.
@@ -922,7 +925,9 @@ read_single_opm <- function(filename) {
 #' @param stringsAsFactors Logical scalar passed to \code{as.data.frame}.
 #' @param optional Logical scalar passed to \code{as.data.frame} or used after
 #'   negation as \sQuote{check.names} argument of \code{read.delim}.
-#' @param strip.white Logical scalar passed to \code{read.delim}.
+#' @param strip.white Logical scalar passed to \code{read.delim}. It is often
+#'   advisable to set this to \code{FALSE} if \acronym{CSV} input is done for
+#'   a later call to \code{collect_template}.
 #'
 #' @export
 #' @return
@@ -1111,25 +1116,30 @@ setGeneric("to_metadata",
 
 setMethod("to_metadata", "character", function(object, sep = "\t",
     strip.white = TRUE, stringsAsFactors = FALSE, optional = TRUE, ...) {
+  if (length(object) > 1L && !is.null(names(object))) {
+    x <- matrix(object, 1L, length(object), FALSE, list(NULL, names(object)))
+    return(to_metadata(object = x, sep = sep, strip.white = strip.white,
+      stringsAsFactors = stringsAsFactors, optional = optional, ...))
+  }
   read.delim(file = L(object), sep = sep, check.names = !optional,
     strip.white = strip.white, stringsAsFactors = stringsAsFactors, ...)
 }, sealed = SEALED)
 
-setMethod("to_metadata", "ANY", function(object, stringsAsFactors = FALSE,
-    optional = TRUE, ...) {
+setMethod("to_metadata", "ANY", function(object, sep = "\t",
+    strip.white = FALSE, stringsAsFactors = FALSE, optional = TRUE, ...) {
   as.data.frame(x = object, stringsAsFactors = stringsAsFactors,
     optional = optional, ...)
 }, sealed = SEALED)
 
-setMethod("to_metadata", WMD, function(object, stringsAsFactors = FALSE,
-    optional = TRUE, ...) {
+setMethod("to_metadata", WMD, function(object, sep = "\t",
+    strip.white = FALSE, stringsAsFactors = FALSE, optional = TRUE, ...) {
   collect(x = list(object@metadata), what = "values",
     optional = optional, stringsAsFactors = stringsAsFactors,
     dataframe = TRUE, keep.unnamed = NA, ...)
 }, sealed = SEALED)
 
-setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
-    optional = TRUE, ...) {
+setMethod("to_metadata", OPMS, function(object, sep = "\t",
+    strip.white = FALSE, stringsAsFactors = FALSE, optional = TRUE, ...) {
   collect(x = metadata(object), what = "values",
     optional = optional, stringsAsFactors = stringsAsFactors,
     dataframe = TRUE, keep.unnamed = NA, ...)
@@ -1385,7 +1395,7 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
     if (length(disc.args)) {
       if (force.aggr || !has_disc(data)) {
         if (verbose)
-          message("conversion: discretizing data")
+          message("conversion: discretizing data...")
         data <- do.call(do_disc, c(list(data), disc.args))
       } else if (verbose)
         message("conversion: previously discretized data present, ",
