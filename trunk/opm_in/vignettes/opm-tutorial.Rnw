@@ -674,7 +674,7 @@ The same holds for (non-syntactical) names starting with an underscore and follo
 % Think carefully before modifying anything here.
 %% here code-chunks are determined to fixed size
 <<label=chunk-setup, echo=FALSE>>=
-options(width=90)
+options(width = 90)
 options(prompt = "R> ")
 options(continue = "   ")
 options(useFancyQuotes = FALSE)
@@ -1260,7 +1260,7 @@ To extract also the full or partial set of metadata, it is sufficient to add a l
 
 <<label=extract-complex, results=hide>>=
 vaas.mu <- extract(vaas_et_al, dataframe = TRUE,
-  as.labels = list("Experiment","Number of sample time point",
+  as.labels = list("Experiment", "Number of sample time point",
     "Plate number", "Slot", "Species", "Strain", "Time point in min"),
   subset = "mu")
 @
@@ -1457,7 +1457,9 @@ ci_plot.legend <- ci_plot(vaas.1.6[, , c("A01", "A02", "A03")],
 \begin{figure}
 \scalebox{1.225}{
 <<label=ci-plot-figure, fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
-ci_plot(vaas.1.6[, , c("A01", "A02", "A03")], as.labels = list("Species", "Strain"), subset = "A", legend.field = NULL, x = 170, y = 3)
+ci_plot(vaas.1.6[, , c("A01", "A02", "A03")],
+  as.labels = list("Species", "Strain"), subset = "A",
+  legend.field = NULL, x = 170, y = 3)
 @
 }
 \caption{
@@ -1495,7 +1497,7 @@ ci_plot(extract(x, as.groups = TRUE,  norm.per = "none")[, c(1:7, 13)],
 \begin{figure}
 \scalebox{1.225}{
 <<label=ci-plot-of-groups-figure, fig=TRUE, echo=FALSE, width=9, height=8>>=
-ci_plot(extract(x, as.groups = TRUE,  norm.per = "none")[, c(1:7, 13)],
+ci_plot(extract(x, as.groups = TRUE, norm.per = "none")[, c(1:7, 13)],
   legend.field = NULL, x = 350, y = 0)
 @
 }
@@ -1517,9 +1519,9 @@ Division instead of subtraction is also possible (\code{subtract = FALSE}).
 The following code would first normalize with the plate means, then with the well means:
 
 <<label=ci-plot-normalisation, eval=FALSE>>=
-ci_plot(extract(x, as.groups = TRUE,  norm.per = "row")[, c(1:7, 13)],
+ci_plot(extract(x, as.groups = TRUE, norm.per = "row")[, c(1:7, 13)],
   legend.field = NULL, x = 150, y = 0)
-ci_plot(extract(x, as.groups = TRUE,  norm.per = "column")[, c(1:7, 13)],
+ci_plot(extract(x, as.groups = TRUE, norm.per = "column")[, c(1:7, 13)],
   legend.field = NULL, x = 150, y = 0)
 @
 
@@ -1538,7 +1540,7 @@ ci_plot(extract(x, as.groups = TRUE,  norm.per = "row",
 \begin{figure}
 \scalebox{1.225}{
 <<label=ci-plot-norm-well-A10-figure, fig=TRUE, echo=FALSE, width=9, height=8>>=
-ci_plot(extract(x, as.groups = TRUE,  norm.per = "row",
+ci_plot(extract(x, as.groups = TRUE, norm.per = "row",
   norm.by = 10, subtract = TRUE)[, c(1:7, 13)],
   legend.field = NULL, x = 0, y = 0)
 @
@@ -1770,7 +1772,7 @@ The use of explicitly setting \code{linfct = c(Pairs.Well = 1)} ensures that for
 The result of this analysis is shown below.
 
 <<label=mcp-linfct-pairs-runanalysis>>=
-y <- opm_mcp(vaas_4[, ,c( 1:3, 86)], model = ~ J(Well, Species), 
+y <- opm_mcp(vaas_4[, , c(1:3, 86)], model = ~ J(Well, Species), 
   m.type = "aov", linfct = c(Pairs.Well = 1), full = FALSE)
 @
 
