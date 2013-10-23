@@ -452,7 +452,7 @@ setMethod("minmax", OPMS, function(x, ..., na.rm = FALSE) {
 #' @param x \code{\link{OPMX}} object.
 #' @param ... \code{\link{OPMS}} objects. Several ones can be provided, but all
 #'   but the first one are ignored. For reasons of comparability, the
-#'   \code{\link{OPM}} methodof \code{seq} deliberately results in an error.
+#'   \code{\link{OPM}} method of \code{seq} deliberately results in an error.
 #' @return For the \code{\link{OPM}} method of \code{dim}, a two-element numeric
 #'   vector (number of time points and number of wells). For the
 #'   \code{\link{OPMS}} method, a numeric vector with (i) the number of
@@ -766,7 +766,7 @@ setMethod("has_disc", OPM, function(object) {
 #'   appropriate. \describe{
 #'   \item{no}{No modification.}
 #'   \item{full}{Negative
-#'   lamdda estimates are set to zero.}
+#'   lambda estimates are set to zero.}
 #'   \item{medium}{Lambda estimates larger than \code{\link{hours}(object)}
 #'   (i.e., the maximum time value observed) are set to that value. Negative
 #'   lambda estimates smaller than \code{-hours(object)} are set to this value
@@ -1009,9 +1009,9 @@ setMethod("disc_settings", OPMS, function(object, join = NULL) {
 #'
 #' Select a subset of the plates in an \code{\link{OPMS}} object based on the
 #' content of the metadata. Alternatively, select a common subset of time points
-#' from all plates. \code{thin_out} keeps only each n-th time point from
-#' \code{\link{OPM}} measurements. This is a mainly experimental function that
-#' might be of use in testing.
+#' from all plates. \code{thin_out} keeps only a regular subset of the time
+#' points from \code{\link{OPM}} measurements. This is a mainly experimental
+#' function that might be of use in testing.
 #'
 #' @param x \code{\link{OPMS}} object.
 #' @param query Logical or numeric vector or object accepted as query by the
@@ -1063,7 +1063,7 @@ setMethod("disc_settings", OPMS, function(object, join = NULL) {
 #'   \code{exact}.
 #'
 #' @param object \code{\link{OPMX}} object.
-#' @param factor Numeric scalar >= 1 indicating how much the dataset shall be
+#' @param factor Numeric scalar >= 1 indicating how much the data set shall be
 #'   thinned out.
 #' @param drop Logical scalar. See \code{\link{[}}.
 #' @param ... Optional arguments passed between the methods.
@@ -1409,7 +1409,7 @@ lapply(c(
 #~ @family getter-functions
 #' @keywords attribute
 #'
-#' @details The behaviour of these methods depends on the object used as query.
+#' @details The behavior of these methods depends on the object used as query.
 #'   \code{infix.largek} is usually stricter than \code{infix.k}, sometimes
 #'   equivalent.
 #' \itemize{
@@ -1447,7 +1447,7 @@ lapply(c(
 #'
 #' @examples
 #'
-#' # The dataset contains the metadata keys 'Species' and 'Experiment' but
+#' # The data set contains the metadata keys 'Species' and 'Experiment' but
 #' # neither 'Trial' nor 'Organism' nor 'Run':
 #' # In the following we use stopifnot(), which fails unless all arguments
 #' # passed are TRUE.
@@ -1603,7 +1603,7 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #' @return Logical vector of the length of the \code{\link{WMD}} or
 #'   \code{\link{OPMS}} object.
 #'
-#' @details The behaviour of these methods depends on the object used as query.
+#' @details The behavior of these methods depends on the object used as query.
 #'   \code{infix.largeq} is usually stricter than \code{infix.q}, sometimes
 #'   equivalent.
 #' \itemize{
@@ -1652,7 +1652,7 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #'
 #' @examples
 #'
-#' # The dataset vaas_1 contains the metadata keys 'Species' and 'Experiment'
+#' # The data set vaas_1 contains the metadata keys 'Species' and 'Experiment'
 #' # with the values 'Escherichia coli' and 'First replicate'.
 #'
 #' ## Character methods

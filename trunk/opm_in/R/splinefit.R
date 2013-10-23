@@ -132,12 +132,12 @@ fit_spline <- function (y, x = "Hour", data, options = set_spline_options(),
 #' @param correlation An optional \code{"corStruct"} object (see
 #'   \code{\link{corClasses}}) as used to define correlation structures in
 #'   package \pkg{nlme}. For better coverage of confidence intervals and
-#'   slightly improved spline fits it is adviced to use an AR process of order 1
+#'   slightly improved spline fits it is advised to use an AR process of order 1
 #'   or 2. However, this correction for auto-correlated error terms results in
 #'   increased run time.
 #' @param save.models Should the models be saved (on the disk) for further
 #'   inspections and plotting?
-#' @param filename Filename of the models. Per default a name is auto-generated
+#' @param filename File name of the models. Per default a name is auto-generated
 #'   based on date and time. The file is always generated in the current working
 #'   directory.
 #' @param ... Additional arguments to be passed to \code{\link[mgcv]{gam}} or
@@ -220,7 +220,7 @@ predict.smooth.spline_model <- function(object, newdata = NULL, ...) {
 #' @param confint Logical. Should the (point-wise) confidence interval
 #'   be plotted?
 #' @param level Level of confidence interval.
-#' @param col Color of observed data. Per default a semi-transparent grey
+#' @param col Color of observed data. Per default a semi-transparent gray
 #'   value is used. For details see \code{\link{par}} (Section Color
 #'   Specification).
 #' @param pch Plotting character used for observed data points.

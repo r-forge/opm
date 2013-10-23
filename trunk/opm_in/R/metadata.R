@@ -218,7 +218,7 @@ setMethod("metadata<-", c(WMD, "missing", OPMS), function(object, key, value) {
 }, sealed = SEALED)
 
 #-------------------------------------------------------------------------------
-# the data-frame behaviour deliberately deviates from other key values
+# the data-frame behavior deliberately deviates from other key values
 
 #' @name metadata.set
 #'
@@ -478,7 +478,7 @@ setMethod("metadata<-", c(OPMS, "ANY", "ANY"), function(object, key, value) {
 #'
 #' @param name Like \code{object}, but for the \code{edit} method.
 #'
-#' @param md Dataframe containing keys as column names, or name of file from
+#' @param md Data frame containing keys as column names, or name of file from
 #'   which to read the data frame. Handled by \code{\link{to_metadata}}.
 #' @param keys Character vector.
 #' @param replace Logical scalar indicating whether the previous metadata, if
@@ -501,7 +501,7 @@ setMethod("metadata<-", c(OPMS, "ANY", "ANY"), function(object, key, value) {
 #'   \code{\link{map_values}}. If the left side of the formula is missing, the
 #'   entire metadata are replaced by the result, which is an error if the result
 #'   is not a list.
-#'   \item If \code{mapping} is missing, the behaviour is special; see the next
+#'   \item If \code{mapping} is missing, the behavior is special; see the next
 #'   two arguments.
 #' }
 #' @param values Mostly a logical scalar. \itemize{

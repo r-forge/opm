@@ -9,7 +9,7 @@
 
 #' The opm package
 #'
-#' Package for analysing OmniLog\eqn{\textsuperscript{\textregistered}}{(R)}
+#' Package for analyzing OmniLog\eqn{\textsuperscript{\textregistered}}{(R)}
 #' Phenotype MicroArray data. In addition to this manual, tutorials (vignettes)
 #' are available together with the package, as well as code examples accessible
 #' via \code{demo}.
@@ -66,7 +66,7 @@
 #'
 #'   \item{advanced plotting}{The \pkg{gplots} package is also not required for
 #'   the installation of \pkg{opm} but can be used to draw more advanced
-#'   heatmaps. See \code{\link{heat_map}} and its accompanying methods for
+#'   heat maps. See \code{\link{heat_map}} and its accompanying methods for
 #'   details. The other customized plotting functions of the package are
 #'   contained in the same method family.}
 #' }

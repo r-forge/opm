@@ -20,7 +20,7 @@
 #' @param model A model formula, or a character vector or a list containing the
 #'   names of factors to be included in the model for fitting.
 #'   In order to join two or more metadata-variables into one factor use
-#'   pseudofunction \code{J} (described in \code{\link{extract}}). This is
+#'   pseudo-function \code{J} (described in \code{\link{extract}}). This is
 #'   necessary especially when \code{linfct = Pairs}, see the examples below.
 #'   For model specifications using formulas in general, see \code{formula} (in
 #'   the \pkg{stats} package).
@@ -125,8 +125,8 @@
 #'
 #' @param ... Optional arguments passed to \code{\link{extract}}. Most of them
 #'   would be passed to \code{\link{wells}} for creating substrate names. Some
-#'   restrictions are necessary here if the resuling object shall latter on be
-#'   analysed with \code{\link{annotated}}; see there for details.
+#'   restrictions are necessary here if the resulting object shall latter on be
+#'   analyzed with \code{\link{annotated}}; see there for details.
 #'
 #' @return The kind of object returned by this function are determined by the
 #'   \code{output} argument: \describe{
@@ -593,7 +593,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'   names to IDs. The methods differ only in the way numeric and logical values
 #'   are generated.
 #'
-#'   The \code{\link{OPMA}} methods simply choses a certain parameter. The
+#'   The \code{\link{OPMA}} methods simply chooses a certain parameter. The
 #'   \code{\link{OPMD}} method can also return discretized values and optionally
 #'   translates them using \code{lmap}.
 #'
