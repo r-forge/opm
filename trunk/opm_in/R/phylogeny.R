@@ -19,8 +19,8 @@
 #'   for data of mode \sQuote{logical}, mapping \code{FALSE}, \code{NA} and
 #'   \code{TRUE}, in this order. Data of this kind are by default internally
 #'   converted to an according integer vector.
-#' @param multiple.sep Character scalar used for joining multi-state characters
-#'   together.
+#' @param multiple.sep Character scalar used for joining multiple-state
+#'   characters together.
 #' @param organisms.start Character scalar prepended to the organism part of the
 #'   table legend. Ignored if empty.
 #' @param states.start Character scalar prepended to the character-states part
@@ -41,7 +41,7 @@
 #'   It is no error if the file does not exist, but the page will then probably
 #'   not be displayed as intended.
 #'
-#'   Under Windows it is recommended to convert a filename \code{f} beforehand
+#'   Under Windows it is recommended to convert a file name \code{f} beforehand
 #'   using \code{normalizePath(f, winslash = "/")}.
 #' @param ... Optional other arguments available for inserting user-defined
 #'   \acronym{HTML} content. Currently the following ones (in their order of
@@ -86,10 +86,10 @@
 #'
 #'   Label cleaning invokes either the replacement of disallowed characters or
 #'   the enclosing of all labels in single quotes and the doubling of
-#'   pre-existing single quotes, if any.
+#'   already existing single quotes, if any.
 #'
 #' @keywords character cluster IO
-#' @seealso base::normalizePath base::I base::gsu
+#' @seealso base::normalizePath base::I base::gsub
 #' @export
 #' @family phylogeny-functions
 #' @examples
@@ -596,7 +596,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   \sQuote{OPMS_Listing} objects can be applied to the results of
 #'   \code{\link{listing}}.
 #' @param format Character scalar determining the output format, either
-#'   \sQuote{epf} (Extended Phylip Format), \sQuote{nexus}, \sQuote{phylip},
+#'   \sQuote{epf} (Extended PHYLIP Format), \sQuote{nexus}, \sQuote{phylip},
 #'   \sQuote{hennig} or \sQuote{html}.
 #'
 #'   If \sQuote{nexus} or \sQuote{hennig} format are chosen, a non-empty
@@ -637,9 +637,10 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   \code{join} is \code{TRUE}), or directly according to \code{join}. This can
 #'   be used to deal with measurements repetitions for the same organism or
 #'   treatment.
-#' @param cutoff Numeric scalar. If joining results in multi-state characters,
-#'   they can be filtered by removing all entries with a relative frequency less
-#'   than \sQuote{cutoff}. Makes not much sense for non-integer numeric data.
+#' @param cutoff Numeric scalar. If joining results in multiple-state
+#'   characters, they can be filtered by removing all entries with a relative
+#'   frequency less than \sQuote{cutoff}. Makes not much sense for non-integer
+#'   numeric data.
 #' @param digits Numeric scalar. Used for rounding, and thus ignored unless
 #'   \code{object} is of mode \sQuote{numeric}.
 #' @param comments Character vector. Comments to be added to the output (as
@@ -656,7 +657,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   the Tidy program? Ignored unless \code{format} is \sQuote{html}. Otherwise,
 #'   if \code{TRUE}, it is an error if the Tidy executable is not found.
 #'
-#' @param as.labels Vector of data-frame indices or \sQuote{OPMS} metadata
+#' @param as.labels Vector of data-frame indexes or \sQuote{OPMS} metadata
 #'   entries. See \code{\link{extract}}.
 #' @param what Character scalar. See \code{\link{extract}}.
 #' @param sep Character scalar. See \code{\link{extract}}.
@@ -690,7 +691,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   optimized for data discretized with \code{gap} set to \code{TRUE}. For
 #'   other data, the \code{character.states} argument should be modified, see
 #'   \code{\link{html_args}}. The \sQuote{hennig} (Hennig86) format is the one
-#'   used by \acronym{TNT}; it allows continuous characters to be analysed as
+#'   used by \acronym{TNT}; it allows continuous characters to be analyzed as
 #'   such. Regarding the meaning of \sQuote{character} as used here, see the
 #'   \sQuote{Details} section of \code{\link{discrete}}.
 #'

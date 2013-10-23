@@ -308,9 +308,9 @@ pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
 #' @seealso grofit::grofit
 #' @keywords smooth
 #'
-#' @details Behaviour is special if the \code{\link{plate_type}} is one of those
+#' @details Behavior is special if the \code{\link{plate_type}} is one of those
 #'   that have to be explicitly set using \code{\link{gen_iii}} and there is
-#'   just one point measurement. Because this behaviour is usual for plates
+#'   just one point measurement. Because this behavior is usual for plates
 #'   measured either in Generation-III (identification) mode or on a
 #'   MicroStation\eqn{\textsuperscript{\texttrademark}}{(TM)}, the point
 #'   estimate is simply regarded as \sQuote{A} parameter (maximum height) and

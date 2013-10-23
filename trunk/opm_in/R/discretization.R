@@ -64,14 +64,14 @@
 #'   \code{output} is not \sQuote{character}. Otherwise, the possible values
 #'   are \itemize{
 #'   \item a single-element character vector, which is split into its elements;
-#'   \item a multi-element character vector which is used directly;
+#'   \item a multiple-element character vector which is used directly;
 #'   \item an integer vector indicating the elements to pick from the default
 #'   character states.
 #'   }
 #'   In the latter case, a single integer is interpreted as the upper bound of
 #'   an integer vector starting at 1.
 #'
-#' @param as.labels Vector of data-frame indices. See \code{\link{extract}}.
+#' @param as.labels Vector of data-frame indexes. See \code{\link{extract}}.
 #' @param sep Character scalar. See \code{\link{extract}}.
 #'
 #' @param y Factor or character vector indicating group affiliations. Its length
@@ -103,8 +103,8 @@
 #'   \code{FALSE}, either a list of matrices or a matrix. If \code{all} is
 #'   \code{TRUE}, a list of matrices structures like the single matrix returned
 #'   if \code{combined} is \code{TRUE}. If \code{all} is \code{FALSE}, a matrix
-#'   with two colums called \sQuote{maximum} \sQuote{objective}, and one row per
-#'   level of \code{y}.
+#'   with two columns called \sQuote{maximum} \sQuote{objective}, and one row
+#'   per level of \code{y}.
 #'
 #' @details One of the uses of \code{discrete} is to create character data
 #'   suitable for phylogenetic studies with programs such as \acronym{PAUP*} and
@@ -271,7 +271,7 @@ setMethod("discrete", "numeric", function(x, range, gap = FALSE,
       )
     structure(map[ints], cutoffs = range, names = names(x))
 
-  } else { # binary- to multi-state mode without a gap
+  } else { # binary- to multiple-state mode without a gap
 
     if (any(x > range[2L] | x < range[1L]))
       stop("if not in 'gap' mode, all values must be between ", range[1L],
@@ -545,7 +545,7 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' (y <- disc_settings(x)[[1]]) # stored discretization settings
 #' stopifnot(identical(y$method, "best-cutoff"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
-#' # no subgroups, all 4 datasets in one group, and some additional entries
+#' # no subgroups, all 4 data sets in one group, and some additional entries
 #'
 setGeneric("do_disc", function(object, ...) standardGeneric("do_disc"))
 

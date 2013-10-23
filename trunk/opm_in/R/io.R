@@ -15,7 +15,7 @@
 #' Read OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} data from a single
 #' file in one of the following formats: \itemize{
 #'   \item \acronym{CSV} file in new style (as of 2011).
-#'   \item Pseudo-\acronym{CSV} file in the old style (pre-2011).
+#'   \item Pseudo-\acronym{CSV} file in the old style (before 2011).
 #'   \item MicroStation\eqn{\textsuperscript{\texttrademark}}{(TM)}.
 #'   \item \acronym{YAML}.
 #'   \item \acronym{JSON}.
@@ -280,17 +280,18 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' Batch processing of files
 #'
 #' Batch-collect information from a series of input files or batch-convert data
-#' from infiles to data in outfiles. Alternatively, turn a mixed file/directory
-#' list into a list of files or create a regular expression matching certain
-#' file extensions, or convert a wildcard pattern to a regular expression. These
-#' functions are not normally directly called by an \pkg{opm} user but by the
-#' other IO functions of the package such as \code{\link{collect_template}} or
-#' \code{\link{batch_opm}}. One can use their \code{demo} argument directly for
-#' testing the results of the applied filename patterns.
+#' from input files to data in output files. Alternatively, turn a mixed
+#' file/directory list into a list of files or create a regular expression
+#' matching certain file extensions, or convert a wildcard pattern to a regular
+#' expression. These functions are not normally directly called by an \pkg{opm}
+#' user but by the other IO functions of the package such as
+#' \code{\link{collect_template}} or \code{\link{batch_opm}}. One can use their
+#' \code{demo} argument directly for testing the results of the applied file
+#' name patterns.
 #'
 #' @inheritParams process_io
 #'
-#' @param names Character vector containing filenames or directories, or
+#' @param names Character vector containing file names or directories, or
 #'   convertible to such.
 #'
 #' @param object Character vector or factor.
@@ -300,7 +301,7 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'   \code{NULL}, ignored. If a list, used as arguments of
 #'   \code{\link{file_pattern}} and its result used as regular expression. Note
 #'   that selection is done \strong{after} expanding the directory names to
-#'   filenames.
+#'   file names.
 #' @param exclude Like \code{include}, but for excluding matching input files.
 #'   Note that exclusion is done \strong{after} applying \code{include}.
 #'
@@ -323,7 +324,7 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'   that if requested this is done \strong{before} expanding the names of
 #'   directories, if any.
 #'
-#' @param fun Collecting function. Should use the filename as first argument.
+#' @param fun Collecting function. Should use the file name as first argument.
 #' @param fun.args Optional list of arguments to \code{fun} or \code{io.fun}.
 #' @param ... Optional further arguments passed to \code{\link{explode_dir}}.
 #' @param proc Integer scalar. The number of processes to spawn. Cannot be set
@@ -334,18 +335,18 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' @param use.names Logical scalar. Should \code{names} be used for naming the
 #'   elements of the result?
 #'
-#' @param out.ext Character scalar. The extension of the outfile names (without
-#'   the dot).
-#' @param outdir Character vector. Directories in which to place the outfiles.
-#'   If \code{NULL} or only containing empty strings, each infile's directory is
-#'   used.
+#' @param out.ext Character scalar. The extension of the output file names
+#'   (without the dot).
+#' @param outdir Character vector. Directories in which to place the output
+#'   files. If \code{NULL} or only containing empty strings, the directory of
+#'   each input file is used.
 #' @param in.ext Character scalar. Passed through \code{\link{file_pattern}},
 #'   then used for the replacement of old file extensions with new ones.
 #'
 #' @param type Character scalar indicating the file types to be matched by
 #'   extension. For historical reasons, \sQuote{both} means either \acronym{CSV}
 #'   or \acronym{YAML} \emph{or} \acronym{JSON}. \sQuote{yorj} means either
-#'   \acronym{YAML} or \acronym{JSON}. Alternaticely, directly the extension or
+#'   \acronym{YAML} or \acronym{JSON}. Alternatively, directly the extension or
 #'   extensions, or a list of file names (not \code{NA}).
 #' @param compressed Logical scalar. Shall compressed files also be matched?
 #'   This affects the returned pattern as well as the pattern used for
@@ -355,10 +356,10 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'   allows for vectors with more than a single element, as well as the
 #'   extraction of file extensions from file names.
 #' @param demo Logical scalar. In the case of \code{batch_process}, if
-#'   \code{TRUE} do not convert files, but print the attempted infile-outfile
-#'   conversions and invisibly return a matrix with infiles in the first and
-#'   outfiles in the second column? For the other functions, the effect is
-#'   equivalent.
+#'   \code{TRUE} do not convert files, but print the attempted input file-output
+#'   file conversions and invisibly return a matrix with input files in the
+#'   first and output files in the second column? For the other functions, the
+#'   effect is equivalent.
 #'
 #' @return
 #' \code{explode_dir} returns a character vector (which would be empty if all
@@ -409,10 +410,10 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'     \sQuote{aabc}, \sQuote{abbc}, \sQuote{bc} etc.}
 #' }
 #' Despite their simplicity, globbing patterns are often sufficient for
-#' selecting filenames.
+#' selecting file names.
 #'
 #' @export
-#' @seealso base::list.files base::Sys.glo utils::glob2rx base::regex
+#' @seealso base::list.files base::Sys.glob utils::glob2rx base::regex
 #' @family io-functions
 #' @keywords IO character
 #' @examples
@@ -435,7 +436,7 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' stopifnot(length(x) == 0L || length(x) > length(y))
 #'
 #' # batch_collect()
-#' # Read the first line from each of the OPM test dataset files
+#' # Read the first line from each of the OPM test data set files
 #' f <- opm_files("testdata")
 #' if (length(f) > 0) { # if the files are found
 #'   x <- batch_collect(f, fun = readLines, fun.args = list(n = 1L))
@@ -449,7 +450,7 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' # For serious tasks, consider to first try the function in 'demo' mode.
 #'
 #' # batch_process()
-#' # Read the first line from each of the OPM test dataset files and store it
+#' # Read the first line from each of the OPM test data set files and store it
 #' # in temporary files
 #' pf <- function(infile, outfile) write(readLines(infile, n = 1), outfile)
 #' infiles <- opm_files("testdata")
@@ -742,7 +743,7 @@ glob_to_regex.factor <- function(object) {
 #'   For instance, \code{opm_opt(input.try.order = 2:1} would change the order
 #'   in which OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} formats are
 #'   tried and deselect MicroStation\eqn{\textsuperscript{\texttrademark}}{(TM)}
-#'   files entirely. Negative indixes can be used, but non-negative values not
+#'   files entirely. Negative indexes can be used, but non-negative values not
 #'   within the range listed above will result in an error. If it known in
 #'   advance which formats are (not) to be expected, subsetting or just
 #'   changing the order can be used to accelerate data input.
@@ -888,7 +889,7 @@ read_single_opm <- function(filename) {
 #'   scalar), or any object convertible to a data frame. Might also be
 #'   \code{\link{WMD}} or \code{\link{OPMS}} object. If a named character vector
 #'   with more than a single element, it is used as the first row of the
-#'   resulting data frame. This behaviour is mainly intended for using this
+#'   resulting data frame. This behavior is mainly intended for using this
 #'   function after a call to the \code{\link{OPM}} method of \code{csv_data}.
 #' @param outfile Character scalar. Ignored if \code{NULL} or empty string.
 #'   Otherwise, interpreted as the name of a \acronym{CSV} output file. If
@@ -901,7 +902,7 @@ read_single_opm <- function(filename) {
 #'   \code{outfile} and for the input files of \code{to_metadata} (which ignores
 #'   the argument unless \code{object} is interpreted as input file).
 #' @param previous Ignored if \code{NULL}. Otherwise passed to
-#'   \code{\link{to_metadata}}. If it is a filename different from
+#'   \code{\link{to_metadata}}. If it is a file name different from
 #'   \code{outfile}, it is an error if the file does not exist.
 #' @param md.args List of other arguments passed to the \sQuote{to_metadata}
 #'   methods.
@@ -931,10 +932,10 @@ read_single_opm <- function(filename) {
 #'
 #' @export
 #' @return
-#'   \code{to_metadata} yields a data frame. Reagrding \code{collect_template},
+#'   \code{to_metadata} yields a data frame. Regarding \code{collect_template},
 #'   in the case of the character method, a data frame, returned invisibly
 #'   if \code{outfile} is given; if \code{demo} is \code{TRUE}, a character
-#'   vector of filenames instead, also returned invisibly. The \code{\link{OPM}}
+#'   vector of file names instead, returned invisibly. The \code{\link{OPM}}
 #'   method returns a data frame with one row and the number of columns equal to
 #'   the sum of the lengths of \code{selection} and \code{add.cols}. The
 #'   \code{\link{OPM}} method returns such a data frame with one row per
@@ -951,12 +952,12 @@ read_single_opm <- function(filename) {
 #'   modifying column names). The default method reads metadata from an object
 #'   convertible to a data frame and is only a thin wrapper of
 #'   \code{as.data.frame} but contains the same useful adaptations as the
-#'   filename method.
+#'   file-name method.
 #'
 #'   The \code{\link{WMD}} and \code{\link{OPMS}} methods create a data frame
 #'   from the contained metadata, where necessary converting nested metadata
 #'   entries to data-frame columns of mode \sQuote{list}. The number of rows
-#'   of the resuling data frame corresponds to the length of \code{object}, the
+#'   of the resulting data frame corresponds to the length of \code{object}, the
 #'   number of columns to the size of the set created from all valid names at
 #'   the top level of the metadata entries.
 #'
@@ -1210,8 +1211,8 @@ setMethod("to_metadata", OPMS, function(object, sep = "\t",
 #'   \item{json}{Create \acronym{JSON} files, by default one per input file.}
 #'   \item{levelplot}{Create graphics files, by default one per input file,
 #'     containing the output of \code{\link{level_plot}}.}
-#'   \item{split}{Split multi-plate new style or old style \acronym{CSV} files
-#'     with \code{\link{split_files}}.}
+#'   \item{split}{Split multiple-plate new style or old style \acronym{CSV}
+#'     files with \code{\link{split_files}}.}
 #'   \item{yaml}{Create \acronym{YAML} files, by default one per input file.}
 #'   \item{xyplot}{Create graphics files, by default one per input file,
 #'     containing the output of \code{\link{xy_plot}}.}
@@ -1288,7 +1289,7 @@ setMethod("to_metadata", OPMS, function(object, sep = "\t",
 #'   character encoding might cause \R to crash or hang. This problem was
 #'   observed with \acronym{CSV} files that were generated on a distinct
 #'   operating system and contained special characters such as German umlauts.
-#'   It is then necessary to explicitely (and correctly) specify the encoding
+#'   It is then necessary to explicitly (and correctly) specify the encoding
 #'   used in these files; see the \sQuote{file.encoding} option of
 #'   \code{\link{opm_opt}} for how to do this.
 #'
@@ -1467,7 +1468,7 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 
   LL(force.aggr, force.disc, gen.iii, device, overwrite)
 
-  # If a metadata filename is given, read it into data frame right now to
+  # If a metadata file name is given, read it into data frame right now to
   # avoid opening the file each time in the batch_process() loop
   if (length(md.args) && is.character(md.args$md)) {
     tmp <- md.args
@@ -1559,7 +1560,7 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 
 #' Manipulate files
 #'
-#' Split files or clean filenames.
+#' Split files or clean file names.
 #'
 #' @param files Character vector or convertible to such. Names of the files to
 #'   be split.
@@ -1595,36 +1596,36 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #' @param include Logical scalar. Also include the separator lines in the output
 #'   files?
 #'
-#' @param format Character scalar determining the outfile name format. It is
+#' @param format Character scalar determining the output file name format. It is
 #'   passed to \code{sprintf} and expects three placeholders: \itemize{
-#'   \item the basename of the file;
+#'   \item the base name of the file;
 #'   \item the index of the section;
 #'   \item the file extension.
 #'   }
-#'   Getting \code{format} wrong might result in non-unique filenames and thus
+#'   Getting \code{format} wrong might result in non-unique file names and thus
 #'   probably in overwritten files; accordingly, it should be used with care.
 #' @param compressed Logical scalar. Passed to \code{\link{file_pattern}}, but
-#'   here only affects the way filenames are split in extensions and basenames.
-#'   Should only be set to \code{FALSE} if input files are not compressed (and
-#'   have according file extensions).
+#'   here only affects the way file names are split in extensions and base
+#'   names. Should only be set to \code{FALSE} if input files are not compressed
+#'   (and have according file extensions).
 #'
 #' @param ... Optional arguments passed to \code{grepl}, which is used for
 #'   matching the separator lines. See also \code{invert} listed above.
 #'
 #' @param x Character vector or convertible to such. Names of the files to be
 #'   modified.
-#' @param overwrite Logical scalar. Overwrite pre-existing files, and do not
-#'   care for duplicate names created by cleaning the filenames?
-#' @param empty.tmpl Character scalar. The template to use for filenames that
+#' @param overwrite Logical scalar. Overwrite already existing files, and do not
+#'   care for duplicate names created by cleaning the file names?
+#' @param empty.tmpl Character scalar. The template to use for file names that
 #'   become empty after cleaning. Should include an integer placeholder to
-#'   enable incrementing an index for creating unique filenames. (Empty
-#'   filenames should occur rarely anyway.)
+#'   enable incrementing an index for creating unique file names. (Empty
+#'   file names should occur rarely anyway.)
 #'
 #' @export
 #' @return
 #'   \code{split_files} creates a list of character vectors, each vector
 #'   containing the names of the newly generated files. The names of the list
-#'   are the input filenames. The list is returned invisibly.
+#'   are the input file names. The list is returned invisibly.
 #'
 #'   \code{clean_filenames} yields a character vector, its names corresponding
 #'   to the renamed old files, values corresponding to the novel names, returned
@@ -1634,7 +1635,7 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #' \code{split_files} subdivides each file into sections which are written
 #' individually to newly generated files. Sections are determined with patterns
 #' that match the start of a section. This function is useful for splitting
-#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} multi-plate CSV files
+#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} multiple-plate CSV files
 #' before inputting them with \code{\link{read_opm}}. It is used by
 #' \code{\link{batch_opm}} for this purpose. See also the \sQuote{Examples}.
 #'
@@ -1669,7 +1670,7 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #' } else {
 #'   warning("opm example files not found")
 #' }
-#' ## One could split new-style CSV as follows (if x is a vector of filenames):
+#' ## One could split new-style CSV as follows (if x is a vector of file names):
 #' # split_files(x, pattern = '^"Data File",')
 #' ## note the correct setting of the quotes
 #' ## A pattern that covers both old and new-style CSV is:

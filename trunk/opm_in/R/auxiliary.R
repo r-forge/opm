@@ -80,11 +80,11 @@ get_and_remember <- function(x, prefix, default, getfun, single = FALSE, ...) {
 #'
 #' Pick rows from a data frame if selected columns are identical to keys.
 #'
-#' @param object Dataframe. At least two rows are needed.
+#' @param object Data frame. At least two rows are needed.
 #' @param selection Named list, keys should correspond to column names of
 #'   \code{object}, values to one to several alternative values that should
 #'   occur in the respective data-frame column.
-#' @return Dataframe.
+#' @return Data frame.
 #' @keywords internal
 #'
 setGeneric("pick_from", function(object, ...) standardGeneric("pick_from"))
@@ -627,7 +627,7 @@ setMethod("parse_time", c("character", "character"), function(object, format,
 #'   character vector is to be converted to a matrix or data frame. For
 #'   instance, file names created by a batch export conducted by a some software
 #'   are usually more or less regularly structured and contain content at
-#'   distinct possitions. In such situations, the correct splitting approach can
+#'   distinct positions. In such situations, the correct splitting approach can
 #'   be recognized by yielding the same number of fields from each vector
 #'   element.
 #' @return Character matrix, its number of rows being equal to the length of
@@ -1151,7 +1151,7 @@ prepare_class_names.character <- function(x) {
 #'   class \code{\link{MOA}}, comprising matrices and arrays.
 #'
 #'   When mapping names, \code{object} can be any \R object. The default method
-#'   applies the mapping to the \sQuote{names} attribute. The behaviour is
+#'   applies the mapping to the \sQuote{names} attribute. The behavior is
 #'   special for lists, which are traversed recursively to also consider
 #'   sublists with names. Data frames and \code{\link{MOA}} objects (that is,
 #'   including matrices and arrays) are also treated specially because the
@@ -1180,7 +1180,7 @@ prepare_class_names.character <- function(x) {
 #'   \item \code{mapping} can also be a formula, it is then used to compute on
 #'   lists. The see examples below.
 #'   \item If \code{mapping} is an expression, all sub-expressions will be
-#'   evualated in \code{object} represented as an environment, which after
+#'   evaluated in \code{object} represented as an environment, which after
 #'   conversion back to a list, is returned.
 #'   \item If \code{mapping} is \code{NULL} and \code{object} is a list, all
 #'   contained objects of zero length are removed recursively.
@@ -2038,7 +2038,7 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #' @param ... Optional arguments. If \code{x} is missing, these arguments are
 #'   concatenated into a list and used as if \code{x} was given as a list (see
 #'   above). That is, the argument names are used as the keys for setting
-#'   values. This is usally easier than working with a list.
+#'   values. This is usually easier than working with a list.
 #' @return List or atomic vector. If one to several values are set, the previous
 #'   entries are returned invisibly.
 #' @family auxiliary-functions
@@ -2047,7 +2047,7 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #'     \item{colors}{Default color set used by the \code{\link{OPMS}} method
 #'       of \code{\link{xy_plot}} and other plotting functions.}
 #'     \item{color.borders}{Character vector with default color borders between
-#'       which \code{\link{level_plot}} interpolates to obtain a colour
+#'       which \code{\link{level_plot}} interpolates to obtain a color
 #'       palette.}
 #'     \item{comb.key.join}{Used by functions that support combination of
 #'       metadata entries converted to data-frame columns immediately after
@@ -2085,7 +2085,7 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #'     \item{group.name}{Character scalar used as column name for trivial
 #'       groups (either all items in the same group or each item in a group of
 #'       its own) created by \code{\link{extract}}.}
-#'     \item{heatmap.colors}{Colour palette used by \code{\link{heat_map}}.}
+#'     \item{heatmap.colors}{Color palette used by \code{\link{heat_map}}.}
 #'     \item{html.attr}{Used by \code{\link{phylo_data}} for automatically
 #'       creating \acronym{HTML} \sQuote{title} and \sQuote{class} attributes.}
 #'     \item{input.try.order}{Integer vector indicating the preferred order when
