@@ -2,10 +2,10 @@
 \name{vaas_et_al}
 \alias{vaas_et_al}
 \title{Example data set from Vaas et al. (2012)}
-\format{\code{OPMS} object with the dimensions 114 x 384 x 96, i.e.
-  114 plates with 384 time points and 96 wells per plate. (10 plates have
-  364, 365, 368 or 371 time points, respectively; the remaining 74 plates
-  have 384 time points).}
+\format{\code{OPMS} object with the dimensions 114 x 384 x 96, i.e. 114
+  plates with 384 time points and 96 wells per plate. (10 plates have 364,
+  365, 368 or 371 time points, respectively; the remaining 74 plates have 384
+  time points).}
 \description{
   This \code{OPMS} object contains all measurements from
   the study by Vaas \emph{et al.} (2012). Metadata have
@@ -36,15 +36,16 @@ stopifnot(d == c(114, 384, 96), ha, hd)
   Klenk H.-P. 2012 Visualization and curve parameter
   estimation strategies for efficient exploration of
   Phenotype Microarray kinetics. \emph{PLoS ONE}
-  \strong{7}, e34846.
+  \strong{7}, e34846
+  (\url{http://dx.doi.org/10.1371/journal.pone.0034846}).
 
   Selezska, K., Kazmierczak, M., Muesken, M., Garbe, J.,
   Schobert, M., Haeussler, S., Wiehlmann, L., Rohde, C.,
   Sikorski, J. 2012 \emph{Pseudomonas aeruginosa}
   population structure revisited under environmental focus:
   impact of water quality and phage pressure.
-  \emph{Environmental Microbiology} \strong{14},
-  1952--1967.
+  \emph{Environmental Microbiology} \strong{14}, 1952--1967
+  (\url{http://dx.doi.org/10.1111/j.1462-2920.2012.02719.x}).
 
   \url{http://www.dsmz.de/catalogues/details/culture/DSM-1707.html}
 
