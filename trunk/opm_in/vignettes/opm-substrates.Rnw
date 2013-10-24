@@ -656,24 +656,37 @@ Compare also Figure~\ref{fig:e_coli_comp_ci}, which directly depicts the signifi
 In addition to the native KEGG visualization, \code{pathview} can use a \textit{de-novo} visualisation approach.
 As return value, the function always generates a list containing two data frames.
 The data frame ``plot.data.gene'' contains the data for mapping the genes and, analogously, ``plot.data.cpd'' stores the compound-related data.
-In the examples detailed above, a variety of such objects have already been generated, e.g.,
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% END FROZEN PART
 %% DO NOT MODIFY ANYTHING ABOVE THIS LINE WITHOUT NEGOTIATING WITH MG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+In the examples detailed above, a variety of such objects have already been generated, e.g., \code{e.coli.map.k12} or the \code{e.coli.map.types} (both described in Section~\ref{pathview-group} and visualized in Figure~\ref{fig:pathview-native-sep-strains} therein).
 
-Next, we show how to produce graphics from these objects.
+Next, we show how to produce graphics from these objects:
+
+<<label=pathview-plot-graphviz>>=
+e.coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
+ kegg.native = FALSE, out.suffix = "graphvizk12.ko", pathway.id = "00052",
+ sign.pos = "bottomleft", key.pos = "bottomright")
+@
+
+
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics[type=pdf,ext=.pdf,read=.pdf,page=1]{ko00052.graphvizk12.ko}
+}
+\caption{\label{fig:pathview-non-native}
+Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the KEGG Galactose pathway and rendered using graphviz layout engine.
+Compare also Figure~\ref{fig:1a-pathview-native-sep-strains}, which shows the native KEGG rendering of these data.
+}
+\end{figure}
+
 \rcsmark{TODO}
+Description of the poor options for tuning the font sizes or size of symbols in the graphic are needed, similarly, colour-arguments and the scaling need to be exoplained properly.
 
-% show the non-native KEGG-maps at the very end with listing the poor options for tuning the font sizes or size of symbols in the graphic
-% also the colouring is not similarly possible like in the native maps
-%TODO
-% explain the color-arguments and the scaling properly
-
-
+% this part goes into the paragraph, where it is described, that there is no fixed order of the different described analysis steps:
 % explain the different situation of available information for analysis
 % I. descriptive measurements:
 % 		i) nothing known or genome known, pathway unknown
@@ -701,7 +714,7 @@ They can also be used to simply determine the pathways to be used when drawing t
 
 In the next example, we use the \pkg{randomForest} package \citep{Liaw2002} for determining the substrate features that best predict the differences between the two \textit{E. coli} strains and depict these features within a ``Variable Importance Plot''.
 
-<<label=randomforest-figure, fig=TRUE>>=
+<<label=randomforest-figure, fig=FALSE, eval=FALSE>>=
 anno.colicomp <- as.data.frame(annotated(colicomp, how = "value"))
 suppressPackageStartupMessages(library("randomForest"))
 colicomp.rf <- randomForest(Value ~ ., data = anno.colicomp,
@@ -709,14 +722,36 @@ colicomp.rf <- randomForest(Value ~ ., data = anno.colicomp,
 varImpPlot(colicomp.rf, main = NULL)
 @
 
-%TODO separate figure from shown code, as for all other figures
+\begin{center}
+\begin{figure}
+\scalebox{1.1}{
+<<label=random-forest-plot, fig=TRUE, echo=FALSE, width=12>>=
+anno.colicomp <- as.data.frame(annotated(colicomp, how = "value"))
+suppressPackageStartupMessages(library("randomForest"))
+colicomp.rf <- randomForest(Value ~ ., data = anno.colicomp,
+  importance = TRUE, proximity = TRUE)
+varImpPlot(colicomp.rf, main = NULL)
+@
+}
+\caption{
+\label{fig:rf-plot}
+\rcsmark{TODO} Here some informative description of the variable-importancy-plot.
+}
+\end{figure}
+\end{center}
+
 
 The output can be interpreted a follows. \rcsmark{TODO}
 
 %TODO Carbohydrates (and their subcategories) are nicely shown here, but isn't his just due to the preselection of substrates?
 % How time consuming is it to analyze all substrates of that plate?
 
-% TODO LATER ask Barry for the measurements from the autism paper for using them as coding example
+
+%TODO
+% use package party for analysis of the data above
+% conduct analysis with randomForest and party using the A-values in dataframe (as it was done with the freese-data)
+% this would then be something like \subsection{finding substrates of importance}
+
 
 \section[Acknowledgments]{Acknowledgments}
 We are grateful to Barry Bochner (BIOLOG Inc.) for providing substrate and plate information on Phenotype MicroArray assays.
