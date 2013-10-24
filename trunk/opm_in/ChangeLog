@@ -17,6 +17,9 @@
   parameter; older YAML files will be converted (with a warning) by inserting
   opm_opt("curve.param")
 
+- fixed bug that caused Greek letters not be converted to HTML after using the
+  'downcase' conversion of substrate names
+
 - read_single_opm() and the methods that depend on it are faster now
 - well() gets a 'use.names' argument
 - find_positions() gets a 'type' argument
