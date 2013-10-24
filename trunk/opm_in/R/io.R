@@ -1115,8 +1115,8 @@ setMethod("collect_template", OPMS, function(object, ...) {
 setGeneric("to_metadata",
   function(object, ...) standardGeneric("to_metadata"))
 
-setMethod("to_metadata", "character", function(object, sep = "\t",
-    strip.white = TRUE, stringsAsFactors = FALSE, optional = TRUE, ...) {
+setMethod("to_metadata", "character", function(object, stringsAsFactors = FALSE,
+    optional = TRUE, sep = "\t", strip.white = TRUE, ...) {
   if (length(object) > 1L && !is.null(names(object))) {
     x <- matrix(object, 1L, length(object), FALSE, list(NULL, names(object)))
     return(to_metadata(object = x, sep = sep, strip.white = strip.white,
@@ -1126,21 +1126,21 @@ setMethod("to_metadata", "character", function(object, sep = "\t",
     strip.white = strip.white, stringsAsFactors = stringsAsFactors, ...)
 }, sealed = SEALED)
 
-setMethod("to_metadata", "ANY", function(object, sep = "\t",
-    strip.white = FALSE, stringsAsFactors = FALSE, optional = TRUE, ...) {
+setMethod("to_metadata", "ANY", function(object, stringsAsFactors = FALSE,
+    optional = TRUE, sep = "\t", strip.white = TRUE, ...) {
   as.data.frame(x = object, stringsAsFactors = stringsAsFactors,
     optional = optional, ...)
 }, sealed = SEALED)
 
-setMethod("to_metadata", WMD, function(object, sep = "\t",
-    strip.white = FALSE, stringsAsFactors = FALSE, optional = TRUE, ...) {
+setMethod("to_metadata", WMD, function(object, stringsAsFactors = FALSE,
+    optional = TRUE, sep = "\t", strip.white = TRUE, ...) {
   collect(x = list(object@metadata), what = "values",
     optional = optional, stringsAsFactors = stringsAsFactors,
     dataframe = TRUE, keep.unnamed = NA, ...)
 }, sealed = SEALED)
 
-setMethod("to_metadata", OPMS, function(object, sep = "\t",
-    strip.white = FALSE, stringsAsFactors = FALSE, optional = TRUE, ...) {
+setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
+    optional = TRUE, sep = "\t", strip.white = TRUE, ...) {
   collect(x = metadata(object), what = "values",
     optional = optional, stringsAsFactors = stringsAsFactors,
     dataframe = TRUE, keep.unnamed = NA, ...)

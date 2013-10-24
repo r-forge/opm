@@ -10,15 +10,14 @@
 - removed deprecated 'program' argument of do_aggr()
 - position(), setup_time() and filename() are deprecated; use csv_data()
   instead
+- the order of arguments of to_metadata() has slightly changed; this should only
+  affect the character-scalar method
 - glob_to_regex() is now an S3 generic function
 - substrate naming is slightly different in some cases (e.g., numbering is used
   for multiple substrates per plate)
 - stored discretization settings additionally indicate the discretized curve
   parameter; older YAML files will be converted (with a warning) by inserting
   opm_opt("curve.param")
-
-- fixed bug that caused Greek letters not be converted to HTML after using the
-  'downcase' conversion of substrate names
 
 - read_single_opm() and the methods that depend on it are faster now
 - well() gets a 'use.names' argument
