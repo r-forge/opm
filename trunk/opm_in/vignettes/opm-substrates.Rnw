@@ -212,6 +212,7 @@ positions
 @
 
 This yields a nested list containing two-column matrices with plate names in the first and well coordinates in the second column.
+Using the \code{type} argument, search can be restricted to a plate type of interest, which would yield a named vector.
 References to external data resources for each substrate name can be obtained using \code{substrate\_info}:
 
 <<label=substrate-info, results=hide>>=
@@ -281,8 +282,7 @@ The results from an \code{opm\_mcp} procedure are treated with \code{annotated} 
 In the following example, first an ``opm\_glht'' object is generated from the \code{vaas\_4} exemplar object by performing a Dunnett-type multiple comparison of the selected 13 wells against well A05 as control group.
 
 <<label=annotated-opm_glht-plot>>=
-x <- opm_mcp(vaas_4[, , 1:15], 
-output = "mcp", model = ~ Well,
+x <- opm_mcp(vaas_4[, , 1:15], output = "mcp", model = ~ Well,
   linfct = c(Dunnett.A05 = 1), full = FALSE)
 @
 
@@ -369,17 +369,17 @@ A vector as returned by \code{annotated} (see Section~\ref{annotated-input}) ser
 For demonstration purposes, we use subsets of \code{vaas_et_al} containing the \textit{Escherichia coli} strains from the first biological repetition. 
 
 <<label=example-data>>=
-e.coli.sub <- subset(vaas_et_al, list(Species = "Escherichia coli", 
+coli.sub <- subset(vaas_et_al, list(Species = "Escherichia coli", 
   Experiment = "First replicate"))
-e.coli.k12 <- subset(e.coli.sub, list(Strain = "DSM18039"))
-e.coli.type <- subset(e.coli.sub, list(Strain = "DSM30083T"))
+coli.k12 <- subset(coli.sub, list(Strain = "DSM18039"))
+coli.type <- subset(coli.sub, list(Strain = "DSM30083T"))
 @
 
 Afterward we create the annotated vectors containing the average maximum curve heights for the two groups separately:
 
 <<label=example-data-anno>>=
-anno.k12 <- annotated(e.coli.k12)
-anno.type <- annotated(e.coli.type)
+anno.k12 <- annotated(coli.k12)
+anno.type <- annotated(coli.type)
 @
 
 For a more convenient drawing of \pkg{opm} data on KEGG pathway maps, we suggest a wrapper for the \code{pathview} function, providing other default settings for some arguments.
@@ -411,9 +411,9 @@ opm_path <- function(cpd.data, gene.data = NULL,
 The data for the two strains are shown on the correspondingly separated maps in Figure~\ref{fig:pathview-native-sep-strains}.
 
 <<label=pathview-wrapper-plot-native>>=
-e.coli.map.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
+coli.map.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
   out.suffix = "k12.ko", pathway.id = "00052")
-e.coli.map.type <- opm_path(cpd.data = anno.type, species = "ko", 
+coli.map.type <- opm_path(cpd.data = anno.type, species = "ko", 
   out.suffix = "type.ko", pathway.id = "00052")
 @
 
@@ -455,14 +455,14 @@ Whereas \code{annotated} would by default return a logical vector in that case, 
 See the manual for its usage, entry \code{?annotated}.
 
 <<label=pathview-wrapper-plot-bin>>=
-anno.k12.bin <- annotated(e.coli.k12, output = param_names("disc.name"),
+anno.k12.bin <- annotated(coli.k12, output = param_names("disc.name"),
   lmap = 1:3)
-anno.type.bin <- annotated(e.coli.type, output = param_names("disc.name"),
+anno.type.bin <- annotated(coli.type, output = param_names("disc.name"),
   lmap = 1:3)
-e.coli.map.k12.bin <- opm_path(cpd.data = anno.k12.bin, species = "ko", 
+coli.map.k12.bin <- opm_path(cpd.data = anno.k12.bin, species = "ko", 
   out.suffix = "k12.ko.bin", pathway.id = "00052",
   limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
-e.coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko", 
+coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko", 
   out.suffix = "type.ko.bin", pathway.id = "00052",
   limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
 @
@@ -505,7 +505,7 @@ Ones and zeros indicate whether or not a certain substrate (row) is contained in
 By summing up the columns and sorting the resulting vector, the user gets a ranking of the columns (pathways) indicating how many substrates are covered. 
 
 <<label=anno_sum_mat_col>>=
-anno.k12.mat <- annotated(e.coli.k12, how = "value")
+anno.k12.mat <- annotated(coli.k12, how = "value")
 col.sums <- sort(colSums(anno.k12.mat, na.rm = TRUE), decreasing = TRUE)
 col.sums[1:10]
 @
@@ -528,7 +528,7 @@ Remember that the vector \code{e.subs.pos} contains the positions of the substra
 It can thus directly be used to subset \code{OPMX} objects.
 
 <<label=e-coli-single-ci-dummy, eval=FALSE>>=
-ci_plot(e.coli.sub[, , e.subs.pos],
+ci_plot(coli.sub[, , e.subs.pos],
   as.labels = list("Species", "Strain"), subset = "A", x = "bottomright", 
   draw.legend = T, crr = 1.33)
 @
@@ -537,7 +537,7 @@ ci_plot(e.coli.sub[, , e.subs.pos],
 \begin{figure}
 \scalebox{1.2}{
 <<label=e-coli-single-ci-figure, fig=TRUE, echo=FALSE, height=14, width=20>>=
-ci_plot(e.coli.sub[, , e.subs.pos], 
+ci_plot(coli.sub[, , e.subs.pos], 
   as.labels = list("Species", "Strain"), subset = "A", 
   x = "bottomright", 
   draw.legend = FALSE, crr = 1.5)
@@ -550,23 +550,22 @@ Point estimates and 95\% confidence intervals for the single maximum-height valu
 \end{figure}
 \end{center}
 
-%TODO labels on the left of the last figure are truncated
-
 Straightforwardly, we compute a multiple comparison between only the 13 substrates included in the Galactose metabolism pathway map. 
 Our example compares the type strain with K12; corresponding 95\% CIs for differences of means for the chosen substrates are shown in Figure~\ref{fig:e_coli_comp_ci}.
 
 <<label=pathview-e_coli-comp>>=
-colicomp <- opm_mcp(e.coli.sub[, , e.subs.pos], 
+coli.comp <- opm_mcp(coli.sub[, , e.subs.pos], 
   output = "mcp", model = ~ J(Well + Strain), linfct = c(Pairs = 1))
 @
+
+%TODO labels on the left of the last figure are truncated
 
 \begin{center}
 \begin{figure}
 \scalebox{1.1}{
 <<label=e-coli-comp-ci-figure, fig=TRUE, echo=FALSE, width=12>>=
-old.mar <- par(mar = c(3, 8, 3, 2))
-par(mar = c(3, 20, 3, 2)) # adapt plotting settings
-plot(colicomp, xlim = c(-10, 300))
+old.mar <- par(mar = c(3, 25, 3, 0.5)) # adapt plotting settings
+plot(coli.comp, xlim = c(-5, 290))
 abline(v = 150, col = "blue", lty = 5, lwd = 2)
 par(old.mar) # reset plotting settings
 @
@@ -584,14 +583,13 @@ The annotation vector for the differences of means can be obtained by simply app
 The direct mapping of these differences between the two strains on the Galactose pathway is shown in Figure~\ref{fig:pathview-native-differences}.
 
 <<label=pathview_e_coli_comp_map>>=
-anno.colicomp <- annotated(colicomp)
-e.coli.comp.map <- opm_path(cpd.data = anno.colicomp, species = "ko", 
-  out.suffix = "e.coli.comp.ko", pathway.id = "00052")
+coli.comp.map <- opm_path(cpd.data = annotated(coli.comp), species = "ko", 
+  out.suffix = "coli.comp.ko", pathway.id = "00052")
 @
 
 \begin{figure}
 \scalebox{1.225}{
-\includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.e.coli.comp.ko}
+\includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.coli.comp.ko}
 }
 \caption{\label{fig:pathview-native-differences}
 Respiration differences between \textit{E. coli} K12 and DSM 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.
@@ -615,12 +613,12 @@ Remember the use of the \code{lmap} argument.
 <<label=pathview-cat-anno-map>>=
 # 'upwards' comparison, default minimum effect size
 cat.coli.comp.0 <- opm_path(
-  cpd.data = annotated(colicomp, output = "upwards", lmap = 1:3), 
+  cpd.data = annotated(coli.comp, output = "upwards", lmap = 1:3), 
   species = "ko", out.suffix = "cat-coli-comp-0", pathway.id = "00052",
   limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
 # 'upwards' comparison, 150 units as minimum effect size
 cat.coli.comp.150 <- opm_path(
-  cpd.data = annotated(colicomp, output = "'150", lmap = 1:3), 
+  cpd.data = annotated(coli.comp, output = "'150", lmap = 1:3), 
   species = "ko", out.suffix = "cat-coli-comp-150", pathway.id = "00052",
   limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
 @
@@ -657,19 +655,14 @@ In addition to the native KEGG visualization, \code{pathview} can use a \textit{
 As return value, the function always generates a list containing two data frames.
 The data frame ``plot.data.gene'' contains the data for mapping the genes and, analogously, ``plot.data.cpd'' stores the compound-related data.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% END FROZEN PART
-%% DO NOT MODIFY ANYTHING ABOVE THIS LINE WITHOUT NEGOTIATING WITH MG
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In the examples detailed above, a variety of such objects have already been generated, e.g., \code{coli.map.k12} or the \code{coli.map.types} (both described in Section~\ref{pathview-group} and visualized in Figure~\ref{fig:pathview-native-sep-strains} therein).
 
-In the examples detailed above, a variety of such objects have already been generated, e.g., \code{e.coli.map.k12} or the \code{e.coli.map.types} (both described in Section~\ref{pathview-group} and visualized in Figure~\ref{fig:pathview-native-sep-strains} therein).
-
-Next, we show how to produce graphics from these objects:
+Next, we show how to produce graphics from these objects instead of directly from KEGG.
 
 <<label=pathview-plot-graphviz>>=
-e.coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
- kegg.native = FALSE, out.suffix = "graphvizk12.ko", pathway.id = "00052",
- sign.pos = "bottomleft", key.pos = "bottomright")
+coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
+  kegg.native = FALSE, out.suffix = "graphvizk12.ko", pathway.id = "00052",
+  sign.pos = "bottomleft", key.pos = "bottomright")
 @
 
 
@@ -678,13 +671,21 @@ e.coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko",
 \includegraphics[type=pdf,ext=.pdf,read=.pdf,page=1]{ko00052.graphvizk12.ko}
 }
 \caption{\label{fig:pathview-non-native}
-Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the KEGG Galactose pathway and rendered using graphviz layout engine.
-Compare also Figure~\ref{fig:1a-pathview-native-sep-strains}, which shows the native KEGG rendering of these data.
+Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the KEGG Galactose pathway and rendered \textit{de novo} by \pkg{pathview} using the ``graphviz'' layout engine.
+Compare Figure~\ref{fig:1a-pathview-native-sep-strains}, which shows the native KEGG rendering of these data.
+See the main text for a description of some of the limitations when creating graphics in this way.
 }
 \end{figure}
 
-\rcsmark{TODO}
-Description of the poor options for tuning the font sizes or size of symbols in the graphic are needed, similarly, colour-arguments and the scaling need to be exoplained properly.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% END FROZEN PART
+%% DO NOT MODIFY ANYTHING ABOVE THIS LINE WITHOUT NEGOTIATING WITH MG
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+There are, unfortunately, only limited options for tuning the font sizes or the size of the symbols in the graphs.
+Regarding the color arguments, \rcsmark{TODO}.
+The scaling \rcsmark{TODO}.
+
 
 % this part goes into the paragraph, where it is described, that there is no fixed order of the different described analysis steps:
 % explain the different situation of available information for analysis
@@ -710,44 +711,81 @@ In many cases, the pathways of interest are not known in advance.
 The information accessible \textit{via} \code{annotated} can be used in conjunction with suitable statistical procedures to automatically determine those features of the substrates that best correspond to a certain experimental outcome.
 Such results can be used as a starting point when searching for a causal explanation of the given \pkg{opm} results.
 They can also be used to simply determine the pathways to be used when drawing the \pkg{opm} results in a graph, as detailed in the previous sections.
-\rcsmark{TODO}
 
-In the next example, we use the \pkg{randomForest} package \citep{Liaw2002} for determining the substrate features that best predict the differences between the two \textit{E. coli} strains and depict these features within a ``Variable Importance Plot''.
+In the next coding example, we prepare a data matrix of differences between means and potential explanatory variables from the KEGG database.
+
+<<label=e-coli-comp-full>>=
+coli.comp <- opm_mcp(coli.sub, output = "mcp",
+  model = ~ J(Well + Strain), linfct = c(Pairs = 1))
+coli.anno <- annotated(coli.comp, how = "value")
+@
+
+The matrix has to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in KEGG have to be removed.
+It also needs to be converted to a data frame before the \pkg{randomForest} package \citep{Liaw2002} can be applied.
+
+<<label=e-coli-comp-full>>=
+coli.anno <- as.data.frame(coli.anno[complete.cases(coli.anno), ])
+suppressPackageStartupMessages(library("randomForest"))
+coli.comp.rf <- randomForest(x = coli.anno[, -1], y = coli.anno[, 1],
+  importance = TRUE, proximity = TRUE)
+@
+
+%TODO Lea: I've changed this to non-formula input to avoid make.names().
+% This is now the full Gen-III plate except for the NAs.
+% But this is now regression, not classification as originally intended.
+% E.g. there is no confusion matrix.
+% IMHO this is appropriate because we have a quantitative response.
+% Please check this.
+% If OK, explain some details of this analysis here but not too much.
+% Instead, include some references if possible.
+
+We can now determine the substrate features that best predict the differences between the two \textit{E. coli} strains and depict these features within a ``Variable Importance Plot'' (Figure~\ref{fig:var-imp-plot}).
 
 <<label=randomforest-figure, fig=FALSE, eval=FALSE>>=
-anno.colicomp <- as.data.frame(annotated(colicomp, how = "value"))
-suppressPackageStartupMessages(library("randomForest"))
-colicomp.rf <- randomForest(Value ~ ., data = anno.colicomp,
-  importance = TRUE, proximity = TRUE)
-varImpPlot(colicomp.rf, main = NULL)
+varImpPlot(coli.comp.rf, main = NULL)
 @
 
 \begin{center}
 \begin{figure}
 \scalebox{1.1}{
 <<label=random-forest-plot, fig=TRUE, echo=FALSE, width=12>>=
-anno.colicomp <- as.data.frame(annotated(colicomp, how = "value"))
-suppressPackageStartupMessages(library("randomForest"))
-colicomp.rf <- randomForest(Value ~ ., data = anno.colicomp,
-  importance = TRUE, proximity = TRUE)
-varImpPlot(colicomp.rf, main = NULL)
+varImpPlot(coli.comp.rf, main = NULL)
 @
 }
 \caption{
-\label{fig:rf-plot}
-\rcsmark{TODO} Here some informative description of the variable-importancy-plot.
+\label{fig:var-imp-plot}
+Variable importance plot for substrate features that potentially explain the performance differences between the two \textit{E. coli} strains.
+Apparently the category ``Carbohydrates'' has the highest importance for the model.
+That is, one of the strains performs stronger than the other particularly regarding carbohydrate utilization.
+For a subset of the carbohydrates, those from the Galactose pathway (``map00052''), this can be confirmed in Figure~\ref{fig:e_coli_comp_ci}.
 }
 \end{figure}
 \end{center}
 
+The output can be interpreted a follows.
+Whether or not a substrate is a carbohydrate works best for predicting whether one of the strains performs differently than the other.
+The category ``Carbohydrates'' works even better than its subcategories such as ``Oligosaccharides''.
+The pathway map IDs that are shown to have a strong influence are also related to carbohydrate metabolism, of course.
+For instance, the Galactose metabolism (``map00052'') is among the top-scoring substrate features.
+For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
 
-The output can be interpreted a follows. \rcsmark{TODO}
+\rcsmark{TODO}
 
-%TODO Carbohydrates (and their subcategories) are nicely shown here, but isn't his just due to the preselection of substrates?
-% How time consuming is it to analyze all substrates of that plate?
+%TODO Should we confirm this result with opm_mcp?
+%
+% we then maybe need better selection mechanisms from the matrix/data frame as output by annotated()
+% let me know if something looks complicated
+%
+% but we already have:
+%R> find_positions(rownames(coli.anno), plate_type(coli.sub))
+%
+% an opm_mcp example comparing the differences between the two strains regarding
+% carbohydrates vs. non-carbohydrates could be interesting to conclude this section
+%
+% in addition to the content, it would also provide examples for dealing with the output data
 
 
-%TODO
+% TODO LATER:
 % use package party for analysis of the data above
 % conduct analysis with randomForest and party using the A-values in dataframe (as it was done with the freese-data)
 % this would then be something like \subsection{finding substrates of importance}
