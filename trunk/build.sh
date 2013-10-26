@@ -1268,6 +1268,31 @@ reduce_pdf_size()
 ################################################################################
 
 
+# If any PDF files with examples have been produced, open them in a PDF viewer
+# in the background.
+#
+show_example_pdf_files()
+{
+  local pdf_viewer
+  local name
+  for name in evince acroread; do
+    pdf_viewer=`which "$name"`
+    [ -x "$pdf_viewer" ] && break
+  done
+  if [ ! -x "$pdf_viewer" ]; then
+    echo "no PDF viewer found, returning now" >&2
+    return 1
+  fi
+  local pdf_file
+  for pdf_file in `find . -type f -name '*-Ex.pdf'`; do
+    "$pdf_viewer" "$pdf_file" &
+  done
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -1343,6 +1368,7 @@ case $RUNNING_MODE in
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  norm    [DEFAULT] Normal build of the opm package.
+	  plex    Open the PDF files with plots produced from the examples, if any.
 	  pdf     Reduce size of PDF files either in ./graphics or given as arguments.
 	  pfull   Full build of the pkgutils package.
 	  pnorm   Normal build of the pkgutils package.
@@ -1393,6 +1419,10 @@ ____EOF
     PKG_DIR=pkgutils_in
     RUNNING_MODE=${RUNNING_MODE#p}
     CHECK_R_TESTS=
+  ;;
+  plex )
+    show_example_pdf_files
+    exit $?
   ;;
   rnw )
     run_Stangle opm_in opmdata_in pkgutils_in opmDB_in

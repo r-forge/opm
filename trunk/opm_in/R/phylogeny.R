@@ -588,11 +588,11 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #' suitable for displaying \acronym{PM} data in taxonomic journals such as
 #' \acronym{IJSEM}.
 #'
-#' @param object Data frame, numeric matrix or \sQuote{OPMS} object (with
+#' @param object Data frame, numeric matrix or \code{\link{OPMS}} object (with
 #'   aggregated values). Currently only \sQuote{integer}, \sQuote{logical},
 #'   \sQuote{double} and \sQuote{character} matrix content is supported. The
-#'   data-frame and \sQuote{OPMS} methods first call \code{\link{extract}} and
-#'   then the matrix method. The methods for \sQuote{OPMD_Listing} and
+#'   data-frame and \code{\link{OPMS}} methods first call \code{\link{extract}}
+#'   and then the matrix method. The methods for \sQuote{OPMD_Listing} and
 #'   \sQuote{OPMS_Listing} objects can be applied to the results of
 #'   \code{\link{listing}}.
 #' @param format Character scalar determining the output format, either
@@ -657,18 +657,20 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   the Tidy program? Ignored unless \code{format} is \sQuote{html}. Otherwise,
 #'   if \code{TRUE}, it is an error if the Tidy executable is not found.
 #'
-#' @param as.labels Vector of data-frame indexes or \sQuote{OPMS} metadata
+#' @param as.labels Vector of data-frame indexes or \code{\link{OPMS}} metadata
 #'   entries. See \code{\link{extract}}.
-#' @param what Character scalar. See \code{\link{extract}}.
+#' @param what Character scalar. See \code{\link{extract}}. Deprecated; use
+#'   \code{subset} instead.
 #' @param sep Character scalar. See \code{\link{extract}}.
 #'
-#' @param subset Character scalar passed to the \sQuote{OPMS} method of
-#'   \code{\link{extract}}.
+#' @param subset Character scalar. For the \code{\link{OPMS}} method, passed to
+#'   the \code{\link{OPMS}} method of \code{\link{extract}}. For the data-frame
+#'   method, a selection of column classes to extract.
 #' @param extract.args Optional list of arguments passed to that method.
-#' @param discrete.args Optional list of arguments passed from the \sQuote{OPMS}
-#'   method to \code{\link{discrete}}. If set to \code{NULL}, discretization is
-#'   turned off. Ignored if precomputed discretized values are chosen by setting
-#'   \code{subset} to \code{\link{param_names}("disc.name")}.
+#' @param discrete.args Optional list of arguments passed from the
+#'   \code{\link{OPMS}} method to \code{\link{discrete}}. If set to \code{NULL},
+#'   discretization is turned off. Ignored if precomputed discretized values are
+#'   chosen by setting \code{subset} to \code{\link{param_names}("disc.name")}.
 #'
 #' @param ... Optional arguments passed between the methods (i.e., from the
 #'   other methods to the matrix method) or to \code{hwrite} from the
@@ -896,8 +898,10 @@ setMethod("phylo_data", "matrix", function(object,
 }, sealed = SEALED)
 
 setMethod("phylo_data", "data.frame", function(object, as.labels = NULL,
-    what = "numeric", sep = " ", ...) {
-  object <- extract_columns(object, as.labels = as.labels, what = what,
+    subset = what, sep = " ", what = "numeric", ...) {
+  if (!missing(what))
+    warning("'what' is deprecated, use 'subset'")
+  object <- extract_columns(object, as.labels = as.labels, what = subset,
     direct = FALSE, sep = sep)
   phylo_data(object, ...)
 }, sealed = SEALED)

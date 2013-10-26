@@ -72,7 +72,9 @@
 #'   an integer vector starting at 1.
 #'
 #' @param as.labels Vector of data-frame indexes. See \code{\link{extract}}.
-#' @param sep Character scalar. See \code{\link{extract}}.
+#'   (If given, this argument must be named.)
+#' @param sep Character scalar. See \code{\link{extract}}. (If given, this
+#'   argument must be named.)
 #'
 #' @param y Factor or character vector indicating group affiliations. Its length
 #'   must correspond to the number of rows of \code{x}.
@@ -298,8 +300,8 @@ setMethod("discrete", MOA, function(x, ...) {
   map_values(object = x, mapping = discrete, ...)
 }, sealed = SEALED)
 
-setMethod("discrete", "data.frame", function(x, as.labels = NULL, sep = " ",
-    ...) {
+setMethod("discrete", "data.frame", function(x, ..., as.labels = NULL,
+    sep = " ") {
   discrete(extract_columns(x, what = "numeric", as.labels = as.labels,
     sep = sep, direct = FALSE), ...)
 }, sealed = SEALED)
