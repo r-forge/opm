@@ -302,10 +302,11 @@ setMethod("is_constant", CMAT, function(x, strict, digits = opm_opt("digits"),
 ################################################################################
 
 
-#' Check presence of split column
+#' Check presence of split column or strip whitespace
 #'
 #' Check whether a certain column is present and not at the end of a data frame
-#' or matrix.
+#' or matrix. Alternatively, strip any character or factor content from
+#' whitespace at the end of the strings.
 #'
 #' @param x Data frame, matrix or array.
 #' @param split.at Names of columns at which \code{x} should be split.
@@ -321,6 +322,18 @@ assert_splittable_matrix <- function(x, split.at) {
   if (pos == ncol(x))
     stop("column given by 'split.at' must not be the last one")
   pos
+}
+
+#' @rdname assert_splittable_matrix
+#'
+strip_whitespace <- function(x) {
+  strip <- function(x) sub("^\\s+", "", sub("\\s+$", "", x, FALSE, TRUE),
+    FALSE, TRUE)
+  for (i in which(vapply(x, is.character, NA)))
+    x[, i] <- strip(x[, i])
+  for (i in which(vapply(x, is.factor, NA)))
+    levels(x[, i]) <- strip(levels(x[, i]))
+  x
 }
 
 

@@ -316,8 +316,8 @@ pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
 #'   estimate is simply regarded as \sQuote{A} parameter (maximum height) and
 #'   all other parameters are set to \code{NA}.
 #'
-#'   The \sQuote{OPMS} method just applies the \sQuote{OPM} method to each
-#'   contained plate in turn; there are no inter-dependencies.
+#'   The \code{\link{OPMS}} method just applies the \code{\link{OPM}} method to
+#'   each contained plate in turn; there are no inter-dependencies.
 #'
 #'   Examples with \code{plain = TRUE} are not given, as only the return value
 #'   is different: Let \code{x} be the normal result of \code{do_aggr()}. The

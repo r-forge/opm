@@ -12,6 +12,10 @@
   instead
 - the order of arguments of to_metadata() has slightly changed; this should only
   affect the character-scalar method
+- the order of arguments of the data-frame methods of discrete() and
+  phylo_data() have changed
+- the order and composition of the arguments of the matrix method of radial_plot
+  and the OPM method of level_plot has slightly changed
 - glob_to_regex() is now an S3 generic function
 - substrate naming is slightly different in some cases (e.g., numbering is used
   for multiple substrates per plate)
@@ -20,6 +24,8 @@
   opm_opt("curve.param")
 
 - read_single_opm() and the methods that depend on it are faster now
+- the OPMX methods of collect_template() get most arguments of its character
+  vector method
 - well() gets a 'use.names' argument
 - find_positions() gets a 'type' argument
 - explicit length() method for OPM objects

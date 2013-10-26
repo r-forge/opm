@@ -179,12 +179,12 @@ print.print_easy <- function(x, ...) {
 #' of fields, or determine an optimal range for plotting, or draw a confidence
 #' interval, or returnthe maximal value of an object plus a certain offset.
 #'
-#' @param object Numeric vector or array, or numeric scalar, or \sQuote{OPMX}
-#'   object. For \code{draw_ci}, a four-element numeric vector containing (i)
-#'   the left margin of the CI; (ii) the point estimate; (iii) the right margin;
-#'   (iv) the position on the y axis. The point estimate can be \code{NA} at any
-#'   time; whether the margins can also be \code{NA} depends on
-#'   \code{na.action}.
+#' @param object Numeric vector or array, or numeric scalar, or
+#'   \code{\link{OPMX}} object. For \code{draw_ci}, a four-element numeric
+#'   vector containing (i) the left margin of the CI; (ii) the point estimate;
+#'   (iii) the right margin; (iv) the position on the y axis. The point estimate
+#'   can be \code{NA} at any time; whether the margins can also be \code{NA}
+#'   depends on \code{na.action}.
 #' @param by Numeric scalar (width/height relation).
 #' @param extended Logical scalar. Subtract the minimum in both numerator and
 #'   denominator of the ranging formula? If \code{zscores} is \code{TRUE}, the
@@ -829,7 +829,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #'   causes the panel headers to be constructed from the plate numbers or those
 #'   metadata that were included by \code{\link{flatten}} (see there). Character
 #'   vectors and expressions are directly used for the text within these panel
-#'   headers.
+#'   headers. Currently ignored by the \code{\link{OPM}} method.
 #' @param cex Numeric scalar. Magnification of axis annotation. If \code{NULL},
 #'   automatically adapted to the number of wells (at least a good guess is
 #'   made).
@@ -838,7 +838,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #'   each panel. For instance, the background color is set using the
 #'   \sQuote{bg} key. For further details, see \code{strip.custom} from the
 #'   \pkg{lattice} package. \code{strip.fmt} is ignored if panel.headers is
-#'   \code{FALSE}.
+#'   \code{FALSE} and currently always ignored by the \code{\link{OPM}} method.
 #' @param striptext.fmt List controlling the format of the text within the strip
 #'   above each panel. See \code{\link{xy_plot}} for details, which has an
 #'   argument of the same name.
@@ -888,8 +888,9 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 setGeneric("level_plot", function(x, ...) standardGeneric("level_plot"))
 
 setMethod("level_plot", OPM, function(x, main = list(),
-    colors = opm_opt("color.borders"), cex = NULL, space = "Lab", bias = 0.5,
-    num.colors = 200L, ...) {
+    colors = opm_opt("color.borders"), panel.headers = FALSE, cex = NULL,
+    strip.fmt = list(), striptext.fmt = list(), legend.sep = " ",
+    space = "Lab", bias = 0.5, num.colors = 200L, ...) {
   if (is.null(cex))
     cex <- guess_cex(dim(x)[2L])
   main <- main_title(x, main)
@@ -1106,12 +1107,12 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #' A wrapper for \code{heatmap} from the \pkg{stats} package and
 #' \code{heatmap.2} from the \pkg{gplots} package with some adaptations likely
 #' to be useful for OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} data.
-#' The data-frame and \sQuote{OPMS} methods extract a numeric matrix from a
-#' given data frame or \sQuote{OPMS} object and pass the result to the matrix
-#' method.
+#' The data-frame and \code{\link{OPMS}} methods extract a numeric matrix from a
+#' given data frame or \code{\link{OPMS}} object and pass the result to the
+#' matrix method.
 #'
-#' @param object Matrix, data frame or \sQuote{OPMS} object. The matrix method
-#'   is mainly designed for curve-parameter matrices as created by
+#' @param object Matrix, data frame or \code{\link{OPMS}} object. The matrix
+#'   method is mainly designed for curve-parameter matrices as created by
 #'   \code{\link{extract}} but can be used with any numeric matrix. If a data
 #'   frame, it must contain at least one column with numeric data.
 #'
@@ -1127,7 +1128,7 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #' @param sep Character scalar determining how to join row and group names. See
 #'   \code{\link{extract}} for details.
 #'
-#' @param subset Character scalar passed to the \sQuote{OPMS} method of
+#' @param subset Character scalar passed to the \code{\link{OPMS}} method of
 #'   \code{\link{extract}}.
 #' @param extract.args Optional list of arguments passed to that method.
 #'
@@ -1188,8 +1189,8 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #' @param ... Optional arguments passed to \code{heatmap} or \code{heatmap.2}.
 #'   Note that some defaults of \code{heatmap.2} are overwritten even though
 #'   this is not transparent from the argument list of \code{heat_map}. If set
-#'   explicitly, the default \code{heatmap.2} behavior is restored.
-#'   \code{\dots} also represents all arguments passed from the \sQuote{OPMS} or
+#'   explicitly, the default \code{heatmap.2} behavior is restored. \code{\dots}
+#'   also represents all arguments passed from the \code{\link{OPMS}} or
 #'   data-frame methods to the matrix method.
 #'
 #' @param use.fun Character scalar. If \sQuote{gplots}, it is attempted to load
@@ -1349,8 +1350,23 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' adaptations likely to be useful for
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} data.
 #'
-#' @param object Data frame, numeric matrix or \sQuote{OPMS} object (with
-#'   aggregated values) to be plotted.
+#' @param object \code{\link{OPMS}} object (with aggregated values) to be
+#'   plotted. Alternatively a data frame or a numeric matrix, but the methods
+#'   for these objects are rarely needed.
+#' @param as.labels For the \code{\link{OPMS}} method, a metadata selection
+#'   defining the data to be joined and used as row names, ultimately yielding
+#'   the legend. If \code{NULL} or empty, ignored. See \code{\link{extract}} for
+#'   details. For the data-frame method, a selection of columns used in the same
+#'   way.
+#' @param subset For the \code{\link{OPMS}} method, a character scalar passed to
+#'   the \code{\link{OPMS}} method of \code{\link{extract}}. The data-frame
+#'   method uses this to select the columns; currently only the default makes
+#'   sense. For the matrix method, a selection of columns to be plotted.
+#' @param sep Character scalar determining how to join row names. See
+#'   \code{\link{extract}} for details.
+#' @param extract.args Optional list of arguments passed to the
+#'   \code{\link{OPMS}} method of \code{\link{extract}}. Currently ignored by
+#'   the other methods.
 #'
 #' @param rp.type Character vector. These and the following arguments are passed
 #'   to \code{plotrix::radial.plot}. See there for details.
@@ -1365,6 +1381,7 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #'   some \code{radial.plot} warnings occurring as of \R 3.0.0.
 #' @param point.col Also passed to that function.
 #' @param poly.col Also passed to that function.
+#' @param main Also passed to that function.
 #' @param ... Optional other arguments passed to that function.
 #'
 #' @param draw.legend Logical scalar. Whether to draw a legend. Ignored unless
@@ -1376,17 +1393,6 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' @param xpd Logical scalar. Also passed to that function.
 #' @param pch Integer scalar. Also passed to that function.
 #' @param legend.args List of optional other arguments passed to that function.
-#'
-#' @param as.labels Character, numeric or logical vector indicating the
-#'   positions of the columns to be joined and used as row labels. If
-#'   \code{NULL} or empty, the row names of \code{object} are used. See
-#'   \code{\link{extract}} for details.
-#' @param sep Character scalar determining how to join row names. See
-#'   \code{\link{extract}} for details.
-#'
-#' @param subset Character scalar passed to the \sQuote{OPMS} method of
-#'   \code{\link{extract}}.
-#' @param extract.args Optional list of arguments passed to that method.
 #'
 #' @export
 #' @family plotting-functions
@@ -1402,46 +1408,52 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #'   can be found for given data sizes. Plotting entire plates usually makes not
 #'   much sense (see the examples).
 #'
-#'   The data frame and \sQuote{OPMS} methods extract a numeric matrix from a
-#'   given data frame or \sQuote{OPMS} object and pass the result to the matrix
-#'   method.
+#'   The data frame and \code{\link{OPMS}} methods extract a numeric matrix from
+#'   a given data frame or \code{\link{OPMS}} object and pass the result to the
+#'   matrix method.
 #'
 #' @examples
 #'
 #' data("vaas_4")
 #'
-#' # Matrix method (usually not needed)
-#' x <- extract(vaas_4, as.labels = list("Species", "Strain"))
-#' (y <- radial_plot(x[, 1:5]))
-#' stopifnot(is.character(y), names(y) == rownames(x))
+#' ## 'OPMS' method
+#' # note that we have to use only a subset of the wells for plotting
+#' (y <- radial_plot(vaas_4[, , 1:5], as.labels = list("Species", "Strain"),
+#'   main = "Test"))
 #'
-#' # 'OPMS' method (more convenient)
-#' (yy <- radial_plot(vaas_4[, , 1:5], as.labels = list("Species", "Strain")))
-#' stopifnot(identical(y, yy)) # should also yield the same picture than above
-#'
-#' # Data-frame method
+#' ## Data-frame method (rarely needed)
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"), dataframe = TRUE)
-#' (y <- radial_plot(x[, 1:8], as.labels = c("Species", "Strain")))
-#' stopifnot(is.character(y), names(y) == paste(x$Species, x$Strain))
+#' (yy <- radial_plot(x[, 1:8], as.labels = c("Species", "Strain"),
+#'   main = "Test"))
+#' stopifnot(identical(y, yy)) # should also yield the same picture than above
+#' stopifnot(is.character(yy), names(yy) == paste(x$Species, x$Strain))
+#'
+#' ## Matrix method (rarely needed)
+#' x <- extract(vaas_4, as.labels = list("Species", "Strain"))
+#' (yy <- radial_plot(x[, 1:5], main = "Test"))
+#' stopifnot(identical(y, yy)) # should also yield the same picture than above
+#' stopifnot(is.character(yy), names(yy) == rownames(x))
 #'
 setGeneric("radial_plot", function(object, ...) standardGeneric("radial_plot"))
 
-setMethod("radial_plot", "matrix", function(object, rp.type = "p",
+setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
+    subset = TRUE, sep = " ", extract.args = list(), rp.type = "p",
     radlab = FALSE, show.centroid = TRUE, show.grid.labels = 1, lwd = 3,
     mar = c(2, 2, 2, 2), line.col = opm_opt("colors"), draw.legend = TRUE,
     x = "bottom", y = NULL, xpd = TRUE, pch = 15, legend.args = list(),
-    point.symbols = NA, point.col = NA, poly.col = NA, ...) {
+    point.symbols = NA, point.col = NA, poly.col = NA,
+    main = paste0(as.labels, sep = sep), ...) {
   LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch)
   line.col <- try_select_colors(line.col)
   changed.par <- NULL
   on.exit(if (!is.null(changed.par))
     par(changed.par))
-  changed.par <- radial.plot(lengths = object,
+  changed.par <- radial.plot(lengths = object[, subset, drop = FALSE],
     labels = colnames(object), rp.type = rp.type, radlab = radlab,
     show.centroid = show.centroid, lwd = lwd, mar = mar,
     show.grid.labels = show.grid.labels, line.col = line.col,
     point.symbols = point.symbols, point.col = point.col, poly.col = poly.col,
-    ...)
+    main = main, ...)
   if (!is.null(rn <- rownames(object))) {
     if (draw.legend) {
       legend.args <- insert(as.list(legend.args), x = x, y = y, col = line.col,
@@ -1456,9 +1468,9 @@ setMethod("radial_plot", "matrix", function(object, rp.type = "p",
   invisible(result)
 }, sealed = SEALED)
 
-setMethod("radial_plot", "data.frame", function(object, as.labels, sep = " ",
-    ...) {
-  invisible(radial_plot(extract_columns(object, what = "numeric",
+setMethod("radial_plot", "data.frame", function(object, as.labels,
+    subset = "numeric", sep = " ", extract.args = list(), ...) {
+  invisible(radial_plot(extract_columns(object, what = subset,
     direct = FALSE, as.labels = as.labels, sep = sep), ...))
 }, sealed = SEALED)
 
@@ -1472,6 +1484,4 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 
 
 ################################################################################
-
-
 
