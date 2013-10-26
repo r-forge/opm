@@ -748,7 +748,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #' # EPF is a comparatively restricted format
 #' echo(y.epf <- phylo_data(x, format = "epf"))
 #' stopifnot(is.character(y.epf), length(y.epf) == 3)
-#' stopifnot(identical(y.epf, phylo_data(as.data.frame(x), what = "factor",
+#' stopifnot(identical(y.epf, phylo_data(as.data.frame(x), subset = "factor",
 #'   format = "epf")))
 #'
 #' # PHYLIP is even more restricted (shorter labels!)
@@ -782,7 +782,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #' ## examples with real data and HTML
 #'
 #' # setting the CSS file that comes with opm as default
-#' opm_opt(css.file = grep("[.]css$", opm_files("auxiliary"), value = TRUE))
+#' opm_opt(css.file = opm_files("css")[[1]])
 #'
 #' # see discrete() for the conversion and note the OPMS example below: one
 #' # could also get the results directly from OPMS objects

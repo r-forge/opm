@@ -1,5 +1,8 @@
 2012-XX-XX (6th release on CRAN)
 
+- fixed minor bug in the 'repair_docu.rb' script that affected aliases to
+  generic functions
+
 - repair_docu() gets new arguments 'drop.interal', 'text.dups' and 'infile'
 
 - the 'merge.R' script gets new options -i and -f

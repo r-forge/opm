@@ -261,10 +261,10 @@ public
 
   # Create Rd aliases tags and return them, joined by newlines.
   #
-  def aliases generic
+  def aliases generic_alias_too
     result, is_special = [], special_method?
     name = is_special ? cleaned_name : @name
-    if generic and (file = existing_rd_file) and
+    if generic_alias_too and (file = existing_rd_file) and
         not file =~ /#{cleaned_s4_class}/
       result << "\\alias{#{name}-methods}"
     end
@@ -374,15 +374,15 @@ class Hash
       warn "Adding to #{rdfile}" if verbose
       File.open(rdfile, "a") do |file|
         file.puts s4_methods.first.doctype
-        generic, current = true, s4_methods.first.name
+        generic_alias_too, current = true, ''
         s4_methods.each do |s4_method|
-          file.puts s4_method.aliases(generic)
           if s4_method.name != current
-            generic = true
+            generic_alias_too = true
             current = s4_method.name
           else
-            generic = false
+            generic_alias_too = false
           end
+          file.puts s4_method.aliases(generic_alias_too)
         end
         file.puts s4_methods.first.usage(:start)
         s4_methods.each do |s4_method|

@@ -13,6 +13,8 @@
 #' Convert to list of \code{\link{OPM}} objects, or conditionally convert a list
 #' to an \code{\link{OPMS}} object. Used for building an \code{\link{OPMS}}
 #' object by \code{\link{opms}} and optionally bulding one by \code{\link{c}}.
+#' Finally, \code{close_index_gaps} is a helper function for the assignment
+#' methods (bracket operators).
 #'
 #' @param object List of objects that can be passed to \code{\link{opms}}
 #'   (optional for \code{try_opms}).
@@ -64,7 +66,7 @@ to_opm_list.list <- function(object, precomputed = TRUE, skip = FALSE,
         class(item)[1L])
   }
   result <- if (precomputed)
-    rapply(object, f = get_plates, how = "unlist")
+    rapply(object, get_plates, "ANY", NULL, "unlist")
   else
     c(convert_recursively(object), recursive = TRUE)
   if (group)
@@ -85,6 +87,16 @@ try_opms.list <- function(object, precomputed = TRUE, skip = FALSE) {
     error = function(e) object)
 }
 
+#' @rdname to_opm_list
+#'
+close_index_gaps <- function(x) {
+  if (any(bad <- vapply(x, is.null, NA))) {
+    warning("closing gaps in indexes")
+    return(x[!bad])
+  }
+  x
+}
+
 
 ################################################################################
 ################################################################################
@@ -99,12 +111,16 @@ try_opms.list <- function(object, precomputed = TRUE, skip = FALSE) {
 #'
 #' @param x \code{\link{OPMS}} object.
 #' @param i One to several plate indexes. Should be compatible with the length
-#'   of \code{value}.
+#'   of \code{value}. Otherwise any resulting \code{NULL} elements will be
+#'   removed (with a warning), causing the resulting plate indexes to be unequal
+#'   to \code{i}, which might be confusing.
 #' @param j Must \strong{not} be set. See the examples.
-#' @param value Value to be assigned. \code{NULL} causes the selected plates
-#'   to be removed. Alternatively, \code{\link{OPM}} or \code{\link{OPMS}}
-#'   objects can be assigned, subject to the restrictions explained in the help
-#'   entry of the \code{\link{OPMS}} class.
+#' @param value Value to be assigned. \code{NULL} causes the selected plates to
+#'   be removed. Alternatively, \code{\link{OPM}} or \code{\link{OPMS}} objects
+#'   or lists of \code{\link{OPM}} objects can be assigned (only
+#'   \code{\link{OPM}} objects in the case of the single-bracket operator). All
+#'   assignments are subject to the restrictions explained in the help entry of
+#'   the \code{\link{OPMS}} class.
 #' @return \code{value}.
 #' @family combination-functions
 #' @keywords manip
@@ -121,24 +137,52 @@ try_opms.list <- function(object, precomputed = TRUE, skip = FALSE) {
 #' stopifnot(length(vaas_4) == length(copy) + 2)
 #' copy[1:4] <- vaas_4 # set all plates to the plates from 'vaas_4'
 #' stopifnot(identical(vaas_4, copy))
-#' copy[3] <- copy[3] # no change
+#' copy[[3]] <- copy[3] # no change
 #' stopifnot(identical(vaas_4, copy))
 #' copy[3] <- copy[2] # now assign other plate
 #' stopifnot(!identical(vaas_4, copy))
+#' copy[6] <- copy[1] # gaps will be closed
+#' stopifnot(length(copy) == 5) # not 6
 #'
-setMethod("[<-", c(OPMS, "ANY", "missing", "NULL"), function(x, i, j, value) {
+setMethod("[<-", c(OPMS, "ANY", "missing", "NULL"), function(x, i, j,
+    value) {
   x@plates[i] <- NULL
-  case(length(x@plates), NULL, x@plates[[1L]], x) # no check necessary here
+  case(length(x@plates), NULL, x@plates[[1L]], x) # no checks necessary here
 }, sealed = SEALED)
 
 setMethod("[<-", c(OPMS, "ANY", "missing", OPM), function(x, i, j, value) {
   x@plates[i] <- value
-  new(OPMS, plates = x@plates) # check needed
+  new(OPMS, plates = close_index_gaps(x@plates)) # checks and unnaming needed
 }, sealed = SEALED)
 
 setMethod("[<-", c(OPMS, "ANY", "missing", OPMS), function(x, i, j, value) {
   x@plates[i] <- value@plates
-  new(OPMS, plates = x@plates) # check needed
+  new(OPMS, plates = close_index_gaps(x@plates)) # checks and unnaming needed
+}, sealed = SEALED)
+
+setMethod("[<-", c(OPMS, "ANY", "missing", "list"), function(x, i, j, value) {
+  x@plates[i] <- value
+  new(OPMS, plates = close_index_gaps(x@plates)) # checks and unnaming needed
+}, sealed = SEALED)
+
+#= double.bracket.set bracket.set
+
+#' @exportMethod "[[<-"
+#' @rdname bracket.set
+#' @export
+#'
+setMethod("[[<-", c(OPMS, "ANY", "missing", "NULL"), function(x, i, j, value) {
+  x@plates[[i]] <- NULL
+  case(length(x@plates), NULL, x@plates[[1L]], x) # no check necessary here
+}, sealed = SEALED)
+
+setMethod("[[<-", c(OPMS, "ANY", "missing", OPM), function(x, i, j, value) {
+  x@plates[[i]] <- value
+  if (any(bad <- vapply(x@plates, is.null, NA))) {
+    warning("closing gaps in indexes")
+    x@plates <- x@plates[!bad]
+  }
+  new(OPMS, plates = x@plates) # check and unnaming needed
 }, sealed = SEALED)
 
 
@@ -232,7 +276,9 @@ setMethod("+", c(OPM, OPM), function(e1, e2) {
 }, sealed = SEALED)
 
 setMethod("+", c(OPM, OPMS), function(e1, e2) {
-  new(OPMS, plates = c(list(e1), plates(e2)))
+  e2@plates <- c(list(e1), e2@plates)
+  validObject(e2)
+  e2
 }, sealed = SEALED)
 
 setMethod("+", c(OPM, "list"), function(e1, e2) {
@@ -240,15 +286,19 @@ setMethod("+", c(OPM, "list"), function(e1, e2) {
 }, sealed = SEALED)
 
 setMethod("+", c(OPMS, OPMS), function(e1, e2) {
-  new(OPMS, plates = c(plates(e1), plates(e2)))
+  e1@plates[seq_along(e2@plates) + length(e1@plates)] <- e2@plates
+  validObject(e1)
+  e1
 }, sealed = SEALED)
 
 setMethod("+", c(OPMS, OPM), function(e1, e2) {
-  new(OPMS, plates = c(plates(e1), e2))
+  e1@plates <- c(e1@plates, list(e2))
+  validObject(e1)
+  e1
 }, sealed = SEALED)
 
 setMethod("+", c(OPMS, "list"), function(e1, e2) {
-  new(OPMS, plates = c(plates(e1), e2))
+  new(OPMS, plates = c(e1@plates, e2)) # unnaming also needed
 }, sealed = SEALED)
 
 
@@ -319,9 +369,8 @@ setMethod("+", c(OPMS, "list"), function(e1, e2) {
 #' stopifnot(is(x, "OPMS"), length(x) == 8L)
 #'
 opms <- function(..., precomputed = TRUE, skip = FALSE, group = FALSE) {
-  opms_or_first_or_NULL <- function(x) {
-    case(length(x), NULL, x[[1L]], new(OPMS, plates = x))
-  }
+  opms_or_first_or_NULL <- function(x) case(length(x), NULL, x[[1L]],
+    new(OPMS, plates = x))
   if (is.character(group)) {
     wanted <- plate_type(group) # for normalization
     group <- TRUE
@@ -336,7 +385,7 @@ opms <- function(..., precomputed = TRUE, skip = FALSE, group = FALSE) {
       lapply(result, opms_or_first_or_NULL)
     else
       opms_or_first_or_NULL(result)
-  } else # group was TRUE in that case, and to_opm_list() split the list
+  } else # group was TRUE in that case, and to_opm_list() has split the list
     opms_or_first_or_NULL(result[[wanted]])
 }
 
