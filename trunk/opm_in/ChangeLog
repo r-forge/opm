@@ -23,6 +23,7 @@
   parameter; older YAML files will be converted (with a warning) by inserting
   opm_opt("curve.param")
 
+- new '[['() and '[[<-'() methods for OPMS objects
 - read_single_opm() and the methods that depend on it are faster now
 - the OPMX methods of collect_template() get most arguments of its character
   vector method
@@ -35,6 +36,7 @@
 - to_metadata() accepts character vectors of length > 1 if they are named
   (used as first row of the output data frame)
 - aggr_settings() and disc_settings() get a 'join' argument
+- opm_files() gets more options
 - new edit() function for editing metadata by hand (with some restrictions)
 - new infix-operator methods for querying metadata
 - aggregated() and discretized() get a 'full' argument (and other ones that

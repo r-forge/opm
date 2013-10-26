@@ -44,7 +44,7 @@ copy_dir <- function(from, to, delete) {
 
 do_style_check <- function(files, opt) {
   subdirs <- c("tests", "scripts")
-  subdirs <- c("R", subdirs, file.path("inst", subdirs))
+  subdirs <- c("R", "demo", subdirs, file.path("inst", subdirs))
   y <- check_R_code(x = files, lwd = opt$width, ops = !opt$opsoff,
     comma = !opt$commaoff, indention = opt$blank, roxygen.space = opt$jspaces,
     modify = opt$modify, ignore = opt$good, parens = !opt$parensoff,

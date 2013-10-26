@@ -2044,10 +2044,10 @@ Rather, it is possible (and recommended) to link it to a \proglang{CSS} file.
 \proglang{CSS} (``Cascading Style Sheets'') is a style-sheet language used for defining the formatting of a document written in a markup language such as \proglang{HTML}.
 
 As the generated \proglang{HTML} is richly annotated with ``class'' attributes, which not only provide information on the structure of the file but also on the depicted data, very specific formatting can be obtained just by modifying one to several associated \proglang{CSS} files.
-For the following example, we set the default \proglang{CSS} file to be linked from the generated \proglang{HTML} to the file that comes with \pkg{opm}.
+For the following example, we set the default \proglang{CSS} file to be linked from the generated \proglang{HTML} to the first \proglang{CSS} file that comes with \pkg{opm}.
 
 <<label=opm-css-file, results=hide>>=
-opm_opt(css.file = grep("[.]css$", opm_files("auxiliary"), value = TRUE))
+opm_opt(css.file = opm_files("css")[[1]])
 @
 
 One could now easily create an \proglang{HTML} table from the discretized data and write it to a file:
@@ -2062,8 +2062,7 @@ The formatting would thus get lost once the \proglang{HTML} file was copied to a
 So users might want to copy the predefined \proglang{CSS} file to the working directory and set it as default:
 
 <<label=wd-css-file, results=hide>>=
-file.copy(grep("[.]css$", opm_files("auxiliary"), value = TRUE),
-  "opm_styles.css", overwrite = TRUE)
+file.copy(opm_files("css")[[1]], "opm_styles.css", overwrite = TRUE)
 opm_opt(css.file = "opm_styles.css")
 @
 

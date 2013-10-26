@@ -201,6 +201,7 @@ setMethod("hours", OPM, function(object,
 #'   data, if any) and turn an \code{\link{OPMA}} or \code{\link{OPMD}} object
 #'   to an \code{\link{OPM}} object? Has no effect if \code{x} already is an
 #'   \code{\link{OPM}} object or contains only such objects.
+#' @param exact Logical scalar. Has the opposite effect of \code{drop}.
 #' @return \code{\link{OPM}}, \code{\link{OPMA}} or \code{\link{OPMS}} object,
 #'   or \code{NULL}.
 #'
@@ -272,8 +273,10 @@ setMethod("hours", OPM, function(object,
 #' stopifnot(dim(x) == c(4, 100, 96))
 #'
 #' # Create OPMS object with fewer wells
-#' x <- vaas_4[, , 1:12]
+#' (x <- vaas_4[, , 1:12])
 #' stopifnot(dim(x) == c(4, 384, 12))
+#' # alternative with [[ (can only select a single plate)
+#' stopifnot(identical(x[2], vaas_4[[2, , 1:12]]))
 #'
 #' # The same with well names
 #' x <- vaas_4[, , ~ A01:A12] # within x, these are well names 1 to 12
@@ -363,6 +366,30 @@ setMethod("[", c(OPMS, "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
     return(y[[1L]])
   x@plates <- y
   x
+}, sealed = SEALED)
+
+#= double.bracket bracket
+
+#' @exportMethod "[["
+#' @rdname bracket
+#' @export
+#'
+setMethod("[[", c(OPMS, "ANY", "ANY"), function(x, i, j, k, ..., exact = TRUE) {
+  if (!missing(...))
+    stop("incorrect number of dimensions")
+  if (missing(k))
+    k <- TRUE
+  x@plates[[i]][j, k, drop = !exact]
+}, sealed = SEALED)
+
+setMethod("[[", c(OPMS, "ANY", "missing"), function(x, i, j, k, ...,
+    exact = TRUE) {
+  if (!missing(...))
+    stop("incorrect number of dimensions")
+  if (missing(k))
+    x@plates[[i]]
+  else
+    x@plates[[i]][TRUE, k, drop = !exact]
 }, sealed = SEALED)
 
 

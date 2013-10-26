@@ -755,8 +755,7 @@ glob_to_regex.factor <- function(object) {
 #' @seealso utils::read.csv yaml::yaml.load_file
 #' @keywords IO
 #' @examples
-#' test.files <- grep("Multiple|Ecoplate", opm_files("testdata"), invert = TRUE,
-#'   value = TRUE, perl = TRUE)
+#' test.files <- opm_files("omnilog")
 #' if (length(test.files) > 0) { # if the folder is found
 #'   x <- read_opm(test.files, demo = TRUE) # check first what you would get
 #'   stopifnot(identical(test.files, x))
@@ -781,7 +780,7 @@ glob_to_regex.factor <- function(object) {
 #' }
 #'
 #' # read_single_opm()
-#' test.files <- opm_files("testdata")
+#' test.files <- opm_files("omnilog")
 #' if (length(test.files) > 0) { # if the folder is found
 #'   x <- read_single_opm(test.files[1]) # => 'OPM' object
 #'   class(x)
@@ -1017,8 +1016,7 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
 #' ## collect_template()
 #'
 #' # Character method
-#' test.files <- grep("Multiple|Ecoplate", opm_files("testdata"), invert = TRUE,
-#'   value = TRUE, perl = TRUE)
+#' test.files <- opm_files("omnilog")
 #' if (length(test.files) > 0) { # if the files are found
 #'
 #'   # Without writing to a file
@@ -1363,8 +1361,7 @@ setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
 #'   See \code{\link{as.data.frame}} regarding the generated \acronym{CSV}.
 #'
 #' @examples
-#' test.files <- grep("Multiple", opm_files("testdata"), invert = TRUE,
-#'   value = TRUE, fixed = TRUE)
+#' test.files <- opm_files("omnilog")
 #' if (length(test.files) > 0) { # if the files are found
 #'   num.files <- length(list.files(outdir <- tempdir()))
 #'   x <- batch_opm(test.files[1], outdir = outdir)
@@ -1704,7 +1701,7 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #' ## split_files()
 #'
 #' # Splitting an old-style CSV file containing several plates
-#' (x <- grep("Multiple", opm_files("testdata"), value = TRUE, fixed = TRUE))
+#' (x <- opm_files("multiple"))
 #' if (length(x) > 0) {
 #'   outdir <- tempdir()
 #'   # For old-style CSV, use either "^Data File" as pattern or "Data File*"
