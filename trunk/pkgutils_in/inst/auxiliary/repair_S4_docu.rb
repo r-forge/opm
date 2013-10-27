@@ -198,6 +198,10 @@ private
       'bracket.set'
     when '[[<-'
       'double.bracket.set'
+    when '$'
+      'dollar'
+    when '$<-'
+      'dollar.set'
     when /<-$/
       @name.sub(/<-$/, ".set")
     when '+'

@@ -816,14 +816,14 @@ read_opm <- function(names, convert = c("try", "no", "yes", "sep", "grp"),
     switch(convert, no = result, NULL),
     switch(convert, no = result, result[[1L]]),
     case(convert,
-      no = result,
+      no = new(MOPMX, result),
       yes = new(OPMS, plates = result),
-      grp = lapply(do_split(result), do_opms),
-      sep = do_split(result),
+      grp = new(MOPMX, lapply(do_split(result), do_opms)),
+      sep = lapply(do_split(result), new, Class = MOPMX),
       try = tryCatch(new(OPMS, plates = result), error = function(e) {
         warning("the data from distinct files could not be converted to a ",
           "single OPMS object and will be returned as a list")
-        result
+        new(MOPMX, result)
       })
     )
   )

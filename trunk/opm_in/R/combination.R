@@ -109,18 +109,19 @@ close_index_gaps <- function(x) {
 #'
 #' Assign subsets of \code{\link{OPMS}} objects.
 #'
-#' @param x \code{\link{OPMS}} object.
+#' @param x \code{\link{OPMS}} or \code{\link{MOPMX}} object.
 #' @param i One to several plate indexes. Should be compatible with the length
 #'   of \code{value}. Otherwise any resulting \code{NULL} elements will be
 #'   removed (with a warning), causing the resulting plate indexes to be unequal
 #'   to \code{i}, which might be confusing.
 #' @param j Must \strong{not} be set. See the examples.
+#' @param name Unevaluated symbol used for as index of a single element.
 #' @param value Value to be assigned. \code{NULL} causes the selected plates to
 #'   be removed. Alternatively, \code{\link{OPM}} or \code{\link{OPMS}} objects
 #'   or lists of \code{\link{OPM}} objects can be assigned (only
 #'   \code{\link{OPM}} objects in the case of the single-bracket operator). All
-#'   assignments are subject to the restrictions explained in the help entry of
-#'   the \code{\link{OPMS}} class.
+#'   assignments are subject to the restrictions explained in the help entries
+#'   of the \code{\link{OPMS}} and \code{\link{MOPMX}} classes.
 #' @return \code{value}.
 #' @family combination-functions
 #' @keywords manip
@@ -165,6 +166,27 @@ setMethod("[<-", c(OPMS, "ANY", "missing", "list"), function(x, i, j, value) {
   new(OPMS, plates = close_index_gaps(x@plates)) # checks and unnaming needed
 }, sealed = SEALED)
 
+setMethod("[<-", c(MOPMX, "ANY", "missing", OPMX), function(x, i, j, value) {
+  x@.Data[i] <- value
+  close_index_gaps(x)
+})
+
+setMethod("[<-", c(MOPMX, "ANY", "missing", "list"), function(x, i, j, value) {
+  x@.Data[i] <- value
+  x <- close_index_gaps(x)
+  validObject(x)
+  x
+})
+
+setMethod("[<-", c(MOPMX, "ANY", "missing", "NULL"), function(x, i, j, value) {
+  x@.Data[i] <- value
+  x
+})
+
+setMethod("[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
+  stop("'value' must be object inheriting from 'OPMX' or list of such objects")
+})
+
 #= double.bracket.set bracket.set
 
 #' @exportMethod "[[<-"
@@ -178,12 +200,42 @@ setMethod("[[<-", c(OPMS, "ANY", "missing", "NULL"), function(x, i, j, value) {
 
 setMethod("[[<-", c(OPMS, "ANY", "missing", OPM), function(x, i, j, value) {
   x@plates[[i]] <- value
-  if (any(bad <- vapply(x@plates, is.null, NA))) {
-    warning("closing gaps in indexes")
-    x@plates <- x@plates[!bad]
-  }
-  new(OPMS, plates = x@plates) # check and unnaming needed
+  new(OPMS, plates = close_index_gaps(x@plates)) # checks and unnaming needed
 }, sealed = SEALED)
+
+setMethod("[[<-", c(MOPMX, "ANY", "missing", OPMX), function(x, i, j, value) {
+  x@.Data[[i]] <- value
+  close_index_gaps(x)
+})
+
+setMethod("[[<-", c(MOPMX, "ANY", "missing", "NULL"), function(x, i, j, value) {
+  x@.Data[[i]] <- value
+  x
+})
+
+setMethod("[[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
+  stop("'value' must inherit from 'OPMX'")
+})
+
+#= dollar.set bracket.set
+
+#' @exportMethod "$<-"
+#' @rdname bracket.set
+#' @export
+#'
+setMethod("$<-", c(MOPMX, OPMX), function(x, name, value) {
+  x@.Data[[name]] <- value
+  x
+})
+
+setMethod("$<-", c(MOPMX, "NULL"), function(x, name, value) {
+  x@.Data[[name]] <- value
+  x
+})
+
+setMethod("$<-", c(MOPMX, "ANY"), function(x, name, value) {
+  stop("'value' must inherit from 'OPMX'")
+})
 
 
 ################################################################################
@@ -382,7 +434,7 @@ opms <- function(..., precomputed = TRUE, skip = FALSE, group = FALSE) {
   result <- to_opm_list.list(list(...), precomputed, skip, group)
   if (is.null(wanted)) {
     if (group)
-      lapply(result, opms_or_first_or_NULL)
+      new(MOPMX, lapply(result, opms_or_first_or_NULL))
     else
       opms_or_first_or_NULL(result)
   } else # group was TRUE in that case, and to_opm_list() has split the list

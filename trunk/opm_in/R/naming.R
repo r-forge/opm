@@ -21,7 +21,7 @@
 #'       the extracted \R code.}
 #'     \item{demo}{Example \R code using the \pkg{opm} package that neither
 #'       fitted into these help pages nor into the vignette. Can directly be
-#'       loaded via \code{demo(package = "opm")}}.
+#'       loaded via \code{demo}; see \code{demo(package = "opm")}}.
 #'     \item{examples}{\strong{Deprecated} synonym of \sQuote{demo}.}
 #'     \item{multiple}{Not directly readable (i.e., multiple-plate) test files.}
 #'     \item{omnilog}{Directly readable (i.e., single-plate) test files from
@@ -30,9 +30,9 @@
 #'       \pkg{opm} package, particularly for the batch processing of many files.
 #'       When called without input arguments or with the \sQuote{-h} switch, the
 #'       scripts output usage information.}
-#'     \item{testdata}{Files as output by the
-#'       OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} instrument for
-#'       testing data input and metadata management.}
+#'     \item{testdata}{Files as output by the devices such as the
+#'       OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} instrument.
+#'       Included here as examples for data input (and metadata management).}
 #'   }
 #'   and the following kinds of parameter names:
 #'   \describe{
