@@ -10,6 +10,9 @@
 - removed deprecated 'program' argument of do_aggr()
 - position(), setup_time() and filename() are deprecated; use csv_data()
   instead
+- read_opm() and opms() in 'grp' mode now return objects of the class MOPMX;
+  these list objects are restricted to OPMX objects as elements, but
+  as(x, "list") can be used to obtain a normal list
 - the order of arguments of to_metadata() has slightly changed; this should only
   affect the character-scalar method
 - the order of arguments of the data-frame methods of discrete() and

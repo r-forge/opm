@@ -200,7 +200,9 @@ setMethod("hours", OPM, function(object,
 #' @param drop Logical scalar. Remove the aggregated data (and the discretized
 #'   data, if any) and turn an \code{\link{OPMA}} or \code{\link{OPMD}} object
 #'   to an \code{\link{OPM}} object? Has no effect if \code{x} already is an
-#'   \code{\link{OPM}} object or contains only such objects.
+#'   \code{\link{OPM}} object or contains only such objects. For the
+#'   \code{\link{MOPMX}} method, \code{TRUE} means dropping the class and
+#'   generating a list.
 #' @param exact Logical scalar. Has the opposite effect of \code{drop}.
 #' @return \code{\link{OPM}}, \code{\link{OPMA}} or \code{\link{OPMS}} object,
 #'   or \code{NULL}.
@@ -367,6 +369,14 @@ setMethod("[", c(OPMS, "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
   x@plates <- y
   x
 }, sealed = SEALED)
+
+setMethod("[", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j,
+    drop = FALSE) {
+  if (drop) # remove the class, return a list
+    return(x@.Data[i])
+  x@.Data <- x@.Data[i] # keeps the class
+  x
+})
 
 #= double.bracket bracket
 

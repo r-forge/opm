@@ -12,6 +12,8 @@
 - the 'docu.R' scripts now also style-checks R code in the 'demo' directory,
   if any
 
+- the 'repair_docu.rb' script now supports '$'() and '$<-'()
+
 2012-09-18 (5th release on CRAN)
 
 - fixed bug in 'docu.R' that caused wrong archive file name to be passed to 'R
