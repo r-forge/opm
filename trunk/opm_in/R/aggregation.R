@@ -125,34 +125,34 @@ extract_curve_params.opm_model <- function(x, all = FALSE, ...) {
 #'
 summary.splines_bootstrap <- function (object, ...) {
 
-    cnames <- unlist(map_param_names(), use.names = FALSE)
+  cnames <- unlist(map_param_names(), use.names = FALSE)
 
-    res <- data.frame(t(sapply(object, extract_curve_params.opm_model)))
-    res$mu <- unlist(res$mu)
-    res$lambda <- unlist(res$lambda)
-    res$A <- unlist(res$A)
-    res$AUC <- unlist(res$AUC)
+  res <- data.frame(t(sapply(object, extract_curve_params.opm_model)))
+  res$mu <- unlist(res$mu)
+  res$lambda <- unlist(res$lambda)
+  res$A <- unlist(res$A)
+  res$AUC <- unlist(res$AUC)
 
-    mu <- mean(res$mu, na.rm = TRUE)
-    lambda <- mean(res$lambda, na.rm = TRUE)
-    A <- mean(res$A, na.rm = TRUE)
-    AUC <- mean(res$AUC, na.rm = TRUE)
-    mu.sd <- sd(res$mu, na.rm = TRUE)
-    lambda.sd <- sd(res$lambda, na.rm = TRUE)
-    A.sd <- sd(res$A, na.rm = TRUE)
-    AUC.sd <- sd(res$AUC, na.rm = TRUE)
-    table <- c(mu, lambda, A, AUC,
-      mu - qnorm(0.975) * mu.sd,
-      lambda - qnorm(0.975) * lambda.sd,
-      A - qnorm(0.975) * A.sd,
-      AUC - qnorm(0.975) * AUC.sd,
-      mu + qnorm(0.975) * mu.sd,
-      lambda + qnorm(0.975) * lambda.sd,
-      A + qnorm(0.975) * A.sd,
-      AUC + qnorm(0.975) * AUC.sd)
-    table <- data.frame(t(table))
-    colnames(table) <- cnames
-    return(table)
+  mu <- mean(res$mu, na.rm = TRUE)
+  lambda <- mean(res$lambda, na.rm = TRUE)
+  A <- mean(res$A, na.rm = TRUE)
+  AUC <- mean(res$AUC, na.rm = TRUE)
+  mu.sd <- sd(res$mu, na.rm = TRUE)
+  lambda.sd <- sd(res$lambda, na.rm = TRUE)
+  A.sd <- sd(res$A, na.rm = TRUE)
+  AUC.sd <- sd(res$AUC, na.rm = TRUE)
+  table <- c(mu, lambda, A, AUC,
+    mu - qnorm(0.975) * mu.sd,
+    lambda - qnorm(0.975) * lambda.sd,
+    A - qnorm(0.975) * A.sd,
+    AUC - qnorm(0.975) * AUC.sd,
+    mu + qnorm(0.975) * mu.sd,
+    lambda + qnorm(0.975) * lambda.sd,
+    A + qnorm(0.975) * A.sd,
+    AUC + qnorm(0.975) * AUC.sd)
+  table <- data.frame(t(table))
+  colnames(table) <- cnames
+  return(table)
 }
 
 
@@ -228,11 +228,11 @@ pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
 #' the aggregated values in a novel \code{\link{OPMA}} object together with
 #' previously collected information.
 #'
-#' @param object \code{\link{OPM}}, \code{\link{OPMS}} object or matrix as
-#'   output by \code{\link{measurements}}, i.e. with the time points in the
-#'   first columns and the measurements in the remaining columns (there must be
-#'   at least two). For deviations from this scheme see \code{time.pos} and
-#'   \code{transposed}.
+#' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object or matrix as output by \code{\link{measurements}}, i.e. with the
+#'   time points in the first columns and the measurements in the remaining
+#'   columns (there must be at least two). For deviations from this scheme see
+#'   \code{time.pos} and \code{transposed}.
 #' @param boot Integer scalar. Number of bootstrap replicates used to estimate
 #'   95-percent confidence intervals (CIs) for the parameters. Set this to zero
 #'   to omit bootstrapping, resulting in \code{NA} entries for the CIs. Note
@@ -537,7 +537,13 @@ setMethod("do_aggr", OPM, function(object, boot = 100L, verbose = FALSE,
 }, sealed = SEALED)
 
 setMethod("do_aggr", "OPMS", function(object, ...) {
-  new(OPMS, plates = lapply(X = object@plates, FUN = do_aggr, ...))
+  object@plates <- lapply(X = object@plates, FUN = do_aggr, ...)
+  object
+}, sealed = SEALED)
+
+setMethod("do_aggr", "MOPMX", function(object, ...) {
+  object@.Data <- lapply(X = object@.Data, FUN = do_aggr, ...)
+  object
 }, sealed = SEALED)
 
 setMethod("do_aggr", "matrix", function(object, what = c("AUC", "A"),

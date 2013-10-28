@@ -34,11 +34,13 @@
 - find_positions() gets a 'type' argument
 - explicit length() method for OPM objects
 - new merge() methods for OPM objects
-- csv_data() gets 'what' and 'normalize' arguments
+- csv_data() gets 'what' and 'normalize' arguments; the OPMS method now always
+  yields a matrix unless only a single element was selected; new MOPMX method
 - collect_template() gets 'normalize' and 'instrument' arguments
 - to_metadata() accepts character vectors of length > 1 if they are named
   (used as first row of the output data frame)
 - aggr_settings() and disc_settings() get a 'join' argument
+- do_aggr() and do_disc() methods for the new class MOPMX
 - opm_files() gets more options
 - new edit() function for editing metadata by hand (with some restrictions)
 - new infix-operator methods for querying metadata

@@ -1153,9 +1153,8 @@ setMethod("to_metadata", "character", function(object, stringsAsFactors = FALSE,
   if (length(object) > 1L && !is.null(names(object))) {
     if (is.na(L(strip.white)))
       strip.white <- FALSE
-    x <- matrix(object, 1L, length(object), FALSE, list(NULL, names(object)))
-    return(to_metadata(object = x, sep = sep, strip.white = strip.white,
-      stringsAsFactors = stringsAsFactors, optional = optional, ...))
+    return(to_metadata(object = vector2row(object), strip.white = strip.white,
+      sep = sep, stringsAsFactors = stringsAsFactors, optional = optional, ...))
   }
   if (is.na(L(strip.white)))
     strip.white <- TRUE

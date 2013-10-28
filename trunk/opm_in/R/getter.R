@@ -578,7 +578,8 @@ setMethod("seq", OPMS, function(...) {
 #' file (see \code{\link{read_opm}} and \code{\link{read_single_opm}} for
 #' reading such files).
 #'
-#' @param object \code{\link{OPM}} or \code{\link{OPMS}} object.
+#' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
 #' @param keys Character vector (or other objects usable as vector index). An
 #'   optional sub-selection. If empty (the default), all \acronym{CSV} data are
 #'   returned. By default it is an error to select non-existing items. Ignored
@@ -596,9 +597,12 @@ setMethod("seq", OPMS, function(...) {
 #'   for the \code{\link{opm_opt}} keys \sQuote{time.fmt} and
 #'   \sQuote{time.zone} (see also \code{\link{merge}}).
 #' @param ... Optional arguments passed between the methods.
-#' @return Named character vector (unnamed character scalar in the case of
-#'   \code{filename}, \code{setup_time} and \code{filename} and if \code{what}
-#'   is not \sQuote{select}).
+#' @return For the \code{\link{OPM}} method, a named character vector (unnamed
+#'   character scalar in the case of \code{filename}, \code{setup_time} and
+#'   \code{filename} and if \code{what} is not \sQuote{select}). For the other
+#'   methods either a named character vector (if the selection yields a single
+#'   entry) or a character matrix with one row per plate. Missing entries in one
+#'   of the plates yield \code{NA} in the output.
 #' @details \code{filename}, \code{setup_time} and \code{position} are
 #'   \strong{deprecated} convenience functions for some of the more important
 #'   entries of \code{csv_data}.
@@ -699,6 +703,26 @@ setMethod("csv_data", OPM, function(object,
       result[pos[2L]] <- clean_plate_positions(result[pos[2L]])
   }
   result
+}, sealed = SEALED)
+
+setMethod("csv_data", "OPMS", function(object, ...) {
+  x <- lapply(X = object@plates, FUN = csv_data, ...)
+  if (all(vapply(x, length, 0L) == 1L))
+    return(unlist(x, FALSE, TRUE))
+  x <- lapply(x, vector2row)
+  for (i in seq_along(x)) # next step necessary to keep all rows
+    rownames(x[[i]]) <- i # TODO: this should go into collect()
+  collect(x, "datasets", 1L, TRUE)
+}, sealed = SEALED)
+
+setMethod("csv_data", "MOPMX", function(object, ...) {
+  x <- lapply(X = object, FUN = csv_data, ...)
+  if (all(is.vec <- !vapply(x, is.matrix, 0L)))
+    return(unlist(x, FALSE, TRUE))
+  x[is.vec] <- lapply(x[is.vec], vector2row)
+  for (i in seq_along(x)) # next step necessary to keep all rows
+    rownames(x[[i]]) <- paste(i, seq_len(nrow(x[[i]])), sep = ".")
+  collect(x, "datasets", 1L, TRUE) # TODO: the above should go into collect()
 }, sealed = SEALED)
 
 #= filename csv_data
@@ -1389,7 +1413,6 @@ setMethod("anyDuplicated", c(OPMS, "ANY"), function(x, incomparables, ...) {
 lapply(c(
     #+
     aggregated,
-    csv_data,
     discretized,
     has_aggr,
     has_disc,
@@ -1411,7 +1434,7 @@ lapply(c(
       if (n > 1L)
         do.call(rbind, x)
       else
-        unlist(x)
+        unlist(x, FALSE, TRUE)
     }
     simplify_conditionally(lapply(object@plates, FUN = func_, ...))
   }, sealed = SEALED)
