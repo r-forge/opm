@@ -30,6 +30,7 @@
 #'       \pkg{opm} package, particularly for the batch processing of many files.
 #'       When called without input arguments or with the \sQuote{-h} switch, the
 #'       scripts output usage information.}
+#'     \item{single}{Directly readable (i.e., single-plate) test files.}
 #'     \item{testdata}{Files as output by the devices such as the
 #'       OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} instrument.
 #'       Included here as examples for data input (and metadata management).}
@@ -103,7 +104,7 @@
 #' stopifnot(is.character(x), length(x) > 0L, identical(x, rev(y)))
 #'
 opm_files <- function(what = c("scripts", "testdata", "auxiliary", "demo",
-    "examples", "doc", "css", "omnilog", "multiple")) {
+    "examples", "doc", "css", "omnilog", "single", "multiple")) {
   switch(match.arg(what),
     css = grep("\\.css$", pkg_files(opm_string(), "auxiliary"),
       TRUE, TRUE, TRUE),
@@ -115,6 +116,8 @@ opm_files <- function(what = c("scripts", "testdata", "auxiliary", "demo",
       pkg_files(opm_string(), "testdata"), TRUE, TRUE, TRUE),
     omnilog = grep("Example(_Old_Style)?_\\d+\\.csv(\\.[^.]+)?$",
       pkg_files(opm_string(), "testdata"), TRUE, TRUE, TRUE),
+    single = grep("Multiple\\.csv(\\.[^.]+)?$", pkg_files(opm_string(),
+      "testdata"), TRUE, TRUE, TRUE, FALSE, FALSE, TRUE),
     pkg_files(opm_string(), what)
   )
 }

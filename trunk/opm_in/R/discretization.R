@@ -376,7 +376,8 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' reactions is supported, and only based on the \sQuote{maximum height} curve
 #' parameter (which is biologically reasonable though).
 #'
-#' @param object \code{\link{OPMA}} or \code{\link{OPMS}} object.
+#' @param object \code{\link{OPMA}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
 #' @param cutoff Determines the discretization approach. If non-empty, passed as
 #'   \code{range} argument to \code{discrete} (with \code{gap} set to
 #'   \code{TRUE}), thus triggering discretization using either k-means
@@ -422,8 +423,9 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #'
 #'   The \code{unify} argument has no effect on \code{\link{OPMA}} objects
 #'   (because they represent a single group with a single member).
-#' @param ... Optional arguments passed to \code{\link{extract}}. Only relevant
-#'   for certain settings of \code{groups}, see above.
+#' @param ... Optional arguments passed between the methods or to
+#'   \code{\link{extract}}. The latter is only relevant for certain settings of
+#'   \code{groups}, see above.
 #'
 #' @details If \code{unify} is set to \code{FALSE}, the discretization results
 #'   are always consistent (in the sense described for the \code{\link{OPMD}}
@@ -721,7 +723,11 @@ setMethod("do_disc", "OPMS", function(object, cutoff = TRUE, groups = FALSE,
   object
 }, sealed = SEALED)
 
+setMethod("do_disc", "MOPMX", function(object, ...) {
+  object@.Data <- lapply(X = object@.Data, FUN = do_disc, ...)
+  object
+}, sealed = SEALED)
+
 
 ################################################################################
-
 

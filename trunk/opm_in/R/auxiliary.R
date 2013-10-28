@@ -145,7 +145,6 @@ reduce_to_mode.matrix <- function(x, cutoff, use.na = TRUE) {
 }
 
 #' @rdname reduce_to_mode
-#' @keywords internal
 #'
 list2matrix <- function(x, how = c("yaml", "json", "rcode")) {
   unlist_matrix <- function(x, fun, ...) {
@@ -169,6 +168,17 @@ list2matrix <- function(x, how = c("yaml", "json", "rcode")) {
     collect(x = x, what = how, dataframe = TRUE, stringsAsFactors = FALSE,
       optional = TRUE, keep.unnamed = TRUE, min.cov = 1L)
   )
+}
+
+#' @rdname reduce_to_mode
+#'
+sub_indexes <- function(x) {
+  x <- vapply(x, length, 0L)
+  add <- c(0L, cumsum(x[-length(x)]))
+  x <- lapply(x, seq_len)
+  for (i in seq_along(x)[-1L])
+    x[[i]] <- x[[i]] + add[[i]]
+  x
 }
 
 
@@ -302,13 +312,14 @@ setMethod("is_constant", CMAT, function(x, strict, digits = opm_opt("digits"),
 ################################################################################
 
 
-#' Check presence of split column or strip whitespace
+#' Check presence of split column, strip whitespace or make 1-row matrix
 #'
 #' Check whether a certain column is present and not at the end of a data frame
 #' or matrix. Alternatively, strip any character or factor content from
-#' whitespace at the end of the strings.
+#' whitespace at the end of the strings, or convert a vector to a matrix with
+#' one row.
 #'
-#' @param x Data frame, matrix or array.
+#' @param x Data frame, matrix, array or vector.
 #' @param split.at Names of columns at which \code{x} should be split.
 #' @return Integer scalar indicating the split position. An error is raised
 #'   if this is missing or non-unique.
@@ -335,6 +346,10 @@ strip_whitespace <- function(x) {
     levels(x[, i]) <- strip(levels(x[, i]))
   x
 }
+
+#' @rdname assert_splittable_matrix
+#'
+vector2row <- function(x) matrix(x, 1L, length(x), FALSE, list(NULL, names(x)))
 
 
 ################################################################################

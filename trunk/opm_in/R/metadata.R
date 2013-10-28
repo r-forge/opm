@@ -461,6 +461,28 @@ setMethod("metadata<-", c(OPMS, "ANY", "ANY"), function(object, key, value) {
   object
 }, sealed = SEALED)
 
+#-------------------------------------------------------------------------------
+
+#' @name metadata.set
+#'
+setMethod("metadata<-", c(MOPMX, "missing", "data.frame"), function(object, key,
+    value) {
+  indexes <- sub_indexes(object)
+  for (i in seq_along(object@.Data))
+    metadata(object@.Data[[i]]) <- value[indexes[[i]], , drop = FALSE]
+  object
+}, sealed = SEALED)
+
+#' @name metadata.set
+#'
+setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
+    value) {
+  indexes <- sub_indexes(object)
+  for (i in seq_along(object@.Data))
+    metadata(object@.Data[[i]], key) <- value[indexes[[i]], , drop = FALSE]
+  object
+}, sealed = SEALED)
+
 
 ################################################################################
 
