@@ -1449,23 +1449,14 @@ lapply(c(
 #
 # Automatically generated OPMS methods
 #
-lapply(c(
-    #+
-    find_positions,
-    substrate_info
-    #-
-  ), FUN = function(func_) {
-  setMethod(func_, OPMS, function(object, ...) {
-    func_(object@plates[[1L]], ...)
-  }, sealed = SEALED)
-})
-
 
 # Applying OPM methods with function(object, ...) signature to the 1st plate
 # only.
 #
 lapply(c(
     #+
+    find_positions,
+    substrate_info,
     wells,
     plate_type
     #-
@@ -1474,5 +1465,4 @@ lapply(c(
     func_(object@plates[[1L]], ...)
   }, sealed = SEALED)
 })
-
 

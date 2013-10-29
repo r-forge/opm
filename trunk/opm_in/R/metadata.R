@@ -9,15 +9,18 @@
 
 #' Replace metadata
 #'
-#' Set the meta-information stored together with the data. The
-#' \code{\link{OPMS}} methods set the meta-information stored together with the
-#' measurements for all plates at once (but can address the plates individually
-#' if \code{value} is a formula or a data frame, see below).
+#' Set the meta-information stored together with the data. For most kinds of
+#' arguments the \code{\link{OPMS}} and \code{\link{MOPMX}} methods set the
+#' meta-information stored together with the measurements for all plates at
+#' once. But they can address the plates individually if \code{value} is a data
+#' frame, and they can address metadata keys individually if \code{value} is a
+#' formula.
 #'
 #' @name metadata.set
 #' @aliases metadata<-
 #'
-#' @param object \code{\link{WMD}} or \code{\link{OPMS}} object.
+#' @param object \code{\link{WMD}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
 #' @param key Missing, numeric scalar, character vector, factor, or list.
 #' \itemize{
 #'   \item If missing, replace all metadata by \code{value} (unless \code{value}
@@ -465,9 +468,29 @@ setMethod("metadata<-", c(OPMS, "ANY", "ANY"), function(object, key, value) {
 
 #' @name metadata.set
 #'
+setMethod("metadata<-", c(MOPMX, "missing", "ANY"), function(object, key,
+    value) {
+  for (i in seq_along(object@.Data))
+    metadata(object@.Data[[i]]) <- value
+  object
+}, sealed = SEALED)
+
+#' @name metadata.set
+#'
+setMethod("metadata<-", c(MOPMX, "ANY", "ANY"), function(object, key,
+    value) {
+  for (i in seq_along(object@.Data))
+    metadata(object@.Data[[i]], key) <- value
+  object
+}, sealed = SEALED)
+
+#' @name metadata.set
+#'
 setMethod("metadata<-", c(MOPMX, "missing", "data.frame"), function(object, key,
     value) {
   indexes <- sub_indexes(object)
+  if (nrow(value) != attr(indexes, "total"))
+    stop("number of rows in 'value' unequal to number of plates in 'object'")
   for (i in seq_along(object@.Data))
     metadata(object@.Data[[i]]) <- value[indexes[[i]], , drop = FALSE]
   object
@@ -478,6 +501,8 @@ setMethod("metadata<-", c(MOPMX, "missing", "data.frame"), function(object, key,
 setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
     value) {
   indexes <- sub_indexes(object)
+  if (nrow(value) != attr(indexes, "total"))
+    stop("number of rows in 'value' unequal to number of plates in 'object'")
   for (i in seq_along(object@.Data))
     metadata(object@.Data[[i]], key) <- value[indexes[[i]], , drop = FALSE]
   object
@@ -495,8 +520,8 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #' and return the objects otherwise unchanged, or invoke \code{edit} from the
 #' \pkg{utils} package for editing the metadata by hand.
 #'
-#' @param object \code{\link{OPM}} (\code{\link{WMD}}) object or
-#'   \code{\link{OPMS}} object.
+#' @param object \code{\link{OPM}} (\code{\link{WMD}}), \code{\link{OPMS}} or
+#'   \code{\link{MOPMX}} object.
 #'
 #' @param name Like \code{object}, but for the \code{edit} method.
 #'
@@ -723,6 +748,11 @@ setMethod("include_metadata", OPMS, function(object, ...) {
   object
 }, sealed = SEALED)
 
+setMethod("include_metadata", MOPMX, function(object, ...) {
+  object@.Data <- lapply(X = object@.Data, FUN = include_metadata, ...)
+  object
+}, sealed = SEALED)
+
 #= map_metadata include_metadata
 
 #' @rdname include_metadata
@@ -780,6 +810,19 @@ setMethod("map_metadata", c(OPMS, "ANY"), function(object, mapping, ...) {
   object
 }, sealed = SEALED)
 
+setMethod("map_metadata", c(MOPMX, "missing"), function(object, mapping,
+    values = TRUE, classes = "factor") {
+  object@.Data <- lapply(X = object@.Data, FUN = map_metadata,
+    values = values, classes = classes)
+  object
+}, sealed = SEALED)
+
+setMethod("map_metadata", c(MOPMX, "ANY"), function(object, mapping, ...) {
+  object@.Data <- lapply(X = object@.Data, FUN = map_metadata,
+    mapping = mapping, ...)
+  object
+}, sealed = SEALED)
+
 #= edit include_metadata
 
 #' @rdname include_metadata
@@ -806,7 +849,8 @@ setMethod("edit", OPMX, function(name, ...) {
 #' \sQuote{character} entries from the meta-information stored together with the
 #' measurements. Optionally coerce data of other types.
 #'
-#' @param object \code{\link{WMD}} or \code{\link{OPMS}} object.
+#' @param object \code{\link{WMD}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
 #' @param key \code{NULL}, vector, factor or formula. \itemize{
 #'   \item If \code{NULL} or otherwise empty, return all metadata.
 #'   \item If a non-empty list, treated as list of keys. Return value would be
@@ -942,6 +986,10 @@ setMethod("metadata_chars", WMD, function(object, values = TRUE,
 
 setMethod("metadata_chars", OPMS, function(object, ...) {
   map_values(unlist(lapply(object@plates, FUN = metadata_chars, ...)))
+}, sealed = SEALED)
+
+setMethod("metadata_chars", MOPMX, function(object, ...) {
+  map_values(unlist(lapply(object@.Data, FUN = metadata_chars, ...)))
 }, sealed = SEALED)
 
 

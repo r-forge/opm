@@ -161,6 +161,7 @@ list2matrix <- function(x, how = c("yaml", "json", "rcode")) {
     storage.mode(x) <- "character"
     x
   }
+  how <- tryCatch(match.arg(how), error = function(e) how)
   switch(how,
     yaml = unlist_matrix(x, to_yaml, json = FALSE, listify = TRUE),
     json = unlist_matrix(x, to_yaml, json = TRUE, listify = TRUE),
@@ -174,11 +175,25 @@ list2matrix <- function(x, how = c("yaml", "json", "rcode")) {
 #'
 sub_indexes <- function(x) {
   x <- vapply(x, length, 0L)
-  add <- c(0L, cumsum(x[-length(x)]))
+  add <- c(0L, cumsum(x))
   x <- lapply(x, seq_len)
   for (i in seq_along(x)[-1L])
     x[[i]] <- x[[i]] + add[[i]]
+  attr(x, "total") <- add[[length(add)]]
   x
+}
+
+#' @rdname reduce_to_mode
+#'
+simplify_conditionally <- function(x) {
+  if (any(vapply(x, is.list, NA)) || any(vapply(x, is.matrix, NA)))
+    return(x)
+  if (length(n <- unique.default(vapply(x, length, 0L))) > 1L)
+    return(x)
+  if (n > 1L)
+    do.call(rbind, x)
+  else
+    unlist(x, FALSE, TRUE)
 }
 
 

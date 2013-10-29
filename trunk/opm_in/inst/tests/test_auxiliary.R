@@ -39,8 +39,12 @@ test_that("we can memoize queries", {
 test_that("sub-indexes can be got and incremented", {
   x <- list(a = 1:2, b = 'a', c = c(TRUE, FALSE, FALSE))
   got <- sub_indexes(x)
-  expect_equal(got, list(a = 1:2, b = 3, c = 4:6))
+  expect_equal(got, structure(list(a = 1:2, b = 3, c = 4:6), total = 6L))
 })
+
+
+## simplify_conditionally
+## UNTESTED
 
 
 ## is_uniform
