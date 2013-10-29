@@ -46,6 +46,8 @@ organism <- "Strain Number"
 #
 x <- read_opm(getwd(), convert = "grp", include = list("csv"))
 
+stopifnot(names(x) == plate_type(x)) # the names already indicate the plate type
+
 
 ### Select some CSV data, convert them and enter them as metadata:
 
@@ -67,7 +69,7 @@ if (!replicate %in% names(md)) {
 } else if (any(bad <- is.na(md[, replicate]))) {
   message("NOTE: inserting replicate IDs")
   md[bad, replicate] <- (1:nrow(md))[bad] # might yield non-unique IDs
-  md[, replicate] <- make.unique(md[, replicate]) # enforce unique IDs
+  md[, replicate] <- make.unique(md[, replicate]) # now enforce unique IDs
 }
 
 # Insert a dummy organism entry if none is there, with a warning.
@@ -97,11 +99,20 @@ metadata(x) <- md[, c(organism, replicate)]
 x <- do_aggr(x, boot = 0, cores = 8, method = "splines",
   options = set_spline_options("smooth.spline"))
 
+# Let's have a look at the upper part of the aggregation settings.
+#
+head(aggr_settings(x, join = "json"))
+
+
 # This discretization is using exact k-means partitioning, without estimation
 # of an intermediary state. This is OK if > 1 replicates are there and one
 # can calculate ambiguity in another manner (see below).
 #
 x <- do_disc(x, cutoff = FALSE)
+
+# Let's have a look at the upper part of the discretization settings.
+#
+head(disc_settings(x, join = "json"))
 
 
 ### OUTPUT SECTION:

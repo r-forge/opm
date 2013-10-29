@@ -118,10 +118,9 @@ close_index_gaps <- function(x) {
 #' @param name Unevaluated symbol used for as index of a single element.
 #' @param value Value to be assigned. \code{NULL} causes the selected plates to
 #'   be removed. Alternatively, \code{\link{OPM}} or \code{\link{OPMS}} objects
-#'   or lists of \code{\link{OPM}} objects can be assigned (only
-#'   \code{\link{OPM}} objects in the case of the single-bracket operator). All
-#'   assignments are subject to the restrictions explained in the help entries
-#'   of the \code{\link{OPMS}} and \code{\link{MOPMX}} classes.
+#'   or lists of \code{\link{OPM}} objects can be assigned. All assignments are
+#'   subject to the restrictions explained in the help entries of the
+#'   \code{\link{OPMS}} and \code{\link{MOPMX}} classes.
 #' @return \code{value}.
 #' @family combination-functions
 #' @keywords manip
@@ -138,7 +137,7 @@ close_index_gaps <- function(x) {
 #' stopifnot(length(vaas_4) == length(copy) + 2)
 #' copy[1:4] <- vaas_4 # set all plates to the plates from 'vaas_4'
 #' stopifnot(identical(vaas_4, copy))
-#' copy[[3]] <- copy[3] # no change
+#' copy[3] <- copy[3] # no change
 #' stopifnot(identical(vaas_4, copy))
 #' copy[3] <- copy[2] # now assign other plate
 #' stopifnot(!identical(vaas_4, copy))
@@ -193,16 +192,6 @@ setMethod("[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
 #' @rdname bracket.set
 #' @export
 #'
-setMethod("[[<-", c(OPMS, "ANY", "missing", "NULL"), function(x, i, j, value) {
-  x@plates[[i]] <- NULL
-  case(length(x@plates), NULL, x@plates[[1L]], x) # no check necessary here
-}, sealed = SEALED)
-
-setMethod("[[<-", c(OPMS, "ANY", "missing", OPM), function(x, i, j, value) {
-  x@plates[[i]] <- value
-  new(OPMS, plates = close_index_gaps(x@plates)) # checks and unnaming needed
-}, sealed = SEALED)
-
 setMethod("[[<-", c(MOPMX, "ANY", "missing", OPMX), function(x, i, j, value) {
   x@.Data[[i]] <- value
   close_index_gaps(x)
@@ -214,7 +203,7 @@ setMethod("[[<-", c(MOPMX, "ANY", "missing", "NULL"), function(x, i, j, value) {
 })
 
 setMethod("[[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
-  stop("'value' must inherit from 'OPMX'")
+  stop("'value' must be NULL or inherit from 'OPMX'")
 })
 
 #= dollar.set bracket.set
@@ -234,7 +223,7 @@ setMethod("$<-", c(MOPMX, "NULL"), function(x, name, value) {
 })
 
 setMethod("$<-", c(MOPMX, "ANY"), function(x, name, value) {
-  stop("'value' must inherit from 'OPMX'")
+  stop("'value' must be NULL or inherit from 'OPMX'")
 })
 
 

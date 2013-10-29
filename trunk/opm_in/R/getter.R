@@ -203,7 +203,6 @@ setMethod("hours", OPM, function(object,
 #'   \code{\link{OPM}} object or contains only such objects. For the
 #'   \code{\link{MOPMX}} method, \code{TRUE} means dropping the class and
 #'   generating a list.
-#' @param exact Logical scalar. Has the opposite effect of \code{drop}.
 #' @return \code{\link{OPM}}, \code{\link{OPMA}} or \code{\link{OPMS}} object,
 #'   or \code{NULL}.
 #'
@@ -221,12 +220,14 @@ setMethod("hours", OPM, function(object,
 #'   always return a matrix (as a component of the returned object), even if it
 #'   could be simplified to a vector. The time column is not counted and always
 #'   copied. It is an error to delete the entire matrix. In all other respects,
-#'   this method behaves like the `[` methods from the \pkg{base} package.
+#'   the \code{\link{OPM}} method behaves like the `[` methods from the
+#'   \pkg{base} package.
 #'
 #'   The \code{\link{OPMS}} method selects a subset of the plates and/or the
 #'   measurements of the individual plates. It simplifies the outcome to a
 #'   \code{\link{OPM}} or \code{\link{OPMA}} object if only a single plate
-#'   remains and to \code{NULL} if no plate remains. This behaves like
+#'   remains and to \code{NULL} if no plate remains. This is different from
+#'   subsetting a list in \R. \code{\link{OPMS}} subsetting rather behaves like
 #'   subsetting a three-dimensional array with plates as first dimension, time
 #'   points as second, and wells as third.
 #'
@@ -277,8 +278,6 @@ setMethod("hours", OPM, function(object,
 #' # Create OPMS object with fewer wells
 #' (x <- vaas_4[, , 1:12])
 #' stopifnot(dim(x) == c(4, 384, 12))
-#' # alternative with [[ (can only select a single plate)
-#' stopifnot(identical(x[2], vaas_4[[2, , 1:12]]))
 #'
 #' # The same with well names
 #' x <- vaas_4[, , ~ A01:A12] # within x, these are well names 1 to 12
@@ -377,30 +376,6 @@ setMethod("[", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j,
   x@.Data <- x@.Data[i] # keeps the class
   x
 })
-
-#= double.bracket bracket
-
-#' @exportMethod "[["
-#' @rdname bracket
-#' @export
-#'
-setMethod("[[", c(OPMS, "ANY", "ANY"), function(x, i, j, k, ..., exact = TRUE) {
-  if (!missing(...))
-    stop("incorrect number of dimensions")
-  if (missing(k))
-    k <- TRUE
-  x@plates[[i]][j, k, drop = !exact]
-}, sealed = SEALED)
-
-setMethod("[[", c(OPMS, "ANY", "missing"), function(x, i, j, k, ...,
-    exact = TRUE) {
-  if (!missing(...))
-    stop("incorrect number of dimensions")
-  if (missing(k))
-    x@plates[[i]]
-  else
-    x@plates[[i]][TRUE, k, drop = !exact]
-}, sealed = SEALED)
 
 
 ################################################################################
@@ -869,7 +844,7 @@ setMethod("has_disc", OPM, function(object) {
 #'   included. The columns represent the wells, the rows the estimated
 #'   parameters and their CIs.
 #'
-#'   \code{aggr_settings} returns a named list id \code{join} is empty. Other
+#'   \code{aggr_settings} returns a named list if \code{join} is empty. Other
 #'   values yield a matrix or data frame (or an error). See the description of
 #'   the argument above and the examples below for further details.
 #' @keywords attribute
@@ -979,6 +954,14 @@ setMethod("aggr_settings", OPMS, function(object, join = NULL) {
     result
 }, sealed = SEALED)
 
+setMethod("aggr_settings", MOPMX, function(object, join = NULL) {
+  result <- lapply(object@.Data, aggr_settings, join)
+  if (length(join))
+    do.call(rbind, result)
+  else
+    result
+}, sealed = SEALED)
+
 
 ################################################################################
 
@@ -1058,6 +1041,14 @@ setMethod("disc_settings", OPMS, function(object, join = NULL) {
   result <- lapply(object@plates, slot, "disc_settings")
   if (length(join))
     list2matrix(result, join)
+  else
+    result
+}, sealed = SEALED)
+
+setMethod("disc_settings", MOPMX, function(object, join = NULL) {
+  result <- lapply(object@.Data, disc_settings, join)
+  if (length(join))
+    do.call(rbind, result)
   else
     result
 }, sealed = SEALED)
@@ -1419,24 +1410,36 @@ lapply(c(
     hours,
     measurements,
     metadata,
-    filename,
-    position,
-    setup_time,
+    filename, # deprecated
+    position, # deprecated
+    setup_time, # deprecated
     well
     #-
   ), FUN = function(func_) {
   setMethod(func_, OPMS, function(object, ...) {
-    simplify_conditionally <- function(x) { # instead of sapply()
-      if (any(vapply(x, is.list, NA)) || any(vapply(x, is.matrix, NA)))
-        return(x)
-      if (length(n <- unique.default(vapply(x, length, 0L))) > 1L)
-        return(x)
-      if (n > 1L)
-        do.call(rbind, x)
-      else
-        unlist(x, FALSE, TRUE)
-    }
     simplify_conditionally(lapply(object@plates, FUN = func_, ...))
+  }, sealed = SEALED)
+})
+
+
+# MOPMX methods with function(object, ...) signature that can conditionally be
+# simplified.
+#
+lapply(c(
+    #+
+    aggregated,
+    discretized,
+    has_aggr,
+    has_disc,
+    hours,
+    measurements,
+    metadata,
+    plate_type,
+    well
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, MOPMX, function(object, ...) {
+    simplify_conditionally(lapply(object@.Data, FUN = func_, ...))
   }, sealed = SEALED)
 })
 

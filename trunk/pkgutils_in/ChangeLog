@@ -12,7 +12,9 @@
 - the 'docu.R' scripts now also style-checks R code in the 'demo' directory,
   if any
 
-- the 'repair_docu.rb' script now supports '$'() and '$<-'()
+- the 'repair_docu.rb' script now supports '$'() and '$<-'() and comments after
+  names of automatically generated methods; methods to be documented within the
+  same Rd file are now written in order
 
 2012-09-18 (5th release on CRAN)
 

@@ -659,6 +659,8 @@ setMethod("update_settings_list", "list", function(x) {
 #
 
 
+## OPM
+
 setAs(from = OPM, to = "matrix", function(from) {
   attach_attr(from, from@measurements)
 })
@@ -686,6 +688,9 @@ setAs(from = "list", to = OPM, function(from) {
     metadata = map_names(md, rescue_dots),
     measurements = convert_measurements(from$measurements))
 })
+
+
+## OPMA
 
 setAs(from = OPMA, to = "matrix", function(from) {
   attach_attr(from, from@measurements)
@@ -715,6 +720,9 @@ setAs(from = "list", to = OPMA, function(from) {
     aggregated = select_aggr(from$aggregated, colnames(x@measurements)[-1L]),
     aggr_settings = update_settings_list(as.list(from$aggr_settings)))
 })
+
+
+## OPMD
 
 setAs(from = OPMD, to = "matrix", function(from) {
   attach_attr(from, from@measurements)
@@ -754,6 +762,9 @@ setAs(from = "list", to = OPMD, function(from) {
     disc_settings = settings)
 })
 
+
+## OPMS
+
 setAs(from = OPMS, to = "list", function(from) {
   lapply(from@plates, as, Class = "list")
 })
@@ -772,12 +783,30 @@ setAs(from = "list", to = OPMS, function(from) {
   }))
 })
 
+
+## MOPMX
+
+setAs(from = "list", to = MOPMX, function(from) {
+  new(MOPMX, from)
+})
+
+setAs(from = OPMX, to = MOPMX, function(from) {
+  new(MOPMX, list(from))
+})
+
+setAs(from = MOPMX, to = OPMX, function(from) {
+  if (length(from) != 1L)
+    stop("conversion impossible: number of elements is not 1")
+  from[[1L]]
+})
+
+
+## CMAT
+
 setAs(from = "matrix", to = CMAT, function(from) {
   new(CMAT, from) # overwritten to enforce consistency checks
 })
 
 
 ################################################################################
-
-
 
