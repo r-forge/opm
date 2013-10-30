@@ -48,6 +48,8 @@ x <- read_opm(getwd(), convert = "grp", include = list("csv"))
 
 stopifnot(names(x) == plate_type(x)) # the names already indicate the plate type
 
+x # shows a summary of the contained elements
+
 
 ### Select some CSV data, convert them and enter them as metadata:
 

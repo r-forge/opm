@@ -72,6 +72,23 @@ test_that("MOPMX object are restricted (dollar operator)", {
   expect_equal(length(x), 2L)
 })
 
+## c
+test_that("MOPMX objects can be combined with c()", {
+  x <- new("MOPMX")
+  expect_is(x, "MOPMX")
+  got <- c(x, list(NULL), recursive = TRUE)
+  expect_is(got, "MOPMX")
+  got <- c(x, NULL)
+  expect_is(got, "MOPMX")
+  got <- c(x, list(NULL), recursive = FALSE)
+  expect_false(is(got, "MOPMX"))
+  got <- c(x, list(a = letters))
+  expect_false(is(got, "MOPMX"))
+  x <- c(x, SMALL, NULL, x)
+  expect_is(x, "MOPMX")
+  expect_equal(length(x), 1L)
+})
+
 
 ## +
 test_that("`+`() can be used to put plates together", {
