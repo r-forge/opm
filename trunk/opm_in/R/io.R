@@ -1142,6 +1142,16 @@ setMethod("collect_template", OPMS, function(object, outfile = NULL,
   finish_template(do.call(rbind, result), outfile, sep, previous, md.args, demo)
 }, sealed = SEALED)
 
+setMethod("collect_template", MOPMX, function(object, outfile = NULL,
+    sep = "\t", previous = outfile, md.args = list(),
+    selection = opm_opt("csv.selection"), add.cols = NULL, normalize = FALSE,
+    instrument = NULL, ..., demo = FALSE) {
+  result <- lapply(object, collect_template, selection = selection,
+    add.cols = add.cols, normalize = normalize, instrument = instrument,
+    outfile = NULL, previous = NULL, sep = sep, md.args = md.args)
+  finish_template(do.call(rbind, result), outfile, sep, previous, md.args, demo)
+}, sealed = SEALED)
+
 #= to_metadata collect_template
 
 #' @rdname collect_template
