@@ -294,7 +294,7 @@ setClass(OPMS,
 #'
 setClass(MOPMX,
   contains = "list",
-  prototype = list(),
+  prototype = structure(list(), names = character()),
   validity = function(object) {
     if (all(vapply(object@.Data, is, NA, OPMX)))
       TRUE

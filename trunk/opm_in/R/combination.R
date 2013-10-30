@@ -166,20 +166,21 @@ setMethod("[<-", c(OPMS, "ANY", "missing", "list"), function(x, i, j, value) {
 }, sealed = SEALED)
 
 setMethod("[<-", c(MOPMX, "ANY", "missing", OPMX), function(x, i, j, value) {
-  x@.Data[i] <- value
-  close_index_gaps(x)
+  #x@.Data[i] <- value
+  close_index_gaps(callNextMethod())
 })
 
 setMethod("[<-", c(MOPMX, "ANY", "missing", "list"), function(x, i, j, value) {
-  x@.Data[i] <- value
-  x <- close_index_gaps(x)
+  #x@.Data[i] <- value
+  x <- close_index_gaps(callNextMethod())
   validObject(x)
   x
 })
 
 setMethod("[<-", c(MOPMX, "ANY", "missing", "NULL"), function(x, i, j, value) {
-  x@.Data[i] <- value
-  x
+  #x@.Data[i] <- value
+  #x
+  callNextMethod()
 })
 
 setMethod("[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
@@ -193,13 +194,14 @@ setMethod("[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
 #' @export
 #'
 setMethod("[[<-", c(MOPMX, "ANY", "missing", OPMX), function(x, i, j, value) {
-  x@.Data[[i]] <- value
-  close_index_gaps(x)
+  #x@.Data[[i]] <- value
+  close_index_gaps(callNextMethod())
 })
 
 setMethod("[[<-", c(MOPMX, "ANY", "missing", "NULL"), function(x, i, j, value) {
-  x@.Data[[i]] <- value
-  x
+  callNextMethod()
+  #x@.Data[[i]] <- value
+  #x
 })
 
 setMethod("[[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
@@ -213,12 +215,12 @@ setMethod("[[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
 #' @export
 #'
 setMethod("$<-", c(MOPMX, OPMX), function(x, name, value) {
-  x@.Data[[name]] <- value
+  x[[name]] <- value
   x
 })
 
 setMethod("$<-", c(MOPMX, "NULL"), function(x, name, value) {
-  x@.Data[[name]] <- value
+  x[[name]] <- value
   x
 })
 
