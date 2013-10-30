@@ -663,17 +663,20 @@ glob_to_regex.factor <- function(object) {
 #'
 #' @param convert Character scalar with one of the following values:
 #'   \describe{
-#'   \item{no}{Always return a list (of \code{\link{OPM}} objects).}
+#'   \item{no}{Always return a list of \code{\link{OPM}} objects. (This list is
+#'   rather a \code{\link{MOPMX}} object than a plain list.)}
 #'   \item{yes}{Convert to \code{NULL}, \code{\link{OPM}} object, or
 #'   \code{\link{OPMS}} object, depending on the number of files read (0, 1, or
 #'   more).}
 #'   \item{try}{Behave like \sQuote{yes} but do not result in an error message
-#'   if conversion to OPMS is impossible; return a list in that case.}
-#'   \item{sep}{Return a nested list, each sublist containing \code{\link{OPM}}
-#'   objects of the same plate type.}
+#'   if conversion to OPMS is impossible; return a list (\code{\link{MOPMX}}
+#'   object) in that case.}
+#'   \item{sep}{Return a nested list, each sublist (\code{\link{MOPMX}} object)
+#'   containing \code{\link{OPM}} objects of the same plate type.}
 #'   \item{grp}{Also split into such sublists but convert them to
 #'   \code{\link{OPMS}} objects if more than one plate is encountered. An error
-#'   is raised if this is impossible (in contrast to \sQuote{try}).}
+#'   is raised if this is impossible (in contrast to \sQuote{try}). Return a
+#'   list (\code{\link{MOPMX}} object).}
 #'   }
 #' @param gen.iii Logical or character scalar. If \code{TRUE}, invoke
 #'   \code{\link{gen_iii}} on each plate. This is automatically done with
@@ -693,15 +696,14 @@ glob_to_regex.factor <- function(object) {
 #'   invisibly?
 #'
 #' @return
-#'   \code{read_opm} returns an
-#'   \code{\link{OPM}} object (maybe \code{\link{OPMA}} in case of
-#'   \acronym{YAML} input), or list of such objects, or \code{\link{OPMS}}
-#'   object. If \code{demo} is \code{TRUE}, a character vector instead.
+#'   \code{read_opm} returns an \code{\link{OPM}} object (maybe
+#'   \code{\link{OPMA}} in case of \acronym{YAML} input), or list
+#'   (\code{\link{MOPMX}} object) of such objects, or \code{\link{OPMS}} object.
+#'   If \code{demo} is \code{TRUE}, a character vector instead.
 #'
-#'   \code{read_single_opm} also returns an\code{\link{OPM}} object. In the
-#'   case of \acronym{YAML} input, this
-#'   might also be an \code{\link{OPMA}} object or a list of such objects, but
-#'   \strong{not} an \code{\link{OPMS}} object.
+#'   \code{read_single_opm} also returns an\code{\link{OPM}} object. In the case
+#'   of \acronym{YAML} input, this might also be an \code{\link{OPMA}} object or
+#'   a list of such objects, but \strong{not} an \code{\link{OPMS}} object.
 #'
 #' @details The expected \acronym{CSV} format is what is output by an
 #'   OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} instrument, one plate

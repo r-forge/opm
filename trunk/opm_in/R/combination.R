@@ -306,6 +306,13 @@ setMethod("c", OPMX, function(x, ..., recursive = FALSE) {
   try_opms.list(list(x, ...))
 }, sealed = SEALED)
 
+setMethod("c", MOPMX, function(x, ..., recursive = FALSE) {
+  if (missing(..1))
+    return(x)
+  y <- as.list(c(x@.Data, ..., recursive = recursive))
+  tryCatch(new(class(x), y), error = function(e) y)
+}, sealed = SEALED)
+
 #= plus c
 
 #' @rdname c
