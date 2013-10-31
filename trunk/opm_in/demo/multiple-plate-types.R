@@ -103,7 +103,7 @@ x <- do_aggr(x, boot = 0, cores = 8, method = "splines",
 
 # Let's have a look at the upper part of the aggregation settings.
 #
-head(aggr_settings(x, join = "json"))
+head(aggr_settings(x, join = "json"), 1)
 
 
 # This discretization is using exact k-means partitioning, without estimation
@@ -114,7 +114,7 @@ x <- do_disc(x, cutoff = FALSE)
 
 # Let's have a look at the upper part of the discretization settings.
 #
-head(disc_settings(x, join = "json"))
+head(disc_settings(x, join = "json"), 1)
 
 
 ### OUTPUT SECTION:

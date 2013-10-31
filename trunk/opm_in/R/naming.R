@@ -187,9 +187,9 @@ select_colors <- function(
 #' used in the measuring, normalize plate-type names, display known names, or
 #' modify the plate type after inputting the plate data.
 #'
-#' @param object \code{\link{OPM}} or \code{\link{OPMS}} object, or character
-#'   vector of original plate name(s), or factor. If missing, the function
-#'   displays the plate types \pkg{opm} knows about.
+#' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object, or character vector of original plate name(s), or factor. If
+#'   missing, the function displays the plate types \pkg{opm} knows about.
 #' @param full Logical scalar. If \code{TRUE}, add (or replace by) the full name
 #'   of the plate type (if available); otherwise, return it as-is.
 #' @param in.parens Logical scalar. This and the five next arguments work like
@@ -389,6 +389,11 @@ setMethod("gen_iii", OPM, function(object, to = "gen.iii") {
 
 setMethod("gen_iii", OPMS, function(object, ...) {
   object@plates <- lapply(X = object@plates, FUN = gen_iii, ...)
+  object
+}, sealed = SEALED)
+
+setMethod("gen_iii", MOPMX, function(object, ...) {
+  object@.Data <- lapply(X = object@.Data, FUN = gen_iii, ...)
   object
 }, sealed = SEALED)
 

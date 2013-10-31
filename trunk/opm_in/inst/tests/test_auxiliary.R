@@ -35,6 +35,14 @@ test_that("we can memoize queries", {
 ## UNTESTED
 
 
+## close_index_gaps
+## UNTESTED
+
+
+## fix_names
+## UNTESTED
+
+
 ## sub_indexes
 test_that("sub-indexes can be got and incremented", {
   x <- list(a = 1:2, b = 'a', c = c(TRUE, FALSE, FALSE))

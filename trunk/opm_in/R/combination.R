@@ -87,16 +87,6 @@ try_opms.list <- function(object, precomputed = TRUE, skip = FALSE) {
     error = function(e) object)
 }
 
-#' @rdname to_opm_list
-#'
-close_index_gaps <- function(x) {
-  if (any(bad <- vapply(x, is.null, NA))) {
-    warning("closing gaps in indexes")
-    return(x[!bad])
-  }
-  x
-}
-
 
 ################################################################################
 ################################################################################
@@ -166,21 +156,47 @@ setMethod("[<-", c(OPMS, "ANY", "missing", "list"), function(x, i, j, value) {
 }, sealed = SEALED)
 
 setMethod("[<-", c(MOPMX, "ANY", "missing", OPMX), function(x, i, j, value) {
-  #x@.Data[i] <- value
-  close_index_gaps(callNextMethod())
+  x@.Data[i] <- value
+  x@.Data <- close_index_gaps(x@.Data)
+  x
+})
+
+setMethod("[<-", c(MOPMX, "character", "missing", OPMX), function(x, i, j,
+    value) {
+  n <- names(x)
+  x@.Data[i] <- value
+  names(x) <- fix_names(names(x), n)
+  x@.Data <- close_index_gaps(x@.Data)
+  x
 })
 
 setMethod("[<-", c(MOPMX, "ANY", "missing", "list"), function(x, i, j, value) {
-  #x@.Data[i] <- value
-  x <- close_index_gaps(callNextMethod())
+  x@.Data[i] <- value
+  x@.Data <- close_index_gaps(x@.Data)
+  validObject(x)
+  x
+})
+
+setMethod("[<-", c(MOPMX, "character", "missing", "list"), function(x, i, j,
+    value) {
+  n <- names(x)
+  x@.Data[i] <- value
+  names(x) <- fix_names(names(x), n)
+  x@.Data <- close_index_gaps(x@.Data)
   validObject(x)
   x
 })
 
 setMethod("[<-", c(MOPMX, "ANY", "missing", "NULL"), function(x, i, j, value) {
-  #x@.Data[i] <- value
-  #x
-  callNextMethod()
+  x@.Data[i] <- NULL
+  x@.Data <- close_index_gaps(x@.Data)
+  x
+})
+
+setMethod("[<-", c(MOPMX, "character", "missing", "NULL"), function(x, i, j,
+    value) {
+  x@.Data[match(i, names(x), 0L)] <- NULL
+  x
 })
 
 setMethod("[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
@@ -194,14 +210,29 @@ setMethod("[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
 #' @export
 #'
 setMethod("[[<-", c(MOPMX, "ANY", "missing", OPMX), function(x, i, j, value) {
-  #x@.Data[[i]] <- value
-  close_index_gaps(callNextMethod())
+  x@.Data[[i]] <- value
+  x@.Data <- close_index_gaps(x@.Data)
+  x
+})
+
+setMethod("[[<-", c(MOPMX, "character", "missing", OPMX), function(x, i, j,
+    value) {
+  n <- names(x)
+  x@.Data[[i]] <- value
+  names(x) <- fix_names(names(x), n)
+  x
 })
 
 setMethod("[[<-", c(MOPMX, "ANY", "missing", "NULL"), function(x, i, j, value) {
-  callNextMethod()
-  #x@.Data[[i]] <- value
-  #x
+  x@.Data[[i]] <- value
+  x
+})
+
+setMethod("[[<-", c(MOPMX, "character", "missing", "NULL"), function(x, i, j,
+    value) {
+  if (m <- match(i, names(x), 0L))
+    x@.Data[[m]] <- value
+  x
 })
 
 setMethod("[[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
@@ -214,7 +245,12 @@ setMethod("[[<-", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, value) {
 #' @rdname bracket.set
 #' @export
 #'
-setMethod("$<-", c(MOPMX, OPMX), function(x, name, value) {
+setMethod("$<-", c(MOPMX, "OPMX"), function(x, name, value) {
+  x[[name]] <- value
+  x
+})
+
+setMethod("$<-", c(MOPMX, "ANY"), function(x, name, value) {
   x[[name]] <- value
   x
 })
@@ -222,10 +258,6 @@ setMethod("$<-", c(MOPMX, OPMX), function(x, name, value) {
 setMethod("$<-", c(MOPMX, "NULL"), function(x, name, value) {
   x[[name]] <- value
   x
-})
-
-setMethod("$<-", c(MOPMX, "ANY"), function(x, name, value) {
-  stop("'value' must be NULL or inherit from 'OPMX'")
 })
 
 

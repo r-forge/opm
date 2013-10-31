@@ -110,14 +110,15 @@ setMethod("pick_from", "data.frame", function(object, selection) {
 #' Reduce a countable object to the most frequent element(s). Alternatively,
 #' join list to a matrix or data frame.
 #'
-#' @param x An \R object to which \code{table} can be applied. The matrix method
-#'   reduces the columns.
+#' @param x For \code{reduce_to_mode}, an \R object to which \code{table} can be
+#'   applied. The matrix method reduces the columns.
 #' @param cutoff Numeric scalar. Relative frequency below which elements are
 #'   discarded.
 #' @param use.na Logical scalar indicating whether ambiguous results should be
 #'   converted to \code{NA}.
 #' @param how Character scalar indicating how to join the list. See
 #'   \code{\link{aggr_settings}} for the values.
+#' @param y For \code{fix_names}, a vector of original names.
 #' @return Vector of the same storage mode than \code{x}.
 #' @keywords internal
 #'
@@ -194,6 +195,24 @@ simplify_conditionally <- function(x) {
     do.call(rbind, x)
   else
     unlist(x, FALSE, TRUE)
+}
+
+#' @rdname reduce_to_mode
+#'
+close_index_gaps <- function(x) {
+  if (any(bad <- vapply(x, is.null, NA))) {
+    warning("closing gaps in indexes")
+    return(x[!bad])
+  }
+  x
+}
+
+#' @rdname reduce_to_mode
+#'
+fix_names <- function(x, y) {
+  if (any(bad <- !nzchar(x)[i <- seq_along(y)] & nzchar(y)))
+    x[i][bad] <- y[bad]
+  x
 }
 
 
