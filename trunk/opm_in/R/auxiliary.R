@@ -407,7 +407,7 @@ vector2row <- function(x) matrix(x, 1L, length(x), FALSE, list(NULL, names(x)))
 #' @param ops Character vector containing the operators to use when converting
 #'   a list to a formula. Recycled if necessary.
 #' @param full.eval Logical scalar indicating whether to evaluate the result.
-#'   Usually makes no sense for formulas here.
+#'   Usually makes no sense for formulae here.
 #' @param envir Passed to \code{eval}.
 #' @param fmt Character scalar. The format of the formula; omitting \sQuote{~}
 #'   yields an error.
@@ -690,7 +690,7 @@ setMethod("parse_time", c("character", "character"), function(object, format,
 #'   instance, file names created by a batch export conducted by a some software
 #'   are usually more or less regularly structured and contain content at
 #'   distinct positions. In such situations, the correct splitting approach can
-#'   be recognized by yielding the same number of fields from each vector
+#'   be recognised by yielding the same number of fields from each vector
 #'   element.
 #' @return Character matrix, its number of rows being equal to the length of
 #'   \code{object}, or data frame with the same number of rows as \code{object}
@@ -1213,7 +1213,7 @@ prepare_class_names.character <- function(x) {
 #'   class \code{\link{MOA}}, comprising matrices and arrays.
 #'
 #'   When mapping names, \code{object} can be any \R object. The default method
-#'   applies the mapping to the \sQuote{names} attribute. The behavior is
+#'   applies the mapping to the \sQuote{names} attribute. The behaviour is
 #'   special for lists, which are traversed recursively to also consider
 #'   sublists with names. Data frames and \code{\link{MOA}} objects (that is,
 #'   including matrices and arrays) are also treated specially because the
@@ -2106,10 +2106,10 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #' @family auxiliary-functions
 #' @details The following keys can be used with the following kinds of values:
 #'   \describe{
-#'     \item{colors}{Default color set used by the \code{\link{OPMS}} method
+#'     \item{colors}{Default colour set used by the \code{\link{OPMS}} method
 #'       of \code{\link{xy_plot}} and other plotting functions.}
-#'     \item{color.borders}{Character vector with default color borders between
-#'       which \code{\link{level_plot}} interpolates to obtain a color
+#'     \item{color.borders}{Character vector with default colour borders between
+#'       which \code{\link{level_plot}} interpolates to obtain a colour
 #'       palette.}
 #'     \item{comb.key.join}{Used by functions that support combination of
 #'       metadata entries converted to data-frame columns immediately after
@@ -2147,7 +2147,7 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #'     \item{group.name}{Character scalar used as column name for trivial
 #'       groups (either all items in the same group or each item in a group of
 #'       its own) created by \code{\link{extract}}.}
-#'     \item{heatmap.colors}{Color palette used by \code{\link{heat_map}}.}
+#'     \item{heatmap.colors}{Colour palette used by \code{\link{heat_map}}.}
 #'     \item{html.attr}{Used by \code{\link{phylo_data}} for automatically
 #'       creating \acronym{HTML} \sQuote{title} and \sQuote{class} attributes.}
 #'     \item{input.try.order}{Integer vector indicating the preferred order when
@@ -2162,7 +2162,7 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #'       use.}
 #'     \item{max.chars}{Integer scalar used when abbreviating full substrate
 #'       names. See \code{\link{wells}} for an example.}
-#'     \item{min.mode}{Used when making discretization results uniform within a
+#'     \item{min.mode}{Used when making discretisation results uniform within a
 #'       group. The minimum proportion the most frequent value much reach to be
 #'       used for representing all values (if less, frequent, \code{NA} is
 #'       used). Must be a numeric scalar between 0 and 1.}
@@ -2171,7 +2171,7 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #'     \item{split}{Character scalar indicating the default splitting characters
 #'       used by \code{\link{separate}}.}
 #'     \item{strict.OPMD}{Logical scalar indicating whether \code{\link{OPMD}}
-#'       objects can only be created if the discretized data are consistent with
+#'       objects can only be created if the discretised data are consistent with
 #'       the parameter from which they have been estimated.}
 #'     \item{threshold}{Numeric scalar indicating the default threshold used by
 #'       \code{\link{annotated}}.}

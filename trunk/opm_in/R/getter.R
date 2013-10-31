@@ -197,7 +197,7 @@ setMethod("hours", OPM, function(object,
 #'   for details.
 #' @param ... This should \strong{not} be set. It is an error to specify
 #'   additional dimensions.
-#' @param drop Logical scalar. Remove the aggregated data (and the discretized
+#' @param drop Logical scalar. Remove the aggregated data (and the discretised
 #'   data, if any) and turn an \code{\link{OPMA}} or \code{\link{OPMD}} object
 #'   to an \code{\link{OPM}} object? Has no effect if \code{x} already is an
 #'   \code{\link{OPM}} object or contains only such objects. For the
@@ -209,9 +209,9 @@ setMethod("hours", OPM, function(object,
 #' @details The \code{\link{OPMA}} method works like the \code{\link{OPM}} one,
 #'   but the function applies the subsetting to the original and the aggregated
 #'   data in parallel. The \code{\link{OPMD}} method applies the selection also
-#'   to the discretized data.
+#'   to the discretised data.
 #'
-#'   The aggregated and discretized data may also be dropped entirely; this
+#'   The aggregated and discretised data may also be dropped entirely; this
 #'   might be appropriate if a subset of the time points is selected,
 #'   potentially yielding aggregated values that do not fit to the measurements
 #'   anymore.
@@ -246,7 +246,7 @@ setMethod("hours", OPM, function(object,
 #' copy <- vaas_1[, 11:22]
 #' (x <- dim(copy))
 #' stopifnot(x == c(384, 12))
-#' # indexing with formulas allows for sequences of well coordinates
+#' # indexing with formulae allows for sequences of well coordinates
 #' copy <- vaas_1[, ~ A11:B10] # "A11" is 11th, "B10" is 22th well name
 #' stopifnot(dim(copy) == c(384, 12)) # same result as above
 #' # can also be combined
@@ -567,7 +567,7 @@ setMethod("seq", OPMS, function(...) {
 #'   sense to include only these in the metadata, see the examples).
 #'   Otherwise a shortcut for one of the more important \acronym{CSV} entries.
 #' @param normalize Logical scalar indicating whether plate position and setup
-#'   time entries (if selected) should be normalized. This should always work
+#'   time entries (if selected) should be normalised. This should always work
 #'   for the plate positions, but for the setup times it depends on the values
 #'   for the \code{\link{opm_opt}} keys \sQuote{time.fmt} and
 #'   \sQuote{time.zone} (see also \code{\link{merge}}).
@@ -606,7 +606,7 @@ setMethod("seq", OPMS, function(...) {
 #'
 #' (x <- csv_data(vaas_1, what = "position")) # single position (of course)
 #' (y <- csv_data(vaas_1, what = "position", normalize = TRUE))
-#' stopifnot(x == " 7-B", y == "07-B") # four characters when normalized
+#' stopifnot(x == " 7-B", y == "07-B") # four characters when normalised
 #'
 #' (x <- csv_data(vaas_1, what = "setup_time")) # single setup time (of course)
 #' (y <- csv_data(vaas_1, what = "setup_time", normalize = TRUE))
@@ -744,9 +744,9 @@ setMethod("position", OPM, function(object) {
 #
 
 
-#' Are aggregated or discretized data present?
+#' Are aggregated or discretised data present?
 #'
-#' Check whether aggregated or discretized data are present. (See
+#' Check whether aggregated or discretised data are present. (See
 #' \code{\link{do_aggr}} and \code{\link{do_disc}} for generating such data.)
 #' This always returns \code{FALSE} for the \code{\link{OPM}} class, but not
 #' necessarily for its child classes.
@@ -966,10 +966,10 @@ setMethod("aggr_settings", MOPMX, function(object, join = NULL) {
 ################################################################################
 
 
-#' Get discretized data
+#' Get discretised data
 #'
-#' Get the discretized kinetic data or the discretization settings used. (See
-#' \code{\link{do_disc}} for generating discretized data.)
+#' Get the discretised kinetic data or the discretisation settings used. (See
+#' \code{\link{do_disc}} for generating discretised data.)
 #'
 #' @param object \code{\link{OPMD}} or \code{\link{OPMS}} object.
 #' @param full Logical scalar passed to \code{\link{wells}}. This and the
@@ -1079,7 +1079,7 @@ setMethod("disc_settings", MOPMX, function(object, join = NULL) {
 #'   That is, choose either the plates for which certain metadata entries
 #'   contain certain values, or choose the plates for which these metadata have
 #'   been set at all (to some arbitrary value). See the mentioned functions for
-#'   details, and note the special behavior if \code{query} is a character
+#'   details, and note the special behaviour if \code{query} is a character
 #'   vector and \code{values} is \code{FALSE}.
 #' @param invert Logical scalar. If \code{TRUE}, return the plates for which the
 #'   condition is not \code{TRUE}.
@@ -1092,7 +1092,7 @@ setMethod("disc_settings", MOPMX, function(object, join = NULL) {
 #'   hours and minutes).
 #' @param positive Character scalar. If \sQuote{ignore}, not used. Otherwise all
 #'   previous arguments except \code{object} are ignored, and the function
-#'   yields an error unless all elements of \code{object} have discretized
+#'   yields an error unless all elements of \code{object} have discretised
 #'   values.
 #'
 #'   In that case, if \sQuote{any}, wells are selected that contain positive
@@ -1155,7 +1155,7 @@ setMethod("disc_settings", MOPMX, function(object, join = NULL) {
 #'   subset(vaas_4, ~ Strain %in% c("DSM18039", "DSM1707")))
 #' mustbe(vaas_4[c(1, 3)],
 #'   subset(vaas_4, ~ Strain == "DSM18039" || Strain == "DSM1707"))
-#' # note that particularly formulas can be used to set up very complex queries
+#' # note that particularly formulae can be used to set up very complex queries
 #'
 #' # select all plates that have aggregated values
 #' dim(x <- subset(vaas_4, has_aggr(vaas_4)))
@@ -1472,7 +1472,7 @@ lapply(c(
 #~ @family getter-functions
 #' @keywords attribute
 #'
-#' @details The behavior of these methods depends on the object used as query.
+#' @details The behaviour of these methods depends on the object used as query.
 #'   \code{infix.largek} is usually stricter than \code{infix.k}, sometimes
 #'   equivalent.
 #' \itemize{
@@ -1536,7 +1536,7 @@ lapply(c(
 #' stopifnot(!c("Organism", "Experiment") %k% vaas_1) # only one present
 #' stopifnot(c("Species", "Experiment") %k% vaas_1) # all present
 #' # querying with %K% and vectors of length > 1 mean nested queries; compare
-#' # this to the behavior of %k%!
+#' # this to the behaviour of %k%!
 #' stopifnot(!c("Species", "Experiment") %K% vaas_1)
 #' # i.e. "Experiment" is not within "Species".
 #'
@@ -1563,7 +1563,7 @@ lapply(c(
 #' stopifnot(!list(Organism = "?", Experiment = NA) %k% vaas_1) # likewise
 #' stopifnot(list() %k% vaas_1) # empty query always results
 #'
-#' # Formulas for querying, compare with list examples above
+#' # Formulae for querying, compare with list examples above
 #' stopifnot((~ Experiment) %k% vaas_1) # key present
 #' stopifnot((~ Experiment) %K% vaas_1)
 #' stopifnot(vaas_1 %k% ~ Experiment) # key present, no parens needed
@@ -1666,7 +1666,7 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #' @return Logical vector of the length of the \code{\link{WMD}} or
 #'   \code{\link{OPMS}} object.
 #'
-#' @details The behavior of these methods depends on the object used as query.
+#' @details The behaviour of these methods depends on the object used as query.
 #'   \code{infix.largeq} is usually stricter than \code{infix.q}, sometimes
 #'   equivalent.
 #' \itemize{
@@ -1768,7 +1768,7 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #' stopifnot(vaas_1 %q% vaas_1) # obviously
 #' stopifnot(vaas_1 %Q% vaas_1)
 #'
-#' ## Formulas for querying
+#' ## Formulae for querying
 #'
 #' stopifnot((~ Experiment == "First replicate") %q% vaas_1)
 #' stopifnot((~ Experiment == "First replicate") %Q% vaas_1)

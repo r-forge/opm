@@ -7,7 +7,7 @@
 #
 
 
-#' Summarize OPMX or MOPMX objects
+#' Summarise OPMX or MOPMX objects
 #'
 #' Generate a summary (which also prints nicely to the screen), or display an
 #' \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}} object on
@@ -242,7 +242,7 @@ print.print_easy <- function(x, ...) {
 #' @param offset Numeric scalar. A minimal distance to the margins.
 #' @param prop.offset Numeric scalar. As an alternative to \code{offset}, it can
 #'   be specified as a proportion of \code{target}.
-#' @param col Character scalar. Name of the color to be used.
+#' @param col Character scalar. Name of the colour to be used.
 #' @param cex Numeric scalar. Magnification for CI margin symbols and point
 #'   estimate. Also affects line width, and proportionally so.
 #' @param na.action Character scalar. What to do if a margin value is \code{NA}.
@@ -462,19 +462,19 @@ setMethod("main_title", OPMX, function(object, settings) {
 ################################################################################
 
 
-#' Safely select colors or create color regions.
+#' Safely select colours or create colour regions.
 #'
 #' Call \code{\link{select_colors}} and if this does not work return the input
-#' argument as-is. Alternatively, create default color regions for use with
+#' argument as-is. Alternatively, create default colour regions for use with
 #' \code{\link{level_plot}}.
 #'
 #' @param set Character vector passed to \code{\link{select_colors}}.
-#' @param colors Character or integer vector with at least two distinct colors.
-#'   If \code{NULL} or empty, default colors are chosen.
+#' @param colours Character or integer vector with at least two distinct
+#'   colours. If \code{NULL} or empty, default colours are chosen.
 #' @param space Passed to \code{colorRampPalette}.
 #' @param bias Passed to \code{colorRampPalette}.
 #' @param n Passed to the function returned by \code{colorRampPalette}.
-#' @return Character vector of color codes.
+#' @return Character vector of colour codes.
 #' @keywords internal
 #'
 try_select_colors <- function(set) {
@@ -497,23 +497,23 @@ default_color_regions <- function(colors, space, bias, n) {
 
 #' X-Y plot
 #'
-#' Customized plotting of a single or multiple PM plate(s), using \code{xyplot}
+#' Customised plotting of a single or multiple PM plate(s), using \code{xyplot}
 #' from the \pkg{lattice} package.
 #'
 #' @param x \code{\link{OPM}} or \code{\link{OPMS}} object.
 #'
-#' @param col For the \code{\link{OPM}} method, just a character scalar (color
-#'   name) determining the line color.
+#' @param col For the \code{\link{OPM}} method, just a character scalar (colour
+#'   name) determining the line colour.
 #'
-#'   For the \code{\link{OPMS}} method, either a character vector with color
+#'   For the \code{\link{OPMS}} method, either a character vector with colour
 #'   codes or one of the arguments of \code{\link{select_colors}} (for picking
-#'   one of the predefined color sets).
+#'   one of the predefined colour sets).
 #'
-#'   It is an error if fewer colors are chosen than the number of plate
+#'   It is an error if fewer colours are chosen than the number of plate
 #'   grouping levels (see the \code{\dots} argument below). For user-chosen
-#'   color sets, keep in mind that the sets are not checked for duplicates, and
+#'   colour sets, keep in mind that the sets are not checked for duplicates, and
 #'   see \code{max_rgb_contrast} from the \pkg{pkgutils} package as a method for
-#'   optimally arranging user-defined colors.
+#'   optimally arranging user-defined colours.
 #' @param lwd Numeric scalar determining the line width.
 #'
 #' @param neg.ctrl Determine the height of a horizontal baseline drawn in each
@@ -527,7 +527,7 @@ default_color_regions <- function(colors, space, bias, n) {
 #'   \item Set \code{neg.ctrl} to a numeric value for assigning the height
 #'   directly (at your own risk).
 #'   }
-#' @param base.col Character scalar. Baseline color (ignored if no baseline is
+#' @param base.col Character scalar. Baseline colour (ignored if no baseline is
 #'   drawn).
 #' @param base.lwd Numeric scalar determining the width of the baseline (ignored
 #'   if no baseline is drawn).
@@ -561,14 +561,14 @@ default_color_regions <- function(colors, space, bias, n) {
 #'   overwritten by \code{legend.fmt}.
 #'
 #' @param strip.fmt List controlling the format of the description strip above
-#'   each panel. For instance, the background color is set using the
+#'   each panel. For instance, the background colour is set using the
 #'   \sQuote{bg} key. For further details, see \code{strip.custom} from the
 #'   \pkg{lattice} package. Note that the \strong{content} of these descriptions
 #'   is determined by arguments passed from \code{xy_plot} to
 #'   \code{\link{wells}}; see there for details.
 #' @param striptext.fmt List controlling the textual description at the top of
 #'   each panel. For instance, the relative text size is set using the
-#'   \sQuote{cex} key, the color by \sQuote{col}, the font by \sQuote{font} and
+#'   \sQuote{cex} key, the colour by \sQuote{col}, the font by \sQuote{font} and
 #'   the number of lines by \sQuote{lines}. The latter might be of interest in
 #'   conjunction with the \code{paren.sep} argument of \code{\link{wells}}. See
 #'   the argument \sQuote{par.strip.text} of \code{xyplot} from the
@@ -576,7 +576,7 @@ default_color_regions <- function(colors, space, bias, n) {
 #'
 #' @param legend.fmt List controlling where and how to draw the legend. The
 #'   content of the legend (mainly a description of the assignment of the
-#'   colors to the curves) is determined automatically. See argument
+#'   colours to the curves) is determined automatically. See argument
 #'   \sQuote{key} of \code{xyplot} from the \pkg{lattice} package for details.
 #' @param legend.sep Character scalar. Relevant only if more than one columns of
 #'   metadata have been selected; will then be used as separator to join their
@@ -587,10 +587,10 @@ default_color_regions <- function(colors, space, bias, n) {
 #' @param ... Arguments that are passed to \code{\link{flatten}}. For the
 #'   \code{\link{OPMS}} method, \code{include} is particularly important: the
 #'   selected metadata are joined into a single factor, and the assignment of
-#'   plates to this factor's levels determines the curve color for each plate.
+#'   plates to this factor's levels determines the curve colour for each plate.
 #'   That is, each combination of metadata entries as chosen using
-#'   \code{include} yields one color. If no metadata are selected (the
-#'   default), each plate gets a color of its own. Also note that arguments
+#'   \code{include} yields one colour. If no metadata are selected (the
+#'   default), each plate gets a colour of its own. Also note that arguments
 #'   passed via \code{\link{flatten}} to \code{\link{wells}} can be given here
 #'   which determine the content of the panel description.
 #'
@@ -603,8 +603,8 @@ default_color_regions <- function(colors, space, bias, n) {
 #'   of the resulting graphics output.
 #'
 #'   In the case of the \code{\link{OPMS}} method, if metadata are selected,
-#'   curve colors are determined according to the combinations of these
-#'   metadata entries, otherwise each plate gets its own color.
+#'   curve colours are determined according to the combinations of these
+#'   metadata entries, otherwise each plate gets its own colour.
 #'
 #'   The data-frame method is not intended for phenotype microarray data. It is
 #'   currently \strong{undocumented} and potentially subject to frequent changes
@@ -641,7 +641,7 @@ default_color_regions <- function(colors, space, bias, n) {
 #'
 #' # OPMS method
 #' \dontrun{
-#' # Color by species and strain; note default main title
+#' # Colour by species and strain; note default main title
 #' xy_plot(vaas_4, include = c("Species", "Strain"))
 #' # Use the largest of the negative-control maxima as baseline
 #' xy_plot(vaas_4, include = c("Species", "Strain"),
@@ -680,7 +680,7 @@ setMethod("xy_plot", OPM, function(x, col = "midnightblue", lwd = 1,
       RESERVED_NAMES[c("value", "time", "well")]),
     data = flatten(x, ...), type = "l", layout = layout,
     as.table = TRUE,
-    # Curve color and panel height
+    # Curve colour and panel height
     col = col, ylim = c(0, y.max),
     # Axis annotation
     scales = list(x = list(rot = 90)),
@@ -726,17 +726,17 @@ setMethod("xy_plot", OPMS, function(x, col = opm_opt("colors"), lwd = 1,
   # OPMS-specific addition of defaults
   legend.fmt <- insert(as.list(legend.fmt), space = space, .force = FALSE)
 
-  # Selection of a color set
+  # Selection of a colour set
   col <- try_select_colors(col)
 
   # Conversion
   data <- flatten(x, ...)
 
-  # Assignment of colors to plates
+  # Assignment of colours to plates
   param <- flattened_to_factor(object = data, sep = legend.sep)
   key.text <- levels(param)
   if (length(col) < length(key.text))
-    stop("color should be by plate or metadata, but there are too few colors")
+    stop("colour should be by plate or metadata, but there are too few colours")
   key.col <- col[seq_along(key.text)]
   col <- col[param]
 
@@ -749,7 +749,7 @@ setMethod("xy_plot", OPMS, function(x, col = opm_opt("colors"), lwd = 1,
       RESERVED_NAMES[c("value", "time", "well")]),
     data = data, type = "l", layout = layout,
     as.table = TRUE, groups = `_GROUPING`,
-    # Curve colors and panel height
+    # Curve colours and panel height
     col = col, ylim = c(0, y.max),
     # Axis annotation
     scales = list(x = list(rot = 90)),
@@ -803,11 +803,11 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
   x$`_GROUPING` <- do.call(paste, c(x[, pos, drop = FALSE], sep = legend.sep))
   x$`_GROUPING` <- as.factor(x$`_GROUPING`)
 
-  # Assignment of colors
+  # Assignment of colours
   col <- try_select_colors(col)
   key.text <- levels(x$`_GROUPING`)
   if (length(key.text) > length(col))
-    stop("number of colors must be at least as large as number of groups")
+    stop("number of colours must be at least as large as number of groups")
   key.col <- col[seq_along(key.text)]
   col <- key.col
 
@@ -823,7 +823,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
     # Principally unchangeable arguments
     x = f, data = x, type = "l", layout = layout,
     as.table = TRUE, groups = `_GROUPING`,
-    # Curve colors (panel height is omitted)
+    # Curve colours (panel height is omitted)
     col = col,
     # Axis annotation
     scales = list(x = list(rot = 90)),
@@ -860,7 +860,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #'
 #' @param main The settings controlling the construction of the main title.
 #'   Works like the \code{main} argument of \code{\link{xy_plot}}.
-#' @param colors Character vector indicating the colors (at least two).
+#' @param colors Character vector indicating the colours (at least two).
 #'
 #' @param panel.headers \code{NULL}, logical scalar, expression or character
 #'   vector. \code{NULL} and \code{FALSE} turn panel headers off. \code{TRUE}
@@ -873,7 +873,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #'   made).
 #'
 #' @param strip.fmt List controlling the format of the description strip above
-#'   each panel. For instance, the background color is set using the
+#'   each panel. For instance, the background colour is set using the
 #'   \sQuote{bg} key. For further details, see \code{strip.custom} from the
 #'   \pkg{lattice} package. \code{strip.fmt} is ignored if panel.headers is
 #'   \code{FALSE} and currently always ignored by the \code{\link{OPM}} method.
@@ -886,7 +886,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #'
 #' @param space Character scalar passed to \code{colorRampPalette} from the
 #'   \pkg{grDevices} package. These and the following arguments are for
-#'   fine-tuning the color palette used for plotting.
+#'   fine-tuning the colour palette used for plotting.
 #' @param bias Numeric scalar also passed to \code{colorRampPalette}.
 #' @param num.colors Numeric scalar passed to the function returned by
 #'   \code{colorRampPalette}.
@@ -1008,10 +1008,10 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #' @param prop.offset Numeric scalar. A proportional offset that is added to the
 #'   vertical range of the panels (after determining the maximum range among all
 #'   panels to ensure consistency within the plot).
-#' @param align Character scalar. How to apply the offset; one of
-#'   \sQuote{center}, \sQuote{left} and \sQuote{right}.
+#' @param align Character scalar. How to apply the offset; in addition to the
+#'   default, \sQuote{left} and \sQuote{right} are possible.
 #'
-#' @param col Character scalar. Color to be used.
+#' @param col Character scalar. Colour to be used.
 #'
 #' @param na.action Character scalar. What to do if a confidence interval
 #'   contains \code{NA} values; one of \sQuote{ignore}, \sQuote{warn} and
@@ -1183,7 +1183,7 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #'   scale. If the relative changes per substrate are of interest,
 #'   \sQuote{column} should be used.
 #'
-#' @param r.groups Determines the plotting of a color bar indicating row
+#' @param r.groups Determines the plotting of a colour bar indicating row
 #'   groups.
 #'
 #'   If \code{NULL}, ignored. If a function, applied to the row names of
@@ -1194,9 +1194,9 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #'
 #'   Finally the groups are converted to a factor and used for selecting from
 #'   \code{r.col}.
-#' @param r.col Character vector of color names used by \code{r.groups}.
+#' @param r.col Character vector of colour names used by \code{r.groups}.
 #'   Ignored if that is \code{NULL}.
-#' @param c.groups Determines the plotting of a color bar indicating column
+#' @param c.groups Determines the plotting of a colour bar indicating column
 #'   groups.
 #'
 #'   If \code{NULL}, ignored. If a function, applied to the column names of
@@ -1207,7 +1207,7 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #'
 #'   Finally the groups are converted to a factor and used for selecting from
 #'   \code{c.col}.
-#' @param c.col Character vector of color names used by \code{c.groups}.
+#' @param c.col Character vector of colour names used by \code{c.groups}.
 #'   Ignored if that is \code{NULL}.
 #'
 #' @param magnif Numeric vector. Factor(s) used per default by \code{cexRow} and
@@ -1220,16 +1220,16 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #' @param margins Two-element numeric vector determining the relative size of
 #'   the margin (i) at the bottom and (ii) at the left.
 #'
-#' @param col Character vector containing the proper heat map colors.
+#' @param col Character vector containing the proper heat map colours.
 #' @param asqr Logical scalar indicating whether the data should be treated
 #'   with the arcus sinus-square root transformation. This usually only makes
 #'   sense for proportion data. If \code{NA}, percentages are assumed.
 #' @param ... Optional arguments passed to \code{heatmap} or \code{heatmap.2}.
 #'   Note that some defaults of \code{heatmap.2} are overwritten even though
 #'   this is not transparent from the argument list of \code{heat_map}. If set
-#'   explicitly, the default \code{heatmap.2} behavior is restored. \code{\dots}
-#'   also represents all arguments passed from the \code{\link{OPMS}} or
-#'   data-frame methods to the matrix method.
+#'   explicitly, the default \code{heatmap.2} behaviour is restored.
+#'   \code{\dots} also represents all arguments passed from the
+#'   \code{\link{OPMS}} or data-frame methods to the matrix method.
 #'
 #' @param use.fun Character scalar. If \sQuote{gplots}, it is attempted to load
 #'   the \pkg{gplots} package and use its \code{heatmap.2} function (the
@@ -1239,7 +1239,7 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #' @export
 #' @return A list as output by \code{heatmap} or \code{heatmap.2} with the
 #'   additional entries \sQuote{rowColMap} or \sQuote{colColMap} giving the
-#'   mapping(s) of group names to colors as named character vector(s), if this
+#'   mapping(s) of group names to colours as named character vector(s), if this
 #'   feature was used.
 #'
 #' @family plotting-functions
@@ -1309,7 +1309,7 @@ setMethod("heat_map", "matrix", function(object,
     colors <- try_select_colors(colors)
     groups <- as.factor(groups)
     if (length(colors) < length(levels(groups)))
-      stop("more groups than colors given")
+      stop("more groups than colours given")
     structure(colors[groups], names = as.character(groups))
   }
 
@@ -1438,7 +1438,7 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' @keywords hplot
 #'
 #' @return A vector with the row names of \code{object} as names and the
-#'   corresponding colors as values, equivalent to the legend; \code{NULL} if
+#'   corresponding colours as values, equivalent to the legend; \code{NULL} if
 #'   no row names are present.
 #'
 #' @details The default positioning of the legend is not necessarily very

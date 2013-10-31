@@ -6,14 +6,14 @@
 #
 
 
-#' Discretization functions
+#' Discretisation functions
 #'
 #' These are the helper functions called by \code{\link{do_disc}} (which is the
 #' function normally applied by an \pkg{opm} user). \code{discrete} converts
 #' continuous numeric characters to discrete ones. \code{best_cutoff} determines
 #' the best cutoff for dividing a numeric matrix into two categories by
-#' minimizing within-group discrepancies. That is, for each combination of row
-#' group and column maximize the number of contained elements that are in the
+#' minimising within-group discrepancies. That is, for each combination of row
+#' group and column maximise the number of contained elements that are in the
 #' category in which most of the elements within this combination of row group
 #' and column are located.
 #'
@@ -42,7 +42,7 @@
 #'   state, depending on \code{middle.na}.
 #'
 #'   If \code{FALSE} (the default), apply an equal-width-intervals
-#'   discretization with the widths determined from the number of requested
+#'   discretisation with the widths determined from the number of requested
 #'   \code{states} and \code{range}.
 #'
 #' @param output String determining the output mode: \sQuote{character},
@@ -88,7 +88,7 @@
 #'
 #' @param all Logical scalar. If \code{TRUE}, calculate the score for all
 #'   possible cutoffs for \code{x}. This is slow and is only useful for plotting
-#'   complete optimization curves.
+#'   complete optimisation curves.
 #' @param ... Optional arguments passed between the methods or, if requested, to
 #'   \code{\link{run_kmeans}} (except \code{object} and \code{k}, see there).
 #'
@@ -124,7 +124,7 @@
 #'   units} of evolution on the one hand and of phylogenetic reconstruction (and
 #'   thus taxonomic classification) on the other hand.
 #'
-#'   The scoring function to be maximized by \code{best_cutoff} is calculated as
+#'   The scoring function to be maximised by \code{best_cutoff} is calculated as
 #'   follows. All values in \code{x} are divided into those larger then the
 #'   cutoff and those at most large as the cutoff. For each combination of group
 #'   and matrix column the frequencies of the two categories are determined, and
@@ -138,11 +138,11 @@
 #' @seealso base::cut stats::optimize
 #' @keywords character category
 #' @references Dougherty, J., Kohavi, R., Sahami, M. 1995 Supervised and
-#'   unsupervised discretization of continuous features. In: Prieditis, A.,
+#'   unsupervised discretisation of continuous features. In: Prieditis, A.,
 #'   Russell, S. (eds.) \emph{Machine Learning: Proceedings of the fifth
 #'   international conference}.
 #' @references Ventura, D., Martinez, T. R. 1995 An empirical comparison of
-#'   discretization methods. \emph{Proceedings of the Tenth International
+#'   discretisation methods. \emph{Proceedings of the Tenth International
 #'   Symposium on Computer and Information Sciences}, p. 443--450.
 #' @references Wiley, E. O., Lieberman, B. S. 2011 \emph{Phylogenetics: Theory
 #'   and Practice of Phylogenetic Systematics}. Hoboken, New Jersey:
@@ -176,7 +176,7 @@
 #' (yy <- discrete(as.data.frame(x), range = c(3.4, 4.5), gap = TRUE))
 #' stopifnot(y == yy)
 #'
-#' # K-means based discretization of PM data (prefer do_disc() for this)
+#' # K-means based discretisation of PM data (prefer do_disc() for this)
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"),
 #'   in.parens = FALSE)
 #' (y <- discrete(x, range = TRUE, gap = TRUE))[, 1:3]
@@ -186,13 +186,13 @@
 #' x <- matrix(c(5:2, 1:2, 7:8), ncol = 2)
 #' grps <- c("a", "a", "b", "b")
 #'
-#' # combined optimization
+#' # combined optimisation
 #' (y <- best_cutoff(x, grps))
 #' stopifnot(is.numeric(y), length(y) == 2) # two-element numeric vector
 #' stopifnot(y[["maximum"]] < 4, y[["maximum"]] > 3, y[["objective"]] == 2)
 #' plot(best_cutoff(x, grps, all = TRUE), type = "l")
 #'
-#' # separate optimization
+#' # separate optimisation
 #' (y <- best_cutoff(x, grps, combined = FALSE))
 #' stopifnot(is.matrix(y), dim(y) == c(2, 2)) # numeric matrix
 #' stopifnot(y["a", "objective"] == 2, y["b", "objective"] == 2)
@@ -368,21 +368,21 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 ################################################################################
 
 
-#' Discretize curve parameters
+#' Discretise curve parameters
 #'
-#' Discretize the aggregated kinetic data, i.e. infer discrete values from the
+#' Discretise the aggregated kinetic data, i.e. infer discrete values from the
 #' curve parameters stored in an \code{\link{OPMA}} or \code{\link{OPMS}}
-#' object. Here, only discretization into positive, negative and ambiguous
+#' object. Here, only discretisation into positive, negative and ambiguous
 #' reactions is supported, and only based on the \sQuote{maximum height} curve
 #' parameter (which is biologically reasonable though).
 #'
 #' @param object \code{\link{OPMA}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
 #'   object.
-#' @param cutoff Determines the discretization approach. If non-empty, passed as
+#' @param cutoff Determines the discretisation approach. If non-empty, passed as
 #'   \code{range} argument to \code{discrete} (with \code{gap} set to
-#'   \code{TRUE}), thus triggering discretization using either k-means
+#'   \code{TRUE}), thus triggering discretisation using either k-means
 #'   partitioning or one or two predefined thresholds. If empty (e.g.,
-#'   \code{NULL}), a discretization cutoff is determined using
+#'   \code{NULL}), a discretisation cutoff is determined using
 #'   \code{\link{best_cutoff}}, which is only possible for \code{\link{OPMS}}
 #'   objects.
 #' @param groups List, \code{NULL} or character vector passed as
@@ -427,13 +427,13 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #'   \code{\link{extract}}. The latter is only relevant for certain settings of
 #'   \code{groups}, see above.
 #'
-#' @details If \code{unify} is set to \code{FALSE}, the discretization results
+#' @details If \code{unify} is set to \code{FALSE}, the discretisation results
 #'   are always consistent (in the sense described for the \code{\link{OPMD}}
-#'   class) with the discretized parameter. If \code{unify} is set to
+#'   class) with the discretised parameter. If \code{unify} is set to
 #'   \code{TRUE} this cannot be guaranteed any more. To enforce consistency,
 #'   use \code{opm_opt(strict.OPMD = TRUE)}.
 #'
-#'   The discretized values can be queried for using \code{\link{has_disc}}
+#'   The discretised values can be queried for using \code{\link{has_disc}}
 #'   and received using \code{\link{discretized}}.
 #'
 #' @export
@@ -455,7 +455,7 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' # arbitrary threshold, no ambiguity
 #' summary(x <- do_disc(vaas_1, cutoff = 100))
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_1), !is.na(discretized(x)))
-#' (y <- disc_settings(x))  # stored discretization settings
+#' (y <- disc_settings(x))  # stored discretisation settings
 #' stopifnot(identical(y$method, "direct"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #'
@@ -463,21 +463,21 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' summary(x <- do_disc(vaas_1, cutoff = c(75, 125)))
 #' # the intermediate reactions are coded as NA
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_1), any(is.na(discretized(x))))
-#' (y <- disc_settings(x)) # stored discretization settings
+#' (y <- disc_settings(x)) # stored discretisation settings
 #' stopifnot(identical(y$method, "direct"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #'
 #' # using k-means, two categories, no intermediate ('weak') reactions
 #' summary(x <- do_disc(vaas_1, cutoff = FALSE))
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_1), !is.na(discretized(x)))
-#' (y <- disc_settings(x)) # stored discretization settings
+#' (y <- disc_settings(x)) # stored discretisation settings
 #' stopifnot(identical(y$method, "kmeans"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #'
 #' # using k-means, now allowing intermediate ('weak') reactions
 #' summary(x <- do_disc(vaas_1, cutoff = TRUE))
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_1), any(discretized(x)))
-#' (y <- disc_settings(x)) # stored discretization settings
+#' (y <- disc_settings(x)) # stored discretisation settings
 #' stopifnot(identical(y$method, "kmeans"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #'
@@ -487,7 +487,7 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' # arbitrary threshold, no ambiguity, no groups
 #' x <- do_disc(vaas_4, cutoff = 100)
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_4), !is.na(discretized(x)))
-#' (y <- disc_settings(x)[[1]]) # stored discretization settings
+#' (y <- disc_settings(x)[[1]]) # stored discretisation settings
 #' stopifnot(identical(y$method, "direct"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #'
@@ -495,7 +495,7 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' x <- do_disc(vaas_4, cutoff = 100, unify = TRUE)
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_4))
 #' stopifnot(any(is.na(discretized(x)))) # NAs caused by unification
-#' (y <- disc_settings(x)[[1]]) # stored discretization settings
+#' (y <- disc_settings(x)[[1]]) # stored discretisation settings
 #' stopifnot(identical(y$method, "direct"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #' # all plates made uniform (makes not much sense)
@@ -503,7 +503,7 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' # arbitrary threshold, no ambiguity, with groups, 1 plate per group
 #' x <- do_disc(vaas_4, cutoff = 100, groups = TRUE)
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_4), !is.na(discretized(x)))
-#' (y <- disc_settings(x)[[1]]) # stored discretization settings
+#' (y <- disc_settings(x)[[1]]) # stored discretisation settings
 #' stopifnot(identical(y$method, "direct"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #' # here, the plate numbers yield the group names
@@ -511,7 +511,7 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' # arbitrary threshold, no ambiguity, with specified groups
 #' x <- do_disc(vaas_4, cutoff = 100, groups = "Species")
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_4), !is.na(discretized(x)))
-#' (y <- disc_settings(x)[[1]]) # stored discretization settings
+#' (y <- disc_settings(x)[[1]]) # stored discretisation settings
 #' stopifnot(identical(y$method, "direct"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #' # now, groups are from the metadata (but played no role)
@@ -519,25 +519,25 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' # using k-means, no ambiguity, with specified groups
 #' x <- do_disc(vaas_4, cutoff = FALSE, groups = "Species")
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_4), !is.na(discretized(x)))
-#' (y <- disc_settings(x)[[1]]) # stored discretization settings
+#' (y <- disc_settings(x)[[1]]) # stored discretisation settings
 #' stopifnot(identical(y$method, "kmeans"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
-#' # grouping by species, discretized separately
+#' # grouping by species, discretised separately
 #'
 #' # same, with unification
 #' x <- do_disc(vaas_4, cutoff = FALSE, groups = "Species", unify = TRUE)
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_4))
 #' stopifnot(any(is.na(discretized(x)))) # NAs caused by unification
-#' (y <- disc_settings(x)[[1]]) # stored discretization settings
+#' (y <- disc_settings(x)[[1]]) # stored discretisation settings
 #' stopifnot(identical(y$method, "kmeans"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
-#' # grouping by species, discretized separately, then made uniform
+#' # grouping by species, discretised separately, then made uniform
 #'
 #' # using best_cutoff(), groups defined by species affiliation (makes not
 #' # much sense and by default yields warnings with these data)
 #' x <- do_disc(vaas_4, cutoff = NULL, groups = "Species")
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_4), any(is.na(discretized(x))))
-#' (y <- disc_settings(x)[[1]]) # stored discretization settings
+#' (y <- disc_settings(x)[[1]]) # stored discretisation settings
 #' stopifnot(identical(y$method, "best-cutoff"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #' # groups as above, 2 strains per species, but some additional entries
@@ -546,7 +546,7 @@ setMethod("best_cutoff", c("matrix", "factor"), function(x, y,
 #' # and by default also yields warnings with these data)
 #' x <- do_disc(vaas_4, cutoff = NULL, groups = FALSE)
 #' stopifnot(has_disc(x), dim(x) == dim(vaas_4), any(is.na(discretized(x))))
-#' (y <- disc_settings(x)[[1]]) # stored discretization settings
+#' (y <- disc_settings(x)[[1]]) # stored discretisation settings
 #' stopifnot(identical(y$method, "best-cutoff"))
 #' stopifnot(is.list(y), is.list(y$options)) # named lists
 #' # no subgroups, all 4 data sets in one group, and some additional entries

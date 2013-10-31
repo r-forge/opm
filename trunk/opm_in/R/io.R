@@ -26,7 +26,7 @@
 #' @return \code{\link{OPM}} object or list of \code{\link{OPM}} objects. In the
 #'   case of \acronym{YAML} or \acronym{JSON}, a \code{\link{OPM}},
 #'   \code{\link{OPMA}} or \code{\link{OPMD}} object, depending on the presence
-#'   of aggregated and discretized data. Can also be a list of such objects.
+#'   of aggregated and discretised data. Can also be a list of such objects.
 #'   \code{repair_oth} returns a matrix either equal to \code{x} or containing a
 #'   single row only.
 #' @details
@@ -934,7 +934,7 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
 #'   scalar), or any object convertible to a data frame. Might also be
 #'   \code{\link{WMD}} or \code{\link{OPMS}} object. If a named character vector
 #'   with more than a single element, it is used as the first row of the
-#'   resulting data frame. This behavior is mainly intended for using this
+#'   resulting data frame. This behaviour is mainly intended for using this
 #'   function after a call to the \code{\link{OPM}} method of \code{csv_data}.
 #' @param outfile Character scalar. Ignored if \code{NULL}, empty or empty
 #'   string. Otherwise, interpreted as the name of a \acronym{CSV} output file.
@@ -971,7 +971,7 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
 #' @param stringsAsFactors Logical scalar passed to \code{as.data.frame}.
 #' @param optional Logical scalar passed to \code{as.data.frame} or used after
 #'   negation as \sQuote{check.names} argument of \code{read.delim}.
-#' @param strip.white Logical scalar. For the filename method, passed to
+#' @param strip.white Logical scalar. For the file-name method, passed to
 #'   \code{read.delim} (and set to \code{TRUE} if it is \code{NA}). It is often
 #'   advisable to set this to \code{FALSE} if \acronym{CSV} input is done for a
 #'   later call to \code{collect_template}. For a character vector not
@@ -1236,11 +1236,11 @@ setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
 #'   aggregated data (which can be present in \acronym{YAML} input).
 #' @param disc.args If not \code{NULL} but a list, passed as arguments to
 #'   \code{\link{do_disc}} with the data read from each individual file as
-#'   additional argument \code{object}.  If \code{NULL}, discretization takes
-#'   not place (but discretized data may already be present in case of
+#'   additional argument \code{object}.  If \code{NULL}, discretisation takes
+#'   not place (but discretised data may already be present in case of
 #'   \acronym{YAML} input).
-#' @param force.disc Logical scalar. If \code{FALSE}, do not discretize already
-#'   discretized data (which can be present in \acronym{YAML} input).
+#' @param force.disc Logical scalar. If \code{FALSE}, do not discretise already
+#'   discretised data (which can be present in \acronym{YAML} input).
 #' @param device Character scalar describing the graphics device used for
 #'   outputting plots. See \code{Devices} from the \pkg{grDevices} package and
 #'   \code{mypdf} from the \pkg{pkgutils} package for possible values. The
@@ -1326,11 +1326,11 @@ setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
 #'       The value of \sQuote{options} is an arbitrarily nested mapping with
 #'       arbitrary content.}
 #'     \item{discretized}{A mapping, only present if curve parameters have been
-#'       estimated and also discretized. Its keys correspond to those of
+#'       estimated and also discretised. Its keys correspond to those of
 #'       \sQuote{measurements} with the exception of \sQuote{hours}. The values
 #'       are logical scalars.}
 #'     \item{disc_settings}{A mapping, only present if curve parameters have
-#'       been estimated and also discretized. Its keys are \sQuote{software},
+#'       been estimated and also discretised. Its keys are \sQuote{software},
 #'       \sQuote{version} and \sQuote{options}. The value of the former two is a
 #'       character scalar. The value of \sQuote{options} is an arbitrarily
 #'       nested mapping with arbitrary content.}
@@ -1643,7 +1643,7 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #'
 #' @param single Logical scalar. If there is only one group per file, i.e. only
 #'   one output file would result from the splitting, create this file anyway?
-#'   Such cases could be recognized by empty character vectors as values of the
+#'   Such cases could be recognised by empty character vectors as values of the
 #'   returned list (see below).
 #' @param wildcard Logical scalar. Is \code{pattern} a shell-globbing wildcard
 #'   that first needs to be converted to a regular expression?

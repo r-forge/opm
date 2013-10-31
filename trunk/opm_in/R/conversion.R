@@ -36,7 +36,7 @@
 #'   \code{\link{csv_data}} will be taken from the first contained plate, but
 #'   aggregated values, if any, will be dropped.
 #' @details This \code{\link{OPMS}} method is intended for dealing with slowly
-#'   growing or reacting organisms that need to be analyzed with subsequent runs
+#'   growing or reacting organisms that need to be analysed with subsequent runs
 #'   of the same plate in PM mode. Results obtained with \emph{Geodermatophilus}
 #'   strains and Generation-III plates indicate that this works well in
 #'   practice. See the references.
@@ -309,7 +309,7 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #'   \code{\link{csv_data}} as \code{keys} argument.
 #' @param parse Logical scalar. Convert the \code{\link{setup_time}} via
 #'   \code{strptime} before ordering? Has only an effect if \code{by} is
-#'   \sQuote{setup_time}. It is an error if the time format is not recognized.
+#'   \sQuote{setup_time}. It is an error if the time format is not recognised.
 #'   See \code{\link{opm_opt}}, arguments \sQuote{time.fmt} and
 #'   \sQuote{time.zone}, for modifying the parsing of setup-time entries.
 #' @param exact Logical scalar. Passed to \code{\link{metadata}}. Affects only
@@ -515,9 +515,9 @@ setMethod("rep", OPMS, function(x, ...) {
 
 #' Extract aggregated values and/or metadata
 #'
-#' Extract selected aggregated and/or discretized values into common matrix or
-#' data frame. The \code{extract} data-frame method conducts normalization
-#' and/or computes normalized point-estimates and respective confidence
+#' Extract selected aggregated and/or discretised values into common matrix or
+#' data frame. The \code{extract} data-frame method conducts normalisation
+#' and/or computes normalised point-estimates and respective confidence
 #' intervals for user-defined experimental groups. It is mainly a helper
 #' function for \code{\link{ci_plot}}. \code{extract_columns} extracts only
 #' selected metadata entries for use as additional columns in a data frame or
@@ -537,7 +537,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   columns, much like \code{as.groups}.
 #'
 #' @param subset Character vector. The parameter(s) to put in the matrix. If it
-#'   is \code{\link{param_names}("disc.name")}, discretized data are returned,
+#'   is \code{\link{param_names}("disc.name")}, discretised data are returned,
 #'   and \code{ci} is ignored..
 #' @param ci Logical scalar. Also return the confidence intervals?
 #' @param trim Character scalar. See \code{\link{aggregated}} for details.
@@ -586,27 +586,27 @@ setMethod("rep", OPMS, function(x, ...) {
 #' @param ... Optional other arguments passed to \code{\link{wells}}.
 #'
 #' @param norm.per Character scalar indicating the presence and direction of a
-#'   normalization step.
+#'   normalisation step.
 #'   \describe{
-#'   \item{none}{No normalization.}
-#'   \item{row}{Normalization per row. By default, this would subtract the mean
+#'   \item{none}{No normalisation.}
+#'   \item{row}{Normalisation per row. By default, this would subtract the mean
 #'     of each plate from each of its values (over all wells of that plate).}
-#'   \item{column}{Normalization per column. By default, this would subtract the
+#'   \item{column}{Normalisation per column. By default, this would subtract the
 #'     mean of each well from each of its values (over all plates in which this
 #'     well is present).}
 #'   }
 #'   This step can further by modified by the next three arguments.
 #' @param norm.by Vector indicating which wells (columns) or plates (rows) are
-#'   used to calculate means used for the normalization. By default, the mean is
-#'   calculated over all rows or columns if normalization is requested using
+#'   used to calculate means used for the normalisation. By default, the mean is
+#'   calculated over all rows or columns if normalisation is requested using
 #'   \code{norm.per}. But if \code{direct} is \code{TRUE}, \code{norm.by} is
-#'   directly interpreted as numeric vector used for normalization.
+#'   directly interpreted as numeric vector used for normalisation.
 #' @param direct Logical scalar. For \code{extract}, indicating how to use
 #'   \code{norm.by}. See there for details. For \code{extract_columns},
 #'   indicating whether to extract column names directly, or search for columns
 #'   of one to several given classes.
 #'
-#' @param subtract Logical scalar indicating whether normalization (if any) is
+#' @param subtract Logical scalar indicating whether normalisation (if any) is
 #'   done by subtracting or dividing.
 #' @param split.at Character vector defining alternative names of the column at
 #'   which the data frame shall be divided. Exactly one must match.
@@ -639,7 +639,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   and, if grouping was used, a triplet structure of the rows, as indicated in
 #'   the new \code{split.at} column: (i) group mean, (ii) lower and (iii) upper
 #'   boundary of the group confidence interval. The data could then be
-#'   visualized using \code{\link{ci_plot}}. See the examples.
+#'   visualised using \code{\link{ci_plot}}. See the examples.
 #'
 #'   For the \code{OPMS} method of \code{extract_columns}, a data frame or
 #'   character vector, depending on the \code{join} argument. The data-frame
@@ -695,7 +695,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   as.labels = list("Species", "Strain"), dataframe = TRUE))
 #' x <- do.call(rbind, x)
 #'
-#' # get discretized data
+#' # get discretised data
 #' (x <- extract(vaas_4, subset = param_names("disc.name"),
 #'   as.labels = list("Strain")))[, 1:3]
 #' stopifnot(is.matrix(x), identical(dim(x), c(4L, 96L)), is.logical(x))
@@ -712,17 +712,17 @@ setMethod("rep", OPMS, function(x, ...) {
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 350, y = 1)
 #'
-#' # normalization by plate means
+#' # normalisation by plate means
 #' y <- extract(x, as.groups = "Species",  norm.per = "row")
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 130, y = 1)
 #'
-#' # normalization by well means
+#' # normalisation by well means
 #' y <- extract(x, as.groups = "Species",  norm.per = "column")
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 20, y = 1)
 #'
-#' # normalization by subtraction of the well means of well A10 only
+#' # normalisation by subtraction of the well means of well A10 only
 #' y <- extract(x, as.groups = "Species",  norm.per = "row", norm.by = 10,
 #'   subtract = TRUE)
 #' # plotting using ci_plot()
@@ -1021,7 +1021,7 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #' Create data frame
 #'
 #' These \code{as.data.frame} methods create a data frame from aggregated and
-#' discretized values in a manner distinct from \code{\link{extract}}.
+#' discretised values in a manner distinct from \code{\link{extract}}.
 #' \code{flatten} converts into a \sQuote{flat} data frame, including all
 #' measurements in a single column (suitable, e.g., for \pkg{lattice}).
 #'
@@ -1087,9 +1087,9 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #'   contain them), the used aggregation settings, one column per entry, except
 #'   for the \sQuote{options} entry (which is not a scalar).
 #'   \item For \code{\link{OPMD}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), one column with the discretized data.
+#'   contain them), one column with the discretised data.
 #'   \item For \code{\link{OPMD}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), the used discretization settings, one column per entry,
+#'   contain them), the used discretisation settings, one column per entry,
 #'   except for the \sQuote{options} entry (which is not a scalar).
 #'   }
 #'
@@ -1312,7 +1312,7 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
 #' @keywords character IO
 #' @references \url{http://www.yaml.org/}
 #' @references \url{http://www.json.org/}
-#' @details \acronym{YAML} is a useful data-serialization standard that is
+#' @details \acronym{YAML} is a useful data-serialisation standard that is
 #'   understood by many programming languages. It is particularly more human
 #'   readable than \acronym{XML}, and vector-like data structures (such as
 #'   Phenotype MicroArray measurements) can be much more compactly encoded.
