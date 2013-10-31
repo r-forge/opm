@@ -376,7 +376,7 @@ class Hash
   # arrays of S4_method objects whose description shall be written to such a
   # file.
   #
-  def write_s4_methods verbose, empty_line
+  def write_s4_methods verbose
     each_pair do |rdfile, s4_methods|
       warn "Adding to #{rdfile}" if verbose
       File.open(rdfile, 'a') do |file|
@@ -394,9 +394,13 @@ class Hash
           file.puts s4_method.aliases(generic_alias_too)
         end
         file.puts s4_methods.first.usage_start
+        current = ''
         s4_methods.each do |s4_method|
+          if s4_method.name != current
+            file.puts '' unless current.empty?
+            current = s4_method.name
+          end
           file.puts s4_method.s4_usage_entry
-          file.puts '' if empty_line
         end
         file.puts s4_methods.first.usage_end
         file.puts "%% END INSERTION BY #{File.basename $0}"
@@ -431,7 +435,7 @@ end
 ################################################################################
 
 
-filenames.collect_s4_methods(ignore).write_s4_methods(verbose, empty_line)
+filenames.collect_s4_methods(ignore).write_s4_methods(verbose)
 
 
 ################################################################################

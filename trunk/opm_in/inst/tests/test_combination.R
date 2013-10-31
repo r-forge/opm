@@ -17,11 +17,8 @@ if (!exists("TEST.DIR"))
 ## try_opms
 ## UNTESTED
 
-## close_index_gaps
-## UNTESTED
-
 ## [<-
-test_that("MOPMX object are restricted (bracket operator)", {
+test_that("MOPMX objects are restricted (bracket operator)", {
   x <- new("MOPMX")
   expect_equal(length(x), 0L)
   expect_error(x[2] <- 1)
@@ -32,6 +29,13 @@ test_that("MOPMX object are restricted (bracket operator)", {
   expect_equal(length(x), 0L)
   x["A"] <- SMALL
   expect_equal(length(x), 1L)
+  expect_equal(names(x), "A")
+  x["B"] <- SMALL
+  expect_equal(length(x), 2L)
+  expect_equal(names(x), c("A", "B"))
+  x["B"] <- NULL
+  expect_equal(length(x), 1L)
+  expect_equal(names(x), "A")
   expect_warning(x[3:4] <- SMALL)
   expect_equal(length(x), 3L)
   x[c(TRUE, FALSE, TRUE)] <- NULL
@@ -39,7 +43,7 @@ test_that("MOPMX object are restricted (bracket operator)", {
 })
 
 ## [[<-
-test_that("MOPMX object are restricted (double bracket operator)", {
+test_that("MOPMX objects are restricted (double bracket operator)", {
   x <- new("MOPMX")
   expect_equal(length(x), 0L)
   expect_error(x[["A"]] <- 1)
@@ -50,14 +54,22 @@ test_that("MOPMX object are restricted (double bracket operator)", {
   expect_equal(length(x), 0L)
   x[["A"]] <- SMALL
   expect_equal(length(x), 1L)
+  expect_equal(names(x), "A")
+  x[["B"]] <- SMALL
+  expect_equal(length(x), 2L)
+  expect_equal(names(x), c("A", "B"))
+  x[["B"]] <- NULL
+  expect_equal(length(x), 1L)
   expect_warning(x[[3]] <- SMALL)
   expect_equal(length(x), 2L)
   x[[3]] <- SMALL.WITH.MD
   expect_equal(length(x), 3L)
+  x[[TRUE]] <- NULL
+  expect_equal(length(x), 2L)
 })
 
 ## $<-
-test_that("MOPMX object are restricted (dollar operator)", {
+test_that("MOPMX objects are restricted (dollar operator)", {
   x <- new("MOPMX")
   expect_equal(length(x), 0L)
   expect_error(x$A <- 1)

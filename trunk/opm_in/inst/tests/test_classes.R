@@ -157,6 +157,14 @@ test_that("the example objects have the correct classes", {
 })
 
 
-################################################################################
+## initialize
+test_that("MOPMX objects are correctly created", {
+  expect_error(x <- new("MOPMX", list(A = NULL, B = SMALL)))
+  x <- new("MOPMX", list(B = SMALL, THIN.AGG))
+  expect_equal(names(x), c("B", ""))
+})
 
+
+
+################################################################################
 

@@ -147,7 +147,8 @@ setMethod("merge", c(CMAT, "ANY"), function(x, y) {
 #' create a list containing a single \code{\link{OPM}} object as element, or
 #' apply a function to a collection of \code{\link{OPM}} objects.
 #'
-#' @param object List, \code{\link{OPM}} or \code{\link{OPMS}} object.
+#' @param object List, \code{\link{OPM}}, \code{\link{OPMS}} or
+#'   \code{\link{MOPMX}} object.
 #' @param fun A function. Should accept an \code{\link{OPM}} object as first
 #'   argument.
 #' @param ... Optional other arguments passed to \code{fun}.
@@ -155,6 +156,8 @@ setMethod("merge", c(CMAT, "ANY"), function(x, y) {
 #'   \code{TRUE}, it is attempted to simplify this to a vector, matrix or
 #'   \code{\link{OPMS}} object (if the result is a list of \code{\link{OPM}} or
 #'   \code{\link{OPMA}} objects). If this is impossible, a list is returned.
+#'   The \code{\link{MOPMX}} method tries creating a \code{\link{MOPMX}} object
+#'   again after removing \code{NULL} values, if any.
 #'
 #' @return For \code{plates}, a list of \code{\link{OPM}} objects (may be empty
 #'   instead if \code{object} is a list). The result of \code{oapply} depends on
@@ -235,6 +238,17 @@ setMethod("oapply", OPMS, function(object, fun, ...,
   if (simplify && is.list(result))
     result <- try_opms.list(result)
   result
+}, sealed = SEALED)
+
+setMethod("oapply", MOPMX, function(object, fun, ...,
+    simplify = TRUE) {
+  result <- sapply(X = object@.Data, FUN = fun, ..., simplify = simplify,
+    USE.NAMES = TRUE)
+  if (simplify && is.list(result))
+    tryCatch(new(class(object), result[!vapply(result, is.null, NA)]),
+      error = function(e) result)
+  else
+    result
 }, sealed = SEALED)
 
 
