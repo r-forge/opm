@@ -22,7 +22,7 @@
 #'   In order to join two or more metadata-variables into one factor use
 #'   pseudo-function \code{J} (described in \code{\link{extract}}). This is
 #'   necessary especially when \code{linfct = Pairs}, see the examples below.
-#'   For model specifications using formulas in general, see \code{formula} (in
+#'   For model specifications using formulae in general, see \code{formula} (in
 #'   the \pkg{stats} package).
 #'   For the way models are used by \pkg{opm} for selecting metadata entries,
 #'   see \code{\link{metadata}}.
@@ -126,7 +126,7 @@
 #' @param ... Optional arguments passed to \code{\link{extract}}. Most of them
 #'   would be passed to \code{\link{wells}} for creating substrate names. Some
 #'   restrictions are necessary here if the resulting object shall latter on be
-#'   analyzed with \code{\link{annotated}}; see there for details.
+#'   analysed with \code{\link{annotated}}; see there for details.
 #'
 #' @return The kind of object returned by this function are determined by the
 #'   \code{output} argument: \describe{
@@ -563,7 +563,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'   Necessary to unambiguously match substrate names within contrast names.
 #'   For the \code{\link{OPMS}} method, a numeric scalar working like the
 #'   \code{cutoff} argument of \code{\link{listing}}. Has only an effect if
-#'   discretized values are chosen (and are available).
+#'   discretised values are chosen (and are available).
 #' @param conc Logical scalar indicating whether concentration information
 #'   should be added to the output, either as a further matrix column or as
 #'   attribute, depending on \code{how}. Note that concentration information
@@ -594,13 +594,13 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'   are generated.
 #'
 #'   The \code{\link{OPMA}} methods simply chooses a certain parameter. The
-#'   \code{\link{OPMD}} method can also return discretized values and optionally
+#'   \code{\link{OPMD}} method can also return discretised values and optionally
 #'   translates them using \code{lmap}.
 #'
 #'   The \code{\link{OPMS}} method returns the averages of the selected
 #'   parameter estimates over all contained plates. It is an error to select
-#'   discretized values instead if they are not available for all plates.
-#'   If otherwise, the discretized values are aggregated as indicated by the
+#'   discretised values instead if they are not available for all plates.
+#'   If otherwise, the discretised values are aggregated as indicated by the
 #'   \code{sep} argument.
 #'
 #'   The \code{opm_glht} method makes only sense if each coefficient estimated

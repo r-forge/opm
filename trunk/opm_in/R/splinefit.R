@@ -112,13 +112,13 @@ fit_spline <- function (y, x = "Hour", data, options = set_spline_options(),
 #'
 #' @param type Character scalar. Specifies the spline type which should be
 #'   fitted. This can be either thin plate splines (\dQuote{tp.spline}),
-#'   penalized B-splines (i.e, P-splines \dQuote{p.spline}) or smoothing
+#'   penalised B-splines (i.e, P-splines \dQuote{p.spline}) or smoothing
 #'   splines (\dQuote{smooth.spline}).
 #' @param knots Integer scalar. Determines the number of knots. Per default, the
 #'   number of knots is chosen adaptively to the number of unique observations.
 #' @param gamma Integer scalar. Specifies a constant multiplier to inflate the
 #'   degrees of freedom in the \code{"GCV"} \code{method} to increase
-#'   penalization of models that are too close to the data and thus not
+#'   penalisation of models that are too close to the data and thus not
 #'   smooth enough.
 #' @param est.method Character scalar. The smoothing parameter estimation
 #'   method. Currently, only \code{"REML"}, code{"ML"} and \code{"GCV"} are
@@ -220,13 +220,13 @@ predict.smooth.spline_model <- function(object, newdata = NULL, ...) {
 #' @param confint Logical. Should the (point-wise) confidence interval
 #'   be plotted?
 #' @param level Level of confidence interval.
-#' @param col Color of observed data. Per default a semi-transparent gray
-#'   value is used. For details see \code{\link{par}} (Section Color
+#' @param col Colour of observed data. Per default a semi-transparent gray
+#'   value is used. For details see \code{\link{par}} (Section Colour
 #'   Specification).
 #' @param pch Plotting character used for observed data points.
 #'   See \code{\link{points}} for details.
-#' @param col.spline Color of fitted spline specified for example by a character
-#'   string. For details see \code{\link{par}} (Section Color Specification).
+#' @param col.spline Colour of fitted spline specified, e.g., by a character
+#'   string. For details see \code{\link{par}} (Section Colour Specification).
 #' @param lty.spline Line type of fitted spline.
 #'   For details see \code{\link{par}}.
 #' @param lwd.spline Line width of fitted spline.
@@ -299,8 +299,8 @@ plot.opm_models <- function(x, which = NULL, plot.data = TRUE,
 #' @param confint Logical. Should the (point-wise) confidence interval
 #'   be plotted?
 #' @param level Level of confidence interval.
-#' @param col Color of fitted spline specified for example by a character
-#'   string. For details see \code{\link{par}} (Section Color Specification).
+#' @param col Colour of fitted spline specified for example by a character
+#'   string. For details see \code{\link{par}} (Section Colour Specification).
 #' @param lty Line type of fitted spline. For details see \code{\link{par}}.
 #' @param lwd Line width of fitted spline. For details see \code{\link{par}}.
 #' @param lty.confint Line type of confidence interval.
@@ -503,8 +503,8 @@ Predict.matrix.psp.smooth <- function (object, data) {
 #'
 #' @param model Model fit.
 #' @param add.deriv Should the derivative be plotted?
-#' @param col Color for parameter estimates.
-#' @param deriv.col Color for first derivative.
+#' @param col Colour for parameter estimates.
+#' @param deriv.col Colour for first derivative.
 #' @param lty Line type.
 #' @param ... Additional graphical parameters that are passed to
 #'   \code{\link{lines}}, \code{\link{points}} and \code{\link{abline}}.
@@ -539,7 +539,7 @@ add_parameters <- function(model, add.deriv = FALSE, col = "red",
 #'   to.
 #' @param data raw data.
 #' @param plot.data Logical. Should the raw data be plotted?
-#' @param col Color for plotting.
+#' @param col Colour for plotting.
 #' @param pch Point symbols to be plotted.
 #' @param ... Further arguments to be passed to \code{\link{plot}} and
 #'   \code{\link{points}}.

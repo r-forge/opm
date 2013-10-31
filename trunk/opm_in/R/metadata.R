@@ -47,7 +47,7 @@
 #'   \item If \code{key} is otherwise, \code{value} must be list of values to be
 #'   prepended, appended or set as metadata, either entirely or specifically,
 #'   depending on \code{key}.
-#'   \item Formulas can also be used as \code{value}. In that case, the formula
+#'   \item Formulae can also be used as \code{value}. In that case, the formula
 #'   can specify the key to be replaced. See the examples below and
 #'   \code{\link{map_values}} for details.
 #'   \item If \code{object} is of class \code{\link{OPMS}}, \code{value} can be
@@ -221,7 +221,7 @@ setMethod("metadata<-", c(WMD, "missing", OPMS), function(object, key, value) {
 }, sealed = SEALED)
 
 #-------------------------------------------------------------------------------
-# the data-frame behavior deliberately deviates from other key values
+# the data-frame behaviour deliberately deviates from other key values
 
 #' @name metadata.set
 #'
@@ -548,7 +548,7 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #'   \code{\link{map_values}}. If the left side of the formula is missing, the
 #'   entire metadata are replaced by the result, which is an error if the result
 #'   is not a list.
-#'   \item If \code{mapping} is missing, the behavior is special; see the next
+#'   \item If \code{mapping} is missing, the behaviour is special; see the next
 #'   two arguments.
 #' }
 #' @param values Mostly a logical scalar. \itemize{
@@ -859,7 +859,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #'   \item If neither empty nor a list nor a formula (i.e. usually a character
 #'   or numeric vector), \code{key} is treated as a single list key. Factors are
 #'   converted to \sQuote{character} mode.
-#'   \item Formulas can also be used and are converted to a list or character or
+#'   \item Formulae can also be used and are converted to a list or character or
 #'   numeric vector using the rules described under \sQuote{Details}.
 #'   \item It is in general not recommended to use numeric vectors as \code{key}
 #'   arguments, either directly or within a list or formula.
@@ -905,7 +905,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #'   position, even if they belong to \code{\link{OPM}} objects within a single
 #'   \code{\link{OPMS}} object.
 #'
-#'   Formulas passed as \code{key} argument are treated by ignoring the left
+#'   Formulae passed as \code{key} argument are treated by ignoring the left
 #'   side (if any) and converting the right side to a list or other vector. Code
 #'   enclosed in \code{I} is evaluated with a call to \code{eval}. It is up to
 #'   the user to ensure that this call succeeds and yields a character vector or
@@ -916,7 +916,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #'   of high precedence such as \code{::} but their use is not recommended. All
 #'   operators with a lower precedence than \code{$} separate list elements.
 #'
-#'   Additional options when using formulas are described under
+#'   Additional options when using formulae are described under
 #'   \code{\link{extract}}.
 #'
 #' @examples

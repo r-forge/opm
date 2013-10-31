@@ -154,7 +154,7 @@ plot.kmeanss <- function(x, xlab = "Number of clusters",
 #' @keywords cluster hplot manip
 #' @family kmeans-functions
 #' @details The borders are calculated as the mean of the maximum of the cluster
-#'   with the lower values and the minimum of the neighboring cluster with the
+#'   with the lower values and the minimum of the neighbouring cluster with the
 #'   higher values. The \code{hist} method plots a histogram of one-dimensional
 #'   data subjected to k-means partitioning in which these borders can be drawn.
 #'

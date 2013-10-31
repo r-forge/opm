@@ -42,7 +42,7 @@
 #'
 #' \acronym{FOE} is an acronym for \sQuote{formula or expression}.
 #' This is a virtual class facilitating the implementation of functionality
-#' for both formulas and expressions. Methods defined for objects from the
+#' for both formulae and expressions. Methods defined for objects from the
 #' class can be applied to either kind of object.
 #' See \code{\link{metadata.set}} and \code{\link{map_metadata}} for
 #' usage examples.
@@ -109,7 +109,7 @@ setClassUnion(FOE, c("formula", "expression"))
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} phenotype microarray data
 #' without aggregated values, but with information read from the original input
 #' \acronym{CSV} files as well as an additional arbitrary amount of arbitrarily
-#' organized metadata. Objects of this class are usually created by inputting
+#' organised metadata. Objects of this class are usually created by inputting
 #' files with \code{\link{read_single_opm}} or \code{\link{read_opm}}, not with
 #' a call to \code{new} or \code{as}.
 #'
@@ -142,18 +142,18 @@ setClassUnion(FOE, c("formula", "expression"))
 #'
 #' \acronym{OPMA} inherits from \acronym{OPM} and, hence, has all its methods.
 #'
-#' \acronym{OPMD} is an acronym for \sQuote{\acronym{OPM}, discretized}. This is
+#' \acronym{OPMD} is an acronym for \sQuote{\acronym{OPM}, discretised}. This is
 #' the class for holding single-plate
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} phenotype microarray data
-#' together with aggregated \strong{and} discretized values. Objects of this
+#' together with aggregated \strong{and} discretised values. Objects of this
 #' class are usually created by calling \code{\link{do_disc}} on an
 #' \acronym{OPMA} object, or by inputting files with
 #' \code{\link{read_single_opm}} or \code{\link{read_opm}} if these files
-#' already contain discretized data.
+#' already contain discretised data.
 #'
 #' \acronym{OPMD} inherits from \acronym{OPMA} and, hence, has all its methods.
 #'
-#' The discretized data are considered as \sQuote{consistent} with the curve
+#' The discretised data are considered as \sQuote{consistent} with the curve
 #' parameter from which they have been estimated if no \code{FALSE} value
 #' corresponds to curve parameter larger than the curve parameter of any
 #' \code{TRUE} value; \code{NA} values are not considered when checking
@@ -163,7 +163,7 @@ setClassUnion(FOE, c("formula", "expression"))
 #'
 #' \acronym{OPMS} is the class for holding multiple-plate
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} phenotype microarray data
-#' with or without aggregated or discretized values. Regarding the name:
+#' with or without aggregated or discretised values. Regarding the name:
 #' \acronym{OPMS} is just the plural of \acronym{OPM}. Objects of this class are
 #' usually created by calling \code{\link{opms}} or other combination functions
 #' on \acronym{OPM} or derived objects, or by inputting files with
@@ -193,7 +193,7 @@ setClassUnion(FOE, c("formula", "expression"))
 #' showMethods("coerce", classes = c("OPM", "OPMA", "OPMD"))
 #' data(vaas_1)
 #' data(vaas_4)
-#' (x <- as(vaas_1, "OPMA")) # drops the discretized data
+#' (x <- as(vaas_1, "OPMA")) # drops the discretised data
 #' stopifnot(has_disc(vaas_1), !has_disc(x))
 #' (x <- as(vaas_1, "OPM")) # drops the aggregated data
 #' stopifnot(has_aggr(vaas_1), !has_aggr(x))
@@ -421,7 +421,7 @@ setMethod("initialize", CMAT, function(.Object, ...) {
 #' @param orig.data Matrix of original, non-aggregated data.
 #' @param settings List or \code{NULL}. If a list, settings used for aggregating
 #'   the data (currently only the \pkg{opm}-native programs are checked).
-#' @param disc Vector of discretized data. At this stage, it must already have
+#' @param disc Vector of discretised data. At this stage, it must already have
 #'   the same wells than \code{object}, in the same order.
 #' @return Character vector with description of problems, empty if there are
 #'   none.
@@ -594,7 +594,7 @@ setMethod("opms_problems", "list", function(object) {
 #' Attach the contents of all slots, except for the measurements, to another
 #' object. Useful in conversions (coercions). This method is deliberately
 #' \strong{not} defined for \code{\link{OPMS}} objects. Alternatively,
-#' convert old-style to new-style aggregation or discretization settings.
+#' convert old-style to new-style aggregation or discretisation settings.
 #'
 #' @param object \code{\link{OPM}} object.
 #' @param other Arbitrary other object.

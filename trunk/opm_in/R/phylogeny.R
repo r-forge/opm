@@ -669,7 +669,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #' @param extract.args Optional list of arguments passed to that method.
 #' @param discrete.args Optional list of arguments passed from the
 #'   \code{\link{OPMS}} method to \code{\link{discrete}}. If set to \code{NULL},
-#'   discretization is turned off. Ignored if precomputed discretized values are
+#'   discretisation is turned off. Ignored if precomputed discretised values are
 #'   chosen by setting \code{subset} to \code{\link{param_names}("disc.name")}.
 #'
 #' @param ... Optional arguments passed between the methods (i.e., from the
@@ -690,10 +690,10 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'
 #'   For exporting NEXUS format, the matrix should normally be converted
 #'   beforehand by applying \code{\link{discrete}}. Exporting \acronym{HTML} is
-#'   optimized for data discretized with \code{gap} set to \code{TRUE}. For
+#'   optimised for data discretised with \code{gap} set to \code{TRUE}. For
 #'   other data, the \code{character.states} argument should be modified, see
 #'   \code{\link{html_args}}. The \sQuote{hennig} (Hennig86) format is the one
-#'   used by \acronym{TNT}; it allows continuous characters to be analyzed as
+#'   used by \acronym{TNT}; it allows continuous characters to be analysed as
 #'   such. Regarding the meaning of \sQuote{character} as used here, see the
 #'   \sQuote{Details} section of \code{\link{discrete}}.
 #'
@@ -718,7 +718,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   program for phylogenetic analysis. \emph{Cladistics} \strong{24}, 774--786
 #'   [the TNT program].
 #' @references Goloboff, P.A., Mattoni, C., Quinteros, S. 2005 Continuous
-#'   characters analyzed as such. \emph{Cladistics} \strong{22}, 589--601.
+#'   characters analysed as such. \emph{Cladistics} \strong{22}, 589--601.
 #' @references Maddison, D. R., Swofford, D. L., Maddison, W. P. 1997 Nexus: An
 #'   extensible file format for systematic information. \emph{Syst Biol}
 #'   \strong{46}, 590--621 [the NEXUS format].
@@ -837,7 +837,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #' echo(y.noconst <- phylo_data(x, "html", delete = "const", join = TRUE))
 #' stopifnot(longer(y.noconst, y.nouninf))
 #'
-#' # getting real numbers, not discretized ones
+#' # getting real numbers, not discretised ones
 #' echo(yy <- phylo_data(vaas_4[, , 1:10], as.labels = "Species",
 #'   format = "html", join = TRUE, extract.args = list(in.parens = FALSE),
 #'   subset = "A", discrete.args = NULL,
