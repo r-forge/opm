@@ -28,7 +28,7 @@
 
   \item{.sep}{\code{NULL} or character scalar. If empty,
   ignored. Otherwise used as output line separator, causing
-  outfiles to always be written unless \code{mapfun}
+  output files to always be written unless \code{mapfun}
   returns \code{NULL}. Can be used to just change line
   breaks if \code{mapfun} is \code{identity}.}
 }
@@ -36,7 +36,7 @@
   Logical vector using \code{x} as names, with \code{TRUE}
   indicating a successfully modified file, \code{FALSE} a
   file that yielded no errors but needed not to be
-  modified, and \code{NA} a filename that caused an error.
+  modified, and \code{NA} a file name that caused an error.
   An attribute \sQuote{errors} is provided, containing a
   character vector with error messages (empty strings if no
   error occurred).

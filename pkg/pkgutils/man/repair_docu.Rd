@@ -55,14 +55,14 @@
   \sQuote{Rd}.}
 
   \item{remove.dups}{Logical scalar indicating whether
-  (probably) duplicate links in the \sQuote{seealso}
-  section shall be removed.}
+  (probably) duplicate links in the \code{seealso} section
+  shall be removed.}
 
   \item{text.dups}{Logical scalar indicating whether
   duplicate words within text content should be noted.}
 
-  \item{file}{Optional character scalar indicating the
-  filename from which the \sQuote{Rd} object was read.
+  \item{file}{Optional character scalar indicating the name
+  of the file from which the \sQuote{Rd} object was read.
   Useful when creating messages describing a problem. See
   \code{\link{logfile}}.}
 
@@ -118,14 +118,14 @@
   \code{check_keywords} checks keywords in Rd files for
   their presence, for their occurrence within the list
   given in the \sQuote{KEYWORDS.db} file that comes with
-  \R{}, and for fitting to the \sQuote{docType} of the
+  \R{}, and for fitting to the \code{docType} entry of the
   \sQuote{Rd} object. The \sQuote{Rd} method examines the
   content of Rd files.
 
   In addition to checking that the keywords used are listed
   in the \sQuote{KEYWORDS.db} file, it is checked that
   \sQuote{internal} is not combined with other keywords,
-  and that \sQuote{docType} entries such as \sQuote{class},
+  and that \code{docType} entries such as \sQuote{class},
   \sQuote{data} or \sQuote{package} are accompanied by the
   appropriate keywords.
 
@@ -134,7 +134,7 @@
   presence/absence of examples in Rd files. They should not
   be present if the list of \sQuote{keywords} contains
   \sQuote{internal}. Otherwise they should be present
-  unless \sQuote{docType} is \sQuote{class} or
+  unless \code{docType} is \sQuote{class} or
   \sQuote{package}.
 }
 \examples{

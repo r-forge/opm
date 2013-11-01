@@ -389,7 +389,7 @@ setMethod("+", c(OPMS, "list"), function(e1, e2) {
 
 ## Not an S4 method for flexibility regarding its first argument
 
-#' OPMS constructor
+#' \acronym{OPMS} constructor
 #'
 #' Easily build \code{\link{OPMS}} objects.
 #'
@@ -397,11 +397,11 @@ setMethod("+", c(OPMS, "list"), function(e1, e2) {
 #'
 #' @param ... One to several objects which are either potentially nested lists
 #'   of \code{\link{OPMS}}, \code{\link{OPM}} or \code{\link{OPMA}} objects, or
-#'   really nested lists whose sublists can be converted to an \code{\link{OPM}}
-#'   or \code{\link{OPMA}} object.
-#' @param precomputed Logical scalar. If \code{TRUE}, sublists have already been
-#'   converted to one of the three classes. Otherwise, suitable sublists will be
-#'   converted.
+#'   really nested lists whose contained lists can be converted to an
+#'   \code{\link{OPM}} or \code{\link{OPMA}} object.
+#' @param precomputed Logical scalar. If \code{TRUE}, contained lists have
+#'   already been converted to one of the three classes. Otherwise, suitable
+#'   contained lists will be converted.
 #' @param skip Logical scalar. If \code{precomputed} is \code{TRUE}, silently
 #'   skip non-list elements of nested lists? If \code{precomputed} is
 #'   \code{FALSE}, silently skip objects that do not belong to the three target
@@ -409,10 +409,10 @@ setMethod("+", c(OPMS, "list"), function(e1, e2) {
 #'   encountered.
 #' @param group Logical or character scalar. If \code{TRUE}, split the list of
 #'   collected \code{\link{OPM}} objects according to the plate type and convert
-#'   the sublists separately if they contain more than one plate; otherwise just
-#'   keep the \code{\link{OPM}} object. \code{FALSE} is the default: all plates
-#'   are tried to be forced into a single \code{\link{OPMS}} object. If a
-#'   character scalar, the name of the plate type to be extracted.
+#'   the contained lists separately if they contain more than one plate;
+#'   otherwise just keep the \code{\link{OPM}} object. \code{FALSE} is the
+#'   default: all plates are tried to be forced into a single \code{\link{OPMS}}
+#'   object. If a character scalar, the name of the plate type to be extracted.
 #' @export
 #' @return \code{\link{OPMS}} object, or list of such objects (and/or
 #'   \code{\link{OPM}} objects), or \code{\link{OPM}} object, or \code{NULL}.

@@ -52,7 +52,7 @@
   names are prepended before joining the vector elements. A
   character scalar is used as template for \code{sprintf},
   which gets \code{names(x)} passed as second and \code{x}
-  as third argument. (This order can be inversed, see next
+  as third argument. (This order can be inverted, see next
   argument.)} }}
 
   \item{style}{Character scalar. The main options are:

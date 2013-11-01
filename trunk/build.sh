@@ -839,7 +839,7 @@ show_example_timings()
     timings=$folder.Rcheck/${folder##*/}-Ex.timings
     if [ -s "$timings" ]; then
       echo "# $folder"
-      sort -nk4 "$timings"
+      awk -v FS="\t" '$4 > 1' "$timings" | sort -nk4 -
     else
       echo "No timings for directory '$folder'." >&2
     fi
@@ -1293,6 +1293,27 @@ show_example_pdf_files()
 ################################################################################
 
 
+# Check the spelling of the vignette files.
+#
+spellcheck_vignettes()
+{
+  local pkg
+  for pkg; do
+    R --vanilla <<-____EOF
+	words <- readLines("misc/whitelist-vignette.txt")
+	saveRDS(words[nzchar(words)], tmpfile <- tempfile(fileext = ".rds"))
+	x <- aspell(Sys.glob(file.path("$pkg", "vignettes", "*.Rnw")),
+	  filter = "Sweave", dictionaries = tmpfile, control = c("-t", "-d en_GB"))
+	x <- x[order(x[, "Original"]), c("Original", "File", "Line", "Column")]
+	write.table(x, "", sep = "\t", quote = FALSE, row.names = FALSE)
+____EOF
+  done | awk -v FS="\t" 'NF > 1' -
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -1315,6 +1336,12 @@ case $RUNNING_MODE in
     PKG_DIR=opmDB_in
     RUNNING_MODE=${RUNNING_MODE#b}
     CHECK_R_TESTS=
+  ;;
+  cran )
+    for mode in test demo sql time plex; do
+      "$0" "$mode" || :
+    done
+    exit $?
   ;;
   demo )
     test_demos opm_in
@@ -1358,6 +1385,7 @@ case $RUNNING_MODE in
 	Possible values for 'mode':
 	  ascii   Show lines that contain forbidden characters (such as non-ASCII).
 	  bnorm   Normal build of the opmDB package.
+	  cran    Run in all modes that should be run before a CRAN submission.
 	  demo    Test the demo code that comes with opm.
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
@@ -1375,6 +1403,7 @@ case $RUNNING_MODE in
 	  rnw     Run R CMD Stangle on all *.Rnw files found.
 	  rout    Show results of the examples, if any, for given function names.
 	  space   Remove trailing whitespace from all R code files found.
+	  spell   Check spelling in the vignette files (see below for the Rd files).
 	  sql     SQL-based tests. Call '$0 sql -h' for a description.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
@@ -1434,6 +1463,10 @@ ____EOF
   ;;
   space )
     remove_trailing_whitespace
+    exit $?
+  ;;
+  spell )
+    spellcheck_vignettes opm_in
     exit $?
   ;;
   sql )
@@ -1519,7 +1552,7 @@ delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --no-internal --modify --preprocess --S4methods --junk "$delete_pat" \
   --mark-duplicates --good 00Index,well-map.R,substrate-info.R,plate-map.R \
-  "$PKG_DIR"
+  --whitelist misc/whitelist-manual.txt "$PKG_DIR"
 
 
 OUT_DIR=${PKG_DIR%_in}

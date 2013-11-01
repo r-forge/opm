@@ -653,12 +653,11 @@ setMethod("parse_time", c("character", "character"), function(object, format,
 #'   and converted to a vector containing only non-duplicated single-character
 #'   strings. For instance, the default \code{split} argument \code{".-_"}
 #'   yields \code{c(".", "-", "_")}.
-#'   \item If a vector of only empty strings or \code{TRUE}, strings with
-#'   substrings representing fixed-width fields are assumed, and splitting is
-#'   done at whitespace-only columns. Beforehand, equal-length strings are
-#'   created by padding with spaces at the right. After splitting in fixed-width
-#'   mode, whitespace characters are trimmed from both ends of the resulting
-#'   strings.
+#'   \item If a vector of only empty strings or \code{TRUE}, strings with parts
+#'   representing fixed-width fields are assumed, and splitting is done at
+#'   whitespace-only columns. Beforehand, equal-length strings are created by
+#'   padding with spaces at the right. After splitting in fixed-width mode,
+#'   whitespace characters are trimmed from both ends of the resulting strings.
 #'   }
 #' @param simplify Logical scalar indicating whether a resulting matrix with one
 #'   column should be simplified to a vector (or such a data frame to a factor).
@@ -1202,7 +1201,7 @@ prepare_class_names.character <- function(x) {
 #'
 #' Map values using a character vector, a function or a formula, or use a
 #' character vector or a function for recursively mapping list names, or mapping
-#' the \sQuote{colnames} and \sQuote{rownames} attributes of a data frame or
+#' the \code{colnames} and \code{rownames} attributes of a data frame or
 #' matrix. These functions are not normally directly called by an \pkg{opm} user
 #' because \code{\link{map_metadata}} is available.
 #'
@@ -1215,10 +1214,9 @@ prepare_class_names.character <- function(x) {
 #'   When mapping names, \code{object} can be any \R object. The default method
 #'   applies the mapping to the \sQuote{names} attribute. The behaviour is
 #'   special for lists, which are traversed recursively to also consider
-#'   sublists with names. Data frames and \code{\link{MOA}} objects (that is,
-#'   including matrices and arrays) are also treated specially because the
-#'   \sQuote{dimnames} attribute, not the \sQuote{names} attribute is
-#'   considered.
+#'   contained lists with names. Data frames and \code{\link{MOA}} objects (that
+#'   is, including matrices and arrays) are also treated specially because the
+#'   \code{dimnames} attribute, not the \sQuote{names} attribute is considered.
 #'
 #' @param mapping When mapping values, a character vector, function, formula,
 #'   expression, \code{NULL} or missing.
@@ -1235,7 +1233,7 @@ prepare_class_names.character <- function(x) {
 #'   \item For \code{\link{MOA}} objects, if \code{mapping} was a function, it
 #'   would be applied to \code{object} after conversion with \code{as.vector},
 #'   and it would be attempted to add the original attributes (particularly
-#'   important are \sQuote{dim} and \sQuote{dimnames} back to the result.
+#'   important are \sQuote{dim} and \code{dimnames} back to the result.
 #'   \item For \code{\link{MOA}} objects, if \code{mapping} is the usual
 #'   character vector, it then is used for mapping the \code{storage.mode}, not
 #'   the \code{class} of \code{object}.
@@ -1298,8 +1296,8 @@ prepare_class_names.character <- function(x) {
 #'   In the case of lists, the function passed to \code{map_names} is not
 #'   applied to list elements which are not themselves lists, even if they have
 #'   a \sQuote{names} attribute. Such elements and their names, if any, are
-#'   returned unchanged. If a \sQuote{names}, \sQuote{colnames} or
-#'   \sQuote{rownames} attribute is \code{NULL}, it is ignored.
+#'   returned unchanged. If a \sQuote{names}, \code{colnames} or
+#'   \code{rownames} attribute is \code{NULL}, it is ignored.
 #'
 #'   Alternatively, instead of mapping the names, collect them and return them
 #'   as a single character vector, sorted and with duplicates removed. The
@@ -1960,9 +1958,9 @@ insert.list <- function(object, other, ..., .force = FALSE, .strict = FALSE) {
 #'
 #' One use is to test whether all names of a query list occur as names in a data
 #' list and optionally also whether they point to the same elements; this
-#' principle is applied recursively to all sublists. This method is not normally
-#' directly called by an \pkg{opm} user but might be useful in other contexts
-#' (it is used by a number of metadata query functions). Alternatively,
+#' principle is applied recursively to all contained lists. This method is not
+#' normally directly called by an \pkg{opm} user but might be useful in other
+#' contexts (it is used by a number of metadata query functions). Alternatively,
 #' \code{\link{OPMX}} objects can be queried with other such objects.
 #'
 #' @param object List containing the data, or \code{\link{OPMX}} object.
@@ -2082,7 +2080,7 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
 #
 
 
-#' OPM options
+#' Global \pkg{opm} options
 #'
 #' Get and set global \pkg{opm} options.
 #'

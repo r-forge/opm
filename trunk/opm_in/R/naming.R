@@ -207,10 +207,10 @@ select_colors <- function(
 #'   relevant for the character or factor method.
 #' @param to Character scalar indicating the plate type. User-defined plate
 #'   types must be given literally. For generation-III plates, use
-#'   \sQuote{gen.iii}; for the
-#'   EcoPlate\eqn{\textsuperscript{\texttrademark}}{(TM)}, use \sQuote{eco};
-#'   the remaining allowed values are only \sQuote{sf.n2} and \sQuote{sf.p2},
-#'   but matching is case-insensitive.
+#'   \kbd{gen.iii}; for the
+#'   EcoPlate\eqn{\textsuperscript{\texttrademark}}{(TM)}, use \kbd{eco}; the
+#'   remaining allowed values are only \kbd{sf.n2} and \kbd{sf.p2}, but matching
+#'   is case-insensitive.
 #' @param ... Optional arguments passed between the methods.
 #'
 #' @return Character scalar in the case of the \code{\link{OPM}} and
@@ -680,7 +680,7 @@ to_sentence.logical <- function(x, html, ...) {
 #'   parenthesis (or bracket).
 #' @param downcase Logical scalar indicating whether full names should be
 #'   (carefully) converted to lower case. This uses \code{\link{substrate_info}}
-#'   in \sQuote{downcase} mode; see there for details.
+#'   in \kbd{downcase} mode; see there for details.
 #' @param plate Name of the plate type. Several ones can be given unless
 #'   \code{object} is of class \code{\link{OPM}} or \code{\link{OPMS}}.
 #'   \code{\link{plate_type}} is applied before searching for the substrate
@@ -695,7 +695,7 @@ to_sentence.logical <- function(x, html, ...) {
 #'
 #'   If \code{x} is an \code{\link{OPMD}} object and \code{as.groups} is not
 #'   empty, it is used to create the row name of the single row of the resulting
-#'   \sQuote{OPMS_Listing} object. Otherwise an \sQuote{OPMD_Listing} object is
+#'   \code{OPMS_Listing} object. Otherwise an \code{OPMD_Listing} object is
 #'   produced.
 #' @param cutoff Numeric scalar used if \sQuote{as.groups} is a list. If the
 #'   relative frequency of the most frequent entry within the discretised values
@@ -710,8 +710,8 @@ to_sentence.logical <- function(x, html, ...) {
 #' @param strict Logical scalar also passed to \code{\link{metadata}}.
 #'
 #' @return Character vector. For the \code{listing} methods, a character vector
-#'   or matrix with additional class attribute \sQuote{OPMD_Listing} or
-#'   \sQuote{OPMS_Listing}. See the examples for details.
+#'   or matrix with additional class attribute \code{OPMD_Listing} or
+#'   \code{OPMS_Listing}. See the examples for details.
 #' @export
 #' @family naming-functions
 #' @seealso base::strtrim base::abbreviate
@@ -724,7 +724,7 @@ to_sentence.logical <- function(x, html, ...) {
 #'   \code{full} is \code{TRUE}. If \code{full} is \code{FALSE}, it can be used
 #'   to study the effect of the well-index translation and well-name
 #'   normalisation approaches as used by \pkg{opm}, particularly by the
-#'   subsetting methods (see \code{\link{[}}).
+#'   sub-creation methods (see \code{\link{[}}).
 #' @examples
 #'
 #' ## wells() 'OPM' method
@@ -916,8 +916,8 @@ setMethod("listing", OPMS, function(x, as.groups, cutoff = opm_opt("min.mode"),
 #'   \item{regex}{Regular-expression matching is used.}
 #'   \item{pmatch}{Uses \code{pmatch} from the \pkg{base} package.}
 #'   }
-#'   All matching is case-insensitive except for \sQuote{exact} and
-#'   \sQuote{pmatch} search modes.
+#'   All matching is case-insensitive except for the \kbd{exact} and
+#'   \kbd{pmatch} search modes.
 #' @param max.dev Numeric scalar indicating the maximum allowed deviation. If <
 #'   1, the proportion of characters that might deviate, otherwise their
 #'   absolute number. It can also be a list; see the \sQuote{max.distance}
@@ -1094,7 +1094,7 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #'     \acronym{URL}.}
 #'     \item{greek}{Substrate name after translation of relevant characters to
 #'     Greek letters.}
-#'     \item{html}{Like \sQuote{greek}, but using \acronym{HTML} tags, and also
+#'     \item{html}{Like \kbd{greek}, but using \acronym{HTML} tags, and also
 #'     converting other parts of compound names that require special
 #'     formatting.}
 #'     \item{kegg}{\acronym{KEGG} compound database ID, optionally expanded to
@@ -1113,9 +1113,9 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #' @param download Logical scalar indicating whether, using the available IDs,
 #'   substrate information should be queried from the according web services and
 #'   returned in customised objects. Note that this is unavailable for most
-#'   values of \code{what}. At the moment only \sQuote{kegg} and \sQuote{drug}
-#'   can be queried for if the \pkg{KEGGREST} package is available. This would
-#'   yield S3 objects of the class \sQuote{kegg_compounds}.
+#'   values of \code{what}. At the moment only \kbd{kegg} and \kbd{drug} can be
+#'   queried for if the \pkg{KEGGREST} package is available. This would yield S3
+#'   objects of the class \code{kegg_compounds}.
 #' @param ... Optional other arguments passed between the methods.
 #' @export
 #' @return The character method returns a character vector with \code{object}

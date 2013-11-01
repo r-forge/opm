@@ -168,7 +168,7 @@
 #' metadata(copy, "Type") <- x
 #' # one-column data frames are simplified
 #' stopifnot(identical(metadata(copy, "Type"), x$Type))
-#' # if keys match, a subselection of the data frame is used
+#' # if keys match, a partial selection of the data frame is used
 #' (x <- cbind(x, Notype = !x$Type))
 #' metadata(copy, "Type") <- x
 #' stopifnot(identical(metadata(copy, "Type"), x$Type))
@@ -879,7 +879,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #'   \code{\link{WMD}} method.
 #'
 #' @return \code{metadata} generates a list (empty if metadata were not set or
-#'   if subselection using \code{key} did not result).
+#'   if partial selection using \code{key} did not result).
 #'
 #'   \code{metadata_chars} yields a character vector, sorted and made unique.
 #'   Original \code{names} attributes, if any, are dropped and replaced by the

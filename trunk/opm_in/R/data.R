@@ -22,8 +22,8 @@
 #' single selected plate from the study by Vaas et al. (2012). Metadata have
 #' been added to fully describe the conducted PM experiments: this plate is the
 #' sixth technical replicate from the first biological replicate for the strain
-#' \emph{Escherichia coli} DSM30083T (yes, the type strain of \emph{E. coli}).
-#' This is a subset of \code{vaas_4}.
+#' \emph{Escherichia coli} \acronym{DSM} 30083T (yes, the type strain of
+#' \emph{E. coli}). This is a subset of \code{vaas_4}.
 #'
 #' The complete data set is available as \code{vaas_et_al} in the \pkg{opmdata}
 #' package.

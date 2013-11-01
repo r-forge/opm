@@ -59,7 +59,7 @@
   characters only and are not preceded by a space.}
 
   \item{assign}{Logical scalar indicating that it should be
-  checked that there is no linebreak within named
+  checked that there is no line break within named
   function-argument assignments.}
 
   \item{modify}{Logical scalar indicating whether the
@@ -122,7 +122,7 @@
 
   Functions such as \code{\link{check_keywords}} print
   detected problems, if any, using \code{message}. These
-  character vectors can also be safed by appending to a
+  character vectors can also be saved by appending to a
   logfile.
 }
 \examples{

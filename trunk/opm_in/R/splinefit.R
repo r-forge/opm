@@ -111,9 +111,9 @@ fit_spline <- function (y, x = "Hour", data, options = set_spline_options(),
 #'   \code{\link{do_aggr}}. %and \code{\link{fit_spline}}.
 #'
 #' @param type Character scalar. Specifies the spline type which should be
-#'   fitted. This can be either thin plate splines (\dQuote{tp.spline}),
-#'   penalised B-splines (i.e, P-splines \dQuote{p.spline}) or smoothing
-#'   splines (\dQuote{smooth.spline}).
+#'   fitted. This can be either thin plate splines (\kbd{tp.spline}), penalised
+#'   B-splines (i.e, P-splines \kbd{p.spline}) or smoothing splines
+#'   (\kbd{smooth.spline}).
 #' @param knots Integer scalar. Determines the number of knots. Per default, the
 #'   number of knots is chosen adaptively to the number of unique observations.
 #' @param gamma Integer scalar. Specifies a constant multiplier to inflate the

@@ -48,7 +48,7 @@
   of other arguments is special if all elements of \code{x}
   are atomic. See below.} }}
 
-  \item{min.cov}{Numeric scalar indicating the mimimal
+  \item{min.cov}{Numeric scalar indicating the minimal
   coverage required in the resulting presence-absence
   matrix. Columns with a fewer number of non-zero entries
   are removed.}
@@ -58,7 +58,7 @@
   miss them. If \code{NA}, they are skipped, but with a
   warning; if \code{FALSE}, they are skipped silently.
   This has only an effect in conjunction with the last
-  three values of \code{what}. If \sQuote{datasets} are
+  three values of \code{what}. If \kbd{datasets} are
   chosen, it usually has only an effect if all elements of
   \code{x} are atomic.}
 

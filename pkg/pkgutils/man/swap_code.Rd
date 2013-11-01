@@ -39,10 +39,10 @@
 }
 \details{
   The code preprocessing works simply as follows: Lines are
-  split at the first occurence of \sQuote{#||}, if any, the
-  parts reversed and joined again with a space character,
-  including the separator. Leading whitespace is kept.
-  Whitespace around the parts, if any, is removed
+  split at the first occurrence of \sQuote{#||}, if any,
+  the parts reversed and joined again with a space
+  character, including the separator. Leading whitespace is
+  kept. Whitespace around the parts, if any, is removed
   (effectively transformed to a single space). There is
   \strong{no} check done to ensure that the part moved in
   front of the comment character is syntactically valid in
@@ -50,7 +50,7 @@
   line \samp{ SEALED <- FALSE #|| SEALED <- TRUE} would be
   modified to \samp{ SEALED <- TRUE #|| SEALED <- FALSE},
   i.e. this could be used to change a package constant
-  before conducting any checking. Note, hovewer, that lines
+  before conducting any checking. Note, however, that lines
   starting with a \pkg{roxygen2} comment will not be
   modified.
 
