@@ -7,7 +7,7 @@
 
 - the 'merge.R' script gets new options -i and -f
 
-- the 'docu.R' scripts gets new options -L, -M and -N
+- the 'docu.R' scripts gets new options -L, -M, -N and -W
 
 - the 'docu.R' scripts now also style-checks R code in the 'demo' directory,
   if any

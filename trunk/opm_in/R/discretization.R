@@ -37,9 +37,9 @@
 #'
 #' @param gap Logical scalar. If \code{TRUE}, always convert to binary or
 #'   ternary characters, ignoring \code{states}. \code{range} then indicates a
-#'   subrange of \code{x} within which character conversion is ambiguous and has
-#'   to be treated as either missing information or intermediate character
-#'   state, depending on \code{middle.na}.
+#'   partial range of \code{x} within which character conversion is ambiguous
+#'   and has to be treated as either missing information or intermediate
+#'   character state, depending on \code{middle.na}.
 #'
 #'   If \code{FALSE} (the default), apply an equal-width-intervals
 #'   discretisation with the widths determined from the number of requested
@@ -49,7 +49,7 @@
 #'   \sQuote{integer}, \sQuote{logical}, \sQuote{factor}, or \sQuote{numeric}.
 #'   \sQuote{numeric} simply returns \code{x}, but performs the range checks.
 #'   One cannot combine \sQuote{logical} with \code{TRUE} values for both
-#'   \sQuote{gap} and \sQuote{middle.na}.
+#'   \code{gap} and \code{middle.na}.
 #'
 #' @param middle.na Logical scalar. Only relevant in \code{gap} mode. In that
 #'   case, if \code{TRUE}, the middle value yields \code{NA} (uncertain whether
@@ -116,13 +116,13 @@
 #'   wrapper that takes care of the matrix dimensions, and the data-frame method
 #'   is a wrapper for that method.
 #'
-#'   The term \sQuote{character} as used here has nothing to do \emph{per se}
-#'   with the eponymous mode or class of \R. Rather, the term is borrowed from
-#'   taxonomic classification in biology, where, technically, a single
-#'   \sQuote{character} is stored in one column of a data matrix if each
-#'   organism is stored in one row. Characters are the \emph{quasi-independent
-#'   units} of evolution on the one hand and of phylogenetic reconstruction (and
-#'   thus taxonomic classification) on the other hand.
+#'   The term \sQuote{character} as used here has no direct connection to the
+#'   eponymous mode or class of \R. Rather, the term is borrowed from taxonomic
+#'   classification in biology, where, technically, a single \sQuote{character}
+#'   is stored in one column of a data matrix if each organism is stored in one
+#'   row. Characters are the \emph{quasi-independent units} of evolution on the
+#'   one hand and of phylogenetic reconstruction (and thus taxonomic
+#'   classification) on the other hand.
 #'
 #'   The scoring function to be maximised by \code{best_cutoff} is calculated as
 #'   follows. All values in \code{x} are divided into those larger then the

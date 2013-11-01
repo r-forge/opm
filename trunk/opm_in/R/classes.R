@@ -7,11 +7,11 @@
 #
 
 
-#' Virtual classes of the opm package
+#' Virtual classes of the \pkg{opm} package
 #'
 #' Classes that are virtual and thus are not directly dealt with by an
 #' \pkg{opm} user: \acronym{WMD}, \acronym{MOA}, \acronym{FOE}, \acronym{OPMX}
-#' and \sQuote{YAML_VIA_LIST}.
+#' and \code{YAML_VIA_LIST}.
 #'
 #' @details
 #' \acronym{WMD} is an acronym for \sQuote{with metadata}.
@@ -52,7 +52,7 @@
 #' \code{\link{OPM}} and \code{\link{OPMS}} objects.
 #' See \code{\link{show}} and \code{\link{sort}} for usage examples.
 #'
-#' See \code{\link{to_yaml}} for a usage example of \sQuote{YAML_VIA_LIST}.
+#' See \code{\link{to_yaml}} for a usage example of \code{YAML_VIA_LIST}.
 #' This is a virtual class facilitating the conversion to \acronym{YAML} format
 #' (or its subset, \acronym{JSON}). It can currently be used by any class that
 #' can be coerced to a list.
@@ -96,7 +96,7 @@ setClassUnion(FOE, c("formula", "expression"))
 ################################################################################
 
 
-#' Real classes of the opm package
+#' Real classes of the \pkg{opm} package
 #'
 #' Classes whose members can directly be generated and manipulated by an
 #' \pkg{opm} user: \acronym{OPM}, \acronym{OPMA}, \acronym{OPMD} and
@@ -105,7 +105,7 @@ setClassUnion(FOE, c("formula", "expression"))
 #' @details
 #' \acronym{OPM} is an acronym for
 #' \sQuote{OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} Phenotype
-#' MicroArray}. This is the class for holding single-plate
+#' Microarray}. This is the class for holding single-plate
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} phenotype microarray data
 #' without aggregated values, but with information read from the original input
 #' \acronym{CSV} files as well as an additional arbitrary amount of arbitrarily
@@ -157,9 +157,8 @@ setClassUnion(FOE, c("formula", "expression"))
 #' parameter from which they have been estimated if no \code{FALSE} value
 #' corresponds to curve parameter larger than the curve parameter of any
 #' \code{TRUE} value; \code{NA} values are not considered when checking
-#' consistency. The \sQuote{strict.OPMD} entry of \code{\link{opm_opt}}
-#' determines whether an error or only a warning is issued in the case of
-#' inconsistency.
+#' consistency. The \code{strict.OPMD} entry of \code{\link{opm_opt}} determines
+#' whether an error or only a warning is issued in the case of inconsistency.
 #'
 #' \acronym{OPMS} is the class for holding multiple-plate
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} phenotype microarray data

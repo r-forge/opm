@@ -41,7 +41,7 @@
 #'   strains and Generation-III plates indicate that this works well in
 #'   practice. See the references.
 #'
-#'   See the arguments \sQuote{time.fmt} and \sQuote{time.zone} of
+#'   See the arguments \code{time.fmt} and \code{time.zone} of
 #'   \code{\link{opm_opt}} for modifying the parsing of setup-time entries. If
 #'   it does not work, additional time-string templates must be stored.
 #'
@@ -288,7 +288,7 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #
 
 
-#' Sort, unify, revert or repeat OPMS objects
+#' Sort, unify, revert or repeat \acronym{OPMS} objects
 #'
 #' Sort an \code{\link{OPMS}} object based on one to several metadata or
 #' \acronym{CSV} data entries, or check whether duplicated \code{\link{OPM}} or
@@ -310,8 +310,8 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #' @param parse Logical scalar. Convert the \code{\link{setup_time}} via
 #'   \code{strptime} before ordering? Has only an effect if \code{by} is
 #'   \sQuote{setup_time}. It is an error if the time format is not recognised.
-#'   See \code{\link{opm_opt}}, arguments \sQuote{time.fmt} and
-#'   \sQuote{time.zone}, for modifying the parsing of setup-time entries.
+#'   See \code{\link{opm_opt}}, arguments \code{time.fmt} and \code{time.zone},
+#'   for modifying the parsing of setup-time entries.
 #' @param exact Logical scalar. Passed to \code{\link{metadata}}. Affects only
 #'   metadata querying, not directly the sorting.
 #' @param strict Logical scalar. Is it an error if metadata keys are not found?
@@ -1045,7 +1045,7 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #'   there for details.
 #' @param fixed \code{NULL} or list. If not \code{NULL}, include these items in
 #'   the data frame, replicated in each row.
-#' @param factors Logical scalar. See the \sQuote{stringsAsFactors} argument of
+#' @param factors Logical scalar. See the \code{stringsAsFactors} argument of
 #'   \code{data.frame} and \code{as.data.frame} from the \pkg{base} package.
 #' @param exact Logical scalar. Passed to \code{\link{metadata}}.
 #' @param strict Logical scalar. Passed to \code{\link{metadata}}.
@@ -1283,7 +1283,7 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
 #
 
 
-#' Convert to YAML
+#' Convert to \acronym{YAML}
 #'
 #' Convert some \R object to \acronym{YAML} or \acronym{JSON}.
 #'
@@ -1315,7 +1315,7 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
 #' @details \acronym{YAML} is a useful data-serialisation standard that is
 #'   understood by many programming languages. It is particularly more human
 #'   readable than \acronym{XML}, and vector-like data structures (such as
-#'   Phenotype MicroArray measurements) can be much more compactly encoded.
+#'   phenotype microarray measurements) can be much more compactly encoded.
 #'
 #'   Many PM data sets at once can be batch-converted into \acronym{YAML} format
 #'   using \code{\link{batch_opm}}. The output format for the child

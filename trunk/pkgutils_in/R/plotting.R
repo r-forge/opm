@@ -3,7 +3,7 @@
 ################################################################################
 
 
-#' Paper size for PDF files
+#' Paper size for \acronym{PDF} files
 #'
 #' \code{mypdf} is a wrapper for \code{pdf} from the \pkg{grDevices} package.
 #' The difference is that \code{mypdf} determines the width and the height of
@@ -28,8 +28,8 @@
 #'
 #'   For \code{max_rgb_contrast}, the names or hexadecimal codes of the colours
 #'   to be sorted. Might also be an integer vector, see \code{col2rgb} from the
-#'   \pkg{grDevices} package for details. Duplicate RGB coordinates and unknown
-#'   names will cause an error.
+#'   \pkg{grDevices} package for details. Duplicate \acronym{RGB} coordinates
+#'   and unknown names will cause an error.
 #'
 #' @param landscape Logical scalar. If \code{FALSE}, \sQuote{portrait} paper
 #'   orientation is assumed. For the character method, this has only an effect
@@ -37,7 +37,7 @@
 #'   the \sQuote{DIN} series. For the \sQuote{DIN} series, append \sQuote{R} to
 #'   the specifier to obtain \sQuote{landscape} orientation.
 #' @param inches Logical scalar. If \code{TRUE}, output unit is inches,
-#'   otherwise millimeters.
+#'   otherwise millimetres.
 #' @param series Character scalar indicating the \sQuote{DIN} series to assume.
 #' @param ... Optional arguments passed to other methods, e.g., to \code{pdf}
 #'   from the \pkg{grDevices} package.
@@ -49,15 +49,16 @@
 #'   character vector). \code{max_rgb_contrast} returns a character vector (the
 #'   rearranged input names).
 #' @details The computation of the paper size is done numerically for the
-#'   \acronym{DIN} series, whereas a lookup table is used for the other formats.
+#'   \acronym{DIN} series, whereas a look-up table is used for the other
+#'   formats.
 #'
-#'   \code{max_rgb_contrast} arranges colours so as to achieve that neighboring
-#'   colours are most distinct with respect to their RGB coordinates. This is
-#'   done as follows: (1) Euclidean distances between the RGB coordinates of the
-#'   input colours are calculated; (2) the distances are logarithmized and
-#'   inversed; (3) a principal-coordinate analysis is conducted on these
-#'   inversed distances; (4) the input colours are sorted according to the first
-#'   principal coordinate.
+#'   \code{max_rgb_contrast} arranges colours so as to achieve that neighbouring
+#'   colours are most distinct with respect to their \acronym{RGB} coordinates.
+#'   This is done as follows: (1) Euclidean distances between the \acronym{RGB}
+#'   coordinates of the input colours are calculated; (2) the distances are
+#'   logarithmised and inverted; (3) a principal-coordinate analysis is
+#'   conducted on these inverted distances; (4) the input colours are sorted
+#'   according to the first principal coordinate.
 #'
 #'   Note that this is probably only works for colour vectors of small to
 #'   moderate size, and that the resulting vector could as well be used in

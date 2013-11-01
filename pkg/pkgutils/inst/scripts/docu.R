@@ -87,6 +87,16 @@ remove_comments_and_reduce_empty_lines <- function(x) {
 }
 
 
+textfile2rds <- function(file) {
+  if (!nzchar(file) || grepl("\\.rds$", file, TRUE, TRUE))
+    return(file)
+  x <- readLines(file)
+  tmpfile <- tempfile(fileext = ".rds")
+  saveRDS(x[nzchar(x)], file <- tempfile(fileext = ".rds"))
+  file
+}
+
+
 ################################################################################
 
 
@@ -243,7 +253,9 @@ option.parser <- OptionParser(option_list = list(
     help = "Maximum allowed line width in R code [default: %default]",
     metavar = "NUMBER"),
 
-  # W
+  make_option(c("-W", "--whitelist"), type = "character", default = "",
+    help = "White list for (and turning on) spell checking [default: %default]",
+    metavar = "LIST"),
 
   make_option(c("-x", "--exclude"), type = "character", default = "",
     help = paste("Files to ignore when using -t, comma-separated list",
@@ -281,6 +293,7 @@ opt$buildopts <- do_split(opt$buildopts)
 opt$delete <- do_split(opt$delete, ":")
 opt$good <- basename(do_split(opt$good))
 opt$exclude <- do_split(opt$exclude)
+opt$whitelist <- textfile2rds(opt$whitelist)
 
 
 ################################################################################
@@ -441,6 +454,17 @@ for (i in seq_along(package.dirs)) {
   if (opt$check || ((opt$install || opt$yes) && !opt$unsafe)) {
     message("Checking", msg)
     errs <- errs + (check.err <- run_R_CMD(pkg.file, "check", opt$options))
+  }
+
+  if (nzchar(opt$whitelist)) {
+    message("Checking spelling in Rd files of", msg)
+    sp <- aspell_package_Rd_files(out.dir, control = "-d en_GB",
+      drop = c("\\author", "\\references", "\\seealso", "\\code",
+        "\\acronym", "\\pkg", "\\kbd", "\\command", "\\file"),
+      dictionaries = opt$whitelist)
+    sp[, "File"] <- basename(sp[, "File"])
+    sp <- sp[order(sp[, "Original"]), c("Original", "File", "Line", "Column")]
+    write.table(sp, "", sep = "\t", quote = FALSE, row.names = FALSE)
   }
 
   if (opt$install && (opt$unsafe || !check.err)) {

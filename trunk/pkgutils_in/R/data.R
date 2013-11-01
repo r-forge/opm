@@ -1,6 +1,6 @@
 
 
-#' Example RD dataset: xyplot() documentation
+#' Example \sQuote{Rd} data set: \code{xyplot} documentation
 #'
 #' This \sQuote{Rd} object contains the description in \sQuote{Rd} format of
 #' the function \code{xyplot} from the \pkg{lattice} package, version

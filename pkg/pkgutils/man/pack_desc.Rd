@@ -46,15 +46,16 @@
   \item{date.format}{Character scalar. The format used and
   expected for the date of the package.}
 
-  \item{envir}{Environment used when sourceing files. Only
-  relevant if \code{action} is set to \sQuote{source}.}
+  \item{envir}{Environment used when reading the files with
+  \code{source}. Only relevant if \code{action} is set to
+  \sQuote{source}.}
 
   \item{x}{Character vector. For \code{pkg_files}, if
   \code{installed} is \code{TRUE}, the names of installed
   packages. Otherwise names of package directories, which
   are expanded automatically, and/or directly the names of
   files, which may or may not reside within a package. The
-  directory must be recognizable by \code{is_pkg_dir} for
+  directory must be recognisable by \code{is_pkg_dir} for
   the expansion to work. For \code{is_pkg_dir}, an
   arbitrary character vector.}
 
@@ -78,9 +79,9 @@
 \value{
   The value returned by \code{pack_desc} depends on the
   value of \code{action}: \describe{ \item{read}{Object of
-  class \sQuote{pack_descs}, basically a nested list with
+  class \code{pack_descs}, basically a nested list with
   \code{pkg} as names. The values are objects of class
-  \sQuote{pack_desc}.} \item{update}{One- or two-column
+  \code{pack_desc}.} \item{update}{One- or two-column
   character matrix with one row per entry in \code{pkg},
   showing the updated date and optionally the version
   string. \code{\dots} is passed to \code{write.dcf} if

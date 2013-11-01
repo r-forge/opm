@@ -7,7 +7,7 @@
 #
 
 
-#' HTML formatting and output label generation
+#' \acronym{HTML} formatting and output label generation
 #'
 #' These are helper functions for \code{\link{phylo_data}} allowing for either
 #' the easy fine-tuning of the generated \acronym{HTML} output or for the
@@ -55,10 +55,10 @@
 #'       legend. Lists are converted recursively. List names will be converted
 #'       to \sQuote{title} and \sQuote{class} attributes (if missing, names are
 #'       inferred from the nesting level; see \code{\link{opm_opt}}, entry
-#'       \sQuote{html.class}). Names of other vectors, if any, are converted to
+#'       \code{html.class}). Names of other vectors, if any, are converted to
 #'       \sQuote{title} and \sQuote{span} attributes. Character vectors are
 #'       converted using \code{\link{safe_labels}} unless they inherit from
-#'       \sQuote{AsIs} (see \code{I} from the \pkg{base} package).}
+#'       \code{AsIs} (see \code{I} from the \pkg{base} package).}
 #'     \item{insert}{As above, but inserted between the legend and the table.}
 #'     \item{append}{As above, but inserted after the table.}
 #'   }
@@ -68,20 +68,20 @@
 #' @param enclose Logical scalar. See \code{\link{phylo_data}} and the
 #'   description of \code{comment}.
 #' @param pad Logical scalar. Bring labels to the same number of characters by
-#'   appending spaces? Has no effect for \sQuote{phylip} and \sQuote{html}
+#'   appending spaces? Has no effect for \acronym{PHYLIP} and \acronym{HTML}
 #'   output format.
 #' @param comment Logical scalar. If \code{TRUE}, comments as used in the
-#'   respective format will be produced. \sQuote{phylip} and \sQuote{epf} do not
-#'   accept comments and will yield an error. If \code{enclose} is \code{TRUE},
-#'   the comment-enclosing characters are appended and prepended to the vector,
-#'   otherwise to each string separately.
+#'   respective format will be produced. \acronym{PHYLIP} and \acronym{EPF} do
+#'   not accept comments and will yield an error. If \code{enclose} is
+#'   \code{TRUE}, the comment-enclosing characters are appended and prepended to
+#'   the vector, otherwise to each string separately.
 #'
 #' @return List of \acronym{HTML} arguments or character vector with modified
 #'   labels.
 #' @details These functions are not normally called directly by an \pkg{opm}
 #'   user but by \code{\link{phylo_data}}; see there for their usual
-#'   application. The \code{\link{phylo_data}} methods for \sQuote{OPMD_Listing}
-#'   and \sQuote{OPMS_Listing} objects do not support all \acronym{HTML}
+#'   application. The \code{\link{phylo_data}} methods for \code{OPMD_Listing}
+#'   and \code{OPMS_Listing} objects do not support all \acronym{HTML}
 #'   formatting options.
 #'
 #'   Label cleaning invokes either the replacement of disallowed characters or
@@ -592,28 +592,28 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   aggregated values). Currently only \sQuote{integer}, \sQuote{logical},
 #'   \sQuote{double} and \sQuote{character} matrix content is supported. The
 #'   data-frame and \code{\link{OPMS}} methods first call \code{\link{extract}}
-#'   and then the matrix method. The methods for \sQuote{OPMD_Listing} and
-#'   \sQuote{OPMS_Listing} objects can be applied to the results of
+#'   and then the matrix method. The methods for \code{OPMD_Listing} and
+#'   \code{OPMS_Listing} objects can be applied to the results of
 #'   \code{\link{listing}}.
 #' @param format Character scalar determining the output format, either
-#'   \sQuote{epf} (Extended PHYLIP Format), \sQuote{nexus}, \sQuote{phylip},
-#'   \sQuote{hennig} or \sQuote{html}.
+#'   \kbd{epf} (Extended \acronym{PHYLIP} Format), \kbd{nexus}, \kbd{phylip},
+#'   \kbd{hennig} or \kbd{html}.
 #'
-#'   If \sQuote{nexus} or \sQuote{hennig} format are chosen, a non-empty
+#'   If \acronym{NEXUS} or \sQuote{Hennig} format is chosen, a non-empty
 #'   \code{comment} attribute will be output together with the data (and
-#'   appropriately escaped). In case of \sQuote{html} format, a non-empty
+#'   appropriately escaped). In case of \acronym{HTML} format, a non-empty
 #'   \code{comment} yields the title of the HTML document.
 #'
-#'   \sQuote{epf} or \sQuote{extended PHYLIP} is sometimes called
-#'   \sQuote{relaxed PHYLIP}. The main difference between \sQuote{epf} and
-#'   \sQuote{phylip} is that the former can use labels with more than ten
-#'   characters, but its labels must not contain whitespace. (These adaptations
-#'   are done automatically with \code{\link{safe_labels}}.)
+#'   \acronym{EPF} or \sQuote{extended \acronym{PHYLIP}} is sometimes called
+#'   \sQuote{relaxed \acronym{PHYLIP}}. The main difference between
+#'   \acronym{EPF} and \acronym{PHYLIP} is that the former can use labels with
+#'   more than ten characters, but its labels must not contain whitespace.
+#'   (These adaptations are done automatically with \code{\link{safe_labels}}.)
 #' @param outfile Character scalar. If a non-empty character scalar, resulting
 #'   lines are directly written to this file. Otherwise, they are returned.
 #' @param enclose Logical scalar. Shall labels be enclosed in single quotes?
 #'   Ignored unless \code{format} is \sQuote{nexus}.
-#' @param indent Integer scalar. Indentation of subcommands in NEXUS format.
+#' @param indent Integer scalar. Indentation of commands in NEXUS format.
 #'   Ignored unless \code{format} is \sQuote{nexus} (and a matter of taste
 #'   anyway).
 #' @param paup.block Logical scalar. Append a \acronym{PAUP*} block with
@@ -629,7 +629,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   \item{constant}{Columns which are constant in the strict sense are
 #'   removed.}
 #'   }
-#'   \code{delete} is currently ignored for formats other than \sQuote{html},
+#'   \code{delete} is currently ignored for formats other than \acronym{HTML},
 #'   and note that columns become rows in the final \acronym{HTML} output.
 #'
 #' @param join Logical scalar, vector or factor. Unless \code{FALSE}, rows of
@@ -654,7 +654,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   and \sQuote{integer} characters. A warning is issued if integers are not
 #'   within the necessary range, i.e. either \code{0} or \code{1}.
 #' @param run.tidy Logical scalar. Filter the resulting \acronym{HTML} through
-#'   the Tidy program? Ignored unless \code{format} is \sQuote{html}. Otherwise,
+#'   the Tidy program? Ignored unless \code{format} is \kbd{html}. Otherwise,
 #'   if \code{TRUE}, it is an error if the Tidy executable is not found.
 #'
 #' @param as.labels Vector of data-frame indexes or \code{\link{OPMS}} metadata
@@ -692,7 +692,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   beforehand by applying \code{\link{discrete}}. Exporting \acronym{HTML} is
 #'   optimised for data discretised with \code{gap} set to \code{TRUE}. For
 #'   other data, the \code{character.states} argument should be modified, see
-#'   \code{\link{html_args}}. The \sQuote{hennig} (Hennig86) format is the one
+#'   \code{\link{html_args}}. The \kbd{hennig} (Hennig86) format is the one
 #'   used by \acronym{TNT}; it allows continuous characters to be analysed as
 #'   such. Regarding the meaning of \sQuote{character} as used here, see the
 #'   \sQuote{Details} section of \code{\link{discrete}}.

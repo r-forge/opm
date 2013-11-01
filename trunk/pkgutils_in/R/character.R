@@ -9,8 +9,8 @@
 #' as indicating separation. It creates a factor that could be used with
 #' \code{split} to split the logical vector, or any equal-length object from
 #' which it was created, into according groups. The \sQuote{character} method
-#' splits a character vector according to a pattern or to a given output
-#' substring length.
+#' splits a character vector according to a pattern or to a given output partial
+#' string length.
 #'
 #' @inheritParams pack_desc
 #' @param x Logical vector. It is an error if \code{NA} values are contained.
@@ -19,13 +19,13 @@
 #'   \code{NA}.
 #' @param pattern Scalar. If of mode \sQuote{character}, passed to
 #'   \code{grepl} from the \pkg{base} package. If numeric, used to indicate the
-#'   lengths of the substrings to extract.
+#'   lengths of the partial strings to extract.
 #' @param invert Negate the results of \code{grepl}?
 #' @param perl Logical scalar passed to \code{grepl}.
 #' @return The \sQuote{logical} method returns an
 #'   ordered factor, its length being the one of \code{x}. The levels
-#'   correspond to a groups whose indices correspond to the index of a
-#'   \code{TRUE} value in \code{x} plus the indices of the \code{FALSE}
+#'   correspond to a groups whose indexes correspond to the index of a
+#'   \code{TRUE} value in \code{x} plus the indexes of the \code{FALSE}
 #'   values immediately following it. \sQuote{logical} method returns a list
 #'   of character vectors.
 #' @details When applying \code{split}, positions corresponding to \code{NA}
@@ -157,7 +157,7 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' @param .attr Character scalar. See description to \code{mapfun}.
 #' @param .encoding Passed to \code{readLines} as \sQuote{encoding} argument.
 #' @param .sep \code{NULL} or character scalar. If empty, ignored. Otherwise
-#'   used as output line separator, causing outfiles to always be written
+#'   used as output line separator, causing output files to always be written
 #'   unless \code{mapfun} returns \code{NULL}. Can be used to just change line
 #'   breaks if \code{mapfun} is \code{identity}.
 #' @details If \code{mapfun} returns \code{NULL}, it is ignored. Otherwise
@@ -167,7 +167,7 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #'   is attempted to be overwritten with the result of \code{mapfun}.
 #' @return Logical vector using \code{x} as names, with \code{TRUE} indicating
 #'   a successfully modified file, \code{FALSE} a file that yielded no errors
-#'   but needed not to be modified, and \code{NA} a filename that caused an
+#'   but needed not to be modified, and \code{NA} a file name that caused an
 #'   error. An attribute \sQuote{errors} is provided, containing a character
 #'   vector with error messages (empty strings if no error occurred).
 #' @seealso base::readLines base::writeLines base::identity

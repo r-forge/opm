@@ -14,7 +14,8 @@
 #' microarray experiments. The plate type is \sQuote{Generation III}, but the
 #' running mode was as for \sQuote{PM} plates. Four bacterial strains from two
 #' species were considered in the study. For the three publicly accessible
-#' ones, the web links to their \acronym{DSMZ} catalog entries are given below.
+#' ones, the web links to their \acronym{DSMZ} catalogue entries are given
+#' below.
 #'
 #' @docType data
 #' @keywords datasets
@@ -23,7 +24,7 @@
 #'   plates with 384 time points and 96 wells per plate. (10 plates have 364,
 #'   365, 368 or 371 time points, respectively; the remaining 74 plates have 384
 #'   time points).
-#' @details All plates also contain aggregated and discretized values generated
+#' @details All plates also contain aggregated and discretised values generated
 #'   \emph{via} \code{do_aggr} and \code{do_disc} from the \pkg{opm} package
 #'   under default values.
 #'
@@ -74,7 +75,7 @@ NULL
 #'   with 378 time points and 96 wells per plate. (17 plates have 376, 378 or
 #'   383 time points, respectively; the remaining 25 plates have 384 time
 #'   points).
-#' @details All plates also contain aggregated and discretized values generated
+#' @details All plates also contain aggregated and discretised values generated
 #'   \emph{via} \code{do_aggr} and \code{do_disc} from the \pkg{opm} package
 #'   under default values.
 #' @references Shrestha, R.K., Rosenberg, T., Makarovsky, D., Eckshtain-Levi,

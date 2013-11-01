@@ -28,14 +28,14 @@
 #'   description of the result?
 #' @param date.format Character scalar. The format used and expected for the
 #'   date of the package.
-#' @param envir Environment used when sourceing files. Only relevant if
-#'   \code{action} is set to \sQuote{source}.
+#' @param envir Environment used when reading the files with \code{source}. Only
+#'   relevant if \code{action} is set to \sQuote{source}.
 #'
 #' @param x Character vector. For \code{pkg_files}, if \code{installed} is
 #'   \code{TRUE}, the names of installed packages. Otherwise names of package
 #'   directories, which are expanded automatically, and/or directly the names of
 #'   files, which may or may not reside within a package. The directory must be
-#'   recognizable by \code{is_pkg_dir} for the expansion to work. For
+#'   recognisable by \code{is_pkg_dir} for the expansion to work. For
 #'   \code{is_pkg_dir}, an arbitrary character vector.
 #' @param what Character vector. The subdirectories to list.
 #' @param installed Logical scalar. If \code{TRUE}, the package(s) are searched
@@ -52,9 +52,9 @@
 #' @return The value returned by \code{pack_desc} depends on the value of
 #'   \code{action}:
 #'   \describe{
-#'     \item{read}{Object of class \sQuote{pack_descs}, basically a nested
+#'     \item{read}{Object of class \code{pack_descs}, basically a nested
 #'       list with \code{pkg} as names. The values are objects of class
-#'       \sQuote{pack_desc}.}
+#'       \code{pack_desc}.}
 #'     \item{update}{One- or two-column character matrix with one row per entry
 #'       in \code{pkg}, showing the updated date and optionally the version
 #'       string. \code{\dots} is passed to \code{write.dcf} if \code{demo} is
@@ -198,26 +198,26 @@ is_pkg_dir.character <- function(x) {
 ################################################################################
 
 
-#' Run R CMD
+#' Run \command{R CMD}
 #'
-#' Externally call \sQuote{R CMD}, e.g. for checking or installing \R packages,
-#' or conduct some postprecessing after checking or installation.
+#' Externally call \command{R CMD}, e.g. for checking or installing \R packages,
+#' or conduct some postprocessing after checking or installation.
 #'
 #' @inheritParams pkg_files
 #'
 #' @param x For \code{run_R_CMD}, a character vector with arguments passed to
-#'   \sQuote{R CMD <what>}. If these are the names of one to several package
+#'   \command{R CMD <what>}. If these are the names of one to several package
 #'   directories, the package name alone does \strong{not} suffice unless the
 #'   package is a subdirectory of the working directory.
 #'
 #'   For \code{copy_pkg_files} and \code{delete_o_files}, a character vector
 #'   passed as eponymous argument to \code{\link{pkg_files}}.
 #'
-#' @param what Character scalar with the name of the subcommand of \sQuote{R
+#' @param what Character scalar with the name of the command used by \command{R
 #'   CMD}, or (for \code{copy_pkg_files}) a character vector with the names of
 #'   subdirectories to copy.
-#' @param sudo Logical scalar. Prepend \sQuote{sudo} to the command? Probably
-#'   makes only sense on UNIX-like systems.
+#' @param sudo Logical scalar. Prepend a \command{sudo} call to the command?
+#'   Probably makes only sense on UNIX-like systems.
 #' @param system.args Optional list of arguments passed to \code{system} from
 #'   the \pkg{base} package.
 #'
@@ -230,12 +230,12 @@ is_pkg_dir.character <- function(x) {
 #'   automatically.
 #'
 #' @param ... For \code{run_R_CMD}, optional command-line switches passed to
-#'   \sQuote{R CMD <what>}. In contrast to \code{x}, leading dashes are
+#'   \command{R CMD <what>}. In contrast to \code{x}, leading dashes are
 #'   automatically prepended as necessary. For \code{copy_pkg_files}, optional
 #'   arguments passed to \code{file.copy} from the \pkg{base} package.
 #'
 #' @return The return value of \code{run_R_CMD} is the one of the call of
-#'   \sQuote{R CMD}, depending on \code{system.args}, by default an integer
+#'   \command{R CMD}, depending on \code{system.args}, by default an integer
 #'   indicating success or failure.
 #'
 #'   \code{copy_pkg_files} returns a logical vector. See \code{file.copy} from
@@ -245,16 +245,17 @@ is_pkg_dir.character <- function(x) {
 #'   whether deletion succeeded. See \code{file.remove} from the \pkg{base}
 #'   package.
 #'
-#' @details Windows users might need to install \sQuote{Rtools} for
+#' @details Windows users might need to install \pkg{Rtools} for
 #'   \code{run_R_CMD} to work, see
 #'   \url{http://cran.r-project.org/bin/windows/Rtools/}.
 #'
 #'   \code{copy_pkg_files} copies package files after installation. This is
 #'   mainly intended for script files, which should often be placed in a
-#'   directory for executables. The \sQuote{docu.R} and \sQuote{merge.R} scripts
-#'   that come with the \pkg{pkgutils} package are examples for such files.
+#'   directory for executable files. The \command{docu.R} and \command{merge.R}
+#'   scripts that come with the \pkg{pkgutils} package are examples for such
+#'   files.
 #'
-#'   \code{delete_o_files} removes object files in the \sQuote{src} subdirectory
+#'   \code{delete_o_files} removes object files in the \file{src} subdirectory
 #'   of a package remaining from previous compilation attempts, if any.
 #'
 #' @export
@@ -340,7 +341,7 @@ delete_o_files.character <- function(x, ext = "o", ignore = NULL, ...) {
 #' @inheritParams repair_S4_docu
 #' @return Currently the return value of the call to \code{\link{run_ruby}}.
 #' @details The code preprocessing works simply as follows: Lines are split at
-#'   the first occurence of \sQuote{#||}, if any, the parts reversed and joined
+#'   the first occurrence of \sQuote{#||}, if any, the parts reversed and joined
 #'   again with a space character, including the separator. Leading whitespace
 #'   is kept. Whitespace around the parts, if any, is removed (effectively
 #'   transformed to a single space). There is \strong{no} check done to ensure
@@ -348,7 +349,7 @@ delete_o_files.character <- function(x, ext = "o", ignore = NULL, ...) {
 #'   valid in its context, or correct or useful code. For instance, the line
 #'   \samp{  SEALED <- FALSE #|| SEALED <- TRUE} would be modified to
 #'   \samp{  SEALED <- TRUE #|| SEALED <- FALSE}, i.e. this could be used to
-#'   change a package constant before conducting any checking. Note, hovewer,
+#'   change a package constant before conducting any checking. Note, however,
 #'   that lines starting with a \pkg{roxygen2} comment will not be modified.
 #'
 #'   This preprocessing is currently implemented in a Ruby script
@@ -408,7 +409,7 @@ swap_code.character <- function(x, ..., ignore = NULL) {
 #'   closing parentheses (and brackets) are followed by appropriate characters
 #'   only and are not preceded by a space.
 #' @param assign Logical scalar indicating that it should be checked that
-#'   there is no linebreak within named function-argument assignments.
+#'   there is no line break within named function-argument assignments.
 #' @param modify Logical scalar indicating whether the source code should be
 #'   modified (non-destructively, of course) and input files overwritten (if
 #'   changes were possible). The modifications currently only comprise the
@@ -446,7 +447,7 @@ swap_code.character <- function(x, ..., ignore = NULL) {
 #'   notation.
 #'
 #'   Functions such as \code{\link{check_keywords}} print detected problems, if
-#'   any, using \code{message}. These character vectors can also be safed by
+#'   any, using \code{message}. These character vectors can also be saved by
 #'   appending to a logfile.
 #'
 #' @keywords package IO

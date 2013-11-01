@@ -39,10 +39,11 @@
 #'
 #' With \acronym{YAML} or \acronym{JSON}, arbitrary nesting levels are allowed,
 #' i.e. the \acronym{YAML} input results in either a list representing the slots
-#' of an \code{\link{OPM}} or \code{\link{OPMA}} object, or a list whose direct
-#' or indirect sublists represent such an object. However, it is an error if
-#' non-list elements are encountered when traversing such lists, and if no
-#' \code{\link{OPM}} or \code{\link{OPMA}} objects can be found at all.
+#' of an \code{\link{OPM}} or \code{\link{OPMA}} object, or a list whose
+#' directly or indirectly contained lists represent such an object. However, it
+#' is an error if non-list elements are encountered when traversing such lists,
+#' and if no \code{\link{OPM}} or \code{\link{OPMA}} objects can be found at
+#' all.
 #'
 #' Plates run in generation-III mode, if converted to \acronym{CSV} by the
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} software, comprise
@@ -344,8 +345,8 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'   then used for the replacement of old file extensions with new ones.
 #'
 #' @param type Character scalar indicating the file types to be matched by
-#'   extension. For historical reasons, \sQuote{both} means either \acronym{CSV}
-#'   or \acronym{YAML} \emph{or} \acronym{JSON}. \sQuote{yorj} means either
+#'   extension. For historical reasons, \kbd{both} means either \acronym{CSV} or
+#'   \acronym{YAML} \emph{or} \acronym{JSON}, whereas \kbd{yorj} means either
 #'   \acronym{YAML} or \acronym{JSON}. Alternatively, directly the extension or
 #'   extensions, or a list of file names (not \code{NA}).
 #' @param compressed Logical scalar. Shall compressed files also be matched?
@@ -371,11 +372,11 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'
 #' In normal mode, \code{batch_process} creates an invisibly returned character
 #' matrix in which each row corresponds to a named character vector with the
-#' keys \sQuote{infile}, \sQuote{outfile}, \sQuote{before} and \sQuote{after}.
-#' The latter two describe the result of the action(s) before and after
-#' attempting to convert \code{infile} to \code{outfile}. \sQuote{after} is the
-#' empty string if no conversion was tried (see \code{overwrite}), \sQuote{ok}
-#' if conversion was successful and a message describing the problems otherwise.
+#' keys \code{infile}, \code{outfile}, \code{before} and \code{after}. The
+#' latter two describe the result of the action(s) before and after attempting
+#' to convert \code{infile} to \code{outfile}. The \code{after} entry is the
+#' empty string if no conversion was tried (see \code{overwrite}), \code{ok} if
+#' conversion was successful and a message describing the problems otherwise.
 #' For the results of the \code{demo} mode see above.
 #'
 #' \code{file_pattern} yields a character scalar, holding a regular expression.
@@ -400,14 +401,14 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' \sQuote{*} matches zero to an arbitrary number of arbitrary characters.
 #' Some examples:
 #'   \describe{
-#'     \item{a?c}{Matches \sQuote{abc}, \sQuote{axc}, \sQuote{a c} etc. but not
-#'       \sQuote{abbc}, \sQuote{abbbc}, \sQuote{ac} etc.}
-#'     \item{a*c}{Matches \sQuote{abc}, \sQuote{abbc}, \sQuote{ac} etc. but not
-#'       \sQuote{abd} etc.}
-#'     \item{ab*}{Matches \sQuote{abc}, \sQuote{abcdefg}, \sQuote{abXYZ} etc.
-#'       but not \sQuote{acdefg} etc.}
-#'     \item{?bc}{Matches \sQuote{abc}, \sQuote{Xbc}, \sQuote{ bc} etc. but not
-#'     \sQuote{aabc}, \sQuote{abbc}, \sQuote{bc} etc.}
+#'     \item{a?c}{Matches \verb{abc}, \verb{axc}, \verb{a c} etc. but not
+#'     \verb{abbc}, \verb{abbbc}, \verb{ac} etc.}
+#'     \item{a*c}{Matches \verb{abc}, \verb{abbc}, \verb{ac} etc. but not
+#'     \verb{abd} etc.}
+#'     \item{ab*}{Matches \verb{abc}, \verb{abcdefg}, \verb{abXYZ} etc. but not
+#'     \verb{acdefg} etc.}
+#'     \item{?bc}{Matches \verb{abc}, \verb{Xbc}, \verb{ bc} etc. but not
+#'     \verb{aabc}, \verb{abbc}, \verb{bc} etc.}
 #' }
 #' Despite their simplicity, globbing patterns are often sufficient for
 #' selecting file names.
@@ -669,18 +670,18 @@ glob_to_regex.factor <- function(object) {
 #'   \code{\link{OPMS}} object, depending on the number of files read (0, 1, or
 #'   more).}
 #'   \item{try}{Behave like \sQuote{yes} but do not result in an error message
-#'   if conversion to OPMS is impossible; return a list (\code{\link{MOPMX}}
-#'   object) in that case.}
-#'   \item{sep}{Return a nested list, each sublist (\code{\link{MOPMX}} object)
-#'   containing \code{\link{OPM}} objects of the same plate type.}
-#'   \item{grp}{Also split into such sublists but convert them to
+#'   if conversion to \code{\link{OPMS}} is impossible; return a list
+#'   (\code{\link{MOPMX}} object) in that case.}
+#'   \item{sep}{Return a nested list, each partial list (\code{\link{MOPMX}}
+#'   object) containing \code{\link{OPM}} objects of the same plate type.}
+#'   \item{grp}{Also split into such contained lists but convert them to
 #'   \code{\link{OPMS}} objects if more than one plate is encountered. An error
 #'   is raised if this is impossible (in contrast to \sQuote{try}). Return a
 #'   list (\code{\link{MOPMX}} object).}
 #'   }
 #' @param gen.iii Logical or character scalar. If \code{TRUE}, invoke
 #'   \code{\link{gen_iii}} on each plate. This is automatically done with
-#'   \acronym{CSV} input if the plate type is given as \sQuote{OTH} (which is
+#'   \acronym{CSV} input if the plate type is given as \acronym{OTH} (which is
 #'   usually the case for plates run in ID mode). If a character scalar, it is
 #'   used as the \code{to} argument of \code{\link{gen_iii}} to set other plate
 #'   types unless it is empty.
@@ -715,7 +716,7 @@ glob_to_regex.factor <- function(object) {
 #'   in an editor for plain text, not in a spreadsheet program.
 #'
 #'   Plates run in ID mode are automatically detected as such (their plate type
-#'   is changed from \sQuote{OTH} to the internally used spelling of
+#'   is changed from \acronym{OTH} to the internally used spelling of
 #'   \sQuote{Generation III}). A generation-III or other plate type can also be
 #'   forced later on by using \code{\link{gen_iii}}.
 #'
@@ -747,7 +748,7 @@ glob_to_regex.factor <- function(object) {
 #'   tried and deselect MicroStation\eqn{\textsuperscript{\texttrademark}}{(TM)}
 #'   files entirely. Negative indexes can be used, but non-negative values not
 #'   within the range listed above will result in an error. If it known in
-#'   advance which formats are (not) to be expected, subsetting or just
+#'   advance which formats are (not) to be expected, subset creation or just
 #'   changing the order can be used to accelerate data input.
 #' @export
 #' @family io-functions
@@ -1245,7 +1246,7 @@ setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
 #'   outputting plots. See \code{Devices} from the \pkg{grDevices} package and
 #'   \code{mypdf} from the \pkg{pkgutils} package for possible values. The
 #'   extension of the output files is created from the device name after a few
-#'   adaptations (such as converting \sQuote{postscript} to \sQuote{ps}).
+#'   adaptations (such as converting \kbd{postscript} to \kbd{ps}).
 #' @param dev.args List. Passed as additional arguments to \code{device}.
 #' @param plot.args List. Passed as additional arguments to the plotting
 #'   function used.
@@ -1254,9 +1255,9 @@ setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
 #'   list can contain character vectors used for selecting and optionally
 #'   renaming \acronym{CSV} entries or functions that can be applied to an
 #'   entire data frame containing all \acronym{CSV} entries. Note that this
-#'   argument has nothing to do with \sQuote{csv} output.
+#'   argument has nothing to do with \kbd{csv} output.
 #' @param table.args Passed to \code{write.table} from the \pkg{utils} package
-#'   if \code{output} is set to \sQuote{csv}. Do not confuse this with
+#'   if \code{output} is set to \kbd{csv}. Do not confuse this with
 #'   \code{csv.args}.
 #' @param ... Optional arguments passed to \code{\link{batch_process}} in
 #'   addition to \code{verbose} and \code{demo}. Note that \code{out.ext},
@@ -1362,8 +1363,8 @@ setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
 #'   \acronym{YAML} in general, lack a native representation of \code{NA}
 #'   values. Such entries are likely to be misunderstood as \sQuote{NA}
 #'   character scalars (if the \pkg{json} package or the \pkg{yaml} package
-#'   prior to version 2.1.7 are used) or as \sQuote{.na}, \sQuote{.na.real},
-#'   \sQuote{.na.logical} or \sQuote{.na.character} character scalars (if more
+#'   prior to version 2.1.7 are used) or as \code{.na}, \code{.na.real},
+#'   \code{.na.logical} or \code{.na.character} character scalars (if more
 #'   recent versions of the \pkg{yaml} package are used). Input functions in
 #'   other programming languages should conduct according conversions. \pkg{opm}
 #'   translates these values when converting a list to a \code{\link{OPM}}
@@ -1691,9 +1692,10 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #' \code{split_files} subdivides each file into sections which are written
 #' individually to newly generated files. Sections are determined with patterns
 #' that match the start of a section. This function is useful for splitting
-#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} multiple-plate CSV files
-#' before inputting them with \code{\link{read_opm}}. It is used by
-#' \code{\link{batch_opm}} for this purpose. See also the \sQuote{Examples}.
+#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} multiple-plate
+#' \acronym{CSV} files before inputting them with \code{\link{read_opm}}. It is
+#' used by \code{\link{batch_opm}} for this purpose. See also the
+#' \sQuote{Examples}.
 #'
 #' \code{clean_filenames} modifies file names by removing anything else then
 #' word characters, dashes, and dots. Also remove trailing and leading dashes
@@ -1701,8 +1703,8 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #' and reduce adjacent dashes and underscores to a single one. Note that
 #' directory parts within the file names, if any, are not affected. This
 #' function might be useful for managing
-#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} CSV files, which can
-#' contain a lot of special characters.
+#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{CSV} files,
+#' which can contain a lot of special characters.
 #'
 #' @family io-functions
 #' @seealso base::split base::strsplit base::file.rename

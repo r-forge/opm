@@ -207,9 +207,9 @@ setMethod("hours", OPM, function(object,
 #'   or \code{NULL}.
 #'
 #' @details The \code{\link{OPMA}} method works like the \code{\link{OPM}} one,
-#'   but the function applies the subsetting to the original and the aggregated
-#'   data in parallel. The \code{\link{OPMD}} method applies the selection also
-#'   to the discretised data.
+#'   but the function applies the subset creation to the original and the
+#'   aggregated data in parallel. The \code{\link{OPMD}} method applies the
+#'   selection also to the discretised data.
 #'
 #'   The aggregated and discretised data may also be dropped entirely; this
 #'   might be appropriate if a subset of the time points is selected,
@@ -227,9 +227,9 @@ setMethod("hours", OPM, function(object,
 #'   measurements of the individual plates. It simplifies the outcome to a
 #'   \code{\link{OPM}} or \code{\link{OPMA}} object if only a single plate
 #'   remains and to \code{NULL} if no plate remains. This is different from
-#'   subsetting a list in \R. \code{\link{OPMS}} subsetting rather behaves like
-#'   subsetting a three-dimensional array with plates as first dimension, time
-#'   points as second, and wells as third.
+#'   creating subsets of a list in \R. \code{\link{OPMS}} subset creation rather
+#'   behaves like subset creation a three-dimensional array with plates as first
+#'   dimension, time points as second, and wells as third.
 #'
 #' @seealso base::`[` base::`[[`
 #' @keywords manip
@@ -547,7 +547,7 @@ setMethod("seq", OPMS, function(...) {
 #
 
 
-#' Information from input CSV file
+#' Information from input \acronym{CSV} file
 #'
 #' Information about the plate as originally read from the input \acronym{CSV}
 #' file (see \code{\link{read_opm}} and \code{\link{read_single_opm}} for
@@ -569,8 +569,8 @@ setMethod("seq", OPMS, function(...) {
 #' @param normalize Logical scalar indicating whether plate position and setup
 #'   time entries (if selected) should be normalised. This should always work
 #'   for the plate positions, but for the setup times it depends on the values
-#'   for the \code{\link{opm_opt}} keys \sQuote{time.fmt} and
-#'   \sQuote{time.zone} (see also \code{\link{merge}}).
+#'   for the \code{\link{opm_opt}} keys \code{time.fmt} and \code{time.zone}
+#'   (see also \code{\link{merge}}).
 #' @param ... Optional arguments passed between the methods.
 #' @return For the \code{\link{OPM}} method, a named character vector (unnamed
 #'   character scalar in the case of \code{filename}, \code{setup_time} and
@@ -794,8 +794,8 @@ setMethod("has_disc", OPM, function(object) {
 #' @param object \code{\link{OPMA}} or \code{\link{OPMS}} object.
 #' @param subset Character vector. If not \code{NULL}, restrict to this or these
 #'   parameter(s). See \code{\link{param_names}} for the possible values.
-#' @param ci Logical scalar. Include the estimates of confidence intervals (CIs)
-#'   in the output?
+#' @param ci Logical scalar. Include the estimates of confidence intervals
+#'   (\acronym{CI}s) in the output?
 #' @param trim Character scalar. Parameter estimates from intrinsically negative
 #'   reactions (i.e., no respiration) are sometimes biologically unreasonable
 #'   because they are too large or too small, and some corrections might be
@@ -817,11 +817,11 @@ setMethod("has_disc", OPM, function(object) {
 #' @param in.parens Logical scalar also passed to that function.
 #' @param max Numeric scalar also passed to that function.
 #' @param join Empty or character scalar. If empty, a list is returned; a nested
-#'   list in the case of \code{\link{OPMS}} objects with one sublist per plate.
-#'   Otherwise this nested list is converted to a matrix or data frame,
-#'   depending on the value of \code{join}. The following values yield a
-#'   matrix in character mode and differ in how they would convert non-scalar
-#'   values in a matrix in list mode, if encountered: \describe{
+#'   list in the case of \code{\link{OPMS}} objects with one contained list per
+#'   plate. Otherwise this nested list is converted to a matrix or data frame,
+#'   depending on the value of \code{join}. The following values yield a matrix
+#'   in character mode and differ in how they would convert non-scalar values in
+#'   a matrix in list mode, if encountered: \describe{
 #'     \item{json}{Converts to a \acronym{JSON} string.}
 #'     \item{yaml}{Converts to a \acronym{YAML} string.}
 #'     \item{rcode}{Converts by deparsing, yielding an \R code string.}
@@ -840,9 +840,9 @@ setMethod("has_disc", OPM, function(object) {
 #'   \code{\link{to_metadata}}.
 #'
 #' @return \code{aggregated} yields a numeric matrix of aggregated values
-#'   (a.k.a. the curve parameters). If bootstrapping was used, their CIs are
-#'   included. The columns represent the wells, the rows the estimated
-#'   parameters and their CIs.
+#'   (a.k.a. the curve parameters). If bootstrapping was used, their
+#'   \acronym{CI}s are included. The columns represent the wells, the rows the
+#'   estimated parameters and their \acronym{CI}s.
 #'
 #'   \code{aggr_settings} returns a named list if \code{join} is empty. Other
 #'   values yield a matrix or data frame (or an error). See the description of
@@ -914,7 +914,7 @@ setMethod("aggregated", OPMA, function(object, subset = NULL, ci = TRUE,
   if (is.null(software <- object@aggr_settings[[SOFTWARE]]))
     warning(sprintf("object has no '%s' entry", SOFTWARE))
   else if (software != opm_string())
-    warning(sprintf("unknown '%s' entry '%s': subsetting may not work",
+    warning(sprintf("unknown '%s' entry '%s': subset creation may not work",
       SOFTWARE, software))
 
   # generate subset
@@ -1478,12 +1478,12 @@ lapply(c(
 #' \itemize{
 #'   \item Using a character vector as query, \code{infix.k} tests whether all
 #'   given keys are present in the top-level names of the metadata (these may be
-#'   nested, but all sublists are ignored here). An empty query vector results
-#'   in \code{TRUE}. Note that the values of the character vector, not its
-#'   names, if any, are used for querying the metadata. In contrast,
+#'   nested, but all contained lists are ignored here). An empty query vector
+#'   results in \code{TRUE}. Note that the values of the character vector, not
+#'   its names, if any, are used for querying the metadata. In contrast,
 #'   \code{infix.largek} tests whether a given key is present in the metadata
 #'   and fetches an object that is not \code{NULL}. If the key has a length > 1,
-#'   sublists are queried.
+#'   contained lists are queried.
 #'
 #'   \item Using a list as query, both methods tests whether all given keys are
 #'   present in the names of the metadata. This works like the character method,
@@ -1548,12 +1548,12 @@ lapply(c(
 #' stopifnot(vaas_1 %k% vaas_1) # obviously
 #' stopifnot(vaas_1 %K% vaas_1)
 #'
-#' # This fails because we query with a named sublist but the 'Species'
+#' # This fails because we query with a named 2nd-order list but the 'Species'
 #' # metadata entry is not even a list.
 #' stopifnot(!list(Species = list(Genus = "X", Epithet = "Y")) %k% vaas_1)
 #'
-#' # This is OK because we query with an unnamed sublist: it has no names that
-#' # one would fail to find.
+#' # This is OK because we query with an unnamed 2nd-order list: it has no
+#' # names that one would fail to find.
 #' stopifnot(list(Species = list("X", "Y")) %k% vaas_1)
 #'
 #' # More non-nested query examples

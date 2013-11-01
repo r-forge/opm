@@ -172,7 +172,7 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #'     scalar decides about whether names are prepended before joining the
 #'     vector elements. A character scalar is used as template for
 #'     \code{sprintf}, which gets \code{names(x)} passed as second and \code{x}
-#'     as third argument. (This order can be inversed, see next argument.)}
+#'     as third argument. (This order can be inverted, see next argument.)}
 #'   }
 #' @param style Character scalar. The main options are:
 #'   \describe{
@@ -388,14 +388,14 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #'   Here, the behaviour of other arguments is special if all elements of
 #'   \code{x} are atomic. See below.}
 #'   }
-#' @param min.cov Numeric scalar indicating the mimimal coverage required in the
+#' @param min.cov Numeric scalar indicating the minimal coverage required in the
 #'   resulting presence-absence matrix. Columns with a fewer number of non-zero
 #'   entries are removed.
 #' @param keep.unnamed Logical scalar indicating whether names should be
 #'   inserted for elements of \code{x} that miss them. If \code{NA}, they are
 #'   skipped, but with a warning; if \code{FALSE}, they are skipped silently.
 #'   This has only an effect in conjunction with the last three values of
-#'   \code{what}. If \sQuote{datasets} are chosen, it usually has only an
+#'   \code{what}. If \kbd{datasets} are chosen, it usually has only an
 #'   effect if all elements of \code{x} are atomic.
 #' @param dataframe Logical scalar indicating whether a data frame should be
 #'   produced instead of a matrix

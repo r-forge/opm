@@ -16,10 +16,10 @@
   \sQuote{PM} plates. Four bacterial strains from two
   species were considered in the study. For the three
   publicly accessible ones, the web links to their
-  \acronym{DSMZ} catalog entries are given below.
+  \acronym{DSMZ} catalogue entries are given below.
 }
 \details{
-  All plates also contain aggregated and discretized values
+  All plates also contain aggregated and discretised values
   generated \emph{via} \code{do_aggr} and \code{do_disc}
   from the \pkg{opm} package under default values.
 }

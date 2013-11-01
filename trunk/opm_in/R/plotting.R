@@ -7,7 +7,7 @@
 #
 
 
-#' Summarise OPMX or MOPMX objects
+#' Summarise \acronym{OPMX} or \acronym{MOPMX} objects
 #'
 #' Generate a summary (which also prints nicely to the screen), or display an
 #' \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}} object on
@@ -18,10 +18,10 @@
 #' @param ... Optional arguments to be included in the output.
 #' @export
 #' @return For the \code{\link{OPM}} method, a named list of the class
-#'   \sQuote{OPM_Summary}, returned invisibly. The \sQuote{metadata} entry is
+#'   \code{OPM_Summary}, returned invisibly. The \sQuote{metadata} entry is
 #'   the number of non-list elements in \code{\link{metadata}}. For the
 #'   \code{\link{OPMS}} method, a list of such lists (one per plate), also
-#'   returned invisibly, with the class set to \sQuote{OPMS_Summary} and some
+#'   returned invisibly, with the class set to \code{OPMS_Summary} and some
 #'   information on the entire object in the attribute \sQuote{overall}.
 #' @details Currently the \code{show} methods are just wrappers for the
 #'   \code{summary} methods for these objects with an additional call to
@@ -542,7 +542,7 @@ default_color_regions <- function(colors, space, bias, n) {
 #'     \item{...}{Other arguments are passed to \code{\link{plate_type}}.}
 #'   }
 #'   If \code{settings} is not a list but a character scalar or an expression,
-#'   this is used as the \sQuote{predef} entry of the above-mentioned list. If
+#'   this is used as the \kbd{predef} entry of the above-mentioned list. If
 #'   not a list but a logical scalar, it is used as the \sQuote{use} entry of
 #'   this list. If not a list but a numeric value, it is used as the
 #'   \sQuote{max} entry of this list.
@@ -562,17 +562,17 @@ default_color_regions <- function(colors, space, bias, n) {
 #'
 #' @param strip.fmt List controlling the format of the description strip above
 #'   each panel. For instance, the background colour is set using the
-#'   \sQuote{bg} key. For further details, see \code{strip.custom} from the
+#'   \kbd{bg} key. For further details, see \code{strip.custom} from the
 #'   \pkg{lattice} package. Note that the \strong{content} of these descriptions
 #'   is determined by arguments passed from \code{xy_plot} to
 #'   \code{\link{wells}}; see there for details.
 #' @param striptext.fmt List controlling the textual description at the top of
-#'   each panel. For instance, the relative text size is set using the
-#'   \sQuote{cex} key, the colour by \sQuote{col}, the font by \sQuote{font} and
-#'   the number of lines by \sQuote{lines}. The latter might be of interest in
-#'   conjunction with the \code{paren.sep} argument of \code{\link{wells}}. See
-#'   the argument \sQuote{par.strip.text} of \code{xyplot} from the
-#'   \pkg{lattice} package for details.
+#'   each panel. For instance, the relative text size is set using the \kbd{cex}
+#'   key, the colour by \sQuote{col}, the font by \sQuote{font} and the number
+#'   of lines by \sQuote{lines}. The latter might be of interest in conjunction
+#'   with the \code{paren.sep} argument of \code{\link{wells}}. See the argument
+#'   \code{par.strip.text} of \code{xyplot} from the \pkg{lattice} package for
+#'   details.
 #'
 #' @param legend.fmt List controlling where and how to draw the legend. The
 #'   content of the legend (mainly a description of the assignment of the
@@ -873,10 +873,10 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #'   made).
 #'
 #' @param strip.fmt List controlling the format of the description strip above
-#'   each panel. For instance, the background colour is set using the
-#'   \sQuote{bg} key. For further details, see \code{strip.custom} from the
-#'   \pkg{lattice} package. \code{strip.fmt} is ignored if panel.headers is
-#'   \code{FALSE} and currently always ignored by the \code{\link{OPM}} method.
+#'   each panel. For instance, the background colour is set using the \kbd{bg}
+#'   key. For further details, see \code{strip.custom} from the \pkg{lattice}
+#'   package. \code{strip.fmt} is ignored if panel.headers is \code{FALSE} and
+#'   currently always ignored by the \code{\link{OPM}} method.
 #' @param striptext.fmt List controlling the format of the text within the strip
 #'   above each panel. See \code{\link{xy_plot}} for details, which has an
 #'   argument of the same name.
@@ -971,7 +971,7 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 ################################################################################
 
 
-#' Plot point estimates with CIs
+#' Plot point estimates with \acronym{CI}s
 #'
 #' Draw point estimates with their confidence intervals.  Used for comparing
 #' aggregated values together with their confidence intervals between plates.
@@ -1222,7 +1222,7 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #'
 #' @param col Character vector containing the proper heat map colours.
 #' @param asqr Logical scalar indicating whether the data should be treated
-#'   with the arcus sinus-square root transformation. This usually only makes
+#'   with the arcsine-square root transformation. This usually only makes
 #'   sense for proportion data. If \code{NA}, percentages are assumed.
 #' @param ... Optional arguments passed to \code{heatmap} or \code{heatmap.2}.
 #'   Note that some defaults of \code{heatmap.2} are overwritten even though
@@ -1231,14 +1231,14 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #'   \code{\dots} also represents all arguments passed from the
 #'   \code{\link{OPMS}} or data-frame methods to the matrix method.
 #'
-#' @param use.fun Character scalar. If \sQuote{gplots}, it is attempted to load
+#' @param use.fun Character scalar. If \kbd{gplots}, it is attempted to load
 #'   the \pkg{gplots} package and use its \code{heatmap.2} function (the
 #'   default). If this fails, a warning is issued, and \code{heatmap} from the
 #'   \pkg{stats} package (the default) is called instead.
 #'
 #' @export
 #' @return A list as output by \code{heatmap} or \code{heatmap.2} with the
-#'   additional entries \sQuote{rowColMap} or \sQuote{colColMap} giving the
+#'   additional entries \code{rowColMap} or \code{colColMap} giving the
 #'   mapping(s) of group names to colours as named character vector(s), if this
 #'   feature was used.
 #'
