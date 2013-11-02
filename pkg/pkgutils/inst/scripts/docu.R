@@ -97,6 +97,17 @@ textfile2rds <- function(file) {
 }
 
 
+show_spellcheck_result <- function(x) {
+  if (!nrow(x))
+    return(invisible(NULL))
+  x[, "File"] <- basename(sp[, "File"])
+  x <- x[order(x[, "Original"]), c("Original", "File", "Line", "Column")]
+  names(x) <- sprintf(".%s.", names(x))
+  write.table(x, "", sep = "\t", quote = FALSE, row.names = FALSE)
+  invisible(NULL)
+}
+
+
 ################################################################################
 
 
@@ -458,13 +469,10 @@ for (i in seq_along(package.dirs)) {
 
   if (nzchar(opt$whitelist)) {
     message("Checking spelling in Rd files of", msg)
-    sp <- aspell_package_Rd_files(out.dir, control = "-d en_GB",
+    show_spellcheck_result(aspell_package_Rd_files(out.dir,
+      control = "-d en_GB", dictionaries = opt$whitelist,
       drop = c("\\author", "\\references", "\\seealso", "\\code",
-        "\\acronym", "\\pkg", "\\kbd", "\\command", "\\file"),
-      dictionaries = opt$whitelist)
-    sp[, "File"] <- basename(sp[, "File"])
-    sp <- sp[order(sp[, "Original"]), c("Original", "File", "Line", "Column")]
-    write.table(sp, "", sep = "\t", quote = FALSE, row.names = FALSE)
+        "\\acronym", "\\pkg", "\\kbd", "\\command", "\\file")))
   }
 
   if (opt$install && (opt$unsafe || !check.err)) {
