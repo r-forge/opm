@@ -1293,7 +1293,8 @@ show_example_pdf_files()
 ################################################################################
 
 
-# Check the spelling of the vignette files.
+# Check the spelling of the vignette files. We assume aspell is available.
+# Specific LaTeX commands are excluded from spell checking.
 #
 spellcheck_vignettes()
 {
@@ -1302,10 +1303,21 @@ spellcheck_vignettes()
     R --vanilla <<-____EOF
 	words <- readLines("misc/whitelist-vignette.txt")
 	saveRDS(words[nzchar(words)], tmpfile <- tempfile(fileext = ".rds"))
+	ctrl <- c("ac", "acf", "acs", "acl")
+	ctrl <- c(ctrl, paste0(ctrl, "p"))
+	ctrl <- c(ctrl, "bibliography", "code", "citep", "pkg", "proglang",
+	  "German", "Plainauthor", "Plainkeywords", "Plaintitle", "Surname",
+	  "Unchecked")
+	ctrl <- c("DefineVerbatimEnvironment oppp", "acrodef op", "subsection o",
+	  "subsubsection o", "pdfbookmark opp", "item o", sprintf("%s op", ctrl))
+	ctrl <- c("-t", "-d en_GB", sprintf("--add-tex-command=\"%s\"", ctrl))
 	x <- aspell(Sys.glob(file.path("$pkg", "vignettes", "*.Rnw")),
-	  filter = "Sweave", dictionaries = tmpfile, control = c("-t", "-d en_GB"))
-	x <- x[order(x[, "Original"]), c("Original", "File", "Line", "Column")]
-	write.table(x, "", sep = "\t", quote = FALSE, row.names = FALSE)
+	  filter = "Sweave", dictionaries = tmpfile, control = ctrl)
+	if (nrow(x)) {
+	  x <- x[order(x[, "Original"]), c("Original", "File", "Line", "Column")]
+	  names(x) <- sprintf(".%s.", names(x))
+	  write.table(x, "", sep = "\t", quote = FALSE, row.names = FALSE)
+	}
 ____EOF
   done | awk -v FS="\t" 'NF > 1' -
 }
