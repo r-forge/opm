@@ -21,6 +21,7 @@
 % Acronyms
 %
 \usepackage{acronym}
+\acrodef{ASD}{Autism Spectrum Disorder}
 \acrodef{CAS}{Chemical Abstracts Service}
 \acrodef{ChEBI}{Chemical Entities of Biological Interest}
 \acrodef{CI}{Confidence Interval}
@@ -29,9 +30,10 @@
 \acrodef{EC}{Enzyme Commission}
 \acrodef{KEGG}{Kyoto Encyclopedia of Genes and Genomes}
 \acrodef{MeSH}{Medical Subject Headings}
+\acrodef{RF}{Random Forest}
 \acrodef{PM}{Phenotype Microarray}
 \acrodef{PNG}{Portable Network Graphics}
-
+\acrodef{VIMs}{variable importance measures}
 
 %% Add Revision Control System (RCS) Markups
 \usepackage{ulem}      % use this for sout
@@ -685,7 +687,7 @@ In the examples detailed above, a variety of such objects have already been gene
 Next, we show how to produce graphics from these objects instead of directly from \ac{KEGG}.
 
 <<label=pathview-plot-graphviz>>=
-coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
+coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko", afactor = 1500,
   kegg.native = FALSE, out.suffix = "graphvizk12.ko", pathway.id = "00052",
   sign.pos = "bottomleft", key.pos = "bottomright")
 @
@@ -707,9 +709,10 @@ See the main text for a description of some of the limitations when creating gra
 %% DO NOT MODIFY ANYTHING ABOVE THIS LINE WITHOUT NEGOTIATING WITH MG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-There are, unfortunately, only limited options for tuning the font sizes or the size of the symbols in the graphs.
-Regarding the colour arguments, \rcsmark{TODO}.
-The scaling \rcsmark{TODO}.
+Although \code{pathview} offers quite a number of arguments specifically for \code{kegg.native=FALSE}, there are, unfortunately, only limited options for tuning the size of the nodes or the font sizes in this visualisation.
+With the usual \code{cex}-argument the scaling of text and symbols can be tuned (when \code{kegg.native=FALSE} default is \code{cex=0.5}) and \code{text.width} it is possible to specify the length for text wrapping. 
+In principle, the node size can be fine-tuned by \code{afactor}, however even the help page of function \code{pathview} emphasises that ``its effect is subtler than expected''.
+Together with the automated rendering by the \code{graphviz} layout engine it might be difficult to result a satisfying map of the pathway of interest.
 
 
 % this part goes into the paragraph, where it is described, that there is no fixed order of the different described analysis steps:
@@ -795,6 +798,15 @@ For instance, the Galactose metabolism (``map00052'') is among the top-scoring s
 For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
 
 \rcsmark{TODO}
+some literature:
+\begin{itemize}
+\item \citep{Wouter2012} - review of random forest properties that allow maximising the biological insights that can be extracted from complex OMICS-data using \ac{RF}
+\item \citep{Boulesteix2012} - emphasis on applications to bioinformatics and computational biology, special attention to practical aspects such as (i) selection of parameters, (ii) available \ac{RF} implementations, and (iii) important pitfalls and biases of \ac{RF} and its \ac{VIMs}
+\item \citep{Boccuto2013} - analysis of metabolic profiles of lymphoblastoid cell lines from 137 patients with neurodevelopmental disorders with or without \acs{ASD} and 78 normal individuals, using BIOLOG Phenotype microarrays. Feature selection approaches identified Tryptophan-substrates  - cells from \ac{ASDs} patients are less capable in utilisation of Tryptophan-substrates
+\item  
+\end{itemize}
+
+
 
 %TODO Should we confirm this result with opm_mcp?
 %
