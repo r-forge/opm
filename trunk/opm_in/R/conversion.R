@@ -1288,7 +1288,7 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
 #' Convert some \R object to \acronym{YAML} or \acronym{JSON}.
 #'
 #' @param object Object of one of the classes belonging to
-#'   \code{\link{YAML_VIA_LIST}}.
+#'   \code{\link{YAML_VIA_LIST}}, or \code{\link{MOPMX}} object.
 #' @param sep Logical scalar. Prepend \acronym{YAML} document separator
 #'   \sQuote{\verb{---}}?
 #' @param line.sep Character scalar used as output line separator.
@@ -1305,7 +1305,7 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
 #'   underscore, which assists in getting the original spelling back but is
 #'   anything else than fail-safe.
 #' @param ... Optional other arguments passed to \code{as.yaml} from the
-#'   \pkg{yaml} package.
+#'   \pkg{yaml} package, or arguments passed between the methods.
 #' @export
 #' @return Character scalar (\acronym{YAML} string).
 #' @family conversion-functions
@@ -1363,6 +1363,10 @@ setMethod("to_yaml", YAML_VIA_LIST, function(object, sep = TRUE,
   }
   result
 }, sealed = SEALED)
+
+setMethod("to_yaml", MOPMX, function(object, ...) {
+  to_yaml(lapply(object, as, "list"), ...)
+})
 
 
 ################################################################################
