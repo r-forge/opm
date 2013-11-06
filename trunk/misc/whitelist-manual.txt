@@ -1,4 +1,4 @@
-
+BIOLOG
 Calinski
 Discretisation
 Discretise
@@ -16,8 +16,10 @@ Prepended
 Preprocess
 Shrestha
 Sikorski
+Solaris
 Vaas
 Whitespace
+YAML
 al
 arcsine
 coli
@@ -26,6 +28,9 @@ deparsing
 discretisation
 discretise
 discretised
+discretising
+encoding
+encodings
 et
 globbing
 logarithmised
@@ -33,11 +38,14 @@ logfile
 maxima
 metadata
 microarray
+parallelisation
 postprocessing
 prepend
 prepended
 prepending
+namespace
 preprocessing
+stereochemistry
 subdirectories
 subdirectory
 taxon
@@ -46,3 +54,4 @@ versa
 whitespace
 wildcard
 wildcards
+
