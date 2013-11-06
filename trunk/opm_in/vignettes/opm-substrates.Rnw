@@ -289,10 +289,11 @@ The resulting vector contains the numeric values (selected parameter estimates o
 For substrates such as ``Positive Control'' or ``pH 5'' no \ac{KEGG} ID is available, which results in \code{NA} values in the vector.
 Accordingly, those substrates cannot be marked within pathway maps (see section~\ref{pathview-group}). 
 The \code{what} argument, passed as eponymous argument to \code{substrate\_info}, selects the kind of information to be used for the annotation.
+For usage of argument \code{how}, please refer to section~\ref{finding-pathways}.
 
 Although \code{annotated} works directly on \code{OPMX} objects containing aggregated data for single plates or bundles of plates, please note, that the output allows for only one value per substrate. 
 Thus, when applying \code{annotated} to a set of plates, make sure that only one experimental group is comprised, since the resulting values are averaged per well over all plates in the input object.
-% TODO LATER: once pathview supports time series, this section (and annotated) must be modified accordingly
+%TODO LATER: once pathview supports time series, this section (and annotated) must be modified accordingly
 Using the \code{output} argument, one can select the parameter of interest, for example area under the curve instead of maximum height:
 
 <<label=annotated-param>>=
@@ -738,32 +739,73 @@ Together with the automated rendering by the \code{graphviz} layout engine it mi
 
 \section{Finding the pathways of interest}\label{finding-pathways}
 
-In many cases, the pathways of interest are not known in advance.
-The information accessible \textit{via} \code{annotated} can be used in conjunction with suitable statistical procedures to automatically determine those features of the substrates that best correspond to a certain experimental outcome.
-Such results can be used as a starting point when searching for a causal explanation of the given \pkg{opm} results.
-They can also be used to simply determine the pathways to be used when drawing the \pkg{opm} results in a graph, as detailed in the previous sections.
+In many experimental approaches, the identification of the pathway(s) of interest are subject of research.
 
-In the next coding example, we prepare a data matrix of differences between means and potential explanatory variables from \ac{KEGG}.
+The information accessible \textit{via} \code{annotated} can serve as input for suitable statistical procedures in order to assess and rank the observed metabolic capabilities (i.e. respiration on the substrates) with respect to their ability to predict a given response. 
+Beside the identification of pathways of interest to be used when drawing the \pkg{opm} results in a graph, as detailed in the previous section, such results can further be used as a starting point when searching for a causal explanation of the given \pkg{opm} results.
+
+In the next coding example, we prepare the data matrix for difference between the two \textit{E. coli} strains (as computed in section ~\ref{pathview-group-diffs}) and add potential explanatory variables from \ac{KEGG}. 
+%\code{opm_mcp} provides data frame of the selected data when used with argument \code{output = "data"}.
+%It contains basically the four columns ``Strain'', ``Parameter'', ``Well'' and ``Value''. 
+With \code{annotated} used with \code{how = "value"} the numeric matrix including the substrate names as row names and first column indicating the mean of chosen computed values is provided.
+Further columns indicate the occurrence of a certain substrate in a pathway map or the affiliation to a certain class, e.g. ``Carbohydrates''. 
+This information is in analogy to the download argument of \code{substrate\_info} but with conversion to a numeric matrix.
+%
+%<<label=e-coli-single-values>>=
+%# note: object coli.sub was setup in the beginning of this vignette
+%coli.sub.dat <- opm_mcp(coli.sub, ~ Strain, output = "data", in.parens = FALSE)
+%coli.sub.anno <- annotated(coli.sub, how = "values")
+%coli.sub.dat[, colnames(coli.sub.anno)] <- coli.sub.anno[as.character(coli.sub.dat$Well), ]
+%sub.dat.free <- as.data.frame(coli.sub.dat[complete.cases(coli.sub.dat), ])
+%head(sub.dat.free)
+%@
+%
+%
+%The matrix for \textit{E. coli} strain K12 (object \code{anno.k12.mat}) was already produced in section~\ref{finding-substrates}. 
+%Thus, here we provide the matrix for strain \ac{DSM} 30083\textsuperscript{T} and the computed differences between them (as computed in section ~\ref{pathview-group-diffs}). 
 Again, the comparison applies to the default parameter given by \code{opm_opt("curve.param")}; see the manual for details.
+%
+%% some code to be used later
+%<<label=e-coli-comp-full>>=
+%# provide the annotated vector for type DSM 30083T
+%anno.type.mat <- annotated(coli.type, how = "value")
+%# compute the differences between the two strains
+%coli.comp <- opm_mcp(coli.sub, output = "mcp",
+%  model = ~ J(Well + Strain), linfct = c(Pairs = 1))
+%@
 
 <<label=e-coli-comp-full>>=
-coli.comp <- opm_mcp(coli.sub, output = "mcp",
-  model = ~ J(Well + Strain), linfct = c(Pairs = 1))
-coli.anno <- annotated(coli.comp, how = "value")
+# compute the differences between the two strains for all substrates  
+coli.comp.full <- opm_mcp(coli.sub[, , ], 
+  output = "mcp", model = ~ J(Well + Strain), linfct = c(Pairs = 1))
+# provide annotated vector for the differences
+coli.anno.full <- annotated(coli.comp.full, how = "value")
 @
 
-The matrix has to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in \ac{KEGG} have to be removed.
+The matrices have to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in \ac{KEGG} have to be removed.
 It also needs to be converted to a data frame before the \pkg{randomForest} package \citep{Liaw2002} can be applied.
+%
+%% some code to be used later
+%<<>>=
+%anno.k12.dat <- as.data.frame(anno.k12.mat[complete.cases(anno.k12.mat), ])
+%anno.type.dat <- as.data.frame(anno.type.mat[complete.cases(anno.type.mat), ])
+%@
+%
 
-<<label=e-coli-comp-full>>=
-coli.anno <- as.data.frame(coli.anno[complete.cases(coli.anno), ])
-suppressPackageStartupMessages(library("randomForest"))
-coli.comp.rf <- randomForest(x = coli.anno[, -1], y = coli.anno[, 1],
-  importance = TRUE, proximity = TRUE)
+<<label=e-coli-dat>>=
+coli.anno.full.f <- as.data.frame(coli.anno.full[complete.cases(coli.anno.full), ])
 @
+%
+%% some code to be used later
+%<<>>=
+%coli.k12.rf <- randomForest(x = anno.k12.dat[, -1], y = anno.k12.dat[, 1],
+%  importance = TRUE, proximity = TRUE)
+%coli.type.rf <- randomForest(x = anno.type.dat[, -1], y = anno.type.dat[, 1],
+%  importance = TRUE, proximity = TRUE)
+%@
 
-%TODO Lea: I've changed this to non-formula input to avoid make.names().
-% This is now the full Gen-III plate except for the NAs.
+%TODO 
+% wenn man value als y-variable nimmt
 % But this is now regression, not classification as originally intended.
 % E.g. there is no confusion matrix.
 % IMHO this is appropriate because we have a quantitative response.
@@ -771,26 +813,38 @@ coli.comp.rf <- randomForest(x = coli.anno[, -1], y = coli.anno[, 1],
 % If OK, explain some details of this analysis here but not too much.
 % Instead, include some references if possible.
 
-See \citep{Wouter2012} for a review of \ac{RF} properties that allow for maximising the biological insights that can be extracted from complex OMICS data.
-\citep{Boulesteix2012} emphasise the applications of \ac{RF} to computational biology with special attention to practical aspects such as parameter selection and major pitfalls and biases of \ac{RF} and its \acs{VIM}.
+In the random forest approach, we use a regression to find out, which substrate features, represented by their occurrence in maps or the substrate categories, explain the observed differences between the two \textit{E. coli} strains. 
 
-% TODO LATER:
+<<label=e-coli-rf>>=
+suppressPackageStartupMessages(library("randomForest"))
+coli.comp.full.rf <- randomForest(x = coli.anno.full.f[, -1], y = coli.anno.full.f[, 1],
+  importance = TRUE, proximity = TRUE)
+@
+
+See \citep{Wouter2012} for a review of \ac{RF} properties that allow for maximising the biological insights that can be extracted from complex OMICS data.
+\citep{Boulesteix2012} emphasise the applications of \ac{RF} to computational biology with special attention to practical aspects such as parameter selection and major pitfalls and biases of \ac{RF} and its \ac{VIM}.
+
+%TODO LATER:
 %\item \citep{Boccuto2013} - analysis of metabolic profiles of lymphoblastoid cell lines from 137 patients with neurodevelopmental disorders with or without \acs{ASD} and 78 normal individuals, using BIOLOG Phenotype microarrays. Feature selection approaches identified Tryptophan-substrates  - cells from \ac{ASDs} patients are less capable in utilisation of Tryptophan-substrates
 %\item  
 
-
-
 We can now determine the substrate features that best predict the differences between the two \textit{E. coli} strains and depict these features within a ``Variable Importance Plot'' (Figure~\ref{fig:var-imp-plot}).
+%
+%% some code to be used later
+%<<>>=
+%varImpPlot(coli.k12.rf, main = "Strain K12")
+%varImpPlot(coli.type.rf, main = "Type Strain")
+%@
 
 <<label=randomforest-figure, fig=FALSE, eval=FALSE>>=
-varImpPlot(coli.comp.rf, main = NULL)
+varImpPlot(coli.comp.full.rf, main = "Difference Type Strain vs. K12")
 @
 
 \begin{center}
 \begin{figure}
-\scalebox{1.1}{
-<<label=random-forest-plot, fig=TRUE, echo=FALSE, width=12>>=
-varImpPlot(coli.comp.rf, main = NULL)
+\scalebox{1.25}{
+<<label=random-forest-plot, fig=TRUE, echo=FALSE, width=10, height=7.5>>=
+varImpPlot(coli.comp.full.rf, main = "Difference Type Strain vs. K12")
 @
 }
 \caption{
@@ -803,15 +857,39 @@ For a subset of the carbohydrates, those from the Galactose pathway (``map00052'
 \end{figure}
 \end{center}
 
-The output can be interpreted a follows.
+The output can be interpreted a follows:
+
 Whether or not a substrate is a carbohydrate works best for predicting whether one of the strains performs differently than the other.
 The category ``Carbohydrates'' works even better than its subcategories such as ``Oligosaccharides''.
 The pathway map IDs that are shown to have a strong influence are also related to carbohydrate metabolism, of course.
 For instance, the Galactose metabolism (``map00052'') is among the top-scoring substrate features.
 For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
 
+For demonstration purposes we show now the pooled comparison between substrates from category  ``Carbohydrates'' and the remaining substrates.
+
+%
+<<label=prep.mcp.dat, eval=FALSE>>=
+coli.comp.full # result from mcp
+coli.anno.full # annotation-vector mir NAs
+coli.anno.full.f # annotation-vector without NAs
+@
+% compute one mcp for the group of carbohydrates and one for the non-carbohydrates
+% use find_positions, something like find_positions(rownames(coli.anno), plate_type(coli.sub)) to select the wells to be compared in the [] 
+% how do i merge the information from coli.anno.full with coli.sub to be able to compute the necessary mcps?
+% first with select all the rownames of entries which have a 1 in column Carbohydrates
+% then use these names with find positions and put in mcp
+% do the same with 0 in column carbohydrates
 
 
+%mcp.dat <- coli.anno.full[, c("Value","Carbohydrates") ]
+%mcp.dat$Carbohydrates <- as.factor(mcp.dat$Carbohydrates)
+%mcp.dat$Well <- as.factor(rownames(mcp.dat))
+%head(mcp.dat)
+%mcp.data <- data.frame(mcp.dat[, 2], Parameter = gl(1, 75, labels = "A"), 
+%                       mcp.dat[, c(1,3)])
+<<label=carb-comp>>=
+
+@
 %TODO Should we confirm this result with opm_mcp?
 %
 % we then maybe need better selection mechanisms from the matrix/data frame as output by annotated()
