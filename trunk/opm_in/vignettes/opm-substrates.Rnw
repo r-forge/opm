@@ -347,7 +347,8 @@ The options \code{upwards} and \code{downwards} result in a classification into 
 These indicate whether or not the cut-off (zero per default) is included in the confidence interval (\code{NA}) and thus a decision possible.
 If not, the category indicates the direction of the shift relative to the cut-off.
 The options \code{different}, \code{smaller}, \code{larger} and \code{equal} work similarly, but use only the two categories \code{TRUE} and \code{FALSE}. 
-Please note that the underlying test seeks for differences and thus the results always have to be interpreted regarding the occurrence of differences: Mainly ``insignificantly different'' does not mean ``significantly equal''.
+Please note that the underlying test seeks for differences and thus the results always have to be interpreted regarding the significance (and magnitude) of differences; ``insignificantly different'' does not mean ``significantly equal''!
+
 Short-cuts are available for all \code{output}-options, enabling the user to set the cut-off together with the kind of output.
 See the manual for details.
 
@@ -753,25 +754,18 @@ Please refer to the manual and Section~\ref{annotated-input} for explanation of 
 Again, the comparison applies to the default parameter given by \code{opm_opt("curve.param")}; see the manual for details.
 
 <<label=e-coli-comp-full>>=
-# compute the differences between the two strains for all substrates  
-coli.comp.full <- opm_mcp(coli.sub[, , ], 
-  output = "mcp", model = ~ J(Well + Strain), linfct = c(Pairs = 1))
-# provide annotated vector for the differences
-coli.anno.full <- annotated(coli.comp.full, how = "value")
+coli.comp <- opm_mcp(coli.sub, output = "mcp",
+  model = ~ J(Well + Strain), linfct = c(Pairs = 1))
+coli.anno <- annotated(coli.comp, how = "value")
 @
 
-The matrices have to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in \ac{KEGG} have to be removed.
+The matrix has to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in \ac{KEGG} have to be removed.
 It also needs to be converted to a data frame before the \pkg{randomForest} package \citep{Liaw2002} can be applied.
 
-<<label=e-coli-dat>>=
-coli.anno.full.f <- as.data.frame(coli.anno.full[complete.cases(coli.anno.full), ])
-@
-
-In the random forest approach, we use a regression to find out, which substrate features, represented by their occurrence in maps or the substrate categories, explain the observed differences between the two \textit{E. coli} strains. 
-
-<<label=e-coli-rf>>=
+<<label=e-coli-comp-full>>=
+coli.anno <- as.data.frame(coli.anno[complete.cases(coli.anno), ])
 suppressPackageStartupMessages(library("randomForest"))
-coli.comp.full.rf <- randomForest(x = coli.anno.full.f[, -1], y = coli.anno.full.f[, 1],
+coli.comp.rf <- randomForest(x = coli.anno[, -1], y = coli.anno[, 1],
   importance = TRUE, proximity = TRUE)
 @
 
@@ -786,14 +780,14 @@ We can now determine the substrate features that best predict the differences be
 
 
 <<label=randomforest-figure, fig=FALSE, eval=FALSE>>=
-varImpPlot(coli.comp.full.rf, main = "Difference Type Strain vs. K12")
+varImpPlot(coli.comp.rf, main = "Difference Type Strain vs. K12")
 @
 
 \begin{center}
 \begin{figure}
 \scalebox{1.25}{
 <<label=random-forest-plot, fig=TRUE, echo=FALSE, width=10, height=7.5>>=
-varImpPlot(coli.comp.full.rf, main = "Difference Type Strain vs. K12")
+varImpPlot(coli.comp.rf, main = "Difference Type Strain vs. K12")
 @
 }
 \caption{
@@ -814,24 +808,27 @@ The pathway map IDs that are shown to have a strong influence are also related t
 For instance, the Galactose metabolism (``map00052'') is among the top-scoring substrate features.
 For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
 
-For demonstration purposes we show now the pooled comparison between substrates from category  ``Carbohydrates'' and the remaining substrates.
+Note that the approach used above is suboptimal because mean differences between metadata-defined groups have entered  the model as dependent variable.
+This fits well to the visualisation approaches exemplified above but ignores the variance of the differences and lets the metainformation not directly enter the model because here metadata are only used to define the groups.
+The forthcoming version of this vignette will demonstrate feature selection from the curve parameters themselves.
+We will show how to easily generate matrices containing estimated both traditional \pkg{opm} metadata and novel \pkg{opm} substrate metainformation as (potential) explanatory variables.
+Moreover, we will make use of the \pkg{mboost} package for feature selection.
 
 First, the positions of the substrates belonging to ``Carbohydrates'' and others are determined and afterwards stored in two different vectors. 
 <<label=prep.mcp.dat>>=
-dat <- data.frame(coli.anno.full)
-carb.sub <- subset(dat, Carbohydrates == 1)
-non.carb <- subset(dat, Carbohydrates == 0)
-carb.pos <- find_positions(rownames(carb.sub), plate_type(coli.sub))
-non.c.pos <- find_positions(rownames(non.carb), plate_type(coli.sub))
+carb.pos <- rownames(coli.anno)[coli.anno$Carbohydrates == 1]
+noncarb.pos <- rownames(coli.anno)[coli.anno$Carbohydrates == 0]
+carb.pos <- find_positions(carb.pos, plate_type(coli.sub))
+noncarb.pos <- find_positions(noncarb.pos, plate_type(coli.sub))
 @
 
-Now we can setup the contrast matrix needed for the specified computation of the multiple comparisons between the two strains for the two subsets of substrates.
+Now we can build the contrast matrix needed for the specified computation of the multiple comparisons between the two strains for the two subsets of substrates.
 For matter of convenience we use functionality from \code{opm_mcp} to provide a helper-contrast-matrix which serves to extract the needed column-names and indicates number of columns for the final contrast matrix.
 
 <<label=carb-comp-contr-mat>>=
-contr.carb <- opm_mcp(coli.sub[, , c(carb.pos)], linfct = c(Dunnett = 1),
+contr.carb <- opm_mcp(coli.sub[, , carb.pos], linfct = c(Dunnett = 1),
   model = ~ J(Well + Strain), output = "contrast")
-contr.n.carb <- opm_mcp(coli.sub[, , c(non.c.pos)], linfct = c(Dunnett = 1),
+contr.n.carb <- opm_mcp(coli.sub[, , noncarb.pos], linfct = c(Dunnett = 1),
   model = ~ J(Well + Strain), output = "contrast")
 @  
 
@@ -858,13 +855,13 @@ contr <- rbind(
   "Carbohydrates/DSM18039 - Carbohydrates/DSM30083T" = c(carb.vec, carb.vec.fill),
   "nonCarb/DSM18039 - nonCarb/DSM30083T" = c(n.carb.vec.fill,n.carb.vec))
 #      
-colnames(contr) <- c(carb.names,n.carb.names)              
+colnames(contr) <- c(carb.names, n.carb.names)              
 @
 
 The contrastmatrix \code{contr} serves now as direct input in \code{opm\_mcp}, as follows.
 See also the manual of \code{opm\_mcp} for further details.
 <<label=carb-comp-test>>=
-carb.test <- opm_mcp(coli.sub[, , c(carb.pos,non.c.pos )], linfct = contr,
+carb.test <- opm_mcp(coli.sub[, , c(carb.pos,noncarb.pos )], linfct = contr,
   m.type = "lm",  model = ~ J(Well +Strain), output = "mcp")
 @
 
@@ -906,12 +903,6 @@ The Difference between the two strains is much larger on the Carbohydrate-substr
 % use package party for analysis of the data above
 % conduct analysis with randomForest and party using the A-values in dataframe (as it was done with the freese-data)
 % this would then be something like \subsection{finding substrates of importance}
-
-Note that the approach used above is suboptimal because mean differences between metadata-defined groups have entered  the model as dependent variable.
-This fits well to the visualisation approaches exemplified above but ignores the variance of the differences and lets the metainformation not directly enter the model because here metadata are only used to define the groups.
-The forthcoming version of this vignette will demonstrate feature selection from the curve parameters themselves.
-We will show how to easily generate matrices containing estimated both traditional \pkg{opm} metadata and novel \pkg{opm} substrate metainformation as (potential) explanatory variables.
-Moreover, we will make use of the \pkg{mboost} package for feature selection.
 
 
 %\code{opm_mcp} provides data frame of the selected data when used with argument \code{output = "data"}.
