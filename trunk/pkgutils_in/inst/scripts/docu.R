@@ -108,6 +108,15 @@ show_spellcheck_result <- function(x) {
 }
 
 
+news_filter <- function(ifile, encoding = "unknown") {
+  x <- readLines(ifile, encoding = encoding, warn = FALSE)
+  x <- gsub("([\\w.]+|`[^`]+`)\\([^)]*\\)", "FUNCTION", FALSE, TRUE)
+  x <- gsub("'[^']+'", "ARGUMENT", FALSE, TRUE)
+  x <- gsub("[*][^*]+[*]", "SURNAME", FALSE, TRUE)
+  x
+}
+
+
 ################################################################################
 
 
@@ -474,13 +483,13 @@ for (i in seq_along(package.dirs)) {
       drop = c("\\author", "\\references", "\\seealso", "\\code",
         "\\acronym", "\\pkg", "\\kbd", "\\command", "\\file")))
     message("Checking spelling in DESCRIPTION file of", msg)
-    show_spellcheck_result(aspell(file.path(out.dir, "DESCRIPTION"),
-      filter = "dcf", dictionaries = opt$whitelist, control = "-d en_GB"))
-#    message("Checking spelling in NEWS/ChangeLog files (if any) of", msg)
-#    ff <- file.path(out.dir, c("NEWS", "ChangeLog"))
-#    for (f in ff[file.exists(ff)])
-#      show_spellcheck_result(aspell(f, dictionaries = opt$whitelist,
-#        control = "-d en_GB"))
+    show_spellcheck_result(pack_desc(out.dir, "spell",
+      dictionaries = opt$whitelist, control = "-d en_GB"))
+    message("Checking spelling in NEWS/ChangeLog files (if any) of", msg)
+    ff <- file.path(out.dir, c("NEWS", "ChangeLog"))
+    for (f in ff[file.exists(ff)])
+      show_spellcheck_result(aspell(f, dictionaries = opt$whitelist,
+        control = "-d en_GB", filter = news_filter))
   }
 
   if (opt$install && (opt$unsafe || !check.err)) {

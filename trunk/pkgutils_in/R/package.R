@@ -5,11 +5,8 @@
 
 #' List or modify package (description) files
 #'
-#' \code{pack_desc} reads the \sQuote{DESCRIPTION} file of an \R package.
-#' Optionally it sets the \sQuote{Date} entry to the current date, and if
-#' requested increment the subversion number of the package version, if any, and
-#' write the data back to each input file. Alternatively, call \code{source} on
-#' all \R code files of a package as listed in the \sQuote{DESCRIPTION} file.
+#' \code{pack_desc} reads the \sQuote{DESCRIPTION} file of an \R package and
+#' makes use of its content in several possible ways.
 #' \code{pkg_files} lists files within given subdirectories of a package. It
 #' works on either installed packages or package source folders.
 #' \code{is_pkg_dir} determines whether names refer to such package directories.
@@ -49,22 +46,30 @@
 #' @param ... Optional arguments passed to and from other methods, or between
 #'   the methods.
 #' @export
+#' @details
+#' \code{pack_desc} optionally sets the \sQuote{Date} entry to the current date,
+#' and if requested increments the subversion number of the package version, if
+#' any, and writes the data back to each input file. Alternatively, it calls
+#' \code{source} on all \R code files of a package as listed in the
+#' \sQuote{DESCRIPTION} file. Spell checking is another option.
 #' @return The value returned by \code{pack_desc} depends on the value of
 #'   \code{action}:
 #'   \describe{
 #'     \item{read}{Object of class \code{pack_descs}, basically a nested
 #'       list with \code{pkg} as names. The values are objects of class
 #'       \code{pack_desc}.}
-#'     \item{update}{One- or two-column character matrix with one row per entry
-#'       in \code{pkg}, showing the updated date and optionally the version
-#'       string. \code{\dots} is passed to \code{write.dcf} if \code{demo} is
-#'       \code{FALSE}.}
 #'     \item{source}{This loads the \R code files of the package(s) using
 #'       \code{source} from the \pkg{base} package in the correct
 #'       order, and call \code{library} on all the package names given under
 #'       \sQuote{Depends} and \sQuote{Imports}. Thus a list of
 #'       \code{source} results is obtained, returned invisibly. \code{\dots} is
 #'       passed to \code{source} if \code{demo} is \code{FALSE}.}
+#'     \item{spell}{Check the spelling of using \code{aspell} and an appropriate
+#'       filter. This yields an object of class \code{aspell}.}
+#'     \item{update}{One- or two-column character matrix with one row per entry
+#'       in \code{pkg}, showing the updated date and optionally the version
+#'       string. \code{\dots} is passed to \code{write.dcf} if \code{demo} is
+#'       \code{FALSE}.}
 #'   }
 #'
 #'   \code{pkg_files} yields a character vector of file names (empty if no such
@@ -119,17 +124,22 @@ pack_desc <- function(pkg, ...) UseMethod("pack_desc")
 #' @method pack_desc character
 #' @export
 #'
-pack_desc.character <- function(pkg, action = c("read", "update", "source"),
+pack_desc.character <- function(pkg,
+    action = c("read", "update", "source", "spell"),
     version = TRUE, demo = FALSE, date.format = "%Y-%m-%d",
     envir = globalenv(), ...) {
   LL(version, demo, date.format)
-  x <- lapply(normalizePath(file.path(pkg, "DESCRIPTION")), function(file) {
-    stopifnot(nrow(y <- read.dcf(file)) == 1L)
-    structure(as.list(y[1L, ]), file = file,
-      class = c("pack_desc", "packageDescription"))
-  })
+  action <- match.arg(action)
+  x <- normalizePath(file.path(pkg, "DESCRIPTION"))
+  if (action == "spell")
+    return(aspell(files = x, filter = "dcf", ...))
+  x <- lapply(x, function(file) {
+      stopifnot(nrow(y <- read.dcf(file)) == 1L)
+      structure(as.list(y[1L, ]), file = file,
+        class = c("pack_desc", "packageDescription"))
+    })
   x <- structure(x, names = pkg, class = "pack_descs")
-  case(match.arg(action),
+  case(action,
     read = x,
     update = {
       x <- update(object = x, version = version, date.format = date.format)
