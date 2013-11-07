@@ -544,7 +544,9 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'     \item{larger}{Return \code{TRUE} or \code{FALSE} indicating whether or
 #'     not the coefficients are significantly larger than the default cutoff.}
 #'     \item{equal}{Return \code{TRUE} or \code{FALSE} indicating whether or not
-#'     the coefficients are insignificantly different from the default cutoff.}
+#'     the coefficients are insignificantly different from the default cutoff. 
+#'     Note that \sQuote{insignificantly different} does not mean
+#'     \sQuote{significantly equal}!}
 #'     \item{different}{Return \code{TRUE} or \code{FALSE} indicating whether or
 #'     not the coefficients are significantly different from the default
 #'     cutoff.}
