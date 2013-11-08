@@ -325,7 +325,7 @@ The resulting 95\% confidence intervals for the difference of means are plotted 
 \begin{figure}
 \centering
 \scalebox{0.8}{
-<<label=annotated-opm-glht-figure, fig=TRUE, echo=FALSE, width=8>>=
+<<label=annotated-opm-glht-figure, fig=TRUE, echo=FALSE, width=8, height=6>>=
 old.mar <- par(mar = c(3, 8, 3, 2)) # adapt plotting settings
 plot(x)
 par(old.mar) # reset plotting settings
@@ -459,7 +459,7 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
  \centering
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.k12.ko}}
+                \fbox{\includegraphics[type=png,ext=.png,read=.png]{ko00052.k12.ko}}
                 \caption{Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway.}
                 \label{fig:1a-pathview-native-sep-strains}
         \end{subfigure}
@@ -467,7 +467,7 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
         \vspace{20pt}
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.type.ko}}
+                \fbox{\includegraphics[type=png,ext=.png,read=.png]{ko00052.type.ko}}
                 \caption{Respiratory data (mean maximum height) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway.}
                 \label{fig:1b-pathview-native-sep-strains}
         \end{subfigure}
@@ -507,7 +507,7 @@ coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
  \centering
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}}
+                \fbox{\includegraphics[type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}}
                 \caption{Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway.}
                 \label{fig:pathview-cat-sep-strains-1a}
         \end{subfigure}
@@ -515,7 +515,7 @@ coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
         \vspace{20pt}
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.type.ko.bin}}
+                \fbox{\includegraphics[type=png,ext=.png,read=.png]{ko00052.type.ko.bin}}
                 \caption{Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway.}
                 \label{fig:pathview-cat-sep-strains-1b}
         \end{subfigure}
@@ -597,10 +597,10 @@ coli.comp <- opm_mcp(coli.sub[, , e.subs.pos],
 %TODO labels on the left of the last figure are truncated
 
 \begin{figure}
- \centering
+\centering
 \scalebox{1.1}{
-<<label=e-coli-comp-ci-figure, fig=TRUE, echo=FALSE, width=14, height=9>>=
-old.mar <- par(mar = c(3, 35, 3, 0.5)) # adapt plotting settings
+<<label=e-coli-comp-ci-figure, fig=TRUE, echo=FALSE, width=14, height=5.5>>=
+old.mar <- par(mar = c(3, 20, 3, 0.5)) # adapt plotting settings
 plot(coli.comp, xlim = c(-5, 290))
 abline(v = 150, col = "blue", lty = 5, lwd = 2)
 par(old.mar) # reset plotting settings
@@ -622,10 +622,11 @@ coli.comp.map <- opm_path(cpd.data = annotated(coli.comp), species = "ko",
   out.suffix = "coli.comp.ko", pathway.id = "00052")
 @
 
+
 \begin{figure}
  \centering
 \scalebox{1.225}{
-\includegraphics[width=10cm,type=png,ext=.png,read=.png,page=1]{ko00052.coli.comp.ko}
+\includegraphics[type=png,ext=.png,read=.png,page=1]{ko00052.coli.comp.ko}
 }
 \caption{\label{fig:pathview-native-differences}
 Respiration differences between \textit{E. coli} K12 and \ac{DSM} 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.
@@ -663,7 +664,7 @@ cat.coli.comp.150 <- opm_path(
  \centering
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-0}}
+                \fbox{\includegraphics[type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-0}}
                 \caption{Using the default minimum effect size of 0.}
                 \label{fig:pathview-native-sig-differences-1a}
         \end{subfigure}
@@ -671,7 +672,7 @@ cat.coli.comp.150 <- opm_path(
         \vspace{20pt}
         \begin{subfigure}[b]{1.0\textwidth}
                 \centering
-                \fbox{\includegraphics[width=13cm,type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-150}}
+                \fbox{\includegraphics[type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-150}}
                 \caption{Using a minimum effect size of 150.}
                 \label{fig:pathview-native-sig-differences-1b}
         \end{subfigure}
@@ -705,7 +706,7 @@ coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko",
 \begin{figure}
  \centering
 \scalebox{1.225}{
-\includegraphics[width=10cm,type=pdf,ext=.pdf,read=.pdf,page=1]{ko00052.graphvizk12.ko}
+\includegraphics[type=pdf,ext=.pdf,read=.pdf,page=1]{ko00052.graphvizk12.ko}
 }
 \caption{\label{fig:pathview-non-native}
 Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway and rendered by \pkg{pathview} using the \proglang{Graphviz} layout engine.
@@ -765,8 +766,8 @@ varImpPlot(coli.comp.rf, main = "Difference Type Strain vs. K12")
 
 \begin{figure}
  \centering
-\scalebox{1.25}{
-<<label=random-forest-plot, fig=TRUE, echo=FALSE, width=10, height=7.5>>=
+\scalebox{1.0}{
+<<label=random-forest-plot, fig=TRUE, echo=FALSE, width=10, height=5.9>>=
 varImpPlot(coli.comp.rf, main = "Difference Type Strain vs. K12")
 @
 }
