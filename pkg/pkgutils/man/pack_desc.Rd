@@ -10,9 +10,9 @@
   pack_desc(pkg, ...)
 
   \method{pack_desc}{character} (pkg,
-    action = c("read", "update", "source"), version = TRUE,
-    demo = FALSE, date.format = "\%Y-\%m-\%d",
-    envir = globalenv(), ...)
+    action = c("read", "update", "source", "spell"),
+    version = TRUE, demo = FALSE,
+    date.format = "\%Y-\%m-\%d", envir = globalenv(), ...)
 
   pkg_files(x, ...)
 
@@ -81,18 +81,20 @@
   value of \code{action}: \describe{ \item{read}{Object of
   class \code{pack_descs}, basically a nested list with
   \code{pkg} as names. The values are objects of class
-  \code{pack_desc}.} \item{update}{One- or two-column
-  character matrix with one row per entry in \code{pkg},
-  showing the updated date and optionally the version
-  string. \code{\dots} is passed to \code{write.dcf} if
-  \code{demo} is \code{FALSE}.} \item{source}{This loads
-  the \R code files of the package(s) using \code{source}
-  from the \pkg{base} package in the correct order, and
-  call \code{library} on all the package names given under
+  \code{pack_desc}.} \item{source}{This loads the \R code
+  files of the package(s) using \code{source} from the
+  \pkg{base} package in the correct order, and call
+  \code{library} on all the package names given under
   \sQuote{Depends} and \sQuote{Imports}. Thus a list of
   \code{source} results is obtained, returned invisibly.
   \code{\dots} is passed to \code{source} if \code{demo} is
-  \code{FALSE}.} }
+  \code{FALSE}.} \item{spell}{Check the spelling of using
+  \code{aspell} and an appropriate filter. This yields an
+  object of class \code{aspell}.} \item{update}{One- or
+  two-column character matrix with one row per entry in
+  \code{pkg}, showing the updated date and optionally the
+  version string. \code{\dots} is passed to
+  \code{write.dcf} if \code{demo} is \code{FALSE}.} }
 
   \code{pkg_files} yields a character vector of file names
   (empty if no such files are found).
@@ -102,16 +104,21 @@
 }
 \description{
   \code{pack_desc} reads the \sQuote{DESCRIPTION} file of
-  an \R package. Optionally it sets the \sQuote{Date} entry
-  to the current date, and if requested increment the
+  an \R package and makes use of its content in several
+  possible ways. \code{pkg_files} lists files within given
+  subdirectories of a package. It works on either installed
+  packages or package source folders. \code{is_pkg_dir}
+  determines whether names refer to such package
+  directories.
+}
+\details{
+  \code{pack_desc} optionally sets the \sQuote{Date} entry
+  to the current date, and if requested increments the
   subversion number of the package version, if any, and
-  write the data back to each input file. Alternatively,
-  call \code{source} on all \R code files of a package as
-  listed in the \sQuote{DESCRIPTION} file. \code{pkg_files}
-  lists files within given subdirectories of a package. It
-  works on either installed packages or package source
-  folders. \code{is_pkg_dir} determines whether names refer
-  to such package directories.
+  writes the data back to each input file. Alternatively,
+  it calls \code{source} on all \R code files of a package
+  as listed in the \sQuote{DESCRIPTION} file. Spell
+  checking is another option.
 }
 \examples{
 pkg <- find.package(c("tools", "utils"), quiet = TRUE)

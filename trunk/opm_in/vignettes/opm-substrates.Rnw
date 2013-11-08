@@ -106,6 +106,7 @@ This is the substrate-information tutorial of \pkg{opm} in the version of \today
 The precomputed information on the known \ac{PM} substrates is explained, as well as the methods available to query this information.
 IDs for a variety of databases are stored within \pkg{opm} and can be used to conduct web queries to obtain comprehensive information on the substrates of interest.
 We show how these data can be used to visualise results from \ac{PM} experiments, including the outcome from advanced multiple-comparison statistics, within biochemical pathway maps.
+Visually comparing genome annotation and \ac{PM} results is easily possible in that manner.
 Moreover, methods are described to automatically detect the substrate features that potentially explain a given experimental outcome.
 This includes determining the relevant pathways to be used in the visualisations.
 More examples for the powerful feature-selection approaches available within \proglang{R} will be explained in future versions of this tutorial.
@@ -526,16 +527,16 @@ coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
         }
 \end{figure}
 
-Using \code{species}-argument it is possible to include the genome annotations available from the \ac{KEGG} homepage (see above for details).
-Since in \ac{KEGG} no genome for the \textit{E. coli} type strain is available, we will demonstrate the usage of this argument only for strain K12 \ac{DSM}18039.
-We chose the annoation of strain \textit{E. coli} K-12 MG1655 from year 1997, which results in \code{species = "eco"}. 
-In the corresponding Figure~\ref{fig:e_coli_kegg_anno} genes (boxes) without annotation information remain white without any labelling.
-However, using \code{na.col} the user is free to highlight entries without annotation information with colours of choice.
-  
+By using the \code{species} argument it is possible to include the genome annotations available from \ac{KEGG} (see above for details).
+Since in \ac{KEGG} no genome for the \textit{E. coli} type strain is available, we will demonstrate the usage of this argument only for strain K12 (= \ac{DSM} 18039).
+We chose the annotation of strain \textit{E. coli} ``K-12 MG1655'' from the year 1997, which corresponds to \code{species = "eco"} (other K12 variants are available in \ac{KEGG}).
+In the corresponding figure, genes (boxes) without annotation information in the chosen genomes remained white without any labelling.
+But when using \code{na.col}, entries without annotation information are highlighted with the colour of choice.
+
  
 <<label=pathview_e_coli_comp_map>>=
 coli.map.k12.eco <- opm_path(cpd.data = anno.k12, species = "eco", 
-  out.suffix = "k12.eco", pathway.id = "00052")
+  out.suffix = "k12.eco", pathway.id = "00052", na.col = "pink")
 @
 
 
@@ -545,10 +546,13 @@ coli.map.k12.eco <- opm_path(cpd.data = anno.k12, species = "eco",
 \includegraphics[type=png,ext=.png,read=.png,page=1]{eco00052.k12.eco}
 }
 \caption{\label{fig:e_coli_kegg_anno}
-Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway including annotation information of strain \textit{E. coli} K-12 MG1655 from year 1997 available from \ac{KEGG}. Genes without annotation information remain just white without any labelling.}
+Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway including information from the \ac{KEGG} annotation of the genome of strain \textit{E. coli} ``K-12 MG1655'' from the year 1997.
+Genes without annotation information remain just white without any labelling.}
 \end{figure}
 
-Using this type of visualisation users are enabled to detect metabolic steps for which no genes are annotated, but \ac{PM} data indicate metabolic activity.
+With this type of visualisation users can detect metabolic steps for which no genes are annotated, but \ac{PM} data indicate metabolic activity.
+This can help improving genome annotation.
+In the chosen example, the failure of the strain to metabolize Galactose is in accordance with the lack of some genes in the genome annotation, causing gaps in the pathway for Galactose catabolism.
 
 
 \subsubsection{Finding substrates within pathways}\label{finding-substrates}
