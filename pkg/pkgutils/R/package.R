@@ -1,16 +1,21 @@
 pack_desc <- function(pkg, ...) UseMethod("pack_desc")
 
-pack_desc.character <- function(pkg, action = c("read", "update", "source"),
+pack_desc.character <- function(pkg,
+    action = c("read", "update", "source", "spell"),
     version = TRUE, demo = FALSE, date.format = "%Y-%m-%d",
     envir = globalenv(), ...) {
   LL(version, demo, date.format)
-  x <- lapply(normalizePath(file.path(pkg, "DESCRIPTION")), function(file) {
-    stopifnot(nrow(y <- read.dcf(file)) == 1L)
-    structure(as.list(y[1L, ]), file = file,
-      class = c("pack_desc", "packageDescription"))
-  })
+  action <- match.arg(action)
+  x <- normalizePath(file.path(pkg, "DESCRIPTION"))
+  if (action == "spell")
+    return(aspell(files = x, filter = "dcf", ...))
+  x <- lapply(x, function(file) {
+      stopifnot(nrow(y <- read.dcf(file)) == 1L)
+      structure(as.list(y[1L, ]), file = file,
+        class = c("pack_desc", "packageDescription"))
+    })
   x <- structure(x, names = pkg, class = "pack_descs")
-  case(match.arg(action),
+  case(action,
     read = x,
     update = {
       x <- update(object = x, version = version, date.format = date.format)
