@@ -1350,7 +1350,7 @@ case $RUNNING_MODE in
     CHECK_R_TESTS=
   ;;
   cran )
-    for mode in test demo sql time plex; do
+    for mode in test demo sql time plex spell; do
       "$0" "$mode" || :
     done
     exit $?
