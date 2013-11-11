@@ -209,8 +209,8 @@ select_colors <- function(
 #'   types must be given literally. For generation-III plates, use
 #'   \kbd{gen.iii}; for the
 #'   EcoPlate\eqn{\textsuperscript{\texttrademark}}{(TM)}, use \kbd{eco}; the
-#'   remaining allowed values are only \kbd{sf.n2} and \kbd{sf.p2}, but matching
-#'   is case-insensitive.
+#'   remaining allowed values are only \kbd{sf.n2}, \kbd{sf.p2}, \kbd{an2},
+#'   \kbd{ff} and \kbd{yt}, but matching is case-insensitive.
 #' @param ... Optional arguments passed between the methods.
 #'
 #' @return Character scalar in the case of the \code{\link{OPM}} and

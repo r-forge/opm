@@ -56,7 +56,8 @@ HOUR <- "Hour"
 # The known special plates
 #
 SPECIAL_PLATES <- c("Gen III", "ECO", "SF-N2", "SF-P2", "AN2", "FF", "YT")
-names(SPECIAL_PLATES) <- c("gen.iii", "eco", "sf.n2", "sf.p2")
+names(SPECIAL_PLATES) <- c("gen.iii", "eco", "sf.n2", "sf.p2", "an2", "ff",
+  "yt")
 
 # Pattern used for matching them
 #
