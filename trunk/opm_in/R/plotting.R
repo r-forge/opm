@@ -1224,6 +1224,10 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #' @param asqr Logical scalar indicating whether the data should be treated
 #'   with the arcsine-square root transformation. This usually only makes
 #'   sense for proportion data. If \code{NA}, percentages are assumed.
+#' @param lmap Numeric scalar with at least three elements, or empty. If empty,
+#'   ignored. Otherwise used for mapping logical values to numeric values. See
+#'   \code{\link{map_values}} for details. Ignored if the data are not logical.
+#'
 #' @param ... Optional arguments passed to \code{heatmap} or \code{heatmap.2}.
 #'   Note that some defaults of \code{heatmap.2} are overwritten even though
 #'   this is not transparent from the argument list of \code{heat_map}. If set
@@ -1277,7 +1281,7 @@ setMethod("heat_map", "matrix", function(object,
       borders[length(borders)] * cexRow * max(nchar(rownames(object))))
     else
       c(5, 5),
-    col = opm_opt("heatmap.colors"), asqr = FALSE,
+    col = opm_opt("heatmap.colors"), asqr = FALSE, lmap = NULL,
     ...,
     use.fun = c("gplots", "stats")) {
 
@@ -1351,7 +1355,10 @@ setMethod("heat_map", "matrix", function(object,
   )
 
   if (typeof(object) == "logical")
-    storage.mode(object) <- "integer"
+    if (length(lmap))
+      object[] <- map_values(c(object), lmap)
+    else
+      storage.mode(object) <- "integer"
 
   if (is.na(L(asqr)) || asqr)
     object[] <- do_asqr(object, is.na(asqr))
