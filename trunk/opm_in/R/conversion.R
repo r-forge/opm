@@ -536,9 +536,10 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   combination of factors immediately after selecting them as data-frame
 #'   columns, much like \code{as.groups}.
 #'
-#' @param subset Character vector. The parameter(s) to put in the matrix. If it
-#'   is \code{\link{param_names}("disc.name")}, discretised data are returned,
-#'   and \code{ci} is ignored..
+#' @param subset Character vector. The parameter(s) to put in the matrix. One of
+#'   the values of \code{\link{param_names}()}. Alternatively, if it is
+#'   \code{\link{param_names}("disc.name")}, discretised data are returned, and
+#'   \code{ci} is ignored..
 #' @param ci Logical scalar. Also return the confidence intervals?
 #' @param trim Character scalar. See \code{\link{aggregated}} for details.
 #' @param dataframe Logical scalar. Return data frame or matrix?
