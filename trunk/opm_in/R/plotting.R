@@ -1281,7 +1281,7 @@ setMethod("heat_map", "matrix", function(object,
       borders[length(borders)] * cexRow * max(nchar(rownames(object))))
     else
       c(5, 5),
-    col = opm_opt("heatmap.colors"), asqr = FALSE, lmap = NULL,
+    col = opm_opt("heatmap.colors"), asqr = FALSE, lmap = 1L:3L,
     ...,
     use.fun = c("gplots", "stats")) {
 
