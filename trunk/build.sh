@@ -1581,7 +1581,10 @@ show_test_warnings "$OUT_DIR"
 if [ "$RUNNING_MODE" = full ]; then
   if [ -d "$OUT_DIR" ]; then
     target=../pkg/$OUT_DIR
-    mkdir -p "$target" && cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
+    if mkdir -p "$target"; then
+      rm -frv "$OUT_DIR"/vignettes/*
+      cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
+    fi
   fi
 else
   echo "NOTE: no full build, '$OUT_DIR' not copied." >&2
