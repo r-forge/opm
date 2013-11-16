@@ -641,7 +641,7 @@ glob_to_regex.factor <- function(object) {
 ## No S4 methods because conversion is done
 
 
-#' Read multiple PM files at once or read single PM file
+#' Read multiple \acronym{PM} files at once or read single \acronym{PM} file
 #'
 #' Read OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} or \pkg{opm} data
 #' file(s) in one of three possible formats: either new- or old-style
@@ -1214,7 +1214,7 @@ setMethod("to_metadata", OPMS, function(object, stringsAsFactors = FALSE,
 
 ## NOTE: not an S4 method because conversion is done
 
-#' Batch-convert PM data
+#' Batch-convert \acronym{PM} data
 #'
 #' Batch-convert from OmniLog\eqn{\textsuperscript{\textregistered}}{(R)}
 #' \acronym{CSV} (or previous \pkg{opm} \acronym{YAML} or \acronym{JSON}) to
