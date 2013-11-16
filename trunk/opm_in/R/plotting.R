@@ -497,8 +497,8 @@ default_color_regions <- function(colors, space, bias, n) {
 
 #' X-Y plot
 #'
-#' Customised plotting of a single or multiple PM plate(s), using \code{xyplot}
-#' from the \pkg{lattice} package.
+#' Customised plotting of a single \acronym{PM} plate or multiple plates, using
+#' \code{xyplot} from the \pkg{lattice} package.
 #'
 #' @param x \code{\link{OPM}} or \code{\link{OPMS}} object.
 #'
@@ -1036,9 +1036,9 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #' @param split.at Character vector. See \code{\link{extract}}.
 #'
 #' @details The default placement of the legend is currently not necessarily
-#'   very useful. When plotting entire PM plates, the \sQuote{mar} parameter of
-#'   \code{par} most likely would need to be set to a lower value, but it is
-#'   recommended to plot only subsets of plates, i.e. selected wells.
+#'   very useful. When plotting entire \acronym{PM} plates, the \sQuote{mar}
+#'   parameter of \code{par} most likely would need to be set to a lower value,
+#'   but it is recommended to plot only subsets of plates, i.e. selected wells.
 #'
 #' @references Vaas LAI, Sikorski J, Michael V, Goeker M, Klenk H-P. 2012
 #'   Visualization and curve parameter estimation strategies for efficient

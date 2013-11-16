@@ -683,10 +683,11 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'   output file, returned invisibly if \code{outfile} is given.
 #' @family phylogeny-functions
 #' @seealso base::comment base::write hwriter::hwrite
-#' @details Exporting PM data in such formats allows one to either infer trees
-#'   from the data under the maximum-likelihood and/or the maximum-parsimony
-#'   criterion, or to reconstruct the evolution of PM characters on given
-#'   phylogenetic trees, or to nicely display the data in \acronym{HTML} format.
+#' @details Exporting \acronym{PM} data in such formats allows one to either
+#'   infer trees from the data under the maximum-likelihood and/or the
+#'   maximum-parsimony criterion, or to reconstruct the evolution of
+#'   \acronym{PM} characters on given phylogenetic trees, or to nicely display
+#'   the data in \acronym{HTML} format.
 #'
 #'   For exporting NEXUS format, the matrix should normally be converted
 #'   beforehand by applying \code{\link{discrete}}. Exporting \acronym{HTML} is
