@@ -1325,6 +1325,57 @@ ____EOF
 ################################################################################
 
 
+# Reduce the Rnw files to stubs. Needed if the original Rnw files cannot be
+# copied in the pkg directory (because they should only be checked locally).
+#
+reduce_vignette_Rnw_files()
+{
+  local indir
+  local vignette
+  local pdf_file
+  local tmpdir=`mktemp -d --tmpdir`
+  for indir; do
+    for vignette in "$indir"/vignettes/*.Rnw; do
+      [ -f "$vignette" ] || continue
+      awk -v found=0 '
+          /^%\\VignetteIndexEntry/ {
+            print
+            print "%% need no \\usepackage{Sweave.sty}"
+            print "\\documentclass{article}"
+            print "\\begin{document}"
+            print "%% Rnw document stub because checking is disabled on CRAN"
+            print "..."
+            print "\\end{document}"
+            found = 1
+          }
+          END {
+            if (!found)
+              exit 1
+          }
+        ' "$vignette" > "$tmpdir/${vignette##*/}"
+      # to be safe in cases where PDF files have not yet been moved
+      pdf_file=${vignette%.*}.pdf
+      if [ -s "$pdf_file" ]; then
+        mkdir -p "$indir/inst/doc" &&
+          mv -v "$pdf_file" "$indir/inst/doc/${pdf_file##*/}"
+      else
+        pdf_file=$indir/inst/doc/${pdf_file##*/}
+        if [ ! -s "$pdf_file" ]; then
+          echo "file '$pdf_file' does not exist or is empty" >&2
+          return 1
+        fi
+      fi
+    done
+    rm -fv "$indir"/vignettes/*
+    mv "$tmpdir"/* "$indir"/vignettes/
+  done
+  rmdir "$tmpdir"
+}
+
+
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -1582,7 +1633,7 @@ if [ "$RUNNING_MODE" = full ]; then
   if [ -d "$OUT_DIR" ]; then
     target=../pkg/$OUT_DIR
     if mkdir -p "$target"; then
-      rm -frv "$OUT_DIR"/vignettes/*
+      reduce_vignette_Rnw_files "$OUT_DIR"
       cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
     fi
   fi
