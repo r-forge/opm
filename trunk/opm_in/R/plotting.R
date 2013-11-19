@@ -1413,21 +1413,31 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #'   \code{\link{OPMS}} method of \code{\link{extract}}. Currently ignored by
 #'   the other methods.
 #'
-#' @param rp.type Character vector. These and the following arguments are passed
-#'   to \code{plotrix::radial.plot}. See there for details.
-#' @param radlab Logical scalar.
-#' @param show.centroid Logical scalar.
-#' @param show.grid.labels Logical scalar.
-#' @param lwd Numeric scalar.
-#' @param mar Numeric vector of length 4.
-#' @param line.col Character or numeric vector.
+#' @param rp.type Character vector of length 1 indicating whether to draw 
+#'   (r)adial lines, a (p)olygon or (s)ymbols. If symbols are drawn, please 
+#'   also state \code{point.symbols}.
+#'   These and the following arguments are passed to 
+#'   \code{plotrix::radial.plot}. See there for details.
+#' @param radlab Logical scalar indicating whether to rotate the outer labels to
+#'   a radial orientation.
+#' @param show.centroid Logical scalar indicating whether a centroid is shown.
+#' @param show.grid.labels Logical scalar. Indicates whether and where display 
+#'   labels for the grid are shown. See details for \code{radial.plot} from the
+#'   \pkg{plotrix} package.
+#' @param lwd Numeric scalar for line width.
+#' @param mar Numeric vector of length 4 determining the margins of the plot. 
+#'   Default \code{mar = c(2, 2, 2, 2)}.
+#' @param line.col Character or numeric vector for determination of line colour.
 #' @param point.symbols Passed to \code{radial.plot} from the \pkg{plotrix}
 #'   package. See there for details. Explicitly provided here to silence
 #'   some \code{radial.plot} warnings occurring as of \R 3.0.0.
-#' @param point.col Also passed to that function.
-#' @param poly.col Also passed to that function.
-#' @param main Also passed to that function.
-#' @param ... Optional other arguments passed to that function.
+#' @param point.col Also passed to that function. States the colour(s) for 
+#'   symbols.
+#' @param poly.col Also passed to that function. States the colour for filling 
+#'   if polygons are drawn. Use NA for no fill.
+#' @param main Also passed to that function for stating a main title.
+#' @param ... Optional other arguments passed to \code{radial.plot} from the 
+#'   \pkg{plotrix} package.
 #'
 #' @param draw.legend Logical scalar. Whether to draw a legend. Ignored unless
 #'   \code{object} has row names (because these are used to generate the
@@ -1462,10 +1472,16 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' data("vaas_4")
 #'
 #' ## 'OPMS' method
-#' # note that we have to use only a subset of the wells for plotting
+#' # note that this visualization not useful when applied to too many wells; 
+#' # thus, we have to use only a subset of the wells for plotting
 #' (y <- radial_plot(vaas_4[, , 1:5], as.labels = list("Species", "Strain"),
-#'   main = "Test"))
-#'
+#'   main = "Test", x = 200, y = 200))
+#' 
+#' # with some fine tuning
+#' (y <-radial_plot(vaas_4[, , 1:5], as.labels = list("Species", "Strain"),
+#'   main = "Test", x = 200, y = 200, rp.type = "s", point.symbols = 15, 
+#'   show.centroid = TRUE))
+#'   
 #' ## Data-frame method (rarely needed)
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"), dataframe = TRUE)
 #' (yy <- radial_plot(x[, 1:8], as.labels = c("Species", "Strain"),
@@ -1486,7 +1502,7 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
     radlab = FALSE, show.centroid = TRUE, show.grid.labels = 1, lwd = 3,
     mar = c(2, 2, 2, 2), line.col = opm_opt("colors"), draw.legend = TRUE,
     x = "bottom", y = NULL, xpd = TRUE, pch = 15, legend.args = list(),
-    point.symbols = NA, point.col = NA, poly.col = NA,
+    point.symbols = NA, point.col = line.col, poly.col = NA,
     main = paste0(as.labels, sep = sep), ...) {
   LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch)
   line.col <- try_select_colors(line.col)
