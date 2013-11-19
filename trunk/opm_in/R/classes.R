@@ -588,16 +588,19 @@ setMethod("opms_problems", "list", function(object) {
 ################################################################################
 
 
-#' Attach slots or update settings entries
+#' Attach slots, update settings entries, or rename wells.
 #'
 #' Attach the contents of all slots, except for the measurements, to another
 #' object. Useful in conversions (coercions). This method is deliberately
 #' \strong{not} defined for \code{\link{OPMS}} objects. Alternatively,
 #' convert old-style to new-style aggregation or discretisation settings.
+#' Finally, rename wells (this should be used with caution!).
 #'
 #' @param object \code{\link{OPM}} object.
 #' @param other Arbitrary other object.
 #' @param x List.
+#' @param keys Character vector with the new well names. Length must firt, but
+#'   otherwise no check is done.
 #' @return \code{other} with additional attributes, or list.
 #' @keywords internal
 #'
@@ -636,6 +639,30 @@ setMethod("update_settings_list", "list", function(x) {
     warning(sprintf("renaming '%s' to '%s'", PROGRAM, METHOD))
   }
   x
+}, sealed = SEALED)
+
+#= rename_wells attach_attr
+
+#' @rdname attach_attr
+#'
+setGeneric("rename_wells",
+  function(object, keys) standardGeneric("rename_wells"))
+
+setMethod("rename_wells", c("OPM", "ANY"), function(object, keys) {
+  colnames(object@measurements)[-1L] <- keys
+  object
+}, sealed = SEALED)
+
+setMethod("rename_wells", c("OPMA", "ANY"), function(object, keys) {
+  object <- callNextMethod()
+  colnames(object@aggregated) <- keys
+  object
+}, sealed = SEALED)
+
+setMethod("rename_wells", c("OPMS", "ANY"), function(object, keys) {
+  object <- callNextMethod()
+  names(object@discretized) <- keys
+  object
 }, sealed = SEALED)
 
 

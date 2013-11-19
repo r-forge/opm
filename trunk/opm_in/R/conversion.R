@@ -8,11 +8,12 @@
 #
 
 
-#' Merge plates
+#' Merge or split plates
 #'
 #' Combine all plates in a single \code{\link{OPM}} object by treating them as
 #' originating from subsequent runs of the same experimental plate. Adjust the
-#' times accordingly.
+#' times accordingly. Alternatively, split plates according to the contained
+#' regular series of substrates, if any.
 #'
 #' @param x \code{\link{OPMX}} object.
 #' @param y Numeric vector indicating the time(s) (in hours) between two
@@ -31,21 +32,42 @@
 #'   For sorting, parse the setup times using \code{strptime} from the
 #'   \pkg{base} package? It is an error if this does not work, but see
 #'   \sQuote{Details}.
+#' @param f Factor or missing. If missing, splitting is attempted according to
+#'   the positions of substrates within series as revealed by
+#'   \code{\link{substrate_info}(x, "concentration")}.
+#' @param drop Passed to \code{\link{[}}. The default is \code{FALSE}.
 #' @export
 #' @return \code{\link{OPM}} object. The \code{\link{metadata}} and
 #'   \code{\link{csv_data}} will be taken from the first contained plate, but
 #'   aggregated values, if any, will be dropped.
-#' @details This \code{\link{OPMS}} method is intended for dealing with slowly
-#'   growing or reacting organisms that need to be analysed with subsequent runs
-#'   of the same plate in \acronym{PM} mode. Results obtained with
-#'   \emph{Geodermatophilus} strains and Generation-III plates indicate that
-#'   this works well in practice. See the references.
+#' @details This \code{\link{OPMS}} method of \code{merge} is intended for
+#'   dealing with slowly growing or reacting organisms that need to be analysed
+#'   with subsequent runs of the same plate in \acronym{PM} mode. Results
+#'   obtained with \emph{Geodermatophilus} strains and Generation-III plates
+#'   indicate that this works well in practice. See the references.
 #'
 #'   See the arguments \code{time.fmt} and \code{time.zone} of
 #'   \code{\link{opm_opt}} for modifying the parsing of setup-time entries. If
 #'   it does not work, additional time-string templates must be stored.
 #'
-#'   The \code{CMAT} method is only for internal use.
+#'   The \code{CMAT} method of \code{merge} is only for internal use.
+#'
+#'   The \code{split} methods with missing \code{f} are for splitting plates
+#'   that contain series of substrate-usage assays as indicated in the full
+#'   substrate names (mostly interpretable as concentrations).
+#'   \code{\link{OPMS}} objects are generated that contain each replicate within
+#'   the series in a separate plate and the replicate \acronym{ID} indicated in
+#'   the metadata entry given by \code{\link{opm_opt}("series.key")}. This
+#'   allows for comparisons between within-plate replicates.
+#'
+#'   Splitting according to substrate series will not work if these are not
+#'   regular, i.e. the same substrates occur in each replicate. In such cases
+#'   \code{x} will be returned, with a warning. Substrates without a replicate
+#'   (\sQuote{concentration}) indicator would silently be skipped, however. The
+#'   composition and order of the wells per pseudo-plate must be made uniform.
+#'   This is done by enforcing well names and well ordering of the first
+#'   replicate in all forthcoming replicates.
+#'
 #' @references Montero-Calasanz, M. d. C., Goeker, M.,  Poetter, G., Rohde, M.,
 #'   Sproeer, C., Schumann, P., Gorbushina, A. A., Klenk, H.-P. 2012
 #'   \emph{Geodermatophilus arenarius} sp. nov., a xerophilic actinomycete
@@ -61,14 +83,26 @@
 #' @keywords manip
 #' @examples
 #'
-#' ## OPM methods
+#' ## merge: OPM methods
 #' stopifnot(identical(merge(vaas_1, 0.5), vaas_1)) # nothing to merge
 #' summary(x <- merge(vaas_1, vaas_1)) # biologically unreasonable!
 #' stopifnot(is(x, "OPM"), dim(x) == c(2 * hours(vaas_1, "size"), 96))
 #'
-#' ## OPMS methods
+#' ## merge: OPMS methods
 #' summary(x <- merge(vaas_4)) # biologically unreasonable for these data!
 #' stopifnot(is(x, "OPM"), dim(x) == c(sum(hours(vaas_4, "size")), 96))
+#'
+#' ## split: OPM methods
+#' (x <- split(vaas_1))
+#' metadata(x, opm_opt("series.key"))
+#' stopifnot(is(x, "OPMS"), dim(x) == c(2, hours(vaas_1, "size"), 1))
+#' # only D-Serine is present as series, all other wells are skipped
+#' # thus split is more useful when applied to other plate types such as "ECO"
+#'
+#' ## split: OPMS methods
+#' (x <- split(vaas_4))
+#' metadata(x, opm_opt("series.key"))
+#' stopifnot(is(x, "OPMS"), dim(x) == c(8, hours(vaas_4, "size")[1], 1))
 #'
 setGeneric("merge")
 
@@ -136,6 +170,62 @@ setMethod("merge", c(CMAT, "ANY"), function(x, y) {
   colnames(x) <- cn
   new(CMAT, x)
 }, sealed = SEALED)
+
+#= split merge
+
+#' @rdname merge
+#' @export
+#'
+setGeneric("split")
+
+setMethod("split", c("OPM", "missing", "missing"), function(x, f, drop) {
+  split(x, , FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c("OPM", "missing", "ANY"), function(x, f, drop) {
+  extract_concentration <- function(x) {
+    m <- regexpr("(?<=#)\\d+$", x, FALSE, TRUE)
+    conc <- as.integer(substr(x, m, m + attr(m, "match.length") - 1L))
+    regmatches(x, m) <- "1"
+    list(Concentration = conc, Standardized = structure(names(x), names = x))
+  }
+  regular_size <- function(x) {
+    counts <- tabulate(x$Concentration)
+    length(counts) > 1L || all(duplicated.default(counts)[-1L])
+  }
+  regular_composition <- function(x) {
+    for (i in seq_along(x)[-1L])
+      if (!setequal(names(x[[1L]]), names(x[[i]])))
+        return(FALSE)
+    TRUE
+  }
+  get_and_rename <- function(x, w1, w2, conc, drop, key) {
+    x <- rename_wells(x[, w1, drop = drop], w2)
+    x@metadata[[key]] <- conc
+    x
+  }
+  w <- extract_concentration(wells(x, TRUE, FALSE))
+  if (!regular_size(w) || !regular_composition(
+      w <- split.default(w$Standardized, w$Concentration))) {
+    warning("no regular concentration structure found")
+    return(x)
+  }
+  for (i in seq_along(w)[-1L])
+    w[[i]] <- w[[i]][names(w[[1L]])]
+  new("OPMS", plates = mapply(get_and_rename, conc = as.integer(names(w)),
+    w1 = w, SIMPLIFY = FALSE, USE.NAMES = FALSE, MoreArgs = list(x = x,
+      w2 = w[[1L]], drop = drop, key = get("series.key", OPM_OPTIONS))))
+}, sealed = SEALED)
+
+setMethod("split", c("OPMS", "missing", "missing"), function(x, f, drop) {
+  split(x, drop = FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c("OPMS", "missing", "ANY"), function(x, f, drop) {
+  x@plates <- lapply(x@plates, split, drop = drop)
+  x@plates <- unlist(lapply(x@plates, slot, "plates"), FALSE, FALSE)
+  x
+}, sealed = FALSE)
 
 
 ################################################################################
