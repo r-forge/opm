@@ -32,14 +32,26 @@
 #'   For sorting, parse the setup times using \code{strptime} from the
 #'   \pkg{base} package? It is an error if this does not work, but see
 #'   \sQuote{Details}.
-#' @param f Factor or missing. If missing, splitting is attempted according to
-#'   the positions of substrates within series as revealed by
-#'   \code{\link{substrate_info}(x, "concentration")}.
+#' @param f Factor or missing. If missing, the behaviour is special. Splitting
+#'   is applied to the plates themselves and attempted according to the
+#'   positions of substrates within series as revealed by
+#'   \code{\link{substrate_info}} in \sQuote{concentration} mode.
+#'
+#'   If a factor, \code{f} is used as in the default \code{split} method from
+#'   the \pkg{base} package, yielding a list (\code{\link{MOPMX}} object) of
+#'   single or multiple plates.
+#'
+#'   If neither missing nor a factor, \code{f} is used as \code{key} argument
+#'   of \code{\link{metadata}}. The resulting entries are pasted together per
+#'   plate and converted to a factor used for splitting \code{x}.
 #' @param drop Passed to \code{\link{[}}. The default is \code{FALSE}.
 #' @export
-#' @return \code{\link{OPM}} object. The \code{\link{metadata}} and
-#'   \code{\link{csv_data}} will be taken from the first contained plate, but
-#'   aggregated values, if any, will be dropped.
+#' @return \code{merge} yields an \code{\link{OPM}} object. The
+#'   \code{\link{metadata}} and \code{\link{csv_data}} will be taken from the
+#'   first contained plate, but aggregated values, if any, will be dropped.
+#'
+#'   The \code{split} methods yield either an \code{\link{OPMS}} or an
+#'   \code{\link{MOPMX}} object.
 #' @details This \code{\link{OPMS}} method of \code{merge} is intended for
 #'   dealing with slowly growing or reacting organisms that need to be analysed
 #'   with subsequent runs of the same plate in \acronym{PM} mode. Results
@@ -99,10 +111,22 @@
 #' # only D-Serine is present as series, all other wells are skipped
 #' # thus split is more useful when applied to other plate types such as "ECO"
 #'
+#' (x <- split(vaas_1, "Species"))
+#' stopifnot(is(x, "MOPMX"), length(x) == 1)
+#'
 #' ## split: OPMS methods
 #' (x <- split(vaas_4))
 #' metadata(x, opm_opt("series.key"))
 #' stopifnot(is(x, "OPMS"), dim(x) == c(8, hours(vaas_4, "size")[1], 1))
+#'
+#' (x <- split(vaas_4, "Species"))
+#' stopifnot(is(x, "MOPMX"), length(x) == 2)
+#'
+#' # Split into list of OPMS objects with the same overall measurement hours
+#' x <- split(vaas_4, as.factor(hours(vaas_4)))
+#' stopifnot(is(x, "MOPMX"), length(x) == 1, class(x[[1]]) == "OPMS")
+#' # ... because the running times were actually already identical, the list
+#' # contains only a single element.
 #'
 setGeneric("merge")
 
@@ -178,11 +202,11 @@ setMethod("merge", c(CMAT, "ANY"), function(x, y) {
 #'
 setGeneric("split")
 
-setMethod("split", c("OPM", "missing", "missing"), function(x, f, drop) {
-  split(x, , FALSE)
+setMethod("split", c(OPMX, "missing", "missing"), function(x, f, drop) {
+  split(x, drop = FALSE)
 }, sealed = SEALED)
 
-setMethod("split", c("OPM", "missing", "ANY"), function(x, f, drop) {
+setMethod("split", c(OPM, "missing", "ANY"), function(x, f, drop) {
   extract_concentration <- function(x) {
     m <- regexpr("(?<=#)\\d+$", x, FALSE, TRUE)
     conc <- as.integer(substr(x, m, m + attr(m, "match.length") - 1L))
@@ -212,20 +236,44 @@ setMethod("split", c("OPM", "missing", "ANY"), function(x, f, drop) {
   }
   for (i in seq_along(w)[-1L])
     w[[i]] <- w[[i]][names(w[[1L]])]
-  new("OPMS", plates = mapply(get_and_rename, conc = as.integer(names(w)),
+  new(OPMS, plates = mapply(get_and_rename, conc = as.integer(names(w)),
     w1 = w, SIMPLIFY = FALSE, USE.NAMES = FALSE, MoreArgs = list(x = x,
       w2 = w[[1L]], drop = drop, key = get("series.key", OPM_OPTIONS))))
 }, sealed = SEALED)
 
-setMethod("split", c("OPMS", "missing", "missing"), function(x, f, drop) {
-  split(x, drop = FALSE)
-}, sealed = SEALED)
-
-setMethod("split", c("OPMS", "missing", "ANY"), function(x, f, drop) {
+setMethod("split", c(OPMS, "missing", "ANY"), function(x, f, drop) {
   x@plates <- lapply(x@plates, split, drop = drop)
   x@plates <- unlist(lapply(x@plates, slot, "plates"), FALSE, FALSE)
   x
 }, sealed = FALSE)
+
+setMethod("split", c(OPMX, "ANY", "missing"), function(x, f, drop) {
+  split(x, f, FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c(OPM, "factor", "ANY"), function(x, f, drop) {
+  object <- split.default(1L, f, FALSE) # to get the warnings/errors
+  object[[1L]] <- x[drop = drop]
+  new(MOPMX, object)
+}, sealed = SEALED)
+
+setMethod("split", c(OPMS, "factor", "ANY"), function(x, f, drop) {
+  new(MOPMX, lapply(split.default(x, f, FALSE), `[`, drop = drop))
+}, sealed = SEALED)
+
+setMethod("split", c(OPM, "ANY", "ANY"), function(x, f, drop) {
+  if (is.list(f <- metadata(x, f)))
+    f <- apply(list2matrix(list(metadata(x, f))), 1L, paste0, collapse = " ")
+  else
+    f <- paste0(f, collapse = " ")
+  split(x, as.factor(f), drop)
+}, sealed = SEALED)
+
+setMethod("split", c(OPMS, "ANY", "ANY"), function(x, f, drop) {
+  if (is.list(f <- metadata(x, f)))
+    f <- apply(list2matrix(f), 1L, paste0, collapse = " ")
+  split(x, as.factor(f), drop)
+}, sealed = SEALED)
 
 
 ################################################################################
