@@ -17,7 +17,8 @@
 #' experiments: these plates are the sixth technical replicate from the first
 #' biological replicate for the four bacterial strains considered in the study.
 #' This particular subset served as input for Figure 2 in Vaas \emph{et al.}
-#' (2012) provided by \code{xy_plot()}.
+#' (2012), which can be approximated by running \code{\link{xy_plot}} with
+#' \code{vaas_4}.
 #'
 #' The \code{\link{OPMD}} object \code{vaas_1} contains measurements from a
 #' single selected plate from the study by Vaas et al. (2012). Metadata have

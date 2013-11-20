@@ -23,6 +23,12 @@
   All plates also contain aggregated and discretised values
   generated \emph{via} \code{do_aggr} and \code{do_disc}
   from the \pkg{opm} package under default values.
+
+  The data set contains, e.g., the measurements used for
+  Figure 1 in Vaas \emph{et al.} (2012). This particular
+  subset comprises the third technical repetition of the
+  first experimental run. Code for extracting these plates
+  and wells is given below.
 }
 \examples{
 data(vaas_et_al)
@@ -31,6 +37,18 @@ plate_type(vaas_et_al) # should indicate generation-III plates
 (ha <- has_aggr(vaas_et_al))
 (hd <- has_disc(vaas_et_al))
 stopifnot(d == c(114, 384, 96), ha, hd)
+
+\dontrun{
+# get the data subset used in Figure 1 in Vaas et al. (2012)
+vaas.1.3 <- subset(vaas_et_al, query = list(Experiment = "First replicate",
+  'Plate number' = 3))
+
+# plot the data approximately as in Vaas et al. (2012)
+xy_plot(vaas.1.3[, , c("D01", "D02" ,"C10", "C11")],
+  main = "E. coli vs. P. aeruginosa", include = list("Species", "Strain"))
+level_plot(vaas.1.3[, , c("D01", "D02" ,"C10", "C11")],
+  main = "E. coli vs. P. aeruginosa", include = list("Species", "Strain"))
+}
 }
 \references{
   Bochner, B.R., Savageau, M.A. 1977. Generalized indicator
@@ -59,5 +77,6 @@ stopifnot(d == c(114, 384, 96), ha, hd)
 
   \url{http://www.dsmz.de/catalogues/details/culture/DSM-30083.html}
 }
+\keyword{datasets}
 \keyword{datasets}
 
