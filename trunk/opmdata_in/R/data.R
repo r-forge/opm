@@ -28,6 +28,12 @@
 #'   \emph{via} \code{do_aggr} and \code{do_disc} from the \pkg{opm} package
 #'   under default values.
 #'
+#'   Code for reproduction of parts of Figure 1 from Vaas \emph{et al.} (2012)
+#'   can be found below in the examples. This particular subset comprises the
+#'   third technical repetition of the first experimental run selected by
+#'   (\code{query = list(Experiment = "First replicate", Plate number' = 3)}) in
+#'   the subset function.
+#'
 #' @references Bochner, B.R., Savageau, M.A. 1977. Generalized indicator plate
 #'   for genetic, metabolic, and taxonomic studies with microorganisms. \emph{
 #'   Applied and Environmental Microbiology} \strong{33}, 434--444.
@@ -56,6 +62,19 @@
 #' (hd <- has_disc(vaas_et_al))
 #' stopifnot(d == c(114, 384, 96), ha, hd)
 #'
+#' \dontrun{
+#' # get data subset for Figure 1 in Vaas et al. (2012):
+#' vaas.1.3 <- subset(vaas_et_al, query = list(Experiment = "First replicate",
+#'   'Plate number' = 3))
+#'
+#' # plot
+#' xy_plot(vaas.1.3[, , c("D01", "D02" ,"C10", "C11")],
+#'   main = "E. coli vs. P. aeruginosa", include = list("Species", "Strain"))
+#'
+#' #
+#' level_plot(vaas.1.3[, , c("D01", "D02" ,"C10", "C11")],
+#'   main = "E. coli vs. P. aeruginosa", include = list("Species", "Strain"))
+#' }
 NULL
 
 
