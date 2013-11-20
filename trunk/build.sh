@@ -1336,7 +1336,7 @@ reduce_vignette_Rnw_files()
   local tmpdir=`mktemp -d --tmpdir`
   for indir; do
     for vignette in "$indir"/vignettes/*.Rnw; do
-      [ -f "$vignette" ] || continue
+      [ -f "$vignette" ] || continue 2
       awk -v found=0 '
           /^%\\VignetteIndexEntry/ {
             print
