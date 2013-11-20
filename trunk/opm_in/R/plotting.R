@@ -1413,20 +1413,18 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #'   \code{\link{OPMS}} method of \code{\link{extract}}. Currently ignored by
 #'   the other methods.
 #'
-#' @param rp.type Character vector of length 1 indicating whether to draw
-#'   (r)adial lines, a (p)olygon or (s)ymbols. If symbols are drawn, please
-#'   also state \code{point.symbols}.
-#'   These and the following arguments are passed to
-#'   \code{plotrix::radial.plot}. See there for details.
-#' @param radlab Logical scalar indicating whether to rotate the outer labels to
-#'   a radial orientation.
-#' @param show.centroid Logical scalar indicating whether a centroid is shown.
+#' @param rp.type Character vector of length 1. From the possible options
+#'   \sQuote{p} for polygons, \sQuote{s} for symbols and \sQuote{r} for radial
+#'   lines, the ladder is not recommended. These and the following arguments are
+#'   passed to \code{plotrix::radial.plot}. See there for details.
+#' @param radlab Logical scalar. Rotation of the outer labels to
+#'   a radial orientation might safe some space in the graphic.
+#' @param show.centroid Logical scalar.
 #' @param show.grid.labels Logical scalar. Indicates whether and where display
 #'   labels for the grid are shown. See details for \code{radial.plot} from the
 #'   \pkg{plotrix} package.
 #' @param lwd Numeric scalar for line width.
 #' @param mar Numeric vector of length 4 determining the margins of the plot.
-#'   Default \code{mar = c(2, 2, 2, 2)}.
 #' @param line.col Character or numeric vector for determination of line colour.
 #' @param point.symbols Passed to \code{radial.plot} from the \pkg{plotrix}
 #'   package. See there for details. Explicitly provided here to silence
@@ -1438,7 +1436,6 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' @param main Also passed to that function for stating a main title.
 #' @param ... Optional other arguments passed to \code{radial.plot} from the
 #'   \pkg{plotrix} package.
-#'
 #' @param draw.legend Logical scalar. Whether to draw a legend. Ignored unless
 #'   \code{object} has row names (because these are used to generate the
 #'   description).
@@ -1502,7 +1499,7 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
     radlab = FALSE, show.centroid = TRUE, show.grid.labels = 1, lwd = 3,
     mar = c(2, 2, 2, 2), line.col = opm_opt("colors"), draw.legend = TRUE,
     x = "bottom", y = NULL, xpd = TRUE, pch = 15, legend.args = list(),
-    point.symbols = NA, point.col = line.col, poly.col = NA,
+    point.symbols = 15, point.col = line.col, poly.col = NA,
     main = paste0(as.labels, sep = sep), ...) {
   LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch)
   line.col <- try_select_colors(line.col)
