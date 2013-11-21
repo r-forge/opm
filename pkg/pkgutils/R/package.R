@@ -38,7 +38,14 @@ pkg_files <- function(x, ...) UseMethod("pkg_files")
 pkg_files.character <- function(x, what, installed = TRUE, ignore = NULL,
     ...) {
   filter <- function(x) {
-    if (length(ignore))
+    if (!length(ignore))
+      return(x)
+    if (is.list(ignore))
+      x <- do.call(grep, c(list(x = x, value = TRUE,
+        invert = !inherits(ignore, "AsIs")), ignore))
+    else if (inherits(ignore, "AsIs"))
+      x <- x[tolower(basename(x)) %in% tolower(ignore)]
+    else
       x <- x[!tolower(basename(x)) %in% tolower(ignore)]
     x
   }
@@ -114,10 +121,12 @@ check_R_code <- function(x, ...) UseMethod("check_R_code")
 check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     roxygen.space = 1L, comma = TRUE, ops = TRUE, parens = TRUE,
     assign = TRUE, modify = FALSE, ignore = NULL, accept.tabs = FALSE,
-    three.dots = TRUE, what = "R", encoding = "", ...) {
+    three.dots = TRUE, what = "R", encoding = "",
+    filter = c("none", "sweave"), ...) {
   spaces <- function(n) paste0(rep.int(" ", n), collapse = "")
   LL(lwd, indention, roxygen.space, modify, comma, ops, parens, assign,
     accept.tabs, three.dots)
+  filter <- match.arg(filter)
   roxygen.space <- sprintf("^#'%s", spaces(roxygen.space))
   check_fun <- function(x) {
     infile <- attr(x, ".filename")
@@ -165,6 +174,23 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
           grepl("[)\\]}][^\\s()[\\]}$@:,;]", x, perl = TRUE))
       }
     }
+    lines_to_filter_out <- function(x, how) {
+      case(how,
+        none = FALSE,
+        sweave = {
+          starts <- grepl("^<<.*>>=", x, FALSE, TRUE)
+          stops <- grepl("^@", x, FALSE, TRUE)
+          stopifnot(must(which(starts) < which(stops)))
+          as.integer(sections(starts | stops)) %% 2L == 1L | starts
+        }
+      )
+    }
+    if (any(filtered <- lines_to_filter_out(x, filter))) {
+      orig <- x
+      x[filtered] <- ""
+    } else {
+      orig <- NULL
+    }
     if (modify) {
       x <- sub("\\s+$", "", x, perl = TRUE)
       x <- gsub("\t", spaces(indention), x, fixed = TRUE)
@@ -177,7 +203,10 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
       grepl("^\\s+#'", x, perl = TRUE))
     code_check(sub("\\s*#.*", "", unquote(x), perl = TRUE))
     if (modify)
-      x
+      if (is.null(orig))
+        x
+      else
+        ifelse(filtered, orig, x)
     else
       NULL
   }

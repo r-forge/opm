@@ -406,7 +406,7 @@ A vector as returned by \code{annotated} (see Section~\ref{annotated-input}) ser
 For demonstration purposes, we use subsets of \code{vaas_et_al} containing the \textit{Escherichia coli} strains from the first biological repetition. 
 
 <<label=example-data>>=
-coli.sub <- subset(vaas_et_al, list(Species = "Escherichia coli", 
+coli.sub <- subset(vaas_et_al, list(Species = "Escherichia coli",
   Experiment = "First replicate"))
 coli.k12 <- subset(coli.sub, list(Strain = "DSM18039"))
 coli.type <- subset(coli.sub, list(Strain = "DSM30083T"))
@@ -424,23 +424,23 @@ All graphics below are produced using this wrapper, but the user is of course fr
 
 <<label=pathview-wrapper>>=
 opm_path <- function(cpd.data, gene.data = NULL,
-    high = list(gene = "green4", cpd = "blue"), 
+    high = list(gene = "green4", cpd = "blue"),
     mid = list(gene = "lightsteelblue1", cpd = "yellow"),
     low = list(gene = "white", cpd = "yellow"),
-    species = "ko", out.suffix = "non-native", 
+    species = "ko", out.suffix = "non-native",
     key.pos = "topright", afactor = 1000,
-    limit = list(gene = 2, cpd = 400), 
+    limit = list(gene = 2, cpd = 400),
     bins = list(gene = 0.5, cpd = 40),
-    both.dirs = list(gene = FALSE, cpd = FALSE), 
-    sign.pos = "topleft", cpd.lab.offset = 0, 
-    same.layer = FALSE, 
+    both.dirs = list(gene = FALSE, cpd = FALSE),
+    sign.pos = "topleft", cpd.lab.offset = 0,
+    same.layer = FALSE,
     na.col = "white", ...) {
   pathview(cpd.data = cpd.data, gene.data = gene.data,
     high = high, mid = mid, low = low,
     species = species, out.suffix = out.suffix, key.pos = key.pos,
     afactor = afactor, limit = limit, bins = bins,
-    both.dirs = both.dirs, sign.pos = sign.pos, 
-    cpd.lab.offset = cpd.lab.offset, same.layer = same.layer, 
+    both.dirs = both.dirs, sign.pos = sign.pos,
+    cpd.lab.offset = cpd.lab.offset, same.layer = same.layer,
     na.col = na.col, ...)
 }
 @
@@ -448,9 +448,9 @@ opm_path <- function(cpd.data, gene.data = NULL,
 The data for the two strains are shown on the correspondingly separated maps in Figure~\ref{fig:pathview-native-sep-strains}.
 
 <<label=pathview-wrapper-plot-native>>=
-coli.map.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
+coli.map.k12 <- opm_path(cpd.data = anno.k12, species = "ko",
   out.suffix = "k12.ko", pathway.id = "00052")
-coli.map.type <- opm_path(cpd.data = anno.type, species = "ko", 
+coli.map.type <- opm_path(cpd.data = anno.type, species = "ko",
   out.suffix = "type.ko", pathway.id = "00052")
 @
 
@@ -496,10 +496,10 @@ anno.k12.bin <- annotated(coli.k12, output = param_names("disc.name"),
   lmap = 1:3)
 anno.type.bin <- annotated(coli.type, output = param_names("disc.name"),
   lmap = 1:3)
-coli.map.k12.bin <- opm_path(cpd.data = anno.k12.bin, species = "ko", 
+coli.map.k12.bin <- opm_path(cpd.data = anno.k12.bin, species = "ko",
   out.suffix = "k12.ko.bin", pathway.id = "00052",
   limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
-coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko", 
+coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
   out.suffix = "type.ko.bin", pathway.id = "00052",
   limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
 @
@@ -535,7 +535,7 @@ But when using \code{na.col}, entries without annotation information are highlig
 
  
 <<label=pathview_e_coli_comp_map, eval=FALSE>>=
-coli.map.k12.eco <- opm_path(cpd.data = anno.k12, species = "eco", 
+coli.map.k12.eco <- opm_path(cpd.data = anno.k12, species = "eco",
   out.suffix = "k12.eco", pathway.id = "00052", na.col = "pink")
 @
 
@@ -597,7 +597,7 @@ It can thus directly be used to subset \code{OPMX} objects.
 
 <<label=e-coli-single-ci-dummy, eval=FALSE>>=
 ci_plot(coli.sub[, , e.subs.pos],
-  as.labels = list("Species", "Strain"), subset = "A", x = "bottomright", 
+  as.labels = list("Species", "Strain"), subset = "A", x = "bottomright",
   draw.legend = T, crr = 1.33)
 @
 
@@ -606,9 +606,9 @@ ci_plot(coli.sub[, , e.subs.pos],
 \centering
 \scalebox{1.2}{
 <<label=e-coli-single-ci-figure, fig=TRUE, echo=FALSE, height=14, width=20>>=
-ci_plot(coli.sub[, , e.subs.pos], 
-  as.labels = list("Species", "Strain"), subset = "A", 
-  x = "bottomright", 
+ci_plot(coli.sub[, , e.subs.pos],
+  as.labels = list("Species", "Strain"), subset = "A",
+  x = "bottomright",
   draw.legend = FALSE, crr = 1.5)
 @
 }
@@ -622,7 +622,7 @@ Straightforwardly, we compute a multiple comparison between only the 13 substrat
 Our example compares the type strain with K12; each corresponding 95\% \ac{CI} for differences of means for the chosen substrates is shown in Figure~\ref{fig:e_coli_comp_ci}.
 
 <<label=pathview-e_coli-comp>>=
-coli.comp <- opm_mcp(coli.sub[, , e.subs.pos], 
+coli.comp <- opm_mcp(coli.sub[, , e.subs.pos],
   output = "mcp", model = ~ J(Well + Strain), linfct = c(Pairs = 1))
 @
 
@@ -650,7 +650,7 @@ The annotation vector for the differences of means can be obtained by simply app
 The direct mapping of these differences between the two strains on the Galactose pathway is shown in Figure~\ref{fig:pathview-native-differences}.
 
 <<label=pathview_e_coli_comp_map>>=
-coli.comp.map <- opm_path(cpd.data = annotated(coli.comp), species = "ko", 
+coli.comp.map <- opm_path(cpd.data = annotated(coli.comp), species = "ko",
   out.suffix = "coli.comp.ko", pathway.id = "00052")
 @
 
@@ -682,12 +682,12 @@ Remember the use of the \code{lmap} argument.
 <<label=pathview-cat-anno-map>>=
 # 'upwards' comparison, default minimum effect size
 cat.coli.comp.0 <- opm_path(
-  cpd.data = annotated(coli.comp, output = "upwards", lmap = 1:3), 
+  cpd.data = annotated(coli.comp, output = "upwards", lmap = 1:3),
   species = "ko", out.suffix = "cat-coli-comp-0", pathway.id = "00052",
   limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
 # 'upwards' comparison, 150 units as minimum effect size
 cat.coli.comp.150 <- opm_path(
-  cpd.data = annotated(coli.comp, output = "'150", lmap = 1:3), 
+  cpd.data = annotated(coli.comp, output = "'150", lmap = 1:3),
   species = "ko", out.suffix = "cat-coli-comp-150", pathway.id = "00052",
   limit = list(gene = 2, cpd = c(1, 3)), bins = list(gene = 0.5, cpd = 3))
 @
@@ -730,8 +730,8 @@ In the examples detailed above, a variety of such objects have already been gene
 Next, we show how to produce graphics from these objects instead of directly from \ac{KEGG}.
 
 <<label=pathview-plot-graphviz>>=
-coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko", 
-  afactor = 1500, kegg.native = FALSE, out.suffix = "graphvizk12.ko", 
+coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko",
+  afactor = 1500, kegg.native = FALSE, out.suffix = "graphvizk12.ko",
   pathway.id = "00052", sign.pos = "bottomleft", key.pos = "bottomright")
 @
 
@@ -854,12 +854,12 @@ The final contrast matrix is set up by concatenating the necessary numeric vecto
 contr <- rbind(
   "Carbohydrates/DSM18039 - Carbohydrates/DSM30083T" = c(
     rep(c(2 / ncol(contr.carb), -2 / ncol(contr.carb)),
-      times = ncol(contr.carb) / 2), 
+      times = ncol(contr.carb) / 2),
     rep(0, times = ncol(contr.noncarb))
   ),
   "non-Carb./DSM18039 - non-Carb./DSM30083T" = c(
     rep(0, times = ncol(contr.carb)),
-    rep(c(2 / ncol(contr.noncarb), -2 / ncol(contr.noncarb)), 
+    rep(c(2 / ncol(contr.noncarb), -2 / ncol(contr.noncarb)),
       times = ncol(contr.noncarb) / 2)
   )
 )

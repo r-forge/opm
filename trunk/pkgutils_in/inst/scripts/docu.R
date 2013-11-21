@@ -42,14 +42,19 @@ copy_dir <- function(from, to, delete) {
 }
 
 
-do_style_check <- function(files, opt) {
+do_style_check <- function(dirs, opt) {
+  check_style <- function(dirs, subdirs, ...) check_R_code(x = dirs,
+    what = subdirs, lwd = opt$width, ops = !opt$opsoff, comma = !opt$commaoff,
+    indention = opt$blank, roxygen.space = opt$jspaces, modify = opt$modify,
+    parens = !opt$parensoff, assign = !opt$assignoff, accept.tabs = opt$tabs,
+    three.dots = !opt$dotsok, encoding = opt$encoding, ...)
   subdirs <- c("tests", "scripts")
   subdirs <- c("R", "demo", subdirs, file.path("inst", subdirs))
-  y <- check_R_code(x = files, lwd = opt$width, ops = !opt$opsoff,
-    comma = !opt$commaoff, indention = opt$blank, roxygen.space = opt$jspaces,
-    modify = opt$modify, ignore = opt$good, parens = !opt$parensoff,
-    assign = !opt$assignoff, accept.tabs = opt$tabs, three.dots = !opt$dotsok,
-    what = subdirs, encoding = opt$encoding)
+  y <- check_style(dirs, subdirs, ignore = opt$good, filter = "none")
+  subdirs <- c("vignettes", "doc")
+  subdirs <- c(subdirs, file.path("inst", subdirs))
+  y <- c(y, check_style(dirs, subdirs, filter = "sweave",
+    ignore = I(list(pattern = "\\.[RS]nw$", ignore.case = TRUE))))
   isna <- is.na(y)
   if (any(y & !isna))
     message(paste(sprintf("file '%s' has been modified", names(y)[y & !isna]),

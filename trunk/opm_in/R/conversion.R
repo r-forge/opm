@@ -206,9 +206,9 @@ setMethod("split", c(OPMX, "missing", "missing"), function(x, f, drop) {
   split(x, drop = FALSE)
 }, sealed = SEALED)
 
-setMethod("split", c(OPM, "missing", "ANY"), function(x, f, drop) {
+setMethod("split", c(OPM, "missing", "logical"), function(x, f, drop) {
   extract_concentration <- function(x) {
-    m <- regexpr("(?<=#)\\d+$", x, FALSE, TRUE)
+    m <- regexpr("(?<=#)\\s*\\d+\\s*$", x, FALSE, TRUE)
     conc <- as.integer(substr(x, m, m + attr(m, "match.length") - 1L))
     regmatches(x, m) <- "1"
     list(Concentration = conc, Standardized = structure(names(x), names = x))
@@ -241,7 +241,7 @@ setMethod("split", c(OPM, "missing", "ANY"), function(x, f, drop) {
       w2 = w[[1L]], drop = drop, key = get("series.key", OPM_OPTIONS))))
 }, sealed = SEALED)
 
-setMethod("split", c(OPMS, "missing", "ANY"), function(x, f, drop) {
+setMethod("split", c(OPMS, "missing", "logical"), function(x, f, drop) {
   x@plates <- lapply(x@plates, split, drop = drop)
   x@plates <- unlist(lapply(x@plates, slot, "plates"), FALSE, FALSE)
   x
@@ -251,25 +251,19 @@ setMethod("split", c(OPMX, "ANY", "missing"), function(x, f, drop) {
   split(x, f, FALSE)
 }, sealed = SEALED)
 
-setMethod("split", c(OPM, "factor", "ANY"), function(x, f, drop) {
-  object <- split.default(1L, f, FALSE) # to get the warnings/errors
+setMethod("split", c(OPM, "factor", "logical"), function(x, f, drop) {
+  object <- split.default(0L, f, FALSE) # to get the warnings/errors
   object[[1L]] <- x[drop = drop]
   new(MOPMX, object)
 }, sealed = SEALED)
 
-setMethod("split", c(OPMS, "factor", "ANY"), function(x, f, drop) {
+setMethod("split", c(OPMS, "factor", "logical"), function(x, f, drop) {
   new(MOPMX, lapply(split.default(x, f, FALSE), `[`, drop = drop))
 }, sealed = SEALED)
 
-setMethod("split", c(OPMX, "ANY", "ANY"), function(x, f, drop) {
+setMethod("split", c(OPMX, "ANY", "logical"), function(x, f, drop) {
   split(x, as.factor(extract_columns(x, f, TRUE, " ", "ignore")), drop)
 }, sealed = SEALED)
-
-# setMethod("split", c(OPMS, "ANY", "ANY"), function(x, f, drop) {
-#   if (is.list(f <- metadata(x, f)))
-#     f <- apply(list2matrix(f), 1L, paste0, collapse = " ")
-#   split(x, as.factor(f), drop)
-# }, sealed = SEALED)
 
 
 ################################################################################

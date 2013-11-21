@@ -958,7 +958,7 @@ This comes handy for adding the \code{CSV\_data} selected or all information fro
 
 <<label=to-metadata-convert, results=hide>>=
 metadata(example.opm)
-metadata(example.opm) <- to_metadata(csv_data(example.opm))[, 
+metadata(example.opm) <- to_metadata(csv_data(example.opm))[,
   c("Strain Name", "Sample Number")]
 metadata(example.opm)
 @
@@ -999,7 +999,7 @@ This could be done using \code{example.opm <- map\_metadata(example.opm, ...)}.
 In that case, however, direct assignment would also be possible:
 
 <<label=OPMS-clean-metadata-with-formula, results=hide>>=
-metadata(example.opm) <- Organism + `Sample Number` ~ 
+metadata(example.opm) <- Organism + `Sample Number` ~
   list(`Sample Number`, NULL)
 metadata(example.opm)
 @
@@ -1008,7 +1008,7 @@ Assigning \code{NULL} to a metadata entry would remove that entry.
 We can achieve the same using an expression object:
 
 <<label=metadata-expression, results=hide>>=
-metadata(example.opm) <- to_metadata(csv_data(example.opm))[, 
+metadata(example.opm) <- to_metadata(csv_data(example.opm))[,
   c("Strain Name", "Sample Number")] # reset
 metadata(example.opm)
 metadata(example.opm) <- expression(Organism <- `Sample Number`,
@@ -1111,7 +1111,7 @@ As a result, two metadata entries would be merged into a single one:
 
 <<label=merge-metadata-by-hand, results=hide>>=
 metadata.example$Colour.Position <- as.character(interaction(
-  metadata.example$Colour, 
+  metadata.example$Colour,
   metadata.example$Position, sep = ".", drop = TRUE))
 @
  
@@ -1232,7 +1232,7 @@ Which plates within \code{vaas\_et\_al} have \textit{Experiment} and \textit{Spe
 <<label=query-metadata-q-keys-with-values, results=hide>>=
 c(Experiment = "First replicate",
   Species = "Escherichia coli") %q% vaas_et_al
-vaas_et_al %q% ~ Experiment == "First replicate" & 
+vaas_et_al %q% ~ Experiment == "First replicate" &
   Species == "Escherichia coli"
 @
 
@@ -1499,7 +1499,7 @@ The centroid of a polygon is the arithmetic mean position of all the points in t
 
 <<label=radial-plot-dummy-2, results=hide, eval=FALSE>>=
 radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
-  main = "Test", x = -550, y = -50, rp.type = "s", 
+  main = "Test", x = -550, y = -50, rp.type = "s",
   point.symbols = 15, show.centroid = TRUE )
 @
 
@@ -1508,7 +1508,7 @@ radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
 \scalebox{1.0}{
 <<label=radial-plot-figure-2, fig=TRUE, echo=FALSE, results=hide, width=10, height=6>>=
 radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
-  main = "Test", x = -550, y = -50, rp.type = "s", 
+  main = "Test", x = -550, y = -50, rp.type = "s",
   point.symbols = 15, show.centroid = TRUE )
 @
 }
@@ -1807,14 +1807,14 @@ The reference well can be either the negative or positive control but also one o
 The following data example is again taken from the first biological replicate included in \code{vaas\_et\_al}, but this time only the type strain of \textit{Escherichia coli}, measured in ten technical replicates, is selected.
 
 <<label=vaas-e-coli, results=hide>>=
-vaas.e.coli <- subset(vaas_et_al, 
+vaas.e.coli <- subset(vaas_et_al,
   list(Experiment = "First replicate", Strain = "DSM30083T"))
 @
 
 For convenience, we perform the tests only for the first ten wells. The comparison of all wells against the negative control in A01 can now be performed by calling: 
 
 <<label=vaas-e-coli-mcp, results=hide>>=
-opm_mcp(vaas.e.coli[, , 1:10], output = "mcp", model = ~ Well, 
+opm_mcp(vaas.e.coli[, , 1:10], output = "mcp", model = ~ Well,
   linfct = c(`Dunnett_A01 (Negative Control)` = 1))
 @
 
@@ -1857,7 +1857,7 @@ The use of explicitly setting \code{linfct = c(Pairs.Well = 1)} ensures that for
 The result of this analysis is shown below.
 
 <<label=mcp-linfct-pairs-runanalysis>>=
-y <- opm_mcp(vaas_4[, , c(1:3, 86)], model = ~ J(Well, Species), 
+y <- opm_mcp(vaas_4[, , c(1:3, 86)], model = ~ J(Well, Species),
   m.type = "aov", linfct = c(Pairs.Well = 1), full = FALSE)
 @
 
@@ -1972,7 +1972,7 @@ For example, the user may be interested in comparing the data shown in Figure~\r
 
 <<label=analyse-G06-data, results=hide>>=
 vaas.G06 <- vaas_et_al[, , "G06"]
-vaas.G06.mcp <- opm_mcp(vaas.G06, model = ~ J(Strain, Experiment), 
+vaas.G06.mcp <- opm_mcp(vaas.G06, model = ~ J(Strain, Experiment),
   linfct = c(Dunnett = 1))
 @
 
