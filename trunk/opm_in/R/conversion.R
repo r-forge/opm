@@ -261,19 +261,15 @@ setMethod("split", c(OPMS, "factor", "ANY"), function(x, f, drop) {
   new(MOPMX, lapply(split.default(x, f, FALSE), `[`, drop = drop))
 }, sealed = SEALED)
 
-setMethod("split", c(OPM, "ANY", "ANY"), function(x, f, drop) {
-  if (is.list(f <- metadata(x, f)))
-    f <- apply(list2matrix(list(metadata(x, f))), 1L, paste0, collapse = " ")
-  else
-    f <- paste0(f, collapse = " ")
-  split(x, as.factor(f), drop)
+setMethod("split", c(OPMX, "ANY", "ANY"), function(x, f, drop) {
+  split(x, as.factor(extract_columns(x, f, TRUE, " ", "ignore")), drop)
 }, sealed = SEALED)
 
-setMethod("split", c(OPMS, "ANY", "ANY"), function(x, f, drop) {
-  if (is.list(f <- metadata(x, f)))
-    f <- apply(list2matrix(f), 1L, paste0, collapse = " ")
-  split(x, as.factor(f), drop)
-}, sealed = SEALED)
+# setMethod("split", c(OPMS, "ANY", "ANY"), function(x, f, drop) {
+#   if (is.list(f <- metadata(x, f)))
+#     f <- apply(list2matrix(f), 1L, paste0, collapse = " ")
+#   split(x, as.factor(f), drop)
+# }, sealed = SEALED)
 
 
 ################################################################################
@@ -665,6 +661,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   with one column named as indicated by \code{split.at} (default given by
 #'   \code{\link{param_names}("split.at")}), columns with factor variables
 #'   before that column and columns with numeric vectors after that column.
+#'   For \code{extract_columns} optionally an \code{\link{OPM}} object.
 #' @param as.labels List, character vector or formula indicating the metadata to
 #'   be joined and used as row names (if \code{dataframe} is \code{FALSE}) or
 #'   additional columns (if otherwise). Ignored if \code{NULL}.
@@ -710,9 +707,10 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   the data unless \code{what} is a list.
 #' @param dups Character scalar specifying what to do in the case of duplicate
 #'   labels: either \sQuote{warn}, \sQuote{error} or \sQuote{ignore}. Ignored
-#'   unless \code{join} is \code{TRUE}. For the data-frame method of
-#'   \code{extract}, a character scalar defining the action to conduct if
-#'   \code{as.groups} contains duplicates.
+#'   unless \code{join} is \code{TRUE} and if \code{object} is an
+#'   \code{\link{OPM}} object. For the data-frame method of \code{extract}, a
+#'   character scalar defining the action to conduct if \code{as.groups}
+#'   contains duplicates.
 #'
 #' @param exact Logical scalar. Passed to \code{\link{metadata}}.
 #' @param strict Logical scalar. Also passed to \code{\link{metadata}}.
@@ -1080,6 +1078,31 @@ setMethod("extract", "data.frame", function(object, as.groups = TRUE,
 setGeneric("extract_columns",
   function(object, ...) standardGeneric("extract_columns"))
 
+setMethod("extract_columns", OPM, function(object, what, join = FALSE,
+    sep = " ", dups = c("warn", "error", "ignore"), factors = TRUE,
+    exact = TRUE, strict = TRUE) {
+  what <- metadata_key(what, FALSE, NULL)
+  result <- metadata(object, what, exact, strict)
+  result <- if (is.list(result))
+    rapply(result, as.character)
+  else
+    as.character(result)
+  if (L(join)) {
+    result <- paste0(result, collapse = sep)
+  } else {
+    result <- as.list(result)
+    if (is.null(names(result)))
+      names(result) <- paste0(what, collapse = get("key.join", OPM_OPTIONS))
+    result <- as.data.frame(result, optional = TRUE, stringsAsFactors = factors)
+    if (ncol(result) > length(colnames(result)))
+      colnames(result) <- paste0(what, collapse = get("key.join", OPM_OPTIONS))
+    if (is.list(attr(what, "combine")))
+      result <- extract_columns(result, attr(what, "combine"),
+        factors = factors, direct = TRUE)
+  }
+  result
+}, sealed = SEALED)
+
 setMethod("extract_columns", OPMS, function(object, what, join = FALSE,
     sep = " ", dups = c("warn", "error", "ignore"), factors = TRUE,
     exact = TRUE, strict = TRUE) {
@@ -1174,14 +1197,24 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #' @param optional Logical scalar passed to the list and matrix methods of
 #'   \code{as.data.frame}.
 #' @param sep Character scalar used as word separator in column names.
+#' @param csv.data Logical scalar indicating whether the \code{\link{csv_data}}
+#'   entries that identify the plate shall be included.
+#' @param settings Logical scalar indicating whether the
+#'   \code{\link{aggr_settings}} and \code{\link{disc_settings}} entries, if
+#'   available, shall be included.
 #' @param stringsAsFactors Logical scalar passed to the list and matrix methods
 #'   of \code{as.data.frame}.
 #'
 #' @param object \code{\link{OPM}} or \code{\link{OPMS}} object (or list).
-#' @param include \code{NULL}, character vector, list or formula. If not empty,
-#'   include this meta-information in the data frame, replicated in each row.
-#'   Otherwise it converted to a list and passed to \code{\link{metadata}}. See
-#'   there for details.
+#' @param include For \code{flatten}, either \code{NULL}, character vector, list
+#'   or formula. If not empty, include this meta-information in the data frame,
+#'   replicated in each row. Otherwise it converted to a list and passed to
+#'   \code{\link{metadata}}. See there for details.
+#'
+#'   For \code{as.data.frame}, if empty or \code{FALSE}, ignored. If
+#'   \code{TRUE}, all metadata are including using \code{\link{to_metadata}}. If
+#'   otherwise and non-empty, metadata selected using
+#'   \code{\link{extract_columns}} are included.
 #' @param fixed \code{NULL} or list. If not \code{NULL}, include these items in
 #'   the data frame, replicated in each row.
 #' @param factors Logical scalar. See the \code{stringsAsFactors} argument of
@@ -1217,19 +1250,21 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #'
 #'   The following entries are contained in the generated data frame:
 #'   \itemize{
-#'   \item The \code{\link{csv_data}} entries that identify the plate.
-#'   \item The names of the wells.
+#'   \item Optionally the \code{\link{csv_data}} entries that identify the
+#'   plate.
+#'   \item The names of the wells. Always included.
 #'   \item For \code{\link{OPMA}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), the aggregated data (curve parameters), one column for each
-#'   point estimate, upper and lower confidence interval of each parameter.
+#'   contain them), always the aggregated data (curve parameters), one column
+#'   for each point estimate, upper and lower confidence interval of each
+#'   parameter.
 #'   \item For \code{\link{OPMA}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), the used aggregation settings, one column per entry, except
-#'   for the \sQuote{options} entry (which is not a scalar).
+#'   contain them), optionally the used aggregation settings, one column per
+#'   entry, except for the \sQuote{options} entry (which is not a scalar).
 #'   \item For \code{\link{OPMD}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), one column with the discretised data.
+#'   contain them), always one column with the discretised data.
 #'   \item For \code{\link{OPMD}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), the used discretisation settings, one column per entry,
-#'   except for the \sQuote{options} entry (which is not a scalar).
+#'   contain them), optionally the used discretisation settings, one column per
+#'   entry, except for the \sQuote{options} entry (which is not a scalar).
 #'   }
 #'
 #'   The limits of using \acronym{CSV} as output format already show up in this
@@ -1268,49 +1303,70 @@ setMethod("extract_columns", "data.frame", function(object, what,
 setGeneric("as.data.frame")
 
 setMethod("as.data.frame", OPM, function(x, row.names = NULL,
-    optional = FALSE, sep = "_", ...,
-    stringsAsFactors = default.stringsAsFactors()) {
-  result <- cbind(as.data.frame(as.list(x@csv_data[CSV_NAMES]), NULL, optional,
-    ..., stringsAsFactors = stringsAsFactors), Well = wells(x))
+    optional = FALSE, sep = "_", csv.data = TRUE, settings = TRUE,
+    include = FALSE, ..., stringsAsFactors = default.stringsAsFactors()) {
+  result <- as.data.frame(wells(x), NULL, optional, ...,
+    stringsAsFactors = stringsAsFactors)
+  colnames(result) <- RESERVED_NAMES[["well"]]
+  if (L(csv.data))
+    result <- cbind(as.data.frame(as.list(x@csv_data[CSV_NAMES]), NULL,
+      optional, ..., stringsAsFactors = stringsAsFactors), result)
+  if (is.logical(include)) {
+    if (L(include))
+      result <- cbind(result, to_metadata(x, stringsAsFactors, optional))
+  } else if (length(include)) {
+    result <- cbind(result, extract_columns(object = x, what = include,
+      factors = stringsAsFactors))
+  }
   rownames(result) <- row.names
   colnames(result) <- gsub("\\W+", sep, colnames(result), FALSE, TRUE)
   result
 }, sealed = SEALED)
 
 setMethod("as.data.frame", OPMA, function(x, row.names = NULL,
-    optional = FALSE, sep = "_", ...,
-    stringsAsFactors = default.stringsAsFactors()) {
+    optional = FALSE, sep = "_", csv.data = TRUE, settings = TRUE,
+    include = FALSE, ..., stringsAsFactors = default.stringsAsFactors()) {
   result <- as.data.frame(t(x@aggregated), NULL, optional, ...,
     stringsAsFactors = stringsAsFactors)
   colnames(result) <- gsub("\\W+", sep, colnames(result), FALSE, TRUE)
-  result <- cbind(callNextMethod(x, row.names, optional, sep, ...,
-    stringsAsFactors = stringsAsFactors), result)
-  settings <- x@aggr_settings[c(SOFTWARE, VERSION, METHOD)]
-  names(settings) <- paste("Aggr", names(settings), sep = sep)
-  cbind(result, as.data.frame(settings, NULL, optional, ...,
-    stringsAsFactors = stringsAsFactors))
+  result <- cbind(callNextMethod(x, row.names, optional, sep, csv.data,
+    settings, include, ..., stringsAsFactors = stringsAsFactors), result)
+  if (L(settings)) {
+    settings <- x@aggr_settings[c(SOFTWARE, VERSION, METHOD)]
+    names(settings) <- gsub("\\W+", sep, names(settings), FALSE, TRUE)
+    names(settings) <- paste("Aggr", names(settings), sep = sep)
+    result <- cbind(result, as.data.frame(settings, NULL, optional, ...,
+      stringsAsFactors = stringsAsFactors))
+  }
+  result
 }, sealed = SEALED)
 
 setMethod("as.data.frame", OPMD, function(x, row.names = NULL,
-    optional = FALSE, sep = "_", ...,
-    stringsAsFactors = default.stringsAsFactors()) {
-  result <- callNextMethod(x, row.names, optional, sep, ...,
-    stringsAsFactors = stringsAsFactors)
+    optional = FALSE, sep = "_", csv.data = TRUE, settings = TRUE,
+    include = FALSE, ..., stringsAsFactors = default.stringsAsFactors()) {
+  result <- callNextMethod(x, row.names, optional, sep, csv.data, settings,
+    include, ..., stringsAsFactors = stringsAsFactors)
   result$Discretized <- x@discretized
-  settings <- x@disc_settings[c(SOFTWARE, VERSION, METHOD)]
-  names(settings) <- paste("Disc", names(settings), sep = sep)
-  cbind(result, as.data.frame(settings, NULL, optional, ...,
-    stringsAsFactors = stringsAsFactors))
+  if (settings) {
+    settings <- x@disc_settings[c(SOFTWARE, VERSION, METHOD)]
+    names(settings) <- gsub("\\W+", sep, names(settings), FALSE, TRUE)
+    names(settings) <- paste("Disc", names(settings), sep = sep)
+    result <- cbind(result, as.data.frame(settings, NULL, optional, ...,
+      stringsAsFactors = stringsAsFactors))
+  }
+  result
 }, sealed = SEALED)
 
 setMethod("as.data.frame", OPMS, function(x, row.names = NULL,
-    optional = FALSE, sep = "_", ...,
-    stringsAsFactors = default.stringsAsFactors()) {
+    optional = FALSE, sep = "_", csv.data = TRUE, settings = TRUE,
+    include = FALSE, ..., stringsAsFactors = default.stringsAsFactors()) {
   if (!length(row.names))
     row.names <- vector("list", length(x@plates))
-  do.call(rbind, mapply(as.data.frame, x@plates, row.names, SIMPLIFY = FALSE,
-    MoreArgs = list(optional = optional, sep = sep, ...,
-    stringsAsFactors = stringsAsFactors), USE.NAMES = FALSE))
+  do.call(rbind, mapply(as.data.frame, x = x@plates, row.names = row.names,
+    MoreArgs = list(optional = optional, sep = sep, csv.data = csv.data,
+      settings = settings, include = include, ...,
+      stringsAsFactors = stringsAsFactors),
+    SIMPLIFY = FALSE, USE.NAMES = FALSE))
 }, sealed = SEALED)
 
 setOldClass("kegg_compounds")
