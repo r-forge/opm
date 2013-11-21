@@ -54,7 +54,7 @@ do_style_check <- function(dirs, opt) {
   subdirs <- c("vignettes", "doc")
   subdirs <- c(subdirs, file.path("inst", subdirs))
   y <- c(y, check_style(dirs, subdirs, filter = "sweave",
-    ignore = I(list(pattern = "\\.[RS]nw$", ignore.case = TRUE))))
+    ignore = I(list(pattern = "\\.[RS]?nw$", ignore.case = TRUE))))
   isna <- is.na(y)
   if (any(y & !isna))
     message(paste(sprintf("file '%s' has been modified", names(y)[y & !isna]),
