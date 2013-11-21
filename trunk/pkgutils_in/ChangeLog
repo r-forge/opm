@@ -9,8 +9,10 @@
 
 - the 'docu.R' scripts gets new options -L, -M, -N and -W
 
+- check_R_code() gets a 'filter' argument
+
 - the 'docu.R' scripts now also style-checks R code in the 'demo' directory,
-  if any
+  if any, and in the vignettes, if any
 
 - the 'repair_docu.rb' script now supports '$'() and '$<-'() and comments after
   names of automatically generated methods; methods to be documented within the

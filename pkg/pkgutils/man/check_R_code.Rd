@@ -12,7 +12,8 @@
     indention = 2L, roxygen.space = 1L, comma = TRUE,
     ops = TRUE, parens = TRUE, assign = TRUE,
     modify = FALSE, ignore = NULL, accept.tabs = FALSE,
-    three.dots = TRUE, what = "R", encoding = "", ...)
+    three.dots = TRUE, what = "R", encoding = "",
+    filter = c("none", "sweave"), ...)
 
   logfile(x)
 
@@ -85,6 +86,9 @@
 
   \item{ignore}{Passed to \code{\link{pkg_files}}. See
   there for details.}
+
+  \item{filter}{Character scalar indicating the filter to
+  use.}
 
   \item{...}{Optional other arguments passed to
   \code{\link{pkg_files}}.}
