@@ -910,9 +910,12 @@ show_test_warnings()
 #
 remove_trailing_whitespace()
 {
-  # Note that GNU sed does not understand \b (the backspace escape). We also
-  # omit \r to avoid any problems with Mac or Windows line breaks.
-  find . -type f -name '*.R' -exec sed -i 'v; s/[ \t\v\a\f]\+$//' \{\} +
+  local pat
+  for pat in '*.R' '*.Rnw'; do
+    # Note that GNU sed does not understand \b (the backspace escape). We also
+    # omit \r to avoid any problems with Mac or Windows line breaks.
+    find . -type f -name "$pat" -exec sed -i 'v; s/[ \t\v\a\f]\+$//' \{\} +
+  done
 }
 
 
@@ -1464,7 +1467,7 @@ case $RUNNING_MODE in
 	  pnorm   Normal build of the pkgutils package.
 	  rnw     Run R CMD Stangle on all *.Rnw files found.
 	  rout    Show results of the examples, if any, for given function names.
-	  space   Remove trailing whitespace from all R code files found.
+	  space   Remove trailing whitespace from all R and Rnw code files found.
 	  spell   Check spelling in the vignette files (see below for the Rd files).
 	  sql     SQL-based tests. Call '$0 sql -h' for a description.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.

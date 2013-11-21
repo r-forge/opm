@@ -342,7 +342,7 @@ Since experimental frameworks can be imagined where only very limited meta-infor
 % Avoid repetition (of the previous and forthcoming chapters) as far as possible.
 % Remember: repetition causes a huge maintenance problem.
 
-The raw kinetic data can be exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis} as \ac{CSV} files and imported into the \pkg{opm} package using \code{read\_opm}. 
+The raw kinetic data can be exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis} as \ac{CSV} files and imported into the \pkg{opm} package using \code{read\_opm}.
 This is explained in detail in section Section~\ref{methods import}, whereas corresponding code examples are found in Section~\ref{application import}.
 
 Batch processing many files is also possible, even without starting an interactive \proglang{R} session.
@@ -373,12 +373,12 @@ Example code, including the export of discretisation results as  publication-rea
 Textual reports with or without formatting markup can also be produced, as exemplified in Section~\ref{application discrete-text}.
 The discretisation settings can be modified in detail; see Section~\ref{application discrete-finetuning}.
 
-Furthermore, substrate information can be accessed, including accession numbers for relevant databases. 
+Furthermore, substrate information can be accessed, including accession numbers for relevant databases.
 Detailed explanations and code examples are included in the vignette ``Working with substrate information in \pkg{opm}''.
 
 Database interaction for storing and receiving \ac{PM} data is described in the Section~\ref{methods database}.
 
-Finally, it is possible to modify settings that have an effect on multiple functions and/or on frequently used arguments. 
+Finally, it is possible to modify settings that have an effect on multiple functions and/or on frequently used arguments.
 See Section~\ref{methods settings} for details and Section~\ref{application discrete-table} for a code example.
 
 After a successful installation of \pkg{opm}, the complete \proglang{R} code extracted from this vignette (as well as all other vignette files) can be found \textit{via} \code{opm\_files("doc")}.
@@ -526,8 +526,8 @@ The parameters can nevertheless be robustly estimated from deviating curves, par
 As usual, data analysis starts with data exploration for which the user may wish to query and subset \proglang{OPM} and \proglang{OPMS} objects (Figure~\ref{fig:overview}).
 It is easy to select specific wells and time points from \proglang{OPM} or \proglang{OPMS} objects.
 It also straightforward to select specific \proglang{OPM} objects from an \proglang{OPMS} object that contains them.
-To this end, \proglang{OPM} and \proglang{OPMS} methods for the generic function \code{subset} and \proglang{R}'s bracket operator have been implemented. 
-Particularly powerful are the options for metadata-based creation of subsets. 
+To this end, \proglang{OPM} and \proglang{OPMS} methods for the generic function \code{subset} and \proglang{R}'s bracket operator have been implemented.
+Particularly powerful are the options for metadata-based creation of subsets.
 The composition of \proglang{OPM} and \proglang{OPMS} objects, and the implemented methods of the classes, permit queries for the presence of a specific metadata key or a specific value of a specific metadata key, or a specific combination of values and/or keys, and also enable the user to subset \proglang{OPMS} objects accordingly.
 
 But a plethora of methods for querying other aspects of \proglang{OPM} and \proglang{OPMS} objects have also been implemented.
@@ -585,7 +585,7 @@ Optionally, normalisation by subtracting, or dividing through, the plate-wise me
 Although this method is intended mainly as a helper function for \code{ci\_plot}, it can be quite useful for specific normalisation purposes, for example when data were derived before and after servicing the OmniLog\textregistered \ facility, which might result in shifting the measurements by a certain amount.
 In conjunction with \code{extract}, \code{ci\_plot} allows for visualising point estimates and confidence intervals of groups of parameter estimates.
 For visualising differences between groups and their confidence intervals, see \code{opm\_mcp} as described in Section~\ref{methods group-means}.
- 
+
 Additionally, the package offers the possibility of plotting the aggregated curve parameters as a heat map \textit{via} the function \code{heat\_map}.
 Heat maps appear particularly powerful for visualising the outcomes of \ac{PM} experiment because dendrograms inferred from both the substrates and the plates can be used to rearrange the plot.
 Since the user is free to define the metadata to be used for the annotation of the plot and the clustering analysis, this tool provides a powerful feature for data exploration in specialised contexts.
@@ -616,7 +616,7 @@ As comparisons of the different curve parameters are performed separately, it is
 At this point, it is necessary to highlight the power and flexibility of simultaneous multiple comparison procedures and encourage the user to apply contrast tests on individually designed sets of mean comparisons rather than to employ the probably more popular classical \ac{ANOVA} approaches, which perform F-tests.
 In general, such F-tests \textit{only} provide global information about main effects and interaction effects.
 That is, only the significance of a result yields evidence for a difference in the means among any of the considered treatments.
-For example, in the framework of \ac{PM} data, a significant F-test on the effect of the substrate would indicate that at least two of the substrates cause distinct respiration. 
+For example, in the framework of \ac{PM} data, a significant F-test on the effect of the substrate would indicate that at least two of the substrates cause distinct respiration.
 Considering that each \ac{PM} experiment encounters up to 96 different substrates per plate (overall up to 2,000), this information would obviously be nearly useless.
 Moreover, F-tests neither provide information about effect sizes nor do they ease to address comparisons of particular interest \citep{schaarschmidt}.
 
@@ -624,13 +624,13 @@ We thus opine that the very most underlying questions in \ac{PM} experiments are
 However, if an increasing number of hypotheses is tested, with the number of true hypotheses unknown, the probability of at least one wrong testing decision also increases.
 That is, if an increasing number of groups is compared to each other, conclusions on significant differences between a pair of groups are increasingly likely to be wrong.
 Thus the so-called family-wise error-rate, which is essentially the probability of at least one false rejection among all the null hypotheses, needs to be controlled \citep{tukey}.
-The here internally employed functions from the package \pkg{multcomp} provides solutions for all listed difficulties, since it allows for testing a user-defined set of contrasts based on a broad range of model types while internally controlling the family-wise error-rate.  
+The here internally employed functions from the package \pkg{multcomp} provides solutions for all listed difficulties, since it allows for testing a user-defined set of contrasts based on a broad range of model types while internally controlling the family-wise error-rate.
 
-Users of multiple-comparison procedures, especially of simultaneous multiple contrast tests as applied here, are encouraged to have a look at the books by \citep{hochberg} and \citep{hsu}. 
+Users of multiple-comparison procedures, especially of simultaneous multiple contrast tests as applied here, are encouraged to have a look at the books by \citep{hochberg} and \citep{hsu}.
 
-Especially in situations where groups are defined by more than one metadata entry the evaluation of differences of treatment means may result in quite complex models. 
+Especially in situations where groups are defined by more than one metadata entry the evaluation of differences of treatment means may result in quite complex models.
 Then, the application of \textit{cell-means models} (also known as \textit{pseudo-one-way layouts}) as discussed in \citep{schaarschmidt}) is strongly encouraged.
-In this approach estimators for treatment and variance are derived from a model with all treatments combined in a single factor. 
+In this approach estimators for treatment and variance are derived from a model with all treatments combined in a single factor.
 Technically, this requires the merging of several defining metadata variables into a single one.
 This can be done by creating new metadata entries from given ones and storing them back in an \proglang{OPM} or \proglang{OPMS} object.
 An according example is given in Section~\ref{application metadata}.
@@ -786,7 +786,7 @@ files
 @
 Afterwards check whether this returned a vector of nine file names, including the full path to their location in the file system.
 (It might fail in very unusual \proglang{R} installation situations; in that case, the files must be found manually.)
-For demonstration purposes, the test data contain data from EcoPlate\textregistered \, Gen-III, PM01 and PM20 plate types. 
+For demonstration purposes, the test data contain data from EcoPlate\textregistered \, Gen-III, PM01 and PM20 plate types.
 One of these files contains multiple plates and acts as an example for \code{split_files}; the other ones can be read directly.
 
 As a demonstration of file splitting, consider the following code, which creates single-plate \ac{CSV} files from the multiple-plate file that comes with \pkg{opm}:
@@ -853,7 +853,7 @@ But this might only occasionally be useful, as \code{read\_opm} can cope with si
 \subsection[Batch conversion of many files]{Batch conversion of many files}\label{application batch}
 
 In addition to \code{read\_opm} and \code{read\_single\_opm} (Section~\ref{application import}), which need to be called before an interactive exploration of \ac{PM} data, batch-processing large numbers of files by converting them from \ac{CSV} (or previously generated \proglang{YAML} or \proglang{JSON}) to \proglang{YAML}, \proglang{JSON} or \ac{CSV} format, is also possible.
-This optionally includes aggregating the raw data by estimating curve parameters (Section~\ref{application aggregating}), discretising these parameters (Section~\ref{application discrete-text}) and integrating metadata (Section~\ref{application metadata}). 
+This optionally includes aggregating the raw data by estimating curve parameters (Section~\ref{application aggregating}), discretising these parameters (Section~\ref{application discrete-text}) and integrating metadata (Section~\ref{application metadata}).
 Again there is a \textit{demo} mode to first investigate the attempted conversions:
 
 <<label=batch-opm-demo,results=hide>>=
@@ -1104,8 +1104,8 @@ Other values, as well as the keys, should be unaffected.
 
 Frequently metadata entries will be used as factors in statistical models.
 This always requires that the chosen metadata entry is present in all considered \proglang{OPM} object and sometimes requires that entries have to be combined.
-For instance, for setting up a \textit{cell-means model} (see Section~\ref{methods group-means} and Section~\ref{application group-means} for further details), factors used for defining the groups of interest have to be merged. 
-This might already be done during the initial step when setting up the metadata data frame \textit{before} including the metadata into an \proglang{OPM} or \proglang{OPMS} object using \code{include_metadata}. 
+For instance, for setting up a \textit{cell-means model} (see Section~\ref{methods group-means} and Section~\ref{application group-means} for further details), factors used for defining the groups of interest have to be merged.
+This might already be done during the initial step when setting up the metadata data frame \textit{before} including the metadata into an \proglang{OPM} or \proglang{OPMS} object using \code{include_metadata}.
 Here, the function \code{interaction} could be used to concatenate columns (but it should be taken into account that metadata entries should better not be represented as factors).
 As a result, two metadata entries would be merged into a single one:
 
@@ -1114,7 +1114,7 @@ metadata.example$Colour.Position <- as.character(interaction(
   metadata.example$Colour,
   metadata.example$Position, sep = ".", drop = TRUE))
 @
- 
+
 This is not recommended, however, unless all statistical comparisons of interest, or at least the group definitions of interest, were already known at this stage.
 Even more tedious would be to go back to the initial metadata compilation add a later stage.
 Using the metadata mapping functions, metadata entries can instead by merged at any time \textit{after} including them into an \proglang{OPM} or \proglang{OPMS} with \code{include_metadata}.
@@ -1401,7 +1401,7 @@ The x-axes show the measurement time in hours, the y-axes the measured colour-va
 
 \end{figure}
 
-The function \code{level\_plot} (see Figure~\ref{fig:level_plot}) provides false-colour level plots from the raw respiration measurements over time. 
+The function \code{level\_plot} (see Figure~\ref{fig:level_plot}) provides false-colour level plots from the raw respiration measurements over time.
 
 <<label=level-plot-dummy, eval=FALSE>>=
 level_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
@@ -1489,12 +1489,12 @@ radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
 \label{fig:radial_plot}
 Comparison using \code{radial\_plot} of the parameter \ac{A} measured for four strains.
 Shown are the results for the wells A01 to A05 and A10.
-The data, represented by polygons, are supplemented by centroids shown as correspondingly coloured squares. 
+The data, represented by polygons, are supplemented by centroids shown as correspondingly coloured squares.
 }
 \end{figure}
 
-Using the argument \code{rp.type} it is possible to plot symbols instead of a polygon. 
-With \code{show.centroid}, centroids are included in the graphic, potentially indicating a trend in the data at hand. 
+Using the argument \code{rp.type} it is possible to plot symbols instead of a polygon.
+With \code{show.centroid}, centroids are included in the graphic, potentially indicating a trend in the data at hand.
 The centroid of a polygon is the arithmetic mean position of all the points in the shape.
 
 <<label=radial-plot-dummy-2, results=hide, eval=FALSE>>=
@@ -1522,7 +1522,7 @@ Each centroid is shown as larger symbol in the corresponding colour.
 
 
 The function \code{ci\_plot} is able to visualise point estimates and corresponding 95\% confidence intervals for the parameters, derived \textit{via} bootstrapping during aggregation of raw kinetic data into curve parameters, or, in conjunction with \code{extract}, from plate groups defined by the metadata.
-Thereby the bracket operator as described above (see Section~\ref{application manipulation}) facilitates the selection of subsets of interest. 
+Thereby the bracket operator as described above (see Section~\ref{application manipulation}) facilitates the selection of subsets of interest.
 
 Figure~\ref{fig:ci_plot} provides an example of such a visualisation.
 The parameter \ac{A} is plotted for the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose) from one plate (the sixth plate of the first biological repetition from data set \code{vaas_et_al}).
@@ -1607,9 +1607,9 @@ ci_plot(extract(x, as.groups = TRUE, norm.per = "column")[, c(1:7, 13)],
   legend.field = NULL, x = 150, y = 0)
 @
 
-Moreover, \textit{via} \code{norm.by} it is possible to use one to several selected wells or plates for the calculation of the means used for normalisation. 
-With \code{direct = TRUE} even directly entered numeric values can be used for normalisation purposes. 
-See Figure~\ref{fig:ci_plot_norm} for an example of plotted confidence intervals obtained from data normalised by subtracting the value of well A10 (``Positive Control''). 
+Moreover, \textit{via} \code{norm.by} it is possible to use one to several selected wells or plates for the calculation of the means used for normalisation.
+With \code{direct = TRUE} even directly entered numeric values can be used for normalisation purposes.
+See Figure~\ref{fig:ci_plot_norm} for an example of plotted confidence intervals obtained from data normalised by subtracting the value of well A10 (``Positive Control'').
 Note that due to the structure of the data frame \code{norm.per = "row"} in combination with the \code{norm.by} argument has to be used.
 One could normalise by subtracting the means of well A10 only as follows:
 
@@ -1647,7 +1647,7 @@ Call \code{demo("custom-PCA", package = "opm")} for running examples based on th
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
 
-The \code{opm\_mcp} function allows the user to test for differences in the means of multiple groups directly on \proglang{OPMS} objects, obtaining the factors that determine the grouping structure from the stored metadata or the wells. 
+The \code{opm\_mcp} function allows the user to test for differences in the means of multiple groups directly on \proglang{OPMS} objects, obtaining the factors that determine the grouping structure from the stored metadata or the wells.
 In the following, the general concept and the application of the function is explained using several examples for groups defined within wells, across wells, or across metadata-based groups.
 Detailed explanations on how the graphical and numerical output of the results has to be interpreted are provided.
 
@@ -1655,7 +1655,7 @@ Detailed explanations on how the graphical and numerical output of the results h
 \subsubsection[Tukey type of comparison: all-against-all]{Tukey type of comparison: all-against-all}\label{Tukey-type comparison}
 
 This paragraph addresses the comparison of a single well type across different plates organised into multiple groups.
-We compare four distinct strains, each of which being represented by ten replicates of GEN-III micro-plate measurements. 
+We compare four distinct strains, each of which being represented by ten replicates of GEN-III micro-plate measurements.
 The experimental question to be addressed relates to a single well: ``Do these four bacteria differ in the mean value of curve parameter \ac{A} on well G06?'' (see Figure~\ref{fig:xy_plot_mcp}).
 This type of comparison is termed ``Tukey''-type contrasts (all-against-all) because each strain is compared to each other.
 
@@ -1666,7 +1666,7 @@ vaas.G06 <- subset(vaas_et_al[, , "G06"],
   list(Experiment = "First replicate"))
 @
 
-The resulting data set of four strains, each represented by the ten replicates, is shown in Figure~\ref{fig:xy_plot_mcp}. 
+The resulting data set of four strains, each represented by the ten replicates, is shown in Figure~\ref{fig:xy_plot_mcp}.
 
 <<label=plot-vaas-subset-dummy, eval=FALSE, echo=FALSE>>=
 xy_plot(vaas.G06, include = ~ Strain, neg.ctrl = FALSE, space = "right")
@@ -1690,7 +1690,7 @@ The x axis shows the measurement time in hours, the y axis the measured colour i
 
 To solve the statistical question, we now perform a multiple comparison of group means using \code{opm\_mcp}.
 
-As explained in section \ref{methods group-means}, the initial step is the, in the \code{opm\_mcp} methods internally executed, reshape of the data into a data frame containing one column for the chosen parameter, one column for the well (substrate) name, another column for the values itself and optionally additional columns for the selected metadata. 
+As explained in section \ref{methods group-means}, the initial step is the, in the \code{opm\_mcp} methods internally executed, reshape of the data into a data frame containing one column for the chosen parameter, one column for the well (substrate) name, another column for the values itself and optionally additional columns for the selected metadata.
 By using the argument \code{output = "data"} the data frame created by \code{opm\_mcp} can be shown. Accordingly, the code below gives the head of the respective data frame for the example data containing the \ac{A} values of the well G06 ($\alpha$-Keto-Glutaric Acid) from four strains and 10 plates, respectively:
 
 <<label=mcp-data>>=
@@ -1703,7 +1703,7 @@ The groups to be compared (and here to be selected from the metadata beforehand)
 
 The argument \code{m.type} specifies the type of model to be used for fitting, either a linear model (\code{lm}), a generalised linear model (\code{glm}), or an analysis-of-variance model (\code{aov}).
 
-\textit{Via} stating the name of the desired contrast type in the argument \code{linfct}, the user can define the set of comparisons to be computed in the multiple comparison. 
+\textit{Via} stating the name of the desired contrast type in the argument \code{linfct}, the user can define the set of comparisons to be computed in the multiple comparison.
 The contrast matrix determines from which \code{model}-defined groups the means should be compared and how.
 
 In our example, a Tukey-type contrast matrix is used (a more detailed explanation of predefined contrast matrices is given in the help page of \code{multcomp::contrMat}).\code{opm_opt("contrast.type")} would be inserted if names were missing.
@@ -1715,7 +1715,7 @@ vaas.G06.mcp <- opm_mcp(vaas.G06, model = ~ Strain, m.type = "aov",
   linfct = c(Tukey = 1))
 @
 
-Since the model statement can be arbitrarily complex, the argument \code{linfct} offers flexibility to address specific variables for the performance of the testing procedure. 
+Since the model statement can be arbitrarily complex, the argument \code{linfct} offers flexibility to address specific variables for the performance of the testing procedure.
 The \code{linfct} argument given as a numeric vector simply refers to the positions of the variable within \code{model} to be used for the testing procedure. Accordingly, by using $1$ the first (and in this example, only term) ``Strain'' is selected.
 
 Note that the structure of the arguments set by \code{model} and by \code{linfct} may become more complex if several metadata entries are involved in the testing.
@@ -1778,7 +1778,7 @@ The interpretation of confidence intervals for differences of means is somewhat 
 The point estimator for differences of means represents the computed difference of the considered group means and, analogously, the size of the \ac{CI} indicates the reliability of this difference.
 If the 95\% \ac{CI} for differences of means includes zero (dashed vertical lines in Figure~\ref{fig:ci_plot_mcp}) there is no significant difference between the group means.
 Conversely, if zero is not included, a statistically significant difference is indicated.
-Furthermore, the more distant the 95\% \ac{CI} is from zero, the larger the biological effect size, i.e. the real difference between the group means. 
+Furthermore, the more distant the 95\% \ac{CI} is from zero, the larger the biological effect size, i.e. the real difference between the group means.
 
 In the here shown example all group means of the curve parameter \ac{A} are statistically significant different from each other (p < 0.001), except for the comparison of strains \ac{DSM} 30083\textsuperscript{T} and \ac{DSM} 1707 (Figure~\ref{fig:ci_plot_mcp}).
 
@@ -1790,9 +1790,9 @@ Additionally, each point estimator for the difference of means comes with a 95\%
 They are plotted as usual.
 
 In our example, the results from the statistical calculations indicate that all significant differences are even \textit{highly} significant (p < 0.001).
-However, the size of p-values does not say anything about the size of the differences of means and thus not anything about the biological relevance of the statistical significance. 
-By computation of the \ac{CI} around the point estimator for a difference of means, the user gets the information about how large the difference between two considered groups in mean is. 
-Thus an assessment about the biological relevance of a statistical significance is facilitated by considering an information about the difference on the original scale of measurement.  
+However, the size of p-values does not say anything about the size of the differences of means and thus not anything about the biological relevance of the statistical significance.
+By computation of the \ac{CI} around the point estimator for a difference of means, the user gets the information about how large the difference between two considered groups in mean is.
+Thus an assessment about the biological relevance of a statistical significance is facilitated by considering an information about the difference on the original scale of measurement.
 For a meaningful biological interpretation of the results it is therefore highly recommended to also consider the effect size rather than taking only the p values into account.
 
 For illustration purposes consider the position of the 95\% \ac{CI} from the difference between strains \ac{DSM} 18039 and 429SC1 (i.e, the effect size in the second comparison in Figure~\ref{fig:ci_plot_mcp}), which is much larger than between strains \ac{DSM} 30083\textsuperscript{T} and 429SC1 (smaller effect size in the third comparison).
@@ -1801,7 +1801,7 @@ For illustration purposes consider the position of the 95\% \ac{CI} from the dif
 \subsubsection[Dunnett-type comparison: one-against-all]{Dunnett-type comparison: one-against-all}\label{comp-plates-dunnett}
 
 This paragraph describes another type of comparison of the means of multiple groups, which is the comparison of  a single, selected well against all other wells available in the data set.
-This type of comparison is termed ``Dunnett''-type contrasts (one-against-all). 
+This type of comparison is termed ``Dunnett''-type contrasts (one-against-all).
 In the example below, we compare the wells among themselves. Accordingly, the groups are defined by the wells rather than the measured organisms or others.
 The reference well can be either the negative or positive control but also one of the substrates, for example, serving as a standard in a specific chemical group.
 The following data example is again taken from the first biological replicate included in \code{vaas\_et\_al}, but this time only the type strain of \textit{Escherichia coli}, measured in ten technical replicates, is selected.
@@ -1811,7 +1811,7 @@ vaas.e.coli <- subset(vaas_et_al,
   list(Experiment = "First replicate", Strain = "DSM30083T"))
 @
 
-For convenience, we perform the tests only for the first ten wells. The comparison of all wells against the negative control in A01 can now be performed by calling: 
+For convenience, we perform the tests only for the first ten wells. The comparison of all wells against the negative control in A01 can now be performed by calling:
 
 <<label=vaas-e-coli-mcp, results=hide>>=
 opm_mcp(vaas.e.coli[, , 1:10], output = "mcp", model = ~ Well,
@@ -1820,7 +1820,7 @@ opm_mcp(vaas.e.coli[, , 1:10], output = "mcp", model = ~ Well,
 
 Please note a special feature substantially simplifying the choice of the reference group:
 The value for the \code{linfct} argument can be constructed by typing \code{Dunnett}, plus, separated by any sign, e.g. underscore (``\_''), the level name which should serve as the reference group in the contrast set.
-The next example shows the Dunnett-type comparison with well A03 chosen as the reference group. 
+The next example shows the Dunnett-type comparison with well A03 chosen as the reference group.
 
 <<label=vaas-e-coli-mcp-Dunnett-special>>=
 mcp.A03 <- opm_mcp(vaas.e.coli[, , 1:10], output = "mcp", model = ~ Well,
@@ -1832,17 +1832,17 @@ mcp.summary
 
 \subsubsection[Pairs-type comparison of specific wells]{Pairs-type comparison of groups: pairwise comparisons as defined by specific combinations of metadata entries}\label{specific-well-Pairs}
 
-This paragraph describes a more specific and hence complex design of the group structure by making a more distinct use of the stored metadata and its potential combinations. 
-Assume data from two species, \emph{P. aeruginosa} and \emph{E. coli} (data set \code{vaas_4}), each with two plates restricted to the wells A01, A02, A03, and H02. 
+This paragraph describes a more specific and hence complex design of the group structure by making a more distinct use of the stored metadata and its potential combinations.
+Assume data from two species, \emph{P. aeruginosa} and \emph{E. coli} (data set \code{vaas_4}), each with two plates restricted to the wells A01, A02, A03, and H02.
 
 A combination of two species $\times$ four well types would yield eight different groups, which are each represented by two plates.
 A Tukey-type comparison (all-against-all) would then result in 28 pairwise comparisons, whereas a Dunnett-type comparison (one-against-all) would result in seven pairwise comparisons.
 
 However, assume the user is only interested in a specific subset of pairwise comparisons defined by questions such as ``For each well, is there a difference between the two species?''
-This experimental question resulted in testing four statistical hypotheses, as there are only four pairwise combinations that fit this question, since for each of the four wells, the two species should be compared. 
+This experimental question resulted in testing four statistical hypotheses, as there are only four pairwise combinations that fit this question, since for each of the four wells, the two species should be compared.
 
-This user-defined set of comparisons can easily be performed by applying the specially designed \code{linfct} argument ``Pairs''. 
-The user needs to take care that ``Well'' is part of the model and is joined with at least one other factor extracted from the metadata, in this case with ``Species''. 
+This user-defined set of comparisons can easily be performed by applying the specially designed \code{linfct} argument ``Pairs''.
+The user needs to take care that ``Well'' is part of the model and is joined with at least one other factor extracted from the metadata, in this case with ``Species''.
 This can, be achieved on-the-fly with the \code{J} pseudo-function as shown below.
 Note that the resulting model factor ``Well.Species'' contains eight levels, i.e. four groups per plate.
 
@@ -1886,8 +1886,8 @@ When dealing with more complex models also keep in mind that the numeric vector 
 
 \subsubsection[User-defined comparisons of interest]{User-defined comparisons of interest}\label{use-def-comp}
 
-For performing even more specific comparisons of interest, the user can provide a contrast matrix directly. A contrast for multiple comparison procedures is defined as a linear combination of two or more factor level means (averages) whose coefficients add up to zero \citep{hochberg}. 
-To demonstrate the principle of a contrast matrix, an all-against-all comparison (a ``Tukey''-type contrast) of four groups is performed using a toy-example. 
+For performing even more specific comparisons of interest, the user can provide a contrast matrix directly. A contrast for multiple comparison procedures is defined as a linear combination of two or more factor level means (averages) whose coefficients add up to zero \citep{hochberg}.
+To demonstrate the principle of a contrast matrix, an all-against-all comparison (a ``Tukey''-type contrast) of four groups is performed using a toy-example.
 
 <<label=contrMat>>=
 n <- c(10, 20, 30, 40)
@@ -1909,7 +1909,7 @@ summary(vaas.G06.mcp)$linfct
 
 Accordingly, the user is free to set up contrast matrices for \code{opm\_mcp} that define the comparisons of interest.
 However, a \code{model} argument is necessary for definition of the factors that determine the groups and thus the possibilities for comparisons.
-As the next example, we compare the overall performance of the tested organisms in the four wells A01 to A04. 
+As the next example, we compare the overall performance of the tested organisms in the four wells A01 to A04.
 
 Although the user typically expects these wells to be in order in an \proglang{OPMS} object, this actually may have been changed by a previous well selection.
 Moreover, details of the implementation of the conversion of \proglang{OPMS} objects to data frames, and of reshaping these data frames, can be subject to change, which might also affect the order of factor levels within the final data passed to \code{glht}.
@@ -1958,8 +1958,8 @@ Compare with Figure~\ref{fig:ci_plot_mcp}, where details on the axis annotation 
 }
 \end{figure}
 
-Note that the \code{model} argument defines the group means available for comparisons. 
-In the following example ``Species'' contains only two levels (``\textit{Pseudomonas aeruginosa}'' and ``\textit{Escherichia coli}''). 
+Note that the \code{model} argument defines the group means available for comparisons.
+In the following example ``Species'' contains only two levels (``\textit{Pseudomonas aeruginosa}'' and ``\textit{Escherichia coli}'').
 Thus, irrespective of the stated contrast type, only one comparison is possible.
 
 <<label=model-mcp>>=
@@ -1968,7 +1968,7 @@ vaas4.mcp <- opm_mcp(vaas_4, model = ~ Species, m.type = "lm",
 @
 
 Finally, besides the multiple comparison of single group means as described above, it is also possible to compare averages from several subgroups with a single other subgroup or averages from several other subgroups.
-For example, the user may be interested in comparing the data shown in Figure~\ref{fig:opm_mcp_CI_plot_cell-meansI} at the level of groups that may contain different data sets as subgroups. 
+For example, the user may be interested in comparing the data shown in Figure~\ref{fig:opm_mcp_CI_plot_cell-meansI} at the level of groups that may contain different data sets as subgroups.
 
 <<label=analyse-G06-data, results=hide>>=
 vaas.G06 <- vaas_et_al[, , "G06"]
