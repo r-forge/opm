@@ -68,7 +68,8 @@
 #'       \code{source} results is obtained, returned invisibly. \code{\dots} is
 #'       passed to \code{source} if \code{demo} is \code{FALSE}.}
 #'     \item{spell}{Check the spelling of using \code{aspell} and an appropriate
-#'       filter. This yields an object of class \code{aspell}.}
+#'       filter. This yields an object of class \code{aspell}. Package names
+#'       marked as misspelled, if any, are automatically discarded.}
 #'     \item{update}{One- or two-column character matrix with one row per entry
 #'       in \code{pkg}, showing the updated date and optionally the version
 #'       string. \code{\dots} is passed to \code{write.dcf} if \code{demo} is
@@ -106,7 +107,7 @@
 #' # Source'ing (in demo mode, of course)
 #' (x <- pack_desc(pkg, "source", demo = TRUE))
 #' stopifnot(is.list(x), names(x) == pkg, sapply(x, is.list))
-#' stopifnot(sapply(x, names) == c("depends", "imports", "r.files"))
+#' stopifnot(sapply(x, names) == c("Depends", "Imports", "Collate"))
 #'
 #' # See also the 'docu.R' script, options '--format' and '--keep'.
 #'
@@ -134,8 +135,6 @@ pack_desc.character <- function(pkg,
   LL(version, demo, date.format)
   action <- match.arg(action)
   x <- normalizePath(file.path(pkg, "DESCRIPTION"))
-  if (action == "spell")
-    return(aspell(files = x, filter = "dcf", ...))
   x <- lapply(x, function(file) {
       stopifnot(nrow(y <- read.dcf(file)) == 1L)
       structure(as.list(y[1L, ]), file = file,
@@ -155,6 +154,17 @@ pack_desc.character <- function(pkg,
       x <- do.call(cbind, x)
       colnames(x) <- wanted
       x
+    },
+    spell = {
+      res <- aspell(files = vapply(x, "attr", "", "file"), filter = "dcf", ...)
+      remove <- !logical(nrow(res))
+      for (desc in x) {
+        ok <- subset(desc)[c("Depends", "Imports", "Enhances", "Suggests")]
+        ok <- sub("\\d+$", "", c(ok, desc$Package), FALSE, TRUE)
+        remove <- remove &
+          !(res[, "Original"] %in% ok & res[, "File"] == attr(desc, "file"))
+      }
+      res[remove, , drop = FALSE]
     },
     source = source_files(x = x, demo = demo, envir = envir, ...)
   )

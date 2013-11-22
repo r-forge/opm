@@ -94,11 +94,12 @@
   \code{\dots} is passed to \code{source} if \code{demo} is
   \code{FALSE}.} \item{spell}{Check the spelling of using
   \code{aspell} and an appropriate filter. This yields an
-  object of class \code{aspell}.} \item{update}{One- or
-  two-column character matrix with one row per entry in
-  \code{pkg}, showing the updated date and optionally the
-  version string. \code{\dots} is passed to
-  \code{write.dcf} if \code{demo} is \code{FALSE}.} }
+  object of class \code{aspell}. Package names marked as
+  misspelled, if any, are automatically discarded.}
+  \item{update}{One- or two-column character matrix with
+  one row per entry in \code{pkg}, showing the updated date
+  and optionally the version string. \code{\dots} is passed
+  to \code{write.dcf} if \code{demo} is \code{FALSE}.} }
 
   \code{pkg_files} yields a character vector of file names
   (empty if no such files are found).
@@ -143,7 +144,7 @@ stopifnot(is.character(x), is.matrix(x), rownames(x) == pkg,
 # Source'ing (in demo mode, of course)
 (x <- pack_desc(pkg, "source", demo = TRUE))
 stopifnot(is.list(x), names(x) == pkg, sapply(x, is.list))
-stopifnot(sapply(x, names) == c("depends", "imports", "r.files"))
+stopifnot(sapply(x, names) == c("Depends", "Imports", "Collate"))
 
 # See also the 'docu.R' script, options '--format' and '--keep'.
 

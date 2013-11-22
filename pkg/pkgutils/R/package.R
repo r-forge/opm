@@ -7,8 +7,6 @@ pack_desc.character <- function(pkg,
   LL(version, demo, date.format)
   action <- match.arg(action)
   x <- normalizePath(file.path(pkg, "DESCRIPTION"))
-  if (action == "spell")
-    return(aspell(files = x, filter = "dcf", ...))
   x <- lapply(x, function(file) {
       stopifnot(nrow(y <- read.dcf(file)) == 1L)
       structure(as.list(y[1L, ]), file = file,
@@ -28,6 +26,17 @@ pack_desc.character <- function(pkg,
       x <- do.call(cbind, x)
       colnames(x) <- wanted
       x
+    },
+    spell = {
+      res <- aspell(files = vapply(x, "attr", "", "file"), filter = "dcf", ...)
+      remove <- !logical(nrow(res))
+      for (desc in x) {
+        ok <- subset(desc)[c("Depends", "Imports", "Enhances", "Suggests")]
+        ok <- sub("\\d+$", "", c(ok, desc$Package), FALSE, TRUE)
+        remove <- remove &
+          !(res[, "Original"] %in% ok & res[, "File"] == attr(desc, "file"))
+      }
+      res[remove, , drop = FALSE]
     },
     source = source_files(x = x, demo = demo, envir = envir, ...)
   )
