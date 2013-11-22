@@ -28,13 +28,19 @@
 #'   \emph{via} \code{do_aggr} and \code{do_disc} from the \pkg{opm} package
 #'   under default values.
 #'
-#'   The data sets \code{vaas_1} and \code{vaas_4} are subsets of
-#'   \code{vaas_et_al} and come along with package \pkg{opm}. The data set contains,
-#'   e.g., the measurements used for Figure 1 in Vaas \emph{et al.} (2012). This
-#'   particular subset comprises the third technical repetition of the first
-#'   experimental run. Code for extracting these plates and wells is given
-#'   below.
-#'   See description for \code{vaas_4} in \pkg{opm} for further details.
+#'   The data set \code{vaas_et_al} is the superset of the data sets
+#'   \code{vaas_4} and \code{vaas_1} which come with the package \pkg{opm}.
+#'
+#'   A particular subset of \code{vaas_et_al} comprising the third technical
+#'   repetition in the first experimental run was used for providing Figure 1 in
+#'   Vaas \emph{et al.} (2012). Code for extracting these plates (and specific
+#'   wells) is given below. Please see also the description for data set
+#'   \code{vaas_4} in the package \pkg{opm} for further details regarding the
+#'   Figures 2, 3 and 4 in \emph{et al.} (2012). Figure 5 in Vaas \emph{et al.}
+#'   (2012) represents the data for the \emph{E. coli} strain \acronym{DSM}
+#'   30083T only from well D12 comprising all ten technical replicates from the
+#'   first experimental run. Finally, the upper part of Figure 6 shows the data
+#'   derived only on the well C08 in the time series experiment.
 #'
 #' @references Bochner, B.R., Savageau, M.A. 1977. Generalized indicator plate
 #'   for genetic, metabolic, and taxonomic studies with microorganisms. \emph{
