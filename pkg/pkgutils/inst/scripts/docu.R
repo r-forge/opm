@@ -96,7 +96,6 @@ textfile2rds <- function(file) {
   if (!nzchar(file) || grepl("\\.rds$", file, TRUE, TRUE))
     return(file)
   x <- readLines(file)
-  tmpfile <- tempfile(fileext = ".rds")
   saveRDS(x[nzchar(x)], file <- tempfile(fileext = ".rds"))
   file
 }
