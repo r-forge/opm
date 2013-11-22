@@ -65,6 +65,7 @@
 }
 \seealso{
   Other package-functions: \code{\link{check_R_code}},
+    \code{\link{check_Sweave_start}},
     \code{\link{copy_pkg_files}},
     \code{\link{delete_o_files}},
     \code{\link{is_pkg_dir}},

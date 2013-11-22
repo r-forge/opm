@@ -85,8 +85,12 @@
 
   \item{ignore}{\code{NULL} or a character vector of file
   names (without their directory-name parts) to remove from
-  the result. Matching is done case- insensitively. Ignored
-  if empty.}
+  the result, or a list. Ignored if empty. If a non-empty
+  character vector, matching is done case- insensitively.
+  If a list, used as arguments passed to \code{grep}
+  (except for \code{x}, \code{value} and \code{invert}).
+  Enclosing \code{ignore} in \code{I()} reverts the
+  action.}
 }
 \value{
   The \sQuote{Rd} method of \code{repair_docu} returns an

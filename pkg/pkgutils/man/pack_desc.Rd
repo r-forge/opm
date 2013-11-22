@@ -70,8 +70,12 @@
 
   \item{ignore}{\code{NULL} or a character vector of file
   names (without their directory-name parts) to remove from
-  the result. Matching is done case- insensitively. Ignored
-  if empty.}
+  the result, or a list. Ignored if empty. If a non-empty
+  character vector, matching is done case- insensitively.
+  If a list, used as arguments passed to \code{grep}
+  (except for \code{x}, \code{value} and \code{invert}).
+  Enclosing \code{ignore} in \code{I()} reverts the
+  action.}
 
   \item{...}{Optional arguments passed to and from other
   methods, or between the methods.}
@@ -160,6 +164,7 @@ stopifnot(x)
   utils::packageDescription
 
   Other package-functions: \code{\link{check_R_code}},
+    \code{\link{check_Sweave_start}},
     \code{\link{copy_pkg_files}},
     \code{\link{delete_o_files}},
     \code{\link{logfile}},   \code{\link{run_R_CMD}},

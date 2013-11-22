@@ -72,8 +72,12 @@
 
   \item{ignore}{\code{NULL} or a character vector of file
   names (without their directory-name parts) to remove from
-  the result. Matching is done case- insensitively. Ignored
-  if empty.}
+  the result, or a list. Ignored if empty. If a non-empty
+  character vector, matching is done case- insensitively.
+  If a list, used as arguments passed to \code{grep}
+  (except for \code{x}, \code{value} and \code{invert}).
+  Enclosing \code{ignore} in \code{I()} reverts the
+  action.}
 }
 \value{
   The return value of \code{run_R_CMD} is the one of the
@@ -122,6 +126,7 @@
   base::system base::file.copy base::file.remove
 
   Other package-functions: \code{\link{check_R_code}},
+    \code{\link{check_Sweave_start}},
     \code{\link{is_pkg_dir}},
     \code{\link{logfile}},   \code{\link{pack_desc}},
     \code{\link{pkg_files}},
