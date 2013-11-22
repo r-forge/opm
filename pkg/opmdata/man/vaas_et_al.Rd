@@ -24,11 +24,22 @@
   generated \emph{via} \code{do_aggr} and \code{do_disc}
   from the \pkg{opm} package under default values.
 
-  The data set contains, e.g., the measurements used for
-  Figure 1 in Vaas \emph{et al.} (2012). This particular
-  subset comprises the third technical repetition of the
-  first experimental run. Code for extracting these plates
-  and wells is given below.
+  The data set \code{vaas_et_al} is a superset of the data
+  sets \code{vaas_4} and \code{vaas_1} that come with the
+  \pkg{opm} package. A particular subset of
+  \code{vaas_et_al} comprising the third technical
+  repetition in the first experimental run was used for
+  creating Figure 1 in Vaas \emph{et al.} (2012). Code for
+  extracting these plates (and specific wells) is given
+  below. Please see also the description for the data set
+  \code{vaas_4} in the \pkg{opm} package for further
+  details regarding the Figures 2, 3 and 4 in Vaas \emph{et
+  al.} (2012). Figure 5 in Vaas \emph{et al.} (2012)
+  represents the data for the \emph{E. coli} strain
+  \acronym{DSM} 30083T from well D12 only but comprising
+  all ten technical replicates from the first experimental
+  run. Finally, the upper part of Figure 6 shows the data
+  derived only from well C08 in the time-series experiment.
 }
 \examples{
 data(vaas_et_al)
