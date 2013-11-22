@@ -1469,7 +1469,7 @@ Some selection of wells should usually be applied beforehand for these plots to 
 Figure~\ref{fig:radial_plot} provides a simple example of such a visualisation.
 The parameter \ac{A} is plotted for the wells A01 to A05 and A10 from data set \code{vaas\_4}.
 Note also that the values for positioning the upper-left corner of the legend are oriented according to the axes of the plot.
-For positioning in the lower left part of the figure, negative values for x and y would be necessary (see Figure~\ref{fig:2-radial_plot}).
+For positioning in the lower left part of the figure, negative values for x and y would be necessary (see Figure~\ref{fig:radial_plot-symbols}).
 The code is as follows:
 
 <<label=radial-plot-dummy, results=hide, eval=FALSE>>=
@@ -1497,7 +1497,7 @@ Using the argument \code{rp.type} it is possible to plot symbols instead of a po
 With \code{show.centroid}, centroids are included in the graphic, potentially indicating a trend in the data at hand.
 The centroid of a polygon is the arithmetic mean position of all the points in the shape.
 
-<<label=radial-plot-2-dummy, results=hide, eval=FALSE>>=
+<<label=radial-plot-symbols-dummy, results=hide, eval=FALSE>>=
 radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
   main = "Test", x = -550, y = -50, rp.type = "s",
   point.symbols = 15, show.centroid = TRUE)
@@ -1506,14 +1506,14 @@ radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
 \begin{figure}
 \centering
 \scalebox{1.0}{
-<<label=radial-plot-2-figure, fig=TRUE, echo=FALSE, results=hide, width=10, height=6>>=
+<<label=radial-plot-symbols-figure, fig=TRUE, echo=FALSE, results=hide, width=10, height=6>>=
 radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
   main = "Test", x = -550, y = -50, rp.type = "s",
   point.symbols = 15, show.centroid = TRUE)
 @
 }
 \caption{
-\label{fig:2-radial_plot}
+\label{fig:radial_plot-symbols}
 Comparison using \code{radial\_plot} of estimates for the parameter \ac{A} observed for four strains.
 Shown are the results for the wells A01 to A05 and A10 plotted as symbols.
 Each centroid is shown as larger symbol in the corresponding colour.

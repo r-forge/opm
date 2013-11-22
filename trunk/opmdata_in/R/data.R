@@ -28,10 +28,13 @@
 #'   \emph{via} \code{do_aggr} and \code{do_disc} from the \pkg{opm} package
 #'   under default values.
 #'
-#'   The data set contains, e.g., the measurements used for Figure 1 in Vaas
-#'   \emph{et al.} (2012). This particular subset comprises the third technical
-#'   repetition of the first experimental run. Code for extracting these plates
-#'   and wells is given below.
+#'   The data sets \code{vaas_1} and \code{vaas_4} are subsets of
+#'   \code{vaas_et_al} and come along with package \pkg{opm}. The data set contains,
+#'   e.g., the measurements used for Figure 1 in Vaas \emph{et al.} (2012). This
+#'   particular subset comprises the third technical repetition of the first
+#'   experimental run. Code for extracting these plates and wells is given
+#'   below.
+#'   See description for \code{vaas_4} in \pkg{opm} for further details.
 #'
 #' @references Bochner, B.R., Savageau, M.A. 1977. Generalized indicator plate
 #'   for genetic, metabolic, and taxonomic studies with microorganisms. \emph{
