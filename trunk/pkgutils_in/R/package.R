@@ -338,10 +338,10 @@ delete_o_files <- function(x, ...) UseMethod("delete_o_files")
 #'
 delete_o_files.character <- function(x, ext = "o", ignore = NULL, ...) {
   ext <- tolower(c(ext, .Platform$dynlib.ext))
-  ext <- unique.default(tolower(sub("^\\.", "", ext, perl = TRUE)))
+  ext <- unique.default(tolower(sub("^\\.", "", ext, FALSE, TRUE)))
   ext <- sprintf("\\.(%s)$", paste0(ext, collapse = "|"))
   x <- pkg_files(x, what = "src", installed = FALSE, ignore = ignore, ...)
-  if (length(x <- x[grepl(ext, x, perl = TRUE, ignore.case = TRUE)]))
+  if (length(x <- x[grepl(ext, x, TRUE, TRUE)]))
     file.remove(x)
   else
     logical()
@@ -525,43 +525,45 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
         problem(text, infile = infile, line = which(is.bad))
     }
     bad_ind <- function(text, n) {
-      attr(regexpr("^ *", text, perl = TRUE), "match.length") %% n != 0L
+      attr(regexpr("^ *", text, FALSE, TRUE), "match.length") %% n != 0L
     }
     unquote <- function(x) {
-      x <- gsub(QUOTED, "QUOTED", x, perl = TRUE)
-      x <- sub(QUOTED_END, "QUOTED", x, perl = TRUE)
-      x <- sub(QUOTED_BEGIN, "QUOTED", x, perl = TRUE)
-      gsub("%[^%]+%", "%%", x, perl = TRUE)
+      x <- gsub(QUOTED, "QUOTED", x, FALSE, TRUE)
+      x <- sub(QUOTED_END, "QUOTED", x, FALSE, TRUE)
+      x <- sub(QUOTED_BEGIN, "QUOTED", x, FALSE, TRUE)
+      gsub("%[^%]+%", "%%", x, FALSE, TRUE)
     }
     code_check <- function(x) {
-      x <- sub("^\\s+", "", x, perl = TRUE)
+      x <- sub("^\\s+", "", x, FALSE, TRUE)
       complain("semicolon contained", grepl(";", x, fixed = TRUE))
       complain("space followed by space", grepl("  ", x, fixed = TRUE))
       if (three.dots)
         complain("':::' operator used", grepl(":::", x, fixed = TRUE))
       if (comma) {
         complain("comma not followed by space",
-          grepl(",[^\\s]", x, perl = TRUE))
-        complain("comma preceded by space", grepl("[^,]\\s+,", x, perl = TRUE))
+          grepl(",[^\\s]", x, FALSE, TRUE))
+        complain("comma preceded by space", grepl("[^,]\\s+,", x, FALSE, TRUE))
       }
       if (ops) {
+        x <- gsub("(?<=[(\\[])\\s*~", "DUMMY ~", x, FALSE, TRUE)
+        x <- gsub("(?<=%)\\s*~", " DUMMY ~", x, FALSE, TRUE)
         complain("operator not preceded by space",
-          grepl(OPS_LEFT, x, perl = TRUE))
+          grepl(OPS_LEFT, x, FALSE, TRUE))
         complain("operator not followed by space",
-          grepl(OPS_RIGHT, x, perl = TRUE))
+          grepl(OPS_RIGHT, x, FALSE, TRUE))
       }
       if (assign)
         complain("line ends in single equals sign",
-          grepl("(^|[^=<>!])=\\s*$", x, perl = TRUE))
+          grepl("(^|[^=<>!])=\\s*$", x, FALSE, TRUE))
       if (parens) {
         complain("'if', 'for' or 'while' directly followed by parenthesis",
-          grepl("\\b(if|for|while)\\(", x, perl = TRUE))
+          grepl("\\b(if|for|while)\\(", x, FALSE, TRUE))
         complain("opening parenthesis or bracket followed by space",
-          grepl("[([{]\\s", x, perl = TRUE))
+          grepl("[([{]\\s", x, FALSE, TRUE))
         complain("closing parenthesis or bracket preceded by space",
-          grepl("[^,]\\s+[)}\\]]", x, perl = TRUE))
+          grepl("[^,]\\s+[)}\\]]", x, FALSE, TRUE))
         complain("closing parenthesis or bracket followed by wrong character",
-          grepl("[)\\]}][^\\s()[\\]}$@:,;]", x, perl = TRUE))
+          grepl("[)\\]}][^\\s()[\\]}$@:,;]", x, FALSE, TRUE))
       }
     }
     lines_to_filter_out <- function(x, how) {
@@ -582,16 +584,16 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
       orig <- NULL
     }
     if (modify) {
-      x <- sub("\\s+$", "", x, perl = TRUE)
+      x <- sub("\\s+$", "", x, FALSE, TRUE)
       x <- gsub("\t", spaces(indention), x, fixed = TRUE)
     } else if (!accept.tabs)
       complain("tab contained", grepl("\t", x, fixed = TRUE))
     complain(sprintf("line longer than %i", lwd), nchar(x) > lwd)
     complain(sprintf("indention not multiple of %i", indention),
-      bad_ind(sub(roxygen.space, "", x, perl = TRUE), indention))
+      bad_ind(sub(roxygen.space, "", x, FALSE, TRUE), indention))
     complain("roxygen comment not placed at beginning of line",
-      grepl("^\\s+#'", x, perl = TRUE))
-    code_check(sub("\\s*#.*", "", unquote(x), perl = TRUE))
+      grepl("^\\s+#'", x, FALSE, TRUE))
+    code_check(sub("\\s*#.*", "", unquote(x), FALSE, TRUE))
     if (modify)
       if (is.null(orig))
         x
@@ -637,20 +639,25 @@ check_Sweave_start.character <- function(x, ignore = TRUE,
     complain <- function(text, is.bad) if (any(is.bad))
       problem(text, infile = infile, line = lines[is.bad])
     check_label <- function(x) {
-      bad <- vapply(x <- lapply(x, `[[`, "label"), is.null, NA)
-      complain("missing label", bad)
+      check_1 <- function(x, bad) {
+        x <- gsub("[^\\w_]", "", x, FALSE, TRUE)
+        bad <- duplicated.default(x, NA_character_) & !bad
+        complain("duplicated label ignoring non-alphanumeric characters", bad)
+        x <- gsub("\\d+", "", x, FALSE, TRUE)
+        bad <- duplicated.default(x, NA_character_) & !bad
+        complain("duplicated label ignoring non-letter characters", bad)
+      }
+      x <- lapply(x, `[[`, "label")
+      complain("missing label", bad <- vapply(x, is.null, NA))
       x[bad] <- NA_character_
       x <- unlist(x, FALSE, FALSE)
-      bad <- duplicated.default(x, NA_character_)
-      complain("duplicated label", bad)
+      complain("duplicated label", bad <- duplicated.default(x, NA_character_))
       bad <- duplicated.default(x <- tolower(x), NA_character_) & !bad
       complain("duplicated label ignoring case", bad)
-      x <- gsub("[^\\w_]+", "", x, FALSE, TRUE)
-      bad <- duplicated.default(x, NA_character_) & !bad
-      complain("duplicated label ignoring non-alphanumeric characters", bad)
-      x <- sub("\\d+", "", sub("^\\d+", "", x, FALSE, TRUE), FALSE, TRUE)
-      bad <- duplicated.default(x, NA_character_) & !bad
-      complain("duplicated label ignoring leading and trailing numbers", bad)
+      check_1(x, bad)
+      x <- gsub("\\W", "", gsub("\\b\\w\\b", "", x, FALSE, TRUE), FALSE, TRUE)
+      bad <- duplicated.default(x, NA_character_)
+      complain("duplicated label ignoring single-character words", bad)
     }
     check_figure <- function(x) {
       is.fig <- vapply(x, function(this) isTRUE(this$fig), NA)
