@@ -44,8 +44,9 @@ subset.Rd <- function(x, subset, values = FALSE, ...) {
 }
 
 subset.pack_desc <- function(x, ...) {
-  result <- list()
-  for (name in c("Depends", "Imports", "Suggests"))
+  result <- vector("list", 5L)
+  names(result) <- c("Depends", "Imports", "Suggests", "Enhances", "Collate")
+  for (name in c("Depends", "Imports", "Suggests", "Enhances"))
     if (!is.null(entry <- x[[name]])) {
       entry <- unlist(strsplit(entry, "\\s*,\\s*", perl = TRUE))
       entry <- sub("^\\s+", "", entry, perl = TRUE)
@@ -149,14 +150,13 @@ source_files.pack_descs <- function(x, demo = FALSE, ...) {
 }
 
 source_files.pack_desc <- function(x, demo = FALSE, ...) {
-  y <- subset(x)
-  y <- list(depends = y$Depends, imports = y$Imports,
-    r.files = file.path(dirname(attr(x, "file")), "R", y$Collate))
+  y <- subset(x)[c("Depends", "Imports", "Collate")]
+  y$Collate <- file.path(dirname(attr(x, "file")), "R", y$Collate)
   if (L(demo))
     return(y)
-  for (pkg in unlist(y[c("depends", "imports")]))
+  for (pkg in unlist(y[c("Depends", "Imports")]))
     suppressPackageStartupMessages(require(pkg, character.only = TRUE,
       quietly = TRUE, warn.conflicts = FALSE))
-  invisible(source_files.character(x = y$r.files, ...))
+  invisible(source_files.character(x = y$Collate, ...))
 }
 
