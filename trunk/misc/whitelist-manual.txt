@@ -1,3 +1,4 @@
+aeruginosa
 BIOLOG
 Calinski
 Discretisation
@@ -44,11 +45,13 @@ postprocessing
 prepend
 prepended
 prepending
+Pseudomonas
 namespace
 preprocessing
 stereochemistry
 subdirectories
 subdirectory
+subfigure
 taxon
 unary
 versa
