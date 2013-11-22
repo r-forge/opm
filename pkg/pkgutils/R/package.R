@@ -214,6 +214,69 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     ignore = ignore, ...), check_fun, .encoding = encoding))
 }
 
+check_Sweave_start <- function(x, ...) UseMethod("check_Sweave_start")
+
+check_Sweave_start.character <- function(x, ignore = TRUE,
+    what = c("vignettes", file.path("inst", "doc")), encoding = "", ...) {
+  get_code_chunk_starts <- function(x) {
+    parse_chunk_start <- function(x) {
+      to_named_vector <- function(x) {
+        x <- structure(vapply(x, `[[`, "", 2L), names = vapply(x, `[[`, "", 1L))
+        lapply(as.list(x), type.convert, "", TRUE)
+      }
+      x <- sub("\\s+$", "", sub("^\\s+", "", x, FALSE, TRUE), FALSE, TRUE)
+      implicit.label <- grepl("^[^=,]+(,|$)", x, FALSE, TRUE)
+      x[implicit.label] <- paste0("label=", x[implicit.label])
+      x <- strsplit(x, "\\s*,\\s*", FALSE, TRUE)
+      lapply(lapply(x, strsplit, "\\s*=\\s*", FALSE, TRUE), to_named_vector)
+    }
+    m <- regexpr("(?<=^<<).*(?=>>=)", x, FALSE, TRUE)
+    structure(parse_chunk_start(regmatches(x, m)), names = seq_along(x)[m > 0L])
+  }
+  check_fun <- function(x) {
+    infile <- attr(x, ".filename")
+    x <- get_code_chunk_starts(x)
+    lines <- as.integer(names(x))
+    complain <- function(text, is.bad) if (any(is.bad))
+      problem(text, infile = infile, line = lines[is.bad])
+    check_label <- function(x) {
+      bad <- vapply(x <- lapply(x, `[[`, "label"), is.null, NA)
+      complain("missing label", bad)
+      x[bad] <- NA_character_
+      x <- unlist(x, FALSE, FALSE)
+      bad <- duplicated.default(x, NA_character_)
+      complain("duplicated label", bad)
+      bad <- duplicated.default(x <- tolower(x), NA_character_) & !bad
+      complain("duplicated label ignoring case", bad)
+      x <- gsub("[^\\w_]+", "", x, FALSE, TRUE)
+      bad <- duplicated.default(x, NA_character_) & !bad
+      complain("duplicated label ignoring non-alphanumeric characters", bad)
+      x <- sub("\\d+", "", sub("^\\d+", "", x, FALSE, TRUE), FALSE, TRUE)
+      bad <- duplicated.default(x, NA_character_) & !bad
+      complain("duplicated label ignoring leading and trailing numbers", bad)
+    }
+    check_figure <- function(x) {
+      is.fig <- vapply(x, function(this) isTRUE(this$fig), NA)
+      bad <- is.fig & vapply(x, function(this) identical(this$eval, FALSE), NA)
+      complain("figure but not evaluated", bad)
+      bad <- !is.fig & !vapply(x, function(this) is.null(this$width), NA)
+      complain("useless 'width' entry", bad)
+      bad <- !is.fig & !vapply(x, function(this) is.null(this$height), NA)
+      complain("useless 'height' entry", bad)
+    }
+    check_label(x)
+    check_figure(x)
+    NULL
+  }
+  if (is.logical(ignore))
+    if (L(ignore))
+      ignore <- I(list(pattern = "\\.[RS]?nw$", ignore.case = TRUE))
+    else
+      ignore <- NULL
+  invisible(map_files(pkg_files(x = x, what = what, installed = FALSE,
+    ignore = ignore, ...), check_fun, .encoding = encoding))
+}
+
 logfile <- function(x) UseMethod("logfile")
 
 logfile.NULL <- function(x) {

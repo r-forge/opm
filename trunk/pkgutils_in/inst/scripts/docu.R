@@ -426,6 +426,8 @@ for (i in seq_along(package.dirs)) {
   if (!opt$untidy) {
     message("Checking R code of", msg)
     errs <- errs + do_style_check(out.dir, opt)
+    message("Checking Sweave code-chunk headers of", msg)
+    check_Sweave_start(out.dir)
   }
 
   message("Creating documentation for", msg)

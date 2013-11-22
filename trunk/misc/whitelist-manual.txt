@@ -17,6 +17,7 @@ Preprocess
 Shrestha
 Sikorski
 Solaris
+Sweave
 Vaas
 Whitespace
 YAML

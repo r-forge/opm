@@ -40,8 +40,11 @@
 #'   directories and/or file names, distinguished using
 #'   \code{is_pkg_dir}.
 #' @param ignore \code{NULL} or a character vector of file names (without their
-#'   directory-name parts) to remove from the result. Matching is done case-
-#'   insensitively. Ignored if empty.
+#'   directory-name parts) to remove from the result, or a list. Ignored if
+#'   empty. If a non-empty character vector, matching is done case-
+#'   insensitively. If a list, used as arguments passed to \code{grep} (except
+#'   for \code{x}, \code{value} and \code{invert}). Enclosing \code{ignore} in
+#'   \code{I()} reverts the action.
 #'
 #' @param ... Optional arguments passed to and from other methods, or between
 #'   the methods.
@@ -393,12 +396,14 @@ swap_code.character <- function(x, ..., ignore = NULL) {
 ################################################################################
 
 
-#' Check R code files
+#' Check R (or Sweave) code files
 #'
 #' Check certain aspects of the format of \R code files in the \sQuote{R}
-#' subdirectory of a package (or of any other kinds of files). Optionally
-#' write descriptions of problems to the logfile used by \pkg{pkgutils}, which
-#' can be set using \code{logfile}.
+#' subdirectory of a package, or of any other kinds of files. \R code can also
+#' be extracted from Sweave files. Optionally write descriptions of problems to
+#' the logfile used by \pkg{pkgutils}, which can be set using \code{logfile}.
+#' Alternatively, check the labels used in the lines that start a Sweave code
+#' chunk.
 #'
 #' @param x For \code{check_r_code}, a character vector of names of input files,
 #'   or names of \R package directories. The latter will be expanded as
@@ -441,7 +446,9 @@ swap_code.character <- function(x, ..., ignore = NULL) {
 #'   to \code{\link{pkg_files}}
 #' @param encoding Character scalar passed as \sQuote{.encoding} argument to
 #'   \code{\link{map_files}}.
-#' @param ignore Passed to \code{\link{pkg_files}}. See there for details.
+#' @param ignore Passed to \code{\link{pkg_files}}. See there for details. A
+#'   logical scalar is used for selecting or discarding a default filter
+#'   suitable for the target files.
 #' @param filter Character scalar indicating the filter to use.
 #' @param ... Optional other arguments passed to \code{\link{pkg_files}}.
 #'
@@ -593,6 +600,76 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     else
       NULL
   }
+  invisible(map_files(pkg_files(x = x, what = what, installed = FALSE,
+    ignore = ignore, ...), check_fun, .encoding = encoding))
+}
+
+#' @rdname check_R_code
+#' @export
+#'
+check_Sweave_start <- function(x, ...) UseMethod("check_Sweave_start")
+
+#' @rdname check_R_code
+#' @method check_Sweave_start character
+#' @export
+#'
+check_Sweave_start.character <- function(x, ignore = TRUE,
+    what = c("vignettes", file.path("inst", "doc")), encoding = "", ...) {
+  get_code_chunk_starts <- function(x) {
+    parse_chunk_start <- function(x) {
+      to_named_vector <- function(x) {
+        x <- structure(vapply(x, `[[`, "", 2L), names = vapply(x, `[[`, "", 1L))
+        lapply(as.list(x), type.convert, "", TRUE)
+      }
+      x <- sub("\\s+$", "", sub("^\\s+", "", x, FALSE, TRUE), FALSE, TRUE)
+      implicit.label <- grepl("^[^=,]+(,|$)", x, FALSE, TRUE)
+      x[implicit.label] <- paste0("label=", x[implicit.label])
+      x <- strsplit(x, "\\s*,\\s*", FALSE, TRUE)
+      lapply(lapply(x, strsplit, "\\s*=\\s*", FALSE, TRUE), to_named_vector)
+    }
+    m <- regexpr("(?<=^<<).*(?=>>=)", x, FALSE, TRUE)
+    structure(parse_chunk_start(regmatches(x, m)), names = seq_along(x)[m > 0L])
+  }
+  check_fun <- function(x) {
+    infile <- attr(x, ".filename")
+    x <- get_code_chunk_starts(x)
+    lines <- as.integer(names(x))
+    complain <- function(text, is.bad) if (any(is.bad))
+      problem(text, infile = infile, line = lines[is.bad])
+    check_label <- function(x) {
+      bad <- vapply(x <- lapply(x, `[[`, "label"), is.null, NA)
+      complain("missing label", bad)
+      x[bad] <- NA_character_
+      x <- unlist(x, FALSE, FALSE)
+      bad <- duplicated.default(x, NA_character_)
+      complain("duplicated label", bad)
+      bad <- duplicated.default(x <- tolower(x), NA_character_) & !bad
+      complain("duplicated label ignoring case", bad)
+      x <- gsub("[^\\w_]+", "", x, FALSE, TRUE)
+      bad <- duplicated.default(x, NA_character_) & !bad
+      complain("duplicated label ignoring non-alphanumeric characters", bad)
+      x <- sub("\\d+", "", sub("^\\d+", "", x, FALSE, TRUE), FALSE, TRUE)
+      bad <- duplicated.default(x, NA_character_) & !bad
+      complain("duplicated label ignoring leading and trailing numbers", bad)
+    }
+    check_figure <- function(x) {
+      is.fig <- vapply(x, function(this) isTRUE(this$fig), NA)
+      bad <- is.fig & vapply(x, function(this) identical(this$eval, FALSE), NA)
+      complain("figure but not evaluated", bad)
+      bad <- !is.fig & !vapply(x, function(this) is.null(this$width), NA)
+      complain("useless 'width' entry", bad)
+      bad <- !is.fig & !vapply(x, function(this) is.null(this$height), NA)
+      complain("useless 'height' entry", bad)
+    }
+    check_label(x)
+    check_figure(x)
+    NULL
+  }
+  if (is.logical(ignore))
+    if (L(ignore))
+      ignore <- I(list(pattern = "\\.[RS]?nw$", ignore.case = TRUE))
+    else
+      ignore <- NULL
   invisible(map_files(pkg_files(x = x, what = what, installed = FALSE,
     ignore = ignore, ...), check_fun, .encoding = encoding))
 }
