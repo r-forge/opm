@@ -92,14 +92,14 @@ QUOTED_BEGIN <- sprintf(QUOTED, "^", '"', "^", "`", "^", "'")
 
 QUOTED <- sprintf(QUOTED, '"', '"', "`", "`", "'", "'")
 
-OPS_LEFT <- paste("[^\\s]([~/^]|%[^%]*%)", "[^\\s*][*]", "[^\\s<]<",
+OPS_LEFT <- paste("[^\\s]([~/^]|%%)", "[^\\s*][*]", "[^\\s<]<",
   "[^\\s[(:][+]", "[^\\s<[(:]-", "[^\\s>-]>", "[^\\s<>=!]=", "[^\\s&]&",
   "[^\\s|]\\|", sep = "|")
 
 # We cannot check by what '-' and '+' are followed because these are also unary
 # operators.
 #
-OPS_RIGHT <- paste("([~/^]|%[^%]*%)[^\\s]", "[*][^\\s*]", "<[^\\s<=-]",
+OPS_RIGHT <- paste("([~/^]|%%)[^\\s]", "[*][^\\s*]", "<[^\\s<=-]",
   ">[^\\s>=]", "=[^\\s=,]", "&[^\\s&]", "\\|[^\\s|]", sep = "|")
 
 
