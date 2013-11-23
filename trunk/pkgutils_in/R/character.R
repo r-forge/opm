@@ -132,9 +132,9 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
     split.default(x, sections(found, include))
   } else if (is.numeric(pattern)) {
     if (identical(pattern <- as.integer(pattern), 1L))
-      return(strsplit(x, "", fixed = TRUE))
+      return(strsplit(x, "", TRUE))
     pattern <- sprintf("(.{%i,%i})", pattern, pattern)
-    strsplit(gsub(pattern, "\\1\a", x, perl = TRUE), "\a", fixed = TRUE)
+    strsplit(gsub(pattern, "\\1\a", x, FALSE, TRUE), "\a", TRUE)
   } else
     stop("'pattern' must be a character or numeric scalar")
 }
@@ -220,7 +220,7 @@ map_files.character <- function(x, mapfun, ..., .attr = ".filename",
   case(length(.sep),
     {
       optional.output <- TRUE
-      if (grepl("windows", .Platform$OS.type, ignore.case = TRUE, perl = TRUE))
+      if (grepl("windows", Sys.info()[["sysname"]], TRUE, TRUE))
         sep <- "\r\n"
       else
         sep <- "\n"

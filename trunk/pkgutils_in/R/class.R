@@ -175,7 +175,8 @@ class_name <- function(x) UseMethod("class_name")
 #' @export
 #'
 class_name.class_desc <- function(x) {
-  sub("-class}", "", sub("\\name{", "", x$name, fixed = TRUE), fixed = TRUE)
+  x <- sub("\\name{", "", x$name, FALSE, FALSE, TRUE)
+  sub("-class}", "", x, FALSE, FALSE, TRUE)
 }
 
 #' @rdname class_name
@@ -248,7 +249,7 @@ update.class_desc <- function(object,
       rd_quote(c("code", "link"), class_name(object))),
     ...) {
   rd_comment <- function(x) {
-    sprintf("%% %s", gsub("([\n\r]+)", "\\1%% ", x, perl = TRUE))
+    sprintf("%% %s", gsub("([\n\r]+)", "\\1%% ", x, FALSE, TRUE))
   }
   object[outcomment] <- lapply(object[outcomment], rd_comment)
   others <- list(description = description, ...)

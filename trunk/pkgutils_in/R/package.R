@@ -545,10 +545,10 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     }
     code_check <- function(x) {
       x <- sub("^\\s+", "", x, FALSE, TRUE)
-      complain("semicolon contained", grepl(";", x, fixed = TRUE))
-      complain("space followed by space", grepl("  ", x, fixed = TRUE))
+      complain("semicolon contained", grepl(";", x, FALSE, FALSE, TRUE))
+      complain("space followed by space", grepl("  ", x, FALSE, FALSE, TRUE))
       if (three.dots)
-        complain("':::' operator used", grepl(":::", x, fixed = TRUE))
+        complain("':::' operator used", grepl(":::", x, FALSE, FALSE, TRUE))
       if (comma) {
         complain("comma not followed by space",
           grepl(",[^\\s]", x, FALSE, TRUE))
@@ -595,9 +595,9 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     }
     if (modify) {
       x <- sub("\\s+$", "", x, FALSE, TRUE)
-      x <- gsub("\t", spaces(indention), x, fixed = TRUE)
+      x <- gsub("\t", spaces(indention), x, FALSE, FALSE, TRUE)
     } else if (!accept.tabs)
-      complain("tab contained", grepl("\t", x, fixed = TRUE))
+      complain("tab contained", grepl("\t", x, FALSE, FALSE, TRUE))
     complain(sprintf("line longer than %i", lwd), nchar(x) > lwd)
     complain(sprintf("indention not multiple of %i", indention),
       bad_ind(sub(roxygen.space, "", x, FALSE, TRUE), indention))

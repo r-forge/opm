@@ -323,13 +323,13 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
   }
 
   to_m4 <- function(x, single) {
-    is_macro <- function(x) grepl("^[A-Za-z_]\\w*$", x, perl = TRUE)
+    is_macro <- function(x) grepl("^[A-Za-z_]\\w*$", x, FALSE, TRUE)
     do_quote <- function(x, single) {
       x <- chartr("`", "'", x)
       if (single)
-        sprintf("`%s'", gsub("'", "''`", x, fixed = TRUE))
+        sprintf("`%s'", gsub("'", "''`", x, FALSE, FALSE, TRUE))
       else
-        sprintf("``%s''", gsub("'", "'''``", x, fixed = TRUE))
+        sprintf("``%s''", gsub("'", "'''``", x, FALSE, FALSE, TRUE))
     }
     if (any(bad <- !is_macro(y <- names(x))))
       warning(sprintf("not a valid m4 macro string: '%s'", y[bad][1L]))
