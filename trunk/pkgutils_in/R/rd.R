@@ -133,7 +133,7 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
     unlist(regmatches(x, m), FALSE, FALSE)
   }
   cum_parts <- function(x) {
-    x <- strsplit(x, ".", fixed = TRUE)
+    x <- strsplit(x, ".", TRUE)
     x <- x[vapply(x, length, 0L) > 0L]
     unlist(lapply(x, function(y) {
       vapply(seq_along(y),
@@ -176,11 +176,11 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
       RCODE = {
         switch(parent.tags[1L],
           `\\usage` = {
-            if (grepl("\\s*<-\\s*value\\s*$", x, perl = TRUE))
+            if (grepl("\\s*<-\\s*value\\s*$", x, FALSE, TRUE))
             # Repair duplicate 'value' entries of replacement functions
-              x <- sub(",\\s*value", "", x, perl = TRUE)
+              x <- sub(",\\s*value", "", x, FALSE, TRUE)
             # break long lines
-            x <- gsub("(.{80})\\s", "\\1\n    ", x, perl = TRUE)
+            x <- gsub("(.{80})\\s", "\\1\n    ", x, FALSE, TRUE)
           }
         )
         x
@@ -216,9 +216,9 @@ check_keywords <- function(x, ...) UseMethod("check_keywords")
 #'
 check_keywords.NULL <- function(x, full = FALSE, ...) {
   x <- readLines(file.path(R.home("doc"), "KEYWORDS.db"))
-  x <- grep("|", x, fixed = TRUE, value = TRUE)
-  x <- sub("^.*\\|", "", x, perl = TRUE)
-  x <- do.call(rbind, strsplit(x, "\\s*:\\s*", perl = TRUE))
+  x <- grep("|", x, FALSE, FALSE, TRUE, TRUE)
+  x <- sub("^.*\\|", "", x, FALSE, TRUE)
+  x <- do.call(rbind, strsplit(x, "\\s*:\\s*", FALSE, TRUE))
   if (L(full))
     return(structure(x[, 2L], names = x[, 1L]))
   sort.int(unique.default(x[, 1L]))

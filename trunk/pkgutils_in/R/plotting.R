@@ -138,18 +138,15 @@ paper_size.numeric <- function(x, landscape = FALSE, series = c("A", "B", "C"),
 paper_size.character <- function(x, landscape = FALSE, inches = FALSE, ...) {
   parse_din_string <- function(x) {
     get_orientation <- function(x) {
-      x <- toupper(sub("^.*\\d", "", x, perl = TRUE))
+      x <- toupper(sub("^.*\\d", "", x, FALSE, TRUE))
       x[!nzchar(x)] <- "L"
       x
     }
     get_series <- function(x) toupper(substr(x, 1L, 1L))
-    get_size <- function(x) {
-      as.integer(gsub("[A-Z]", "", x, perl = TRUE, ignore.case = TRUE))
-    }
-    y <- gsub("\\W", "", x, perl = TRUE)
-    data.frame(series = get_series(y), size = get_size(y),
-      orientation = get_orientation(y), row.names = x,
-      stringsAsFactors = FALSE)
+    get_size <- function(x) as.integer(gsub("[A-Z]", "", x, TRUE, TRUE))
+    y <- gsub("\\W", "", x, FALSE, TRUE)
+    data.frame(series = get_series(y), size = get_size(y), row.names = x,
+      orientation = get_orientation(y), stringsAsFactors = FALSE)
   }
   long_size_in_mm <- function(series, size) {
     get_size <- function(n, m) 0.2 + 1000 * 2 ^ -(0.5 * n - m)

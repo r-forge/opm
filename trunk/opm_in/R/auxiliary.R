@@ -780,7 +780,7 @@ setMethod("separate", "character", function(object, split = opm_opt("split"),
   # splitting at positions that contain whitespace in all strings
   split_fixed <- function(x) {
     ws <- c(" ", "\t", "\v", "\r", "\n", "\b", "\a", "\f")
-    x <- strsplit(x, split = "", fixed = TRUE)
+    x <- strsplit(x, "", TRUE)
     max.len <- max(vapply(x, length, 0L))
     x <- lapply(x, function(y) c(y, rep.int(" ", max.len - length(y))))
     x <- do.call(rbind, x)
@@ -795,7 +795,7 @@ setMethod("separate", "character", function(object, split = opm_opt("split"),
       is_constant(vapply(strsplit(x, char, ...), length, 0L))
     if (splits_constant(sprintf("[%s]+", char), x, FALSE, TRUE))
       2L
-    else if (splits_constant(char, x, fixed = TRUE))
+    else if (splits_constant(char, x, TRUE))
       1L
     else
       0L
@@ -829,8 +829,7 @@ setMethod("separate", "character", function(object, split = opm_opt("split"),
     return(simple_if(split_fixed(object), keep.const, simplify))
 
   # Prepare split characters
-  split <- strsplit(split, "", fixed = TRUE)
-  split <- unique.default(unlist(split, recursive = FALSE))
+  split <- unique.default(unlist(strsplit(split, "", TRUE), FALSE, FALSE))
   if (!length(split))
     return(simple_if(object, keep.const, simplify))
   split <- c(setdiff(split, "-"), intersect(split, "-"))
