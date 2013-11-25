@@ -27,22 +27,17 @@
 
 # The folder in which the files for the external tests are placed (i.e. those
 # without an interactive R session). Must contain a subfolder "tests" with the
-# files used.
+# files used. These files are mostly under version control, so this should be
+# changed only if great care is taken.
 #
 EXTERNAL_TEST_DIR=external_tests
 
 
-# 'docu.R' creates a logfile itself, which contains, e.g., information on style
-# checks and according modifications of R source files. Should only be changed
-# after discussion with all project members.
+# The folder in which a variety of 'miscellaneous' files are placed. Some of
+# them are under version control, so this should only be changed with great
+# care.
 #
-LOGFILE=misc/docu_opm.log
-
-
-# If source packages are built, they will be moved into that directory. Should
-# only be changed after discussion with all project members.
-#
-BUILT_PACKAGES=misc/built_packages
+MISC_DIR=misc
 
 
 ################################################################################
@@ -53,6 +48,21 @@ BUILT_PACKAGES=misc/built_packages
 
 
 set -eu
+
+# 'docu.R' creates a logfile itself, which contains, e.g., information on style
+# checks and according modifications of R source files.
+#
+LOGFILE=$MISC_DIR/docu_opm.log
+
+# If source packages are built, they will be moved into that directory.
+#
+BUILT_PACKAGES=$MISC_DIR/built_packages
+
+
+# The whitelists used for spell checking.
+#
+WHITELIST_MANUAL=$MISC_DIR/whitelist-manual.txt
+WHITELIST_VIGNETTE=$MISC_DIR/whitelist-vignette.txt
 
 
 ################################################################################
@@ -1170,7 +1180,7 @@ print_test_result()
 test_sql()
 {
   local default_dbname=pmdata
-  local sqlite3_dbname=misc/$default_dbname.db
+  local sqlite3_dbname=$MISC_DIR/$default_dbname.db
   local mysql_dbname=$default_dbname
   local postgresql_dbname=$default_dbname
   local help_msg=
@@ -1296,6 +1306,24 @@ show_example_pdf_files()
 ################################################################################
 
 
+# Remove duplicates from whitelists, keep only lines with one word, and sort the
+# result.
+#
+clean_whitelists()
+{
+  local tmpfile=`mktemp --tmpdir`
+  local infile
+  for infile in "$WHITELIST_MANUAL" "$WHITELIST_VIGNETTE"; do
+    awk 'NF == 1 {print $1}' "$infile" | sort -u - > "$tmpfile" &&
+      mv "$tmpfile" "$infile"
+  done
+  rm -f "$tmpfile"
+}
+
+
+################################################################################
+
+
 # Check the spelling of the vignette files. We assume aspell is available.
 # Specific LaTeX commands are excluded from spell checking.
 #
@@ -1304,7 +1332,7 @@ spellcheck_vignettes()
   local pkg
   for pkg; do
     R --vanilla <<-____EOF
-	words <- readLines("misc/whitelist-vignette.txt")
+	words <- readLines("$WHITELIST_VIGNETTE")
 	saveRDS(words[nzchar(words)], tmpfile <- tempfile(fileext = ".rds"))
 	ctrl <- c("ac", "acf", "acs", "acl")
 	ctrl <- c(ctrl, paste0(ctrl, "p"))
@@ -1531,6 +1559,7 @@ ____EOF
     exit $?
   ;;
   spell )
+    clean_whitelists
     spellcheck_vignettes opm_in
     exit $?
   ;;
@@ -1617,7 +1646,7 @@ delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --no-internal --modify --preprocess --S4methods --junk "$delete_pat" \
   --mark-duplicates --good 00Index,well-map.R,substrate-info.R,plate-map.R \
-  --whitelist misc/whitelist-manual.txt "$PKG_DIR"
+  --whitelist "$WHITELIST_MANUAL" "$PKG_DIR"
 
 
 OUT_DIR=${PKG_DIR%_in}
