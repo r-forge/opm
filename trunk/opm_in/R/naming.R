@@ -21,7 +21,7 @@
 #'       the extracted \R code.}
 #'     \item{demo}{Example \R code using the \pkg{opm} package that neither
 #'       fitted into these help pages nor into the vignette. Can directly be
-#'       loaded via \code{demo}; see \code{demo(package = "opm")}}.
+#'       loaded via \code{demo}; see \code{demo(package = "opm")}.}
 #'     \item{examples}{\strong{Deprecated} synonym of \sQuote{demo}.}
 #'     \item{multiple}{Not directly readable (i.e., multiple-plate) test files.}
 #'     \item{omnilog}{Directly readable (i.e., single-plate) test files from
@@ -38,7 +38,7 @@
 #'   and the following kinds of parameter names:
 #'   \describe{
 #'     \item{param.names}{Names of the estimated curve parameters used
-#'     internally and in the output}
+#'     internally and in the output.}
 #'     \item{disc.name}{Alternative name used to select discretised values
 #'       instead.}
 #'     \item{reserved.md.names}{Names that should not be used in metadata
@@ -621,6 +621,7 @@ to_sentence <- function(x, ...) UseMethod("to_sentence")
 
 #' @rdname to_sentence
 #' @method to_sentence logical
+#' @export
 #'
 to_sentence.logical <- function(x, html, ...) {
   sentence <- function(x, what) {
