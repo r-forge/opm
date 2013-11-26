@@ -68,6 +68,7 @@ extract_curve_params <- function(x, ...) UseMethod("extract_curve_params")
 
 #' @rdname extract_curve_params
 #' @method extract_curve_params grofit
+#' @export
 #'
 extract_curve_params.grofit <- function(x, ...) {
   settings <- c(x$control)
@@ -79,6 +80,7 @@ extract_curve_params.grofit <- function(x, ...) {
 
 #' @rdname extract_curve_params
 #' @method extract_curve_params opm_model
+#' @export
 #'
 extract_curve_params.opm_model <- function(x, all = FALSE, ...) {
   if (!inherits(x, "smooth.spline"))
@@ -183,6 +185,7 @@ pe_and_ci <- function(x, ...) UseMethod("pe_and_ci")
 
 #' @rdname pe_and_ci
 #' @method pe_and_ci boot
+#' @export
 #'
 pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
     type = c("basic", "perc", "norm"), fill.nas = FALSE, ...) {

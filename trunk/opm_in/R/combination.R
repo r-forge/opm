@@ -30,6 +30,7 @@ to_opm_list <- function(object, ...) UseMethod("to_opm_list")
 
 #' @method to_opm_list list
 #' @rdname to_opm_list
+#' @export
 #'
 to_opm_list.list <- function(object, precomputed = TRUE, skip = FALSE,
     group = FALSE) {
@@ -80,6 +81,7 @@ try_opms <- function(object, ...) UseMethod("try_opms")
 
 #' @method try_opms list
 #' @rdname to_opm_list
+#' @export
 #'
 try_opms.list <- function(object, precomputed = TRUE, skip = FALSE) {
   tryCatch(

@@ -126,6 +126,7 @@ reduce_to_mode <- function(x, cutoff, use.na) UseMethod("reduce_to_mode")
 
 #' @rdname reduce_to_mode
 #' @method reduce_to_mode default
+#' @export
 #'
 reduce_to_mode.default <- function(x, cutoff, use.na = TRUE) {
   counts <- table(x, useNA = "always")
@@ -140,6 +141,7 @@ reduce_to_mode.default <- function(x, cutoff, use.na = TRUE) {
 
 #' @rdname reduce_to_mode
 #' @method reduce_to_mode matrix
+#' @export
 #'
 reduce_to_mode.matrix <- function(x, cutoff, use.na = TRUE) {
   apply(x, 2L, reduce_to_mode.default, cutoff, use.na)
@@ -421,6 +423,7 @@ metadata_key <- function(x, to.formula, ...) UseMethod("metadata_key")
 
 #' @rdname metadata_key
 #' @method metadata_key default
+#' @export
 #'
 metadata_key.default <- function(x, to.formula = FALSE, remove = NULL, ...) {
   if (!is.atomic(x))
@@ -435,6 +438,7 @@ metadata_key.default <- function(x, to.formula = FALSE, remove = NULL, ...) {
 
 #' @rdname metadata_key
 #' @method metadata_key factor
+#' @export
 #'
 metadata_key.factor <- function(x, ...) {
   metadata_key.character(as.character(x), ...)
@@ -442,6 +446,7 @@ metadata_key.factor <- function(x, ...) {
 
 #' @rdname metadata_key
 #' @method metadata_key character
+#' @export
 #'
 metadata_key.character <- function(x, to.formula = FALSE, remove = NULL,
     syntactic = FALSE, ...) {
@@ -460,6 +465,7 @@ metadata_key.character <- function(x, to.formula = FALSE, remove = NULL,
 
 #' @rdname metadata_key
 #' @method metadata_key list
+#' @export
 #'
 metadata_key.list <- function(x, to.formula = FALSE, remove = NULL,
     syntactic = FALSE, ops = "+", ...) {
@@ -483,6 +489,7 @@ metadata_key.list <- function(x, to.formula = FALSE, remove = NULL,
 
 #' @rdname metadata_key
 #' @method metadata_key formula
+#' @export
 #'
 metadata_key.formula <- function(x, to.formula = FALSE, remove = NULL,
     syntactic = FALSE, ..., full.eval = !to.formula, envir = parent.frame()) {
@@ -1183,6 +1190,7 @@ prepare_class_names <- function(x) UseMethod("prepare_class_names")
 
 #' @rdname prepare_class_names
 #' @method prepare_class_names character
+#' @export
 #'
 prepare_class_names.character <- function(x) {
   x <- unique.default(c("character", x))
@@ -1857,6 +1865,7 @@ repair_na_strings <- function(object, ...) UseMethod("repair_na_strings")
 
 #' @rdname repair_na_strings
 #' @method repair_na_strings character
+#' @export
 #'
 repair_na_strings.character <- function(object, ...) {
   object[grepl("^(\\s*NA|\\.na(\\.(real|integer|character))?)$", object,
@@ -1866,6 +1875,7 @@ repair_na_strings.character <- function(object, ...) {
 
 #' @rdname repair_na_strings
 #' @method repair_na_strings list
+#' @export
 #'
 repair_na_strings.list <- function(object,
     type = c("double", "integer", "complex", "logical", "character"), ...) {
@@ -1920,6 +1930,7 @@ insert <- function(object, ...) UseMethod("insert")
 
 #' @rdname insert
 #' @method insert list
+#' @export
 #'
 insert.list <- function(object, other, ..., .force = FALSE, .strict = FALSE) {
   insert_carefully <- function(x, y) {
