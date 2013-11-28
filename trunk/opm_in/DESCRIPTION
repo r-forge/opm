@@ -1,6 +1,6 @@
 Package: opm
-Version: 1.0.13
-Date: 2013-11-26
+Version: 1.0.16
+Date: 2013-11-29
 Title: Tools for analysing OmniLog(R) Phenotype Microarray data
 Author: Markus Goeker, with contributions by Benjamin Hofner, Lea A.I.
         Vaas, Johannes Sikorski, Nora Buddruhs and Anne Fiebig
@@ -10,7 +10,7 @@ Imports: methods, lattice, parallel, boot, hwriter, plotrix,
         Ckmeans.1d.dp, pkgutils (>= 0.5-0), yaml (>= 2.1.7), splines,
         mgcv, grofit (>= 1.1), rjson (>= 0.2.12), nlme
 Suggests: optparse, gplots, opmdata (>= 0.4-0), testthat, multcomp,
-        KEGGREST, pathview, randomForest
+        KEGGREST, pathview, mboostDevel
 Description: Tools for analysing OmniLog(R) and MicroStation(TM)
         phenotype microarray (PM) data as produced by the devices
         distributed by BIOLOG Inc., including plotting, aggregating

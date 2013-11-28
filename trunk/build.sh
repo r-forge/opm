@@ -985,7 +985,7 @@ remove_generated_graphics()
 {
   local rnw_file
   for rnw_file in `find . -type f -iname '*.Rnw'`; do
-    rm -f ${rnw_file%.*}-*
+    rm -f "${rnw_file%.*}"-*
   done
 }
 
@@ -1096,7 +1096,7 @@ show_todos()
 remove_R_session_files()
 {
   local pattern
-  for pattern in .RData .Rhistory "*.Rout"; do
+  for pattern in .RData .Rhistory "*.Rout" Rplots.pdf; do
     find . -type f -name "$pattern" -delete
   done
 }

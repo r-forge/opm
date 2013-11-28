@@ -47,7 +47,7 @@ NULL
 #'
 NULL
 
-#' @importFrom lattice levelplot
+#' @importFrom lattice levelplot parallelplot
 #'
 NULL
 

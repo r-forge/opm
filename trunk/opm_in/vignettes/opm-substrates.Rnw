@@ -29,7 +29,7 @@
 \acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
 \acrodef{EC}{Enzyme Commission}
 \acrodef{ID}{Identifier}
-\acrodef{IMBE}{Institut f\"{u}r Medizininformatik, Biometrie und Epidemiologie}
+\acrodef{IMBE}{\German{Institut f\"{u}r Medizininformatik, Biometrie und Epidemiologie}}
 \acrodef{KEGG}{Kyoto Encyclopedia of Genes and Genomes}
 \acrodef{KO}{\acs{KEGG} Orthology}
 \acrodef{MeSH}{Medical Subject Headings}
@@ -801,12 +801,14 @@ determine important substrates that describe the differences between the
 experimental settings. Optimal stopping of the algorithm can be done via
 cross-validation. For a detailed hands-on introduction to boosting methods using
 the package \pkg{mboost} we refer to \citet{Hofner:mboost:2012}.
+
 <<install.package.mboost, echo = FALSE, results = hide>>=
-if(!require("mboostDevel"))
+if (!require("mboostDevel"))
     install.packages("mboostDevel", repos = "http://r-forge.r-project.org")
 ## set seed (for reproducible results)
 set.seed(1907)
 @
+
 <<mboost_model_fitting, results = hide>>=
 ## load package mboost
 ## (currently the development version "mboostDevel" from r-forge is used)

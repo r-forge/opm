@@ -1542,3 +1542,230 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 
 ################################################################################
 
+
+#' Parallel plot
+#'
+#' Customised plotting of estimated curve parameter values from single or
+#' multiple \acronym{PM} plates using \code{parallelplot} from the \pkg{lattice}
+#' package with some adaptations likely to be useful for
+#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} data.
+#'
+#' @param x An \code{\link{OPMA}} or \code{\link{OPMS}} object with aggregated
+#'   data. This and the following argument can swap their places.
+#'
+#' @param data Any kind of object that can be used for selecting
+#'   \code{\link{metadata}}. Either \code{NULL}, a character vector, a list of
+#'   character vectors or a formula indicating which metadata should be
+#'   included and used to determine the shape of the plot. The next argument
+#'   by default accesses the first metadata entry. If numeric, \code{panel.var}
+#'   also accesses the results from applying \code{data}.
+#'
+#'   Most flexibility is available if \code{data} is a formula. For instance, as
+#'   usual the \code{J} pseudo-function can be used to join metadata entries.
+#'   Further, if a left part is present, this can indicate the parameters that
+#'   should be plotted on the Y-axes (in place of the \code{pnames} argument;
+#'   see below for further details). As usual, the right part of the formula
+#'   states the meta-information to be included.
+#'
+#' @param groups Character or numerical scalar determining which metadata entry
+#'   or other information, such as the well indexes, (see the examples) is used
+#'   for assigning colours to the curves. If a numeric scalar, it refers to the
+#'   position of the (potentially merged) metadata entry within \code{data}. If
+#'   that argument were empty, a numeric \code{groups} argument would be
+#'   ignored. Empty \code{groups} arguments are always ignored; the (constant)
+#'   plate type is then used for creating a header.
+#'
+#' @param panel.var Character or numeric vector indicating which metadata entry
+#'   or other information, such as the well indexes, (see the examples) is used
+#'   for creating sub-panels. If a numeric vector, it refers to the position of
+#'   the (potentially merged) metadata entry within \code{data}. If that
+#'   argument were empty, a numeric \code{panel.var} argument would be ignored.
+#'
+#' @param pnames Character vector to select the curve parameters for plotting.
+#'   It has to comprise at least two of the names given by
+#'   \code{\link{param_names}()}. If explicitly provided, this argument
+#'   overrules the left side, if any, of a formula given as \code{data}
+#'   argument. (But the left side, if any, of such a formula would overrule the
+#'   default.)
+#'
+#' @param col Character or numerical scalar or vector. This and the following
+#'   arguments work like the eponymous arguments of \code{\link{xy_plot}}. See
+#'   there for details.
+#' @param strip.fmt List.
+#' @param striptext.fmt List.
+#' @param legend.fmt List.
+#' @param legend.sep Character scalar.
+#' @param draw.legend Logical scalar.
+#' @param space Character scalar.
+#'
+#' @param ... Optional arguments passed to \code{parallelplot} from the
+#'   \pkg{lattice} package.
+#' @details
+#' The main applications of this function are ...
+#' \strong{[Further details to be added by Lea Vaas]}.
+#'
+#' @export
+#' @family plotting-functions
+#' @return An object of class \sQuote{trellis}. See \code{xyplot} from the
+#'   \pkg{lattice} package for details.
+#' @references Sarkar, D. 2008 \emph{Lattice: Multivariate Data Visualization
+#'   with R.} New York: Springer, 265 p.
+#' @keywords hplot
+#' @seealso lattice::xyplot lattice::parallelplot
+#' @author Lea A.I. Vaas
+#' @examples
+#'
+#' ## OPM objects
+#'
+#' parallelplot(vaas_1)
+#' parallelplot(vaas_1, data = list("Species", "Strain"))
+#' # ... no effect on selection but on header
+#'
+#' # value of 'groups' not found in the data: per default no metadata are used
+#' x <- try(parallelplot(vaas_1, groups = "Species"), silent = TRUE)
+#' stopifnot(inherits(x, "try-error"))
+#' # same problem: metadata selected but 'groups' is not contained
+#' x <- try(parallelplot(vaas_1, data = list("Species", "Strain"),
+#'   groups = "missing"), silent = TRUE)
+#' stopifnot(inherits(x, "try-error"))
+#' # ... thus it is safer to use a positional 'groups' argument
+#'
+#' ## OPMS objects
+#'
+#' # per default metadata are ignored
+#' parallelplot(vaas_4[, , 1:10])
+#' # otherwise selecting metadata is as usual
+#' parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
+#' parallelplot(vaas_4[, , 1:10], data = list("Species", "Strain"))
+#'
+#' # value of 'groups' not found in the data: per default no metadata are used
+#' x <- try(parallelplot(vaas_4[, , 1:10], groups = "Species"), silent = TRUE)
+#' stopifnot(inherits(x, "try-error"))
+#' # now 'groups' is all present but not a character scalar
+#' x <- try(parallelplot(vaas_4[, , 1:10], data = list("Species", "Strain"),
+#'   groups = c("Strain", "Species")), silent = TRUE)
+#' stopifnot(inherits(x, "try-error"))
+#' # here 'groups' is positional but beyond the last element
+#' x <- try(parallelplot(vaas_4[, , 1:10], data = list("Species", "Strain"),
+#'   groups = 3), silent = TRUE)
+#' stopifnot(inherits(x, "try-error"))
+#'
+#' # 'groups' and 'panel.var' arguments that work
+#' parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
+#'   panel.var = "Species", groups = "Strain")
+#' parallelplot(vaas_4[, , 1:10], data = "Species", panel.var = "Species",
+#'   groups = NULL)
+#' parallelplot(vaas_4[, , 1:10], data = list("Species", "Strain"),
+#'   panel.var = "Species")
+#'
+#' # use of non-metadata information: here the names of the wells
+#' parallelplot(vaas_4[, , 1:10], data = "Species", panel.var = "Well",
+#'   groups = "Species")
+#'
+setGeneric("parallelplot")
+
+setMethod("parallelplot", c("OPMX", "missing"), function(x, data, ...) {
+  parallelplot(x, NULL, ...)
+}, sealed = SEALED)
+
+setMethod("parallelplot", c("OPMX", "ANY"), function(x, data, groups = 1L,
+  panel.var = NULL, pnames = param_names(), col = opm_opt("colors"),
+  strip.fmt = list(), striptext.fmt = list(), legend.fmt = list(),
+  legend.sep = " ", draw.legend = TRUE, space = "top", ...) {
+
+  # Get the used column names from the 'data' argument
+  final_dataframe_names <- function(x) {
+    x <- metadata_key(x)
+    combined <- attr(x, "combine") # a list mapping new name to old names
+    x <- names(x)
+    for (i in seq_along(combined)) { # does nothing if combined has zero length!
+      j <- match(combined[[i]], x) # find position of old name and replace it
+      x[j] <- c(names(combined)[i], rep.int(NA_character_, length(j) - 1L))
+    }
+    x[!is.na(x)]
+  }
+  # Convert left side of formula to character vector
+  extract_left_side <- function(x) {
+    if (!inherits(x, "formula") || length(x) < 3L)
+      character()
+    else
+      all.vars(x[[2L]])
+  }
+  # Assign first element of 'n' to 'x' ('groups'/'panel.var'), if that
+  # is numeric and 'n' is non-empty.
+  fetch_from_md_names <- function(x, n) {
+    if (!length(x))
+      return(x)
+    if (is.numeric(x) || is.logical(x))
+      if (length(n))
+        n[x]
+      else
+        NULL
+    else
+      x
+  }
+
+  # Convert to dataframe
+  x <- as.data.frame(x = x, include = data, sep = NULL, settings = FALSE)
+
+  # Process the 'param' argument
+  if (missing(pnames))
+    if (length(tmp <- extract_left_side(data)))
+      pnames <- tmp
+    else
+      pnames <- match.arg(pnames, several.ok = TRUE)
+  else
+    pnames <- match.arg(pnames, param_names(), TRUE)
+  if (length(pnames) < 2L)
+    stop("'pnames' has to be at least of length 2")
+
+  md.names <- final_dataframe_names(data)
+
+  # Process 'groups'
+  groups <- fetch_from_md_names(groups, md.names)
+  if (!length(groups))
+    groups <- make.names(CSV_NAMES[["PLATE_TYPE"]])
+  else if (length(groups) > 1L)
+    stop("'groups' argument must be of length 1")
+  pos <- match(groups, names(x), 0L)
+  if (!pos)
+    stop("value of 'groups' not found in the column names of the data")
+  # Renaming for lattice. Must be in sync with the processing of 'panel.var'.
+  names(x)[pos] <- "_GROUPING"
+
+  # Legend format
+  strip.fmt <- insert(as.list(strip.fmt), bg = "grey90")
+  striptext.fmt <- insert(as.list(striptext.fmt),
+    cex = 1.5 / sqrt(9), lines = 1.25)
+  legend.fmt <- insert(as.list(legend.fmt), space = space, .force = FALSE)
+
+  # Legend text and colours
+  col <- try_select_colors(col)
+  key.text <- levels(x$`_GROUPING`)
+  if (length(col) < length(key.text))
+    stop("colour should be by plate or metadata, but there are too few colours")
+  col <- col[seq_along(key.text)]
+
+  # Build basic formula and process 'panel.var'
+  f <- paste0("~ x[", deparse(pnames), "]")
+  panel.var <- fetch_from_md_names(panel.var, md.names)
+
+  # Add content of 'panel.var' to formula if it is provided
+  if (length(panel.var)) {
+    panel.var[match(groups, panel.var)] <- "_GROUPING"
+    f <- paste(f, "|", paste0(sprintf("`%s`", panel.var), collapse = " + "))
+  }
+  f <- formula(f)
+
+  parallelplot(
+    x = f, data = x, as.table = TRUE, groups = `_GROUPING`, col = col,
+    strip = do.call(strip.custom, strip.fmt), par.strip.text = striptext.fmt,
+    key = if (draw.legend)
+        c(list(col = col, text = list(key.text)), legend.fmt)
+      else
+        NULL, ...
+  )
+}, sealed = SEALED)
+
+
+################################################################################

@@ -725,6 +725,8 @@ options(prompt = "R> ")
 options(continue = "   ")
 options(useFancyQuotes = FALSE)
 library("methods")
+if ("package:opm" %in% search())
+  detach("package:opm", unload = TRUE)
 @
 
 Before starting, the \pkg{opm} package should be loaded into an \proglang{R} session as follows:
