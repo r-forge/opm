@@ -83,8 +83,9 @@ SPECIAL_PAPER_SIZES <- structure(
 
 # patterns used by check_R_code()
 
+# Note that this probably does not cover all cases.
+#
 QUOTED <- "(%s(\\\\\"|[^\"])*%s|%s[^`]+%s|%s(\'|[^'])*%s)"
-# TODO: this still does not cover all cases
 
 QUOTED_END <- sprintf(QUOTED, '"', "$", "`", "$", "'", "$")
 

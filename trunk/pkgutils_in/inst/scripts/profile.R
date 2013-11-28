@@ -82,8 +82,8 @@ for (lib in opt$libraries)
 ################################################################################
 
 
-# TODO: add other output mode: source all input files, then call a specified
-# function
+# Note that other output modes are possible. For instance, sourceing all input
+# files, then calling a specified function.
 
 outfiles <- make_outfiles(infiles, opt)
 
