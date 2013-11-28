@@ -29,6 +29,7 @@
 \acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
 \acrodef{EC}{Enzyme Commission}
 \acrodef{ID}{Identifier}
+\acrodef{IMBE}{Institut f\"{u}r Medizininformatik, Biometrie und Epidemiologie}
 \acrodef{KEGG}{Kyoto Encyclopedia of Genes and Genomes}
 \acrodef{KO}{\acs{KEGG} Orthology}
 \acrodef{MeSH}{Medical Subject Headings}
@@ -81,6 +82,7 @@
 
 % authors, first page
 \author{Lea A.I. \Surname{Vaas}\\Leibniz Institute \acs{DSMZ} \And
+        Benjamin \Surname{Hofner}\\\acs{IMBE}, FAU Erlangen-N\"{u}rnberg \And
         Markus \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
 
 
@@ -758,14 +760,24 @@ Together with the automated rendering by the \code{graphviz} layout engine it mi
 
 \section{Finding the pathways of interest}\label{finding-pathways}
 
-In many experimental approaches, the identification of the pathway(s) of interest is one of the main subjects of research.
+In many experimental approaches, the identification of the pathway(s) of
+interest is one of the main subjects of research.
 
-The information accessible \textit{via} \code{annotated} can serve as input for suitable statistical procedures in order to assess and rank the observed metabolic capabilities (i.e. respiration on the substrates) with respect to their ability to predict a given response.
-Beside the identification of pathways of interest to be used when drawing the \pkg{opm} results in a graph, as detailed in the previous section, such results can further be used as a starting point when searching for a causal explanation of the given \pkg{opm} results.
+The information accessible \textit{via} \code{annotated} can serve as input for
+suitable statistical procedures in order to assess and rank the observed
+metabolic capabilities (i.e. respiration on the substrates) with respect to
+their ability to predict a given response. Beside the identification of pathways
+of interest to be used when drawing the \pkg{opm} results in a graph, as
+detailed in the previous section, such results can further be used as a starting
+point when searching for a causal explanation of the given \pkg{opm} results.
 
-In the next coding example, we prepare a data matrix with the differences between the two \textit{E. coli} strains (as computed in section ~\ref{pathview-group-diffs}) and add potential explanatory variables from \ac{KEGG}.
-Please refer to the manual and Section~\ref{annotated-input} for an explanation of the usage of \code{annotated} with the argument \code{how = "values"}.
-Again, the comparison applies to the default parameter given by \code{opm_opt("curve.param")}; see the manual for details.
+In the next coding example, we prepare a data matrix with the differences
+between the two \textit{E. coli} strains (as computed in
+section~\ref{pathview-group-diffs}) and add potential explanatory variables from
+\ac{KEGG}. Please refer to the manual and Section~\ref{annotated-input} for an
+explanation of the usage of \code{annotated} with the argument \code{how =
+  "values"}. Again, the comparison applies to the default parameter given by
+\code{opm_opt("curve.param")}; see the manual for details.
 
 <<label=e-coli-comp-full>>=
 coli.comp <- opm_mcp(coli.sub, output = "mcp",
@@ -773,62 +785,175 @@ coli.comp <- opm_mcp(coli.sub, output = "mcp",
 coli.anno <- annotated(coli.comp, how = "value")
 @
 
-The matrix has to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in \ac{KEGG} have to be removed.
-The matrix also needs to be converted to a data frame before the \pkg{randomForest} package \citep{Liaw2002} can be applied.
+The matrix has to be reduced to the non-\code{NA} rows, i.e. substrates that are
+not included in \ac{KEGG} have to be removed. The matrix also needs to be
+converted to a data frame before the \pkg{mboost} package
+\citep{mboost:pkg:2013} can be applied.
 
-<<label=e-coli-rf>>=
+<<as.data.frame>>=
 coli.anno <- as.data.frame(coli.anno[complete.cases(coli.anno), ])
-suppressPackageStartupMessages(library("randomForest"))
-coli.comp.rf <- randomForest(x = coli.anno[, -1], y = coli.anno[, 1],
-  importance = TRUE, proximity = TRUE)
 @
 
-See \cite{Wouter2012} for a review of \ac{RF} properties that allow for maximising the biological insights that can be extracted from complex OMICS data.
-\cite{Boulesteix2012} emphasise the applications of \ac{RF} to computational biology with special attention to practical aspects such as parameter selection and major pitfalls and biases of \ac{RF} and its \ac{VIM}.
+\subsection{Boosting as a tool to identify important substrates}
 
-%TODO LATER:
-%\item \citep{Boccuto2013} - analysis of metabolic profiles of lymphoblastoid cell lines from 137 patients with neurodevelopmental disorders with or without \acs{ASD} and 78 normal individuals, using BIOLOG Phenotype microarrays. Feature selection approaches identified Tryptophan-substrates  - cells from \ac{ASDs} patients are less capable in utilisation of Tryptophan-substrates
-%\item
-
-We can now determine the substrate features that best predict the differences between the two \textit{E. coli} strains and depict these features within a ``Variable Importance Plot'' (Figure~\ref{fig:var-imp-plot}).
-
-
-<<label=randomforest-prep, fig=FALSE, eval=FALSE>>=
-varImpPlot(coli.comp.rf, main = "Difference Type Strain vs. K12")
+In the following example we use boosting to estimate a linear model in order to
+determine important substrates that describe the differences between the
+experimental settings. Optimal stopping of the algorithm can be done via
+cross-validation. For a detailed hands-on introduction to boosting methods using
+the package \pkg{mboost} we refer to \citet{Hofner:mboost:2012}.
+<<install.package.mboost, echo = FALSE, results = hide>>=
+require("mboostDevel")
+## set seed (for reproducible results)
+set.seed(1907)
 @
+<<mboost_model_fitting, results = hide>>=
+## load package mboost
+## (currently the development version "mboostDevel" from r-forge is used)
+library("mboostDevel")
+## fit the boosting model with 1000 initial iterations
+mod <- glmboost(Value ~ ., data = coli.anno,
+  control = boost_control(mstop = 1000))
+## obtain optimal stopping iteration via crossvalidation
+cvr <- cvrisk(mod)
+## set model to optimal stopping iteration
+mod[mstop(cvr)]
+@
+
+If one uses cross-validation techniques to find the optimal stopping iteration,
+boosting intrinsically selects variables that best predict the outcome, i.e.
+here the differences between the two \textit{E. coli} strains with respect to
+certain substrates. We can now depict these features within a ``Variable
+Importance Plot'', which shows the absolute values of the standardized
+regression coefficients $\beta$ (Figure~\ref{fig:var-imp-plot}).
+\rcsmark{standardized coefficients!?!} The higher the value of the standardized
+absolute coefficient, the higher is the contribution of the corresponding
+variable to the prediction of the differences of strains, i.e. the more
+important is the variable.
 
 \begin{figure}
- \centering
-\scalebox{1.0}{
-<<label=random-forest-figure, fig=TRUE, echo=FALSE, width=10, height=5.9>>=
-varImpPlot(coli.comp.rf, main = "Difference Type Strain vs. K12")
+  \begin{center}
+\scalebox{0.55}{
+<<coef-plot2, fig=TRUE, echo=FALSE, width = 6>>=
+par(mar = c(4, 8, 0.1, 0.1))
+cf <- coef(mod)[-1]
+plot(sort(abs(cf)), 1:length(cf),
+  type = "n", yaxt = "n", xlim = c(0, max(abs(cf))),
+  ylab = "", xlab = expression(paste("|", beta, "|")))
+abline(h = 1:length(cf), lty = "dotted", col = "grey")
+points(sort(abs(cf)), 1:length(cf), pch = 19)
+axis(2, at = 1:length(cf), names(cf)[order(abs(cf))], las = 2)
 @
 }
-\caption{
-\label{fig:var-imp-plot}
-Variable importance plot for substrate features that potentially explain the performance differences between the two \textit{E. coli} strains.
-Apparently the category ``Carbohydrates'' has the highest importance for the model.
-That is, one of the strains performs stronger than the other one particularly regarding carbohydrate utilisation.
-For a subset of the carbohydrates, those from the Galactose pathway (``map00052''), this can be confirmed in Figure~\ref{fig:e_coli_comp_ci}.
-}
+\caption{Absolute value of coefficients at the optimal stopping iteration
+  determined via crossvalidation (mstop =
+  \Sexpr{mstop(cvr)}). \label{fig:var-imp-plot}}
+\end{center}
 \end{figure}
 
-The output can be interpreted a follows:
+\subsection{Boosting with stability selection}
 
-Whether or not a substrate is a carbohydrate works best for predicting whether one of the strains performs differently than the other.
-The category ``Carbohydrates'' works even better than its subcategories such as ``Oligosaccharides''.
-The pathway map IDs that are shown to have a strong influence are also related to carbohydrate metabolism, of course.
-For instance, the Galactose metabolism (``map00052'') is among the top-scoring substrate features.
-For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
+Stability selection \citep{Meinshausen:2010} is an additional screening tool
+that allows the user to determine which of the selected variables are stable
+``stable'' variables, i.e. which are variables that always ``pop-up'' in random
+subsets of the data. Additionally, stability selection has a built in error
+control (for the per-familiy error rate). In our example the maximum acceptable
+error is set to 1.5, i.e. we accept at maximum 1.5 noise variables to be chosen
+by stability selection by chance. The cut-off value determines, which inclusion
+frequency is at least required to term a variable stable. In our example this is
+chosen to be $0.6$, but other values in, say $(0.6, 0.9)$, are possible as well.
+In general, stability selection is relatively insensitive to the choice of the
+cut-off.
+<<mboost_stability_selection, results = hide>>=
+## first, increase model again
+mod[1000]
+## now use stability selection
+stab <- stabsel(mod, cutoff = 0.6, PFER = 1.5, error.bound = "SS")
+@
 
-Note that the approach used here is suboptimal in a certain respect because mean differences between metadata-defined groups have entered the model as dependent variable.
-This fits well to the visualisation approaches exemplified above but ignores the variance of the differences and lets the metainformation not directly enter the model because here metadata are only used to define the groups.
-The forthcoming version of this vignette will demonstrate feature selection from the curve parameters themselves.
-We will show how to easily generate matrices containing estimated both traditional \pkg{opm} metadata and novel \pkg{opm} substrate metainformation as (potential) explanatory variables.
-Moreover, we will make use of the \pkg{mboost} package for feature selection.
+%TODO LATER:
+% \item \citep{Boccuto2013} - analysis of metabolic profiles of lymphoblastoid
+%   cell lines from 137 patients with neurodevelopmental disorders with or
+%   without \acs{ASD} and 78 normal individuals, using BIOLOG Phenotype
+%   microarrays. Feature selection approaches identified Tryptophan-substrates -
+%   cells from \ac{ASDs} patients are less capable in utilisation of
+%   Tryptophan-substrates
+%\item
 
-For now, we will augment the \ac{RF} approach with an \code{opm\_mcp} analysis for confirming whether the reactions on carbohydrate wells are indeed more strongly different between the two strains than those on other wells.
-First, the positions of the substrates either belonging to the category ``Carbohydrates'' or not to it are determined and afterwards stored in two vectors.
+Plotting the results leads to a representation of the stability paths, i.e. the
+inclusion frequency dependent on the number of boosting iterations (see
+Figure~\ref{fig:stabsel}). As an alternative to the stability paths we can plot
+the maximum inclusion frequency (see Figure~\ref{fig:var-imp-plot2}). Higher
+inclusion frequencies indicate that the substrate is more important.
+Furthermore, we see that only the top \Sexpr{length(selected(stab))} variables
+are stable and thus can be considered to play a substantial role.
+
+\begin{center}
+\begin{figure}
+\scalebox{1.1}{
+<<label=stabsel-plot, fig=TRUE, echo=FALSE, width=12>>=
+par(mar = c(5, 4, 4, 7))
+plot(stab, main = "Stability selection paths")
+@
+}
+\caption{Inclusion propability of variables (over the number of boosting
+  iterations). The grey horizontal line indicates the threshold above which
+  variables are termed ``stable''.}\label{fig:stabsel}
+\end{figure}
+\end{center}
+
+
+\begin{figure}
+  \begin{center}
+\scalebox{0.55}{
+<<stabsel-plot2, fig=TRUE, echo=FALSE, width = 6>>=
+par(mar = c(4, 8, 0.1, 0.1))
+## number of substrates to plot
+ps <- 20
+inc_freq <- stab$max[-1]
+plot(tail(sort(inc_freq), ps), 1:ps,
+  type = "n", yaxt = "n", xlim = c(0, 1),
+  ylab = "", xlab = expression(hat(pi)))
+abline(h = 1:ps, lty = "dotted", col = "grey")
+points(tail(sort(inc_freq), ps), 1:ps, pch = 19)
+axis(2, at = 1:ps, names(inc_freq)[tail(order(inc_freq), ps)], las = 2)
+## add cutoff
+abline(v = 0.6, col = "grey")
+@
+}
+\caption{Maximum inclusion frequency $\hat{\pi}$ for the top 20
+  variables as determined by stability selection. \label{fig:var-imp-plot2}}
+\end{center}
+\end{figure}
+
+For details on stability selection in the context of boosting see \rcsmark{DRAFT
+  BH}.
+
+The results can be interpreted a follows:
+
+Whether or not a substrate is a carbohydrate works best for predicting whether
+one of the strains performs differently than the other. The category
+``Carbohydrates'' works even better than its subcategories such as
+``Oligosaccharides''. The pathway map IDs that are shown to have a strong
+influence are also related to carbohydrate metabolism, of course. For instance,
+the Galactose metabolism (``map00052'') is among the top-scoring substrate
+features. For a confirmation using \code{opm\_mcp}, see
+Figure~\ref{fig:e_coli_comp_ci}.
+
+Note that the approach used here is suboptimal in a certain respect because mean
+differences between metadata-defined groups have entered the model as dependent
+variable. This fits well to the visualisation approaches exemplified above but
+ignores the variance of the differences and lets the metainformation not
+directly enter the model because here metadata are only used to define the
+groups. \rcsdel{The forthcoming version of this vignette will demonstrate feature
+selection from the curve parameters themselves. We will show how to easily
+generate matrices containing estimated both traditional \pkg{opm} metadata and
+novel \pkg{opm} substrate metainformation as (potential) explanatory variables.}
+
+For now, we will augment the boosting approach with an \code{opm\_mcp} analysis
+for confirming whether the reactions on carbohydrate wells are indeed more
+strongly different between the two strains than those on other wells. First, the
+positions of the substrates either belonging to the category ``Carbohydrates''
+or not to it are determined and afterwards stored in two vectors.
 
 <<label=prep_mcp_dat>>=
 carb.pos <- rownames(coli.anno)[coli.anno$Carbohydrates == 1]
@@ -837,9 +962,11 @@ carb.pos <- find_positions(carb.pos, plate_type(coli.sub))
 noncarb.pos <- find_positions(noncarb.pos, plate_type(coli.sub))
 @
 
-We can now generate the contrast matrix needed for the computation of the multiple comparisons between the two strains
-for precisely these two subsets of substrates.
-As recommended in the main tutorial, this should be done by first using \code{opm_mcp} to generate auxiliary contrast matrices, which here provide the dimensions and column names for the final contrast matrix.
+We can now generate the contrast matrix needed for the computation of the
+multiple comparisons between the two strains for precisely these two subsets of
+substrates. As recommended in the main tutorial, this should be done by first
+using \code{opm_mcp} to generate auxiliary contrast matrices, which here provide
+the dimensions and column names for the final contrast matrix.
 
 <<label=carb-comp-contr-mat>>=
 contr.carb <- opm_mcp(coli.sub[, , carb.pos], linfct = c(Dunnett = 1),
@@ -848,7 +975,8 @@ contr.noncarb <- opm_mcp(coli.sub[, , noncarb.pos], linfct = c(Dunnett = 1),
   model = ~ J(Well + Strain), output = "contrast")[[1]]
 @
 
-The final contrast matrix is set up by concatenating the necessary numeric vectors, setting labels for the comparisons and adding the column names.
+The final contrast matrix is set up by concatenating the necessary numeric
+vectors, setting labels for the comparisons and adding the column names.
 
 <<label=carb-comp-contr-finish>>=
 contr <- rbind(
@@ -873,8 +1001,18 @@ carb.test <- opm_mcp(coli.sub[, , c(carb.pos, noncarb.pos)], linfct = contr,
   m.type = "lm", model = ~ J(Well + Strain))
 @
 
-The results of the two comparisons can be plotted as usual, see Figure~\ref{fig:carb-comp-test}.
-According to the interpretation provided in the figure caption the analysis shows that one of the strains performs stronger than the other one particularly regarding carbohydrate utilisation.
+The results of the two comparisons can be plotted as usual, see
+Figure~\ref{fig:carb-comp-test}. According to the interpretation provided in the
+figure caption the analysis shows that one of the strains performs stronger than
+the other one particularly regarding carbohydrate utilisation.
+
+As an alternative to boosting, one could also apply \ac{RF} for variable
+selection, e.g. implemented in the \pkg{randomForest} package \citep{Liaw2002}.
+See \cite{Wouter2012} for a review of \ac{RF} properties that allow for
+maximising the biological insights that can be extracted from complex OMICS
+data. \cite{Boulesteix2012} emphasise the applications of \ac{RF} to
+computational biology with special attention to practical aspects such as
+parameter selection and major pitfalls and biases of \ac{RF} and its \ac{VIM}.
 
 \begin{figure}
  \centering
