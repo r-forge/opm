@@ -802,7 +802,8 @@ experimental settings. Optimal stopping of the algorithm can be done via
 cross-validation. For a detailed hands-on introduction to boosting methods using
 the package \pkg{mboost} we refer to \citet{Hofner:mboost:2012}.
 <<install.package.mboost, echo = FALSE, results = hide>>=
-require("mboostDevel")
+if(!require("mboostDevel"))
+    install.packages("mboostDevel", repos = "http://r-forge.r-project.org")
 ## set seed (for reproducible results)
 set.seed(1907)
 @
