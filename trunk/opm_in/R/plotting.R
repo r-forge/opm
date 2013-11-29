@@ -1663,37 +1663,39 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #' # use of non-metadata information: here the names of the wells
 #' parallelplot(vaas_4[, , 1:10], data = "Species", panel.var = "Well",
 #'   groups = "Species")
-#'   
+#'
+#' 
+#' \dontrun{
 #' # selection of parameters via 'pnames'
-#' p_plot(vaas_4[, , 1:10], pnames = c("A", "AUC", "mu"), 
-#'   include = list("Species", "Strain"), panel.var = "Species", 
+#' parallelplot(vaas_4[, , 1:10], pnames = c("A", "AUC", "mu"),
+#'   include = list("Species", "Strain"), panel.var = "Species",
 #'   col = c("black", "red"), groups = "Species")
 #'
 #' # pnames must not be of length < 2
-#' x <- try(p_plot(vaas_4[, , 1:10], pnames = c("A"), 
-#'   include = list("Species", "Strain"), panel.var = "Species", 
-#'   col = c("black", "red"), groups = "Species", groups = "Strain"), 
+#' x <- try(parallelplot(vaas_4[, , 1:10], pnames = c("A"),
+#'   include = list("Species", "Strain"), panel.var = "Species",
+#'   col = c("black", "red"), groups = "Species", groups = "Strain"),
 #'   silent = TRUE)
 #' stopifnot(inherits(x, "try-error"))
-#' 
-#' # more complex usage of formulas for 'include'
-#' 
-#' # left side of formula in include contains only two parameters
-#' p_plot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain))
-#' 
-#' # additional groups statement
-#' p_plot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain), 
-#'   groups = "Species")
-#' 
-#' # left side of formula is ignored, 'pnames' is explicitly given
-#' p_plot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain), 
-#'   pnames = c("A", "mu", "AUC"), groups = "Species")
-#'   
-#' # pnames must not be of length < 2
-#' x <- try(p_plot(vaas_4[, , 1:10], include = AUC ~ J(Species, Strain), 
-#'   groups = "Species", groups = "Strain"), silent = TRUE)
-#' stopifnot(inherits(x, "try-error"))   
 #'
+#' # more complex usage of formulas for 'include'
+#'
+#' # left side of formula in include contains only two parameters
+#' parallelplot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain))
+#'
+#' # additional groups statement
+#' parallelplot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain),
+#'   groups = "Species")
+#'
+#' # left side of formula is ignored, 'pnames' is explicitly given
+#' parallelplot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain),
+#'   pnames = c("A", "mu", "AUC"), groups = "Species")
+#'
+#' # pnames must not be of length < 2
+#' x <- try(parallelplot(vaas_4[, , 1:10], include = AUC ~ J(Species, Strain),
+#'   groups = "Species", groups = "Strain"), silent = TRUE)
+#' stopifnot(inherits(x, "try-error"))
+#'}
 setGeneric("parallelplot")
 
 setMethod("parallelplot", c("OPMX", "missing"), function(x, data, ...) {
