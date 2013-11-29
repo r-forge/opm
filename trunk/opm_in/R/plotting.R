@@ -1581,8 +1581,8 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #'   the (potentially merged) metadata entry within \code{data}. If that
 #'   argument were empty, a numeric \code{panel.var} argument would be ignored.
 #'
-#' @param pnames Character vector to select the curve parameters for plotting.
-#'   It has to comprise at least two of the names given by
+#' @param pnames Character vector or formula to select the curve parameters for
+#'   plotting. It has to comprise at least two of the names given by
 #'   \code{\link{param_names}()}. If explicitly provided, this argument
 #'   overrules the left side, if any, of a formula given as \code{data}
 #'   argument. (But the left side, if any, of such a formula would overrule the
@@ -1630,8 +1630,6 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #' stopifnot(inherits(x, "try-error"))
 #' # ... thus it is safer to use a positional 'groups' argument
 #'
-#'
-#'
 #' ## OPMS objects
 #'
 #' # per default metadata are ignored
@@ -1664,45 +1662,52 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #' parallelplot(vaas_4[, , 1:10], data = "Species", panel.var = "Well",
 #'   groups = "Species")
 #'
-#' 
-#' \dontrun{
 #' # selection of parameters via 'pnames'
-#' parallelplot(vaas_4[, , 1:10], pnames = c("A", "AUC", "mu"),
-#'   include = list("Species", "Strain"), panel.var = "Species",
+#' parallelplot(vaas_4[, , 1:10], pnames = ~ A + AUC + mu,
+#'   data = ~ Species + Strain, panel.var = "Species",
 #'   col = c("black", "red"), groups = "Species")
+#' x <- try(parallelplot(vaas_4[, , 1:10], pnames = "A",
+#'   data = ~ Species + Strain, panel.var = "Species",
+#'   col = c("black", "red"), groups = "Species"), silent = TRUE)
+#' stopifnot(inherits(x, "try-error")) # => at least two 'pnames' needed
 #'
-#' # pnames must not be of length < 2
-#' x <- try(parallelplot(vaas_4[, , 1:10], pnames = c("A"),
-#'   include = list("Species", "Strain"), panel.var = "Species",
-#'   col = c("black", "red"), groups = "Species", groups = "Strain"),
-#'   silent = TRUE)
-#' stopifnot(inherits(x, "try-error"))
-#'
-#' # more complex usage of formulas for 'include'
-#'
-#' # left side of formula in include contains only two parameters
-#' parallelplot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain))
-#'
-#' # additional groups statement
-#' parallelplot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain),
+#' # selecting the parameters via the left side of a 'data' formula
+#' parallelplot(vaas_4[, , 1:10], data = A + AUC ~ J(Species, Strain))
+#' parallelplot(vaas_4[, , 1:10], data = A + AUC ~ J(Species, Strain),
 #'   groups = "Species")
 #'
-#' # left side of formula is ignored, 'pnames' is explicitly given
-#' parallelplot(vaas_4[, , 1:10], include = A + AUC ~ J(Species, Strain),
+#' # 'pnames' explicitly given => left side of formula ignored
+#' parallelplot(vaas_4[, , 1:10], data = A + AUC ~ J(Species, Strain),
 #'   pnames = c("A", "mu", "AUC"), groups = "Species")
 #'
-#' # pnames must not be of length < 2
-#' x <- try(parallelplot(vaas_4[, , 1:10], include = AUC ~ J(Species, Strain),
-#'   groups = "Species", groups = "Strain"), silent = TRUE)
+#' # again: at least two 'pnames' needed
+#' x <- try(parallelplot(vaas_4[, , 1:10], data = AUC ~ J(Species, Strain),
+#'   groups = "Species"), silent = TRUE)
 #' stopifnot(inherits(x, "try-error"))
-#'}
+#'
 setGeneric("parallelplot")
 
-setMethod("parallelplot", c("OPMX", "missing"), function(x, data, ...) {
+setMethod("parallelplot", c("missing", OPMX), function(x, data, ...) {
+  parallelplot(data, NULL, ...)
+}, sealed = SEALED)
+
+setMethod("parallelplot", c("NULL", OPMX), function(x, data, ...) {
+  parallelplot(data, x, ...)
+}, sealed = SEALED)
+
+setMethod("parallelplot", c("vector", OPMX), function(x, data, ...) {
+  parallelplot(data, x, ...)
+}, sealed = SEALED)
+
+setMethod("parallelplot", c("formula", OPMX), function(x, data, ...) {
+  parallelplot(data, x, ...)
+}, sealed = SEALED)
+
+setMethod("parallelplot", c(OPMX, "missing"), function(x, data, ...) {
   parallelplot(x, NULL, ...)
 }, sealed = SEALED)
 
-setMethod("parallelplot", c("OPMX", "ANY"), function(x, data, groups = 1L,
+setMethod("parallelplot", c(OPMX, "ANY"), function(x, data, groups = 1L,
   panel.var = NULL, pnames = param_names(), col = opm_opt("colors"),
   strip.fmt = list(), striptext.fmt = list(), legend.fmt = list(),
   legend.sep = " ", draw.legend = TRUE, space = "top", ...) {
@@ -1739,7 +1744,6 @@ setMethod("parallelplot", c("OPMX", "ANY"), function(x, data, groups = 1L,
       x
   }
 
-  # Convert to dataframe
   x <- as.data.frame(x = x, include = data, sep = NULL, settings = FALSE)
 
   # Process the 'param' argument
@@ -1748,8 +1752,11 @@ setMethod("parallelplot", c("OPMX", "ANY"), function(x, data, groups = 1L,
       pnames <- tmp
     else
       pnames <- match.arg(pnames, several.ok = TRUE)
-  else
+  else {
+    if (is.language(pnames))
+      pnames <- all.vars(pnames)
     pnames <- match.arg(pnames, param_names(), TRUE)
+  }
   if (length(pnames) < 2L)
     stop("'pnames' has to be at least of length 2")
 
