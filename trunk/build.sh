@@ -58,6 +58,9 @@ LOGFILE=$MISC_DIR/docu_opm.log
 #
 BUILT_PACKAGES=$MISC_DIR/built_packages
 
+# Manuals (PDF files) rescued from the check directories.
+#
+RESCUED_MANUALS=$MISC_DIR/manuals
 
 # The whitelists used for spell checking.
 #
@@ -920,12 +923,19 @@ show_test_warnings()
 #
 remove_trailing_whitespace()
 {
-  local pat
-  for pat in '*.R' '*.Rnw'; do
-    # Note that GNU sed does not understand \b (the backspace escape). We also
-    # omit \r to avoid any problems with Mac or Windows line breaks.
-    find . -type f -name "$pat" -exec sed -i 'v; s/[ \t\v\a\f]\+$//' \{\} +
+  # Note that GNU sed does not understand \b (the backspace escape). We also
+  # omit \r to avoid any problems with Mac or Windows line breaks.
+  local pat='v; s/[ \t\v\a\f]\+$//'
+  find . -type f -name '*.R' -exec sed -i "$pat" \{\} +
+  local tmpfile=`mktemp --tmpdir`
+  local rnw_file
+  for rnw_file in `find . -type f -name '*.Rnw'`; do
+    # this avoids unnecessary updates, which would trigger warnings once these
+    # Rnw files were compared with the according PDF files
+    sed "$pat" "$rnw_file" > "$tmpfile" &&
+      ! diff -q "$tmpfile" "$rnw_file" > /dev/null && mv "$tmpfile" "$rnw_file"
   done
+  rm -f "$tmpfile"
 }
 
 
@@ -945,10 +955,13 @@ count_roxygen_tags()
 ################################################################################
 
 
-# Clean up directories left over by R CMD check.
+# Clean up directories left over by R CMD check. Rescue the manuals, if any.
 #
 remove_R_CMD_check_dirs()
 {
+  mkdir -p "$RESCUED_MANUALS" &&
+    find . -type f -wholename '*.Rcheck/*-manual.pdf' \
+      -exec mv -vt "$RESCUED_MANUALS" \{\} + || return 1
   find . -type d -name '*.Rcheck' -prune -exec rm -fr \{\} +
 }
 
