@@ -572,8 +572,30 @@ By default one sub-panel in the level plot corresponds to one complete plate com
 
 \subsection[Plotting the aggregated data]{Plotting the aggregated data}\label{methods plotting-aggregated}
 
-For the graphical representation of the aggregated data, namely point estimators and corresponding confidence limits for the curve parameters of selected curves, the function \code{ci\_plot} is available.
-The characteristics of different curves assembled into a single overview facilitates the interpretation and comparison of user-defined data subsets arranged according to the technical and/or biological repetition structure or other aspects of the experimental design \citep{vaas}.
+For the graphical representation of the aggregated data the package \pkg{opm} provides four different functions, namely \code{parallelplot} for visualisation of different curve parameters in one plot, and \code{radial\_plot}, \code{ci\_plot} and \code{heat\_map} for display of one selected curve parameter.
+
+\code{parallelplot} provides an integrated overview of at least two estimated parameters and visualises their relation to each other.
+
+\code{radial\_plot} displays a plot of radial lines, polygons or symbols, or a combination of these, centred at the midpoint of the plot frame, the lengths, vertices or positions corresponding to the numeric magnitudes of the data values.
+
+\code{ci\_plot} displays point estimators and corresponding confidence limits for the depicted curve parameters of selected curves.
+Thus the characteristics of different curves assembled into a single overview facilitates the interpretation and comparison of user-defined data subsets arranged according to the technical and/or biological repetition structure or other aspects of the experimental design \citep{vaas}.
+
+\code{heat\_map} combines visualisation of the parameters with clustering according to selected metadata, which makes it particularly suitable for data exploration in specialised contexts (see below for further details).
+
+Additionally, the package offers the possibility of plotting the aggregated curve parameters as a heat map \textit{via} the function \code{heat\_map}.
+Heat maps appear particularly powerful for visualising the outcomes of \ac{PM} experiment because dendrograms inferred from both the substrates and the plates can be used to rearrange the plot.
+Since the user is free to define the metadata to be used for the annotation of the plot and the clustering analysis, this tool provides a powerful feature for data exploration in specialised contexts.
+For instance, the naming scheme of the individual plates can be devised by selecting associated metadata.
+It is also possible to automatically construct row groups by selecting the same or other meta-information.
+
+Further, \pkg{opm} enables the user to plot aggregated values as radial plots using an eponymous function, which is mainly a wrapper for the \code{radial.plot} function from the \pkg{plotrix} package adapted to the typical \pkg{opm} objects.
+\code{heat\_map} is mainly a wrapper for the \code{heatmap} functions from either the \pkg{stats} or the \pkg{gplots} \proglang{R} package, but contains some useful adaptations to \ac{PM} data.
+It facilitates the selection of a clustering algorithm and the construction of row and column groups, and provides more appropriate default solutions for row and column descriptions sizes.
+(We suppose that in most situations the pictures produced by \code{heat\_map} should not need to be manually adapted in these respects.)
+
+
+\subsubsection[Normalisation of aggregated curve parameters]{Normalisation of aggregated curve parameters}\label{methods norm-aggregated}
 
 When analysing empirically obtained measurements such as \ac{PM} data it is important to consider possible systematic variations and to control for those by normalisation.
 For a \ac{PM} experiment the purpose of such a normalisation is to minimise systematic variations in the aggregated curve parameters so as to more easily recognise biological differences, as well as to allow for the comparison of parameters across plates processed in different experimental runs.
@@ -585,18 +607,6 @@ Optionally, normalisation by subtracting, or dividing through, the plate-wise me
 Although this method is intended mainly as a helper function for \code{ci\_plot}, it can be quite useful for specific normalisation purposes, for example when data were derived before and after servicing the OmniLog\textregistered \ facility, which might result in shifting the measurements by a certain amount.
 In conjunction with \code{extract}, \code{ci\_plot} allows for visualising point estimates and confidence intervals of groups of parameter estimates.
 For visualising differences between groups and their confidence intervals, see \code{opm\_mcp} as described in Section~\ref{methods group-means}.
-
-Additionally, the package offers the possibility of plotting the aggregated curve parameters as a heat map \textit{via} the function \code{heat\_map}.
-Heat maps appear particularly powerful for visualising the outcomes of \ac{PM} experiment because dendrograms inferred from both the substrates and the plates can be used to rearrange the plot.
-Since the user is free to define the metadata to be used for the annotation of the plot and the clustering analysis, this tool provides a powerful feature for data exploration in specialised contexts.
-For instance, the naming scheme of the individual plates can be devised by selecting associated metadata.
-It is also possible to automatically construct row groups by selecting the same or other meta-information.
-\code{heat\_map} is mainly a wrapper for the \code{heatmap} functions from either the \pkg{stats} or the \pkg{gplots} \proglang{R} package, but contains some useful adaptations to \ac{PM} data.
-It facilitates the selection of a clustering algorithm and the construction of row and column groups, and provides more appropriate default solutions for row and column descriptions sizes.
-(We suppose that in most situations the pictures produced by \code{heat\_map} should not need to be manually adapted in these respects.)
-
-Finally, \pkg{opm} enables the user to plot aggregated values as radial plots using an eponymous function, which is mainly a wrapper for the \code{radial.plot} function from the \pkg{plotrix} package adapted to the typical \pkg{opm} objects.
-\code{radial\_plot} displays a plot of radial lines, polygons or symbols, or a combination of these, centred at the midpoint of the plot frame, the lengths, vertices or positions corresponding to the numeric magnitudes of the data values.
 
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{methods group-means}
@@ -1433,38 +1443,33 @@ The default colour palette used can by modified with \code{opm\_opt(colour.borde
 
 \subsection[Plotting the aggregated data]{Plotting the aggregated data}\label{application plotting-aggregated}
 
-The function \code{heat\_map} (see Figure~\ref{fig:heat_map}) provides false-colour level plots in which both axes are rearranged according to clustering results.
-In the context of \ac{PM} data, it makes most sense to apply it to the estimated curve parameters.
-This \pkg{opm} function is a wrapper for \code{heatmap} from the \pkg{stats} and \code{heatmap.2} from the \pkg{gplots} package with some adaptations to \ac{PM} data.
-For instance, row groups can be automatically constructed from the metadata.
+The idea of \code{parallelplot} is to include all four estimated curve parameters in one comprehensive overview plot.
+The concept is also known as parallel coordinate plot and produces an effective graphical summary of a multivariate data set, when there are not too much variables.
+Since the variables are are automatically scaled to a fixed range (here marked with ``Min'' and ``Max'', see Figure~\ref{fig:para_plot_simple}) which is equivalent to working with standardised variables.
+This basically prevents the influence of one variable onto the others due to scaling issue, especially for situation like here, where the numerical values have huge differences on the different scales.
+Figure~\ref{fig:para_plot_simple} provides an example of such a visualisation.
+All four parameters are plotted for the wells A01 to A10 from data set \code{vaas\_4} and superimposed with colours according their strain identity.
 
-The function \code{heat\_map} could be applied to matrices or data frames constructed using the helper function \code{extract}, but it is more convenient to apply it directly to \proglang{OPMS} objects:
-
-<<label=heat-map-dummy, results=hide, eval=FALSE>>=
-vaas.1.6.A <- heat_map(vaas.1.6, as.labels = "Strain",
-  as.groups = "Species")
+<<label=para-plot-dummy, results=hide, eval=FALSE>>=
+parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
 @
 
 \begin{figure}
 \centering
-\scalebox{1.225}{
-<<label=heat-map-figure, fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
-heat_map(vaas.1.6, as.labels = "Strain", as.groups = "Species")
+\scalebox{1.0}{
+<<label=para-plot-figure, fig=TRUE, echo=FALSE, results=hide, width=10, height=6>>=
+parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
 @
 }
 \caption{
-\label{fig:heat_map}
-Visualisation of the clustered results from the curve parameter \ac{A} for each substrate using the function \code{heat\_map}.
-The x-axis corresponds to the substrates clustered according to the similarity of their values over all plates; the y-axis corresponds to the plates clustered to the similarity of their values over all substrates.
-As row labels, the strain names were selected (argument \code{as.labels}), whereas the species affiliations was used to assign row group colours (bars at the left side, argument \code{as.groups}).
-The central rectangle is a substrate $\times$ plate matrix in which the colours represent the classes of values.
-The default colour setting uses topological colours, with deep violet and blue indicating the lowest values and light brown indicating the highest values, but another colour palette could also be chosen by the user.
-The default can by set with \code{opm\_opt(hm.colours = ...)}.
+\label{fig:para_plot_simple}
+\rcsmark{TODO:} Lea, write some nice figure caption.
 }
 \end{figure}
 
-Additional example code on clustering curve parameters, including an assessment of the uncertainty of the branching, is available \textit{via} \code{opm\_files("demo")}.
-Call \code{demo("cluster-with-pvalues", package = "opm")} for running examples based on the  using the \pkg{pvclust} package \citep{Suzuki2011}.
+This kind of plots is dedicated for learning about, if there are any consistent pattern of individual curves that may be explained by specific class membership (e.g. same origin of tested strain, same behaviour on certain substrates, ...), or if there are pattern of individual curves that indicate unexpected deviation (e.g. differences between experimental repetitions, differences between , ...).
+
+\rcsmark{TODO:} Lea, extend here with explanation about the data-argument, how to use the formula, difference between left and right side of formula.
 
 The function \code{radial\_plot} is able to plot numeric values as distances from the centre of a circular field in directions defined by angles in radians.
 Some selection of wells should usually be applied beforehand for these plots to be useful.
@@ -1523,6 +1528,7 @@ Each centroid is shown as larger symbol in the corresponding colour.
 \end{figure}
 
 
+
 The function \code{ci\_plot} is able to visualise point estimates and corresponding 95\% confidence intervals for the parameters, derived \textit{via} bootstrapping during aggregation of raw kinetic data into curve parameters, or, in conjunction with \code{extract}, from plate groups defined by the metadata.
 Thereby the bracket operator as described above (see Section~\ref{application manipulation}) facilitates the selection of subsets of interest.
 
@@ -1555,7 +1561,7 @@ But note that here the confidence intervals only indicate the uncertainty in par
 
 
 Furthermore, the helper function \code{extract} (more specifically, its data-frame method) can group curve parameters from \proglang{OPMS} objects according to selected metadata and calculate according point estimates (means) and confidence intervals.
-It can also apply normalisation beforehand, which might frequently be necessary to more easily recognise biological differences; see Section~\ref{methods plotting-aggregated}.
+It can also apply normalisation beforehand, which might frequently be necessary to more easily recognise biological differences; see Section~\ref{methods norm-aggregated}.
 
 After the extraction of the values together with necessary metadata (argument \code{as.labels}) in a first call to \code{extract}, the resulting data frame can be treated by \code{extract} again for generating another data frame with numeric values grouped according to the \code{as.groups} argument and optionally normalisation applied, as triggered \textit{via} the argument \code{norm.per}.
 The first data frame would be created as follows:
@@ -1638,6 +1644,40 @@ Normalisation was done by subtracting the overall well means of well A10 (``Posi
 Compare this with Figure~\ref{fig:ci_plot_groups}.
 }
 \end{figure}
+
+
+The function \code{heat\_map} (see Figure~\ref{fig:heat_map}) provides false-colour level plots in which both axes are rearranged according to clustering results.
+In the context of \ac{PM} data, it makes most sense to apply it to the estimated curve parameters.
+This \pkg{opm} function is a wrapper for \code{heatmap} from the \pkg{stats} and \code{heatmap.2} from the \pkg{gplots} package with some adaptations to \ac{PM} data.
+For instance, row groups can be automatically constructed from the metadata.
+
+The function \code{heat\_map} could be applied to matrices or data frames constructed using the helper function \code{extract}, but it is more convenient to apply it directly to \proglang{OPMS} objects:
+
+<<label=heat-map-dummy, results=hide, eval=FALSE>>=
+vaas.1.6.A <- heat_map(vaas.1.6, as.labels = "Strain",
+  as.groups = "Species")
+@
+
+\begin{figure}
+\centering
+\scalebox{1.225}{
+<<label=heat-map-figure, fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
+heat_map(vaas.1.6, as.labels = "Strain", as.groups = "Species")
+@
+}
+\caption{
+\label{fig:heat_map}
+Visualisation of the clustered results from the curve parameter \ac{A} for each substrate using the function \code{heat\_map}.
+The x-axis corresponds to the substrates clustered according to the similarity of their values over all plates; the y-axis corresponds to the plates clustered to the similarity of their values over all substrates.
+As row labels, the strain names were selected (argument \code{as.labels}), whereas the species affiliations was used to assign row group colours (bars at the left side, argument \code{as.groups}).
+The central rectangle is a substrate $\times$ plate matrix in which the colours represent the classes of values.
+The default colour setting uses topological colours, with deep violet and blue indicating the lowest values and light brown indicating the highest values, but another colour palette could also be chosen by the user.
+The default can by set with \code{opm\_opt(hm.colours = ...)}.
+}
+\end{figure}
+
+Additional example code on clustering curve parameters, including an assessment of the uncertainty of the branching, is available \textit{via} \code{opm\_files("demo")}.
+Call \code{demo("cluster-with-pvalues", package = "opm")} for running examples based on the  using the \pkg{pvclust} package \citep{Suzuki2011}.
 
 Additional example code on visualising curve parameters is available \textit{via} \code{opm\_files("demo")}.
 It is indeed easy to conduct principal-component analysis with matrices created with \code{extract}.
