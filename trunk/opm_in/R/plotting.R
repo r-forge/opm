@@ -1600,26 +1600,26 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #'
 #' @param ... Optional arguments passed to \code{parallelplot} from the
 #'   \pkg{lattice} package.
-#' @details The main application of this function is to includes all four
-#'   estimated curve parameters in one comprehensive overview. It helps
-#'   answering questions like: \itemize{
+#' @details The main application of this function is to include all four
+#'   estimated curve parameters into a single comprehensive overview. This
+#'   assists in addressing questions such as \itemize{
 #'
-#'   \item Are there any consistent pattern of individual curves that may be
-#'   explained by specific class membership (e.g. same origin of tested strain,
-#'   same behaviour on certain substrates, ...)?
+#'   \item Are there any consistent patterns of individual curves that may be
+#'   explained by specific class membership? For instance, which curve parameter
+#'   best reflects the origin of the tested strains?
 #'
-#'   \item Are there any pattern of individual curves that indicate unexpected
-#'   deviation (e.g. differences between experimental repetitions, differences
-#'   between , ...)?
+#'   \item Are there any patterns of individual curves with unexpected
+#'   deviations? For instance, do differences between experimental repetitions
+#'   occur?
 #'   }
 #'
 #'   The concept of \code{parallelplot} is also known as parallel coordinate
 #'   plot and produces an effective graphical summary of a multivariate data set
-#'   (when there are not too much variables). Since the variables are
-#'   automatically scaled to a fixed range (here marked with ``Min'' and
-#'   ``Max'') this is equivalent to working with standardised variables. This
-#'   basically prevents the influence of one variable onto the others due
-#'   to scaling issue, especially for situation like here, where the numerical
+#'   (when there are not too many variables). Since the variables are
+#'   automatically scaled to a fixed range (here marked with \sQuote{Min} and
+#'   \sQuote{Max}) this is equivalent to working with standardised variables.
+#'   This basically prevents the influence of one variable on the others due to
+#'   scaling issues, especially for situations like here, where the numerical
 #'   values have huge differences on the different scales.
 #'
 #' @export
