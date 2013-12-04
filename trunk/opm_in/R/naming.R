@@ -698,7 +698,7 @@ to_sentence.logical <- function(x, html, ...) {
 #'   empty, it is used to create the row name of the single row of the resulting
 #'   \code{OPMS_Listing} object. Otherwise an \code{OPMD_Listing} object is
 #'   produced.
-#' @param cutoff Numeric scalar used if \sQuote{as.groups} is a list. If the
+#' @param cutoff Numeric scalar used if \sQuote{as.groups} is non-empty. If the
 #'   relative frequency of the most frequent entry within the discretised values
 #'   to be joined is below that cutoff, \code{NA} is used. Ignored if \code{x}
 #'   is an \code{\link{OPMD}} object but added to the result if \code{as.groups}
