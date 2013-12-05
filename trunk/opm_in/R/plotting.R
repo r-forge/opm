@@ -1613,15 +1613,6 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #'   occur?
 #'   }
 #'
-#'   The concept of \code{parallelplot} is also known as parallel coordinate
-#'   plot and produces an effective graphical summary of a multivariate data set
-#'   (when there are not too many variables). Since the variables are
-#'   automatically scaled to a fixed range (here marked with \sQuote{Min} and
-#'   \sQuote{Max}) this is equivalent to working with standardised variables.
-#'   This basically prevents the influence of one variable on the others due to
-#'   scaling issues, especially for situations like here, where the numerical
-#'   values have huge differences on the different scales.
-#'
 #' @export
 #' @family plotting-functions
 #' @return An object of class \sQuote{trellis}. See \code{xyplot} from the

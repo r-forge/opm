@@ -572,16 +572,17 @@ By default one sub-panel in the level plot corresponds to one complete plate com
 
 \subsection[Plotting the aggregated data]{Plotting the aggregated data}\label{methods plotting-aggregated}
 
-For the graphical representation of the aggregated data the package \pkg{opm} provides four different functions, namely \code{parallelplot} for visualisation of different curve parameters in one plot, and \code{radial\_plot}, \code{ci\_plot} and \code{heat\_map} for display of one selected curve parameter.
+For the graphical representation of the aggregated data the package \pkg{opm} provides four different functions, namely \code{parallelplot} for visualising distinct curve parameters in one plot as well as \code{radial\_plot}, \code{ci\_plot} and \code{heat\_map} for displaying a selected curve parameter.
 
-\code{parallelplot} provides an integrated overview of at least two estimated parameters and visualises their relation to each other.
+\code{parallelplot} provides an integrated overview of at least two estimated parameters and visualises their interrelationships.
+Such a parallel coordinate plot produces an effective graphical summary of a multivariate data set when there are not too many variables.
+Since the variables are automatically scaled to a fixed range, this is equivalent to working with standardised variables.
+This is important for \ac{PM} data because the distinct curve parameters are measured on quite different scales.
 
 \code{radial\_plot} displays a plot of radial lines, polygons or symbols, or a combination of these, centred at the midpoint of the plot frame, the lengths, vertices or positions corresponding to the numeric magnitudes of the data values.
 
 \code{ci\_plot} displays point estimators and corresponding confidence limits for the depicted curve parameters of selected curves.
 Thus the characteristics of different curves assembled into a single overview facilitates the interpretation and comparison of user-defined data subsets arranged according to the technical and/or biological repetition structure or other aspects of the experimental design \citep{vaas}.
-
-\code{heat\_map} combines visualisation of the parameters with clustering according to selected metadata, which makes it particularly suitable for data exploration in specialised contexts (see below for further details).
 
 Additionally, the package offers the possibility of plotting the aggregated curve parameters as a heat map \textit{via} the function \code{heat\_map}.
 Heat maps appear particularly powerful for visualising the outcomes of \ac{PM} experiment because dendrograms inferred from both the substrates and the plates can be used to rearrange the plot.
@@ -1443,12 +1444,9 @@ The default colour palette used can by modified with \code{opm\_opt(colour.borde
 
 \subsection[Plotting the aggregated data]{Plotting the aggregated data}\label{application plotting-aggregated}
 
-The idea of \code{parallelplot} is to include all four estimated curve parameters in one comprehensive overview plot.
-The concept is also known as parallel coordinate plot and produces an effective graphical summary of a multivariate data set, when there are not too much variables.
-Since the variables are automatically scaled to a fixed range (here marked with ``Min'' and ``Max'', see Figure~\ref{fig:para_plot_simple}) which is equivalent to working with standardised variables.
-This basically prevents the influence of one variable onto the others due to scaling issue, especially for situation like here, where the numerical values have huge differences on the different scales.
+The purpose of \code{parallelplot} is to include several estimated curve parameters into one comprehensive overview.
 Figure~\ref{fig:para_plot_simple} provides an example of such a visualisation.
-All four parameters are plotted for the wells A01 to A10 from data set \code{vaas\_4} and superimposed with colours according their strain identity.
+All four parameters are plotted for the wells A01 to A10 from the data set \code{vaas\_4} and superimposed with colours according their affiliation to strains.
 
 <<label=para-plot-dummy, results=hide, eval=FALSE>>=
 parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
@@ -1463,20 +1461,17 @@ parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
 }
 \caption{
 \label{fig:para_plot_simple}
-Visualisation of all four curve parameters in one comprehensive parallelplot.
-Each respiration curve results in a set of four estimated parameters, which are automatically scaled to a fixed range (here marked with ``Min'' and ``Max'') and plotted by a connecting line.
-Since no \code{groups} argument is stated, by default the first element of the right part of the formula in \code{data} is used.
-Thus, the colours indicate the Strain-Species combination, since they are provided as meta data \textit{via} the \code{data} argument using the pseudo-function \code{J}.
+Visualisation of all four curve parameters in one comprehensive parallel coordinate plot.
+The parameters are automatically scaled to a fixed range (here marked with ``Min'' and ``Max'') and plotted by connecting lines.
+By default the first element of the right part of the formula in \code{data} is used as \code{groups} argument.
+Thus, in the example the colours indicate the ``Strain''-``Species'' combination, since these entries are selected from the metadata \textit{via} the \code{data} argument and joined using the pseudo-function \code{J}.
 }
 \end{figure}
 
-This kind of plots is dedicated for learning about, if there are any consistent pattern of individual curves that may be explained by specific class membership (e.g. same origin of tested strain, same behaviour on certain substrates, ...), or if there are pattern of individual curves that indicate unexpected deviation (e.g. differences between experimental repetitions, differences between , ...).
-
-The fine tuning of the plot is managed by the \code{data} argument for selection of certain meta data, in combination with \code{groups}, which accesses the provided meta data entries.
-Additionally, \code{panel.var} for creating sub-panels, also accesses the meta data provided by data.
-Thus, only meta data allocated by \code{data} are available for \code{groups} and \code{panel.var},
-By default, only \code{Well} is available as meta data variable.
-Figure~\ref{fig:para_plot_advanced} demonstrates, how the \code{panel.var} and the \code{groups} argument can be used for further fine tuning the plot.
+The fine tuning of the plot is managed by the \code{data} argument for selecting metadata, optionally combined with \code{groups}, which by default accesses the provided metadata entries, if any.
+Additionally, \code{panel.var} for creating sub-panels can access the metadata selected with \code{data}.
+If no metadata are selected (the default), only \code{Well} is available as grouping variable.
+Figure~\ref{fig:para_plot_advanced} demonstrates how the \code{panel.var} and the \code{groups} argument can be used for fine tuning the plot.
 
 <<label=para-plot-advanced-dummy, results=hide, eval=FALSE>>=
 parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
@@ -1493,21 +1488,18 @@ parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
 }
 \caption{
 \label{fig:para_plot_advanced}
-Visualisation of all four curve parameters in a more sophisticated parallelplot.
-Each respiration curve results in a set of four estimated parameters, which are automatically scaled to a fixed range (here marked with ``Min'' and ``Max'') and plotted.
-Since both \code{Strain} and \code{Species} as well as their combination are provided as meta data \textit{via} the \code{data} argument using the pseudo-function \code{J}, the colour can be set by the \code{groups} argument with input \code{Strain} and the sub-panelling can be achieved with \code{Species} as input for \code{panel.var}.
+Visualisation of all four curve parameters in a more sophisticated parallel coordinate plot.
+Since a combination of \code{Strain} and \code{Species} is selected from the metadata \textit{via} the \code{data} argument using the pseudo-function \code{J}, the colour can be set by ``Strain'' as \code{groups} argument and the sub-panelling can use ``Species'' as input for \code{panel.var}.
 }
 \end{figure}
 
 
-In principle, \code{data} can be used for providing all types of objects that can be used for selecting meta data.
-Beside \code{NULL} (no meta data are included), a character vector, a list of character vectors or a formula indicating which meta data should be included, are possible.
-However, the most flexibility is achieved, when \code{data} is stated as a formula.
-The right part of the formula always states the meta-information to be included in the underlying data set.
-As usual in \pkg{opm}, the \code{J} pseudo-function can be used to join meta data entries.
-Further, the left part in the formula can indicate, which parameter should be plotted on the Y-axes.
-Note that at least two parameters have to be stated.
-The argument \code{pnames} does also state the parameter to be used for plotting, but can overrule the left side of a stated formula.
+In addition to \code{NULL} as \code{data} argument (no metadata are included), a character vector or a list of character vectors indicating which metadata should be included can be used.
+However, the most flexibility is achieved if \code{data} is stated as a formula.
+The right part of the formula always indicates the meta-information to be included in the underlying data set.
+As usual in \pkg{opm}, the \code{J} pseudo-function can be used to join metadata entries.
+Further, the left part in the formula (as an alternative to the \code{pnames} argument) can indicate which parameters should be plotted on the Y-axes.
+Note that at least two parameters have to be used, and see the manual for further details.
 
 The function \code{radial\_plot} is able to plot numeric values as distances from the centre of a circular field in directions defined by angles in radians.
 Some selection of wells should usually be applied beforehand for these plots to be useful.
