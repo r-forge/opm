@@ -1,0 +1,320 @@
+
+
+\documentclass[nojss]{jss}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% GENERAL HINTS: STYLE OF THIS DOCUMENT
+%
+% See the according section in the Rnw file for the main tutorial!!!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% These commands do nothing. They are used for a logical annotation of text,
+% causing the spellchecker to ignore its content.
+%
+\def\Surname{}
+\def\German{}
+
+% Acronyms
+%
+\usepackage{acronym}
+\acrodef{ASD}{Autism Spectrum Disorder}
+\acrodef{BH}{Benjamin \German{Hofner}}
+\acrodef{CAS}{Chemical Abstracts Service}
+\acrodef{ChEBI}{Chemical Entities of Biological Interest}
+\acrodef{CI}{Confidence Interval}
+\acrodef{DSMZ}{\German{Deutsche Sammlung von Mikroorganismen und Zellkulturen}}
+\acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
+\acrodef{EC}{Enzyme Commission}
+\acrodef{FAU}{\German{Friedrich-Alexander-Universit\"{a}t}}
+\acrodef{ID}{Identifier}
+\acrodef{IMBE}{\German{Institut f\"{u}r Medizininformatik, Biometrie und Epidemiologie}}
+\acrodef{KEGG}{Kyoto Encyclopedia of Genes and Genomes}
+\acrodef{KO}{\acs{KEGG} Orthology}
+\acrodef{MeSH}{Medical Subject Headings}
+\acrodef{RF}{Random Forest}
+\acrodef{PM}{Phenotype Microarray}
+\acrodef{PNG}{Portable Network Graphics}
+\acrodef{VIM}{Variable Importance Measure}
+
+%% Add Revision Control System (RCS) Markups
+\usepackage{ulem}      % use this for sout
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+%\usepackage{fancyvrb}
+\normalem              % set \emph to \textit again
+% Additions (in blue)
+\def\rcsadd#1{{\color{blue}#1}}
+% Deletions (in red)
+\def\rcsdel#1{{\color{red}\sout{#1}}}
+% Yellow box (few words)
+\def\rcsmark#1{\colorbox{yellow}{#1}}
+%Yellow box (paragraph)
+\def\rcscom#1{\noindent\newline\vspace*{0.5cm}\colorbox{yellow}{\parbox{\textwidth}{#1}}\vspace*{0.5cm}}
+
+
+%% overwrite JSS definition of subsubsections
+%% e.g., use numbering
+\renewcommand{\jsssubsubsec}[2][default]{\vskip \preSskip%
+  \pdfbookmark[3]{#1}{Subsubsection.\thesubsubsection.#1}%
+  \refstepcounter{subsubsection}%
+  {\large \thesubsubsection. #2} \nopagebreak
+  \vskip \postSskip \nopagebreak}
+
+%% overwrite JSS definitions of code sections
+%% (make font smaller)
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl, fontsize=\small}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl, fontsize=\small}
+
+\DefineVerbatimEnvironment{Code}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{CodeInput}{Verbatim}{fontshape=sl, fontsize=\small}
+\DefineVerbatimEnvironment{CodeOutput}{Verbatim}{fontsize=\small}
+
+
+
+%% needed for CRAN checking
+%\VignetteIndexEntry{Substrate information in opm}
+
+
+% authors, first page
+\author{Lea A.I. \Surname{Vaas}\\Leibniz Institute \acs{DSMZ}
+	\And
+        Markus \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
+
+
+% title, first page
+\title{Analysing growth curves in \pkg{opm}}
+
+
+% authors, header on every 2nd page
+\Plainauthor{L.A.I. Vaas, M. G\"{o}ker}
+
+
+% main title, first page
+\Plaintitle{Analysing growth curves in in opm}
+
+
+% short title, header on every 2nd page
+\Shorttitle{Growth curves in \pkg{opm} (\today)}
+
+
+\Abstract{
+here some abstract summarizing how to proceed with real growth curve data in \pkg{opm}.
+}
+
+\Keywords{growth curves}
+
+\Plainkeywords{}
+
+\Address{
+  Markus \Surname{G\"{o}ker}\\
+  Leibniz Institute \acs{DSMZ} -- German Collection of Microorganisms and Cell Cultures\\
+  \German{Braunschweig}\\
+  \\
+  Telephone: +49/531-2616-272\\
+  Fax: +49/531-2616-237\\
+  E-mail: \email{markus.goeker@dsmz.de}\\
+  URL: \url{www.dsmz.de}\\
+}
+
+
+%% this must be included if Sweave is used (with % symbols):
+%% need no \usepackage{Sweave.sty}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+% NOTE: Rstudio might insert a line '\SweaveOpts{concordance=TRUE}' after '\begin{document}', which is removed again by the build script, as it causes warning messages during R CMD check.
+% So please don't try to rescue that line, and don't rely on it being there.
+
+
+%% so far adding a TOC proved unsuccessful -- apparently the JSS style doesn't allow for a TOC
+%\tableofcontents
+%\newpage
+
+\acresetall
+
+\section{Introduction}\label{introduction}
+
+A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype Microarray Data'' (called ``main tutorial'' in the following).
+The description of the methods below presupposes that the user is familiar with the usage of \pkg{opm} and has studied the main tutorial as well as the entries of the \pkg{opm} manual relevant to her or his research.
+Especially the concepts behind, and the methods available for, the different classes of \pkg{opm} objects should be known before starting with this tutorial.
+
+\rcsmark{TODO:} \pkg{opm} can also be used for analysis of growth curves measured in other devises than the  OmniLog\textregistered machine. 
+This vignette provides a tutorial for (i) data preparation for input, (ii) conversion of raw data into OPMX objects, (iii) further steps for analysis of the curves.
+
+
+\section{Preparation}\label{preparation}
+
+<<label=chunk-setup, echo=FALSE>>=
+options(width = 90)
+options(prompt = "R> ")
+options(continue = "   ")
+options(useFancyQuotes = FALSE)
+library("methods")
+@
+
+\subsection[Preparation for input]{Preparation for input}
+\rcsmark{TODO:} Description of example data.
+
+input as .csv
+
+<<label=newFun, results=hide, eval=FALSE>>=
+library(pkgutils)
+library(opm)
+
+any2opmx <- function(x, format = c("horizontal", "vertical"), prefix = "T_") {
+  
+  register_substrates <- function(wells, plate.type) {
+    map <- unique.default(wells) # already sorted at this stage
+    map <- structure(rownames(opm:::WELL_MAP)[seq_along(map)], names = map)
+    # TODO: this map should be registered for this plate type
+    map_values(wells, map)
+  }
+  
+  convert_horizontal_format <- function(x, prefix) {
+    repair_csv_data <- function(x) {
+      map <- c(opm:::CSV_NAMES, opm:::RESERVED_NAMES[["well"]])
+      map <- structure(map, names = chartr(" ", ".", map))
+      names(x) <- map_values(names(x), map)
+      n <- opm:::CSV_NAMES[["SETUP"]]
+      if (!n %in% names(x))
+        x[, n] <- date()
+      n <- opm:::CSV_NAMES[["FILE"]]
+      if (!n %in% names(x))
+        x[, n] <- ""
+      x
+    }
+    time_columns <- function(x, prefix) {
+      first <- substring(x, 1L, nchar(prefix))
+      x <- substring(x, nchar(prefix) + 1L, nchar(x))
+      x <- suppressWarnings(as.numeric(x))
+      x[first != prefix] <- NA_real_
+      x
+    }
+    per_plate_type <- function(cd, tp, x, md) {
+      pos <- match(opm:::RESERVED_NAMES[["well"]], colnames(md))
+      colnames(x) <- register_substrates(md[, pos],
+        cd[1L, opm:::CSV_NAMES[["PLATE_TYPE"]]])
+      # TODO: this must be removed after implementing user-defined plate types
+      cd[, opm:::CSV_NAMES[["PLATE_TYPE"]]] <- "Gen III"
+      md <- md[, -pos, drop = FALSE]
+      indexes <- cd[, get("csv.keys", opm:::OPM_OPTIONS), drop = FALSE]
+      indexes <- apply(indexes, 1L, paste0, collapse = " ")
+      indexes <- split.default(seq_len(ncol(x)), indexes)
+      result <- vector("list", length(indexes))
+      for (i in seq_along(indexes)) {
+        idx <- indexes[[i]]
+        result[[i]] <- new("OPM", csv_data = cd[idx[1L], ],
+          metadata = lapply(md[idx, , drop = FALSE], unique.default),
+          measurements = cbind(tp, x[, idx, drop = FALSE]))
+      }
+      if (length(result) > 1L)
+        new("OPMS", plates = result)
+      else
+        result[[1L]]
+    }
+    x <- x[order(x[, opm:::RESERVED_NAMES[["well"]]]), , drop = FALSE]
+    x <- repair_csv_data(x)
+    pos <- get("csv.selection", opm:::OPM_OPTIONS)
+    pos <- unique.default(c(pos, opm:::CSV_NAMES[["PLATE_TYPE"]]))
+    pos <- match(pos, names(x))
+    cd <- as.matrix(x[, pos, drop = FALSE])
+    x <- x[, -pos, drop = FALSE]
+    tp <- time_columns(names(x), prefix)
+    md <- x[, is.na(tp), drop = FALSE]
+    x <- t(as.matrix(x[, !is.na(tp), drop = FALSE]))
+    rownames(x) <- NULL
+    tp <- matrix(tp[!is.na(tp)], nrow(x), 1L, FALSE, list(NULL, opm:::HOUR))
+    indexes <- split.default(seq_len(ncol(x)),
+      cd[, opm:::CSV_NAMES[["PLATE_TYPE"]]])
+    result <- vector("list", length(indexes))
+    for (i in seq_along(indexes)) {
+      idx <- indexes[[i]]
+      result[[i]] <- per_plate_type(cd[idx, , drop = FALSE], tp,
+        x[, idx, drop = FALSE], md[idx, , drop = FALSE])
+    }
+    as(structure(result, names = names(indexes)), "MOPMX")
+  }
+  
+  stopifnot(is.data.frame(x))
+  for (i in which(vapply(x, is.factor, NA)))
+    x[, i] <- as.character(x[, i])
+  
+  case(format <- match.arg(format),
+    horizontal = convert_horizontal_format(x, prefix),
+    vertical = stop("not yet supported")
+  )
+}
+@
+
+now some code for example data. 
+
+<<label=code_all, results=hide, eval=FALSE>>=
+library(opm)
+setwd("~/Documents/Phenotype/opm_adds/Wuchskurven")
+
+WK.L <- read.delim("growth_example.csv")
+str(WK.L)
+WK.wide.FM <- reshape(WK.L, v.names = "FM", drop = "TM",
+  idvar = c("Genotype", "Treatment", "Rep"), timevar = "Time", direction = "wide")
+WK.wide.FM
+WK.wide.TM <- reshape(WK.L, v.names = "TM", drop = "FM",
+  idvar = c("Genotype", "Treatment", "Rep"), timevar = "Time", direction = "wide")
+WK.wide.TM
+
+# einfuegen der position-spalte
+WK.wide.FM <- extract_columns(WK.wide.FM, list(Position = c("Genotype", "Rep")), 
+  direct = TRUE)
+WK.wide.FM$Position <- as.integer(WK.wide.FM$Position)
+WK.wide.FM
+
+WK.wide.TM <- extract_columns(WK.wide.TM, list(Position = c("Genotype", "Rep")), 
+  direct = TRUE)
+WK.wide.TM$Position <- as.integer(WK.wide.TM$Position)
+WK.wide.TM
+
+# einfuegen der Plate.Type-spalte
+WK.wide.FM$Plate.Type <- gl(n = 1, k = dim(WK.wide.FM)[1], 
+  labels = "Custom:dummy")
+
+WK.wide.TM$Plate.Type <- gl(n = 1, k = dim(WK.wide.TM)[1], 
+  labels = "Custom:dummy")
+
+# 'Treat' muss in 'Well' umbenannt werden
+map <- c(Treatment = "Well")
+WK.wide.FM <- map_names(WK.wide.FM, map)
+head(WK.wide.FM)
+
+# WK.wide.TM
+map <- c(Treatment = "Well")
+WK.wide.TM <- map_names(WK.wide.TM, map)
+head(WK.wide.TM)
+
+# in OPMX objecte umwandeln
+WK.FM.OPM <- any2opmx(WK.wide.FM)
+WK.RM.OPM <- any2opmx(WK.wide.TM)
+@
+
+
+\subsection[conversion of raw data into OPMX objects]{conversion of raw data into OPMX objects}
+
+\subsection[further steps for analysis of the curves]{further steps for analysis of the curves}
+
+\section[Acknowledgements]{Acknowledgements}
+We are grateful to Barry \Surname{Bochner} (BIOLOG Inc.) for providing substrate and plate information on \ac{PM} assays.
+
+\clearpage
+
+\bibliography{opm}
+
+\end{document}
+
