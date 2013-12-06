@@ -1501,12 +1501,12 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
     main = paste0(as.labels, sep = sep), ...) {
 
   # insert a ready-made colour vector for line.col
-  adapt_colors <- function(x, colors) {
-    x <- as.factor(x)
-    if (length(colors) < length(levels(x)))
-      stop("not enough colours provided")
-    colors[x]
-  }
+  #adapt_colors <- function(x, colors) {
+  #  x <- as.factor(x)
+  #  if (length(colors) < length(levels(x)))
+  #    stop("not enough colours provided")
+  #  colors[x]
+  #}
 
   LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch)
   line.col <- try_select_colors(line.col)
@@ -1516,7 +1516,8 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
     par(changed.par))
 
   # check if line.col has the same length as object[, subset, drop = FALSE]
-  #  if (length(line.col) < nsets) # nsets = length(object[, subset, drop = FALSE])
+  #  if (length(line.col) < nsets)
+  #    nsets <- length(object[, subset, drop = FALSE])
   changed.par <- radial.plot(lengths = object[, subset, drop = FALSE],
     labels = colnames(object), rp.type = rp.type, radlab = radlab,
     show.centroid = show.centroid, lwd = lwd, mar = mar,
