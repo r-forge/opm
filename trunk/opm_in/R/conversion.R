@@ -757,7 +757,10 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   In the \sQuote{direct} mode, \code{what} can also be a named list of
 #'   vectors used for indexing. In that case a data frame is returned that
 #'   contains the columns from \code{object} together with new columns that
-#'   result from pasting the selected columns together.
+#'   result from pasting the selected columns together. If \code{what} is
+#'   named, its names are used as the new column names. Otherwise each name
+#'   is created by joining the respective value within \code{what} with the
+#'   \code{"comb.key.join"} entry of \code{\link{opm_opt}} as separator.
 #' @param join Logical scalar. Join each row together to yield a character
 #'   vector? Otherwise it is just attempted to construct a data frame.
 #' @param factors Logical scalar determining whether strings should be converted
@@ -1141,7 +1144,8 @@ setMethod("extract_columns", "data.frame", function(object, what,
   if (direct) {
     if (is.list(what)) {
       if (is.null(names(what)))
-        stop("if 'what' is a list, it must have names")
+        names(what) <- vapply(what, paste0, "",
+          collapse = get("comb.key.join", OPM_OPTIONS))
       result <- object
       what <- what[!match(names(what), colnames(result), 0L)]
       if (factors)

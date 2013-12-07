@@ -316,30 +316,70 @@ setMethod("plate_type", "character", function(object, full = FALSE,
     brackets = FALSE, word.wise = FALSE, paren.sep = " ", downcase = FALSE,
     normalize = TRUE, subtype = FALSE) {
   do_normalize <- function(object, subtype) {
-    normalize_pm <- function(x, subtype) {
-      x <- sub("^PMM", "PM-M", x, FALSE, TRUE)
-      x <- sub("^PM-MTOX", "PM-M TOX", x, FALSE, TRUE)
-      x <- sub("([A-Z]+)$", if (subtype)
-        "-\\1"
-      else
-        "", x, FALSE, TRUE)
-      sub("([^\\d])(\\d)([^\\d]|$)", "\\10\\2\\3", x, FALSE, TRUE)
+    normalize_predefined <- function(object, subtype) {
+      normalize_pm <- function(x, subtype) {
+        x <- sub("^PMM", "PM-M", x, FALSE, TRUE)
+        x <- sub("^PM-MTOX", "PM-M TOX", x, FALSE, TRUE)
+        x <- sub("([A-Z]+)$", if (subtype)
+          "-\\1"
+        else
+          "", x, FALSE, TRUE)
+        sub("([^\\d])(\\d)([^\\d]|$)", "\\10\\2\\3", x, FALSE, TRUE)
+      }
+      normalize_sf <- function(x, subtype) {
+        x <- if (subtype)
+          sub("-$", "", sub(SP_PATTERN, "\\1-\\2", x, FALSE, TRUE), FALSE, TRUE)
+        else
+          sub(SP_PATTERN, "\\1", x, FALSE, TRUE)
+        x <- sub("^(G|SF)([NP])", "SF-\\2", x, FALSE, TRUE)
+        sub("^GENIII", "Gen III", x, FALSE, TRUE)
+      }
+      result <- toupper(gsub("\\W", "", object, FALSE, TRUE))
+      pm <- grepl("^PM(M(TOX)?)?\\d+[A-Z]*$", result, FALSE, TRUE)
+      result[pm] <- normalize_pm(result[pm], subtype)
+      sf[sf] <- grepl(SP_PATTERN, result[sf <- !pm], FALSE, TRUE)
+      result[sf] <- normalize_sf(result[sf], subtype)
+      result[bad] <- object[bad <- !(pm | sf)]
+      result
     }
-    normalize_sf <- function(x, subtype) {
-      x <- if (subtype)
-        sub("-$", "", sub(SP_PATTERN, "\\1-\\2", x, FALSE, TRUE), FALSE, TRUE)
-      else
-        sub(SP_PATTERN, "\\1", x, FALSE, TRUE)
-      x <- sub("^(G|SF)([NP])", "SF-\\2", x, FALSE, TRUE)
-      sub("^GENIII", "Gen III", x, FALSE, TRUE)
+    normalize_custom <- function(x) {
+      x <- proper_custom_plate(x)
+      x <- sub("\\W+$", "", sub("^\\W+", "", x, FALSE, TRUE), FALSE, TRUE)
+      prepend_custom_plate(toupper(gsub("\\W+", "-", x, FALSE, TRUE)))
     }
-    result <- toupper(gsub("\\W", "", object, FALSE, TRUE))
-    pm <- grepl("^PM(M(TOX)?)?\\d+[A-Z]*$", result, FALSE, TRUE)
-    result[pm] <- normalize_pm(result[pm], subtype)
-    sf[sf] <- grepl(SP_PATTERN, result[sf <- !pm], FALSE, TRUE)
-    result[sf] <- normalize_sf(result[sf], subtype)
-    result[bad] <- object[bad <- !(pm | sf)]
-    result
+    is.custom <- is_custom_plate(object)
+    object[!is.custom] <- normalize_predefined(object[!is.custom], subtype)
+    object[is.custom] <- normalize_custom(object[is.custom])
+    object
+  }
+  orig_and_full <- function(orig, full.name) {
+    if (downcase)
+      full.name <- substrate_info(full.name, "downcase")
+    if (in.parens)
+      add_in_parens(str.1 = orig, str.2 = full.name, max = max,
+        clean = clean, brackets = brackets, word.wise = word.wise,
+        paren.sep = paren.sep)
+    else
+      trim_string(str = full.name, max = max, clean = clean,
+        word.wise = word.wise)
+  }
+  expand_predefined <- function(x) {
+    pos <- match(x, names(PLATE_MAP))
+    ok <- !is.na(pos)
+    for (name in x[!ok])
+      warning("cannot find full name of plate ", name)
+    x[ok] <- orig_and_full(x[ok], PLATE_MAP[pos[ok]])
+    x
+  }
+  expand_custom <- function(x) {
+    if (!length(x))
+      return(x)
+    n <- prepend_custom_full_name(proper_custom_plate(x))
+    ok <- vapply(n, exists, NA, MEMOIZED)
+    for (name in x[!ok])
+      warning("cannot find full name of plate ", name)
+    x[ok] <- orig_and_full(x[ok], unlist(mget(n[ok], MEMOIZED), FALSE, FALSE))
+    x
   }
   LL(full, downcase, in.parens, normalize, subtype)
   result <- if (normalize)
@@ -348,21 +388,9 @@ setMethod("plate_type", "character", function(object, full = FALSE,
     object
   if (!full)
     return(result)
-  pos <- match(result, names(PLATE_MAP))
-  if (any(bad <- is.na(pos))) {
-    warning("cannot find full name of plate ", result[bad][1L])
-    return(result)
-  }
-  full.name <- PLATE_MAP[pos]
-  if (downcase)
-    full.name <- substrate_info(full.name, "downcase")
-  if (in.parens)
-    result <- add_in_parens(str.1 = result, str.2 = full.name, max = max,
-      clean = clean, brackets = brackets, word.wise = word.wise,
-      paren.sep = paren.sep)
-  else
-    result <- trim_string(str = full.name, max = max, clean = clean,
-      word.wise = word.wise)
+  is.custom <- is_custom_plate(result)
+  result[!is.custom] <- expand_predefined(result[!is.custom])
+  result[is.custom] <- expand_custom(result[is.custom])
   result
 }, sealed = SEALED)
 
