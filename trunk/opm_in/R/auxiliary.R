@@ -76,6 +76,35 @@ get_and_remember <- function(x, prefix, default, getfun, single = FALSE, ...) {
 ################################################################################
 
 
+#' Manipulate cutom plate names
+#'
+#' Internal functions that must be in sync for manipulating cutom plate names.
+#'
+#' @param x Character vector.
+#' @return Character or logical vector.
+#' @keywords internal
+#'
+is_custom_plate <- function(x) grepl("^Custom:", x, TRUE, TRUE)
+
+#' @rdname is_custom_plate
+#' @keywords internal
+#'
+proper_custom_plate <- function(x) substring(x, 8L, nchar(x))
+
+#' @rdname is_custom_plate
+#' @keywords internal
+#'
+prepend_custom_plate <- function(x) paste0("CUSTOM:", x)
+
+#' @rdname is_custom_plate
+#' @keywords internal
+#'
+prepend_custom_full_name <- function(x) paste0("CUSTOM_FULL_NAME:", x)
+
+
+################################################################################
+
+
 #' Pick rows
 #'
 #' Pick rows from a data frame if selected columns are identical to keys.

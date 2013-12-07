@@ -64,12 +64,32 @@ test_that("plate names can be normalized", {
   exp <- c("<strange>", "ECO", "SF-N2", "SF-P2", "SF-N2", "SF-N2")
   got <- plate_type(x, subtype = TRUE)
   expect_equal(got, exp)
+  # with expansion
+  expect_warning(got <- plate_type(x, subtype = TRUE, full = TRUE))
+  expect_true(all(substring(got, 1L, nchar(exp)) == exp))
+  expect_true(all(nchar(got[-1L]) > nchar(exp[-1L])))
   # Lately added identification plates
   x <- c("<strange>", " an2", "fF", "yT ")
   exp <- c("<strange>", "AN2", "FF", "YT")
   got <- plate_type(x, subtype = TRUE)
   expect_equal(got, exp)
-  # The internally used names must already be normalized
+  # with expansion
+  expect_warning(got <- plate_type(x, subtype = TRUE, full = TRUE))
+  expect_true(all(substring(got, 1L, nchar(exp)) == exp))
+  expect_true(all(nchar(got[-1L]) > nchar(exp[-1L])))
+  # User-defined plates
+  x <- c("<strange>", "CusToM: ABC.DEF", "pm10b", "custom: my plate ")
+  exp <- c("<strange>", "CUSTOM:ABC-DEF", "PM10", "CUSTOM:MY-PLATE")
+  got <- plate_type(x)
+  expect_equal(got, exp)
+  # with expansion
+  expect_warning(got <- plate_type(x, subtype = FALSE, full = TRUE))
+  expect_true(all(substring(got, 1L, nchar(exp)) == exp))
+  expect_true(any(nchar(got[-1L]) > nchar(exp[-1L])))
+})
+
+## plate_type
+test_that("the internally used names are already normalized", {
   standard.names <- names(PLATE_MAP)
   expect_equal(plate_type(standard.names), standard.names)
   appended <- paste(standard.names, letters)
