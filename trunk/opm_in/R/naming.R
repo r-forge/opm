@@ -179,15 +179,95 @@ select_colors <- function(
 ################################################################################
 
 
-#' Plate type displayed or modified
+#' Manipulate custom plate names or normalise predefined plate names
+#'
+#' Internal functions that must be in sync for manipulating custom plate names,
+#' and internal functions for normalising predefined plate names.
+#'
+#' @param x Character vector.
+#' @param subtype Logical scalar. See \code{\link{plate_type}}.
+#' @return Character or logical vector.
+#' @keywords internal
+#'
+custom_plate_is <- function(x) grepl("^Custom:", x, TRUE, TRUE)
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_proper <- function(x) substring(x, 8L, nchar(x))
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_prepend <- function(x) sprintf("CUSTOM:%s", x)
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_prepend_full <- function(x) sprintf("CUSTOM_FULL_NAME:%s", x)
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_normalize_proper <- function(x) {
+  x <- sub("\\W+$", "", sub("^\\W+", "", x, FALSE, TRUE), FALSE, TRUE)
+  toupper(gsub("\\W+", "-", x, FALSE, TRUE))
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_normalize <- function(x) {
+  custom_plate_prepend(custom_plate_normalize_proper(custom_plate_proper(x)))
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+normalize_predefined_plate <- function(object, subtype = FALSE) {
+  normalize_pm <- function(x, subtype) {
+    x <- sub("^PMM", "PM-M", x, FALSE, TRUE)
+    x <- sub("^PM-MTOX", "PM-M TOX", x, FALSE, TRUE)
+    x <- sub("([A-Z]+)$", if (subtype)
+      "-\\1"
+    else
+      "", x, FALSE, TRUE)
+    sub("([^\\d])(\\d)([^\\d]|$)", "\\10\\2\\3", x, FALSE, TRUE)
+  }
+  normalize_sf <- function(x, subtype) {
+    x <- if (subtype)
+      sub("-$", "", sub(SP_PATTERN, "\\1-\\2", x, FALSE, TRUE), FALSE, TRUE)
+    else
+      sub(SP_PATTERN, "\\1", x, FALSE, TRUE)
+    x <- sub("^(G|SF)([NP])", "SF-\\2", x, FALSE, TRUE)
+    sub("^GENIII", "Gen III", x, FALSE, TRUE)
+  }
+  result <- toupper(gsub("\\W", "", object, FALSE, TRUE))
+  pm <- grepl("^PM(M(TOX)?)?\\d+[A-Z]*$", result, FALSE, TRUE)
+  result[pm] <- normalize_pm(result[pm], subtype)
+  sf[sf] <- grepl(SP_PATTERN, result[sf <- !pm], FALSE, TRUE)
+  result[sf] <- normalize_sf(result[sf], subtype)
+  result[bad] <- object[bad <- !(pm | sf)]
+  result
+}
+
+
+################################################################################
+
+
+#' Plate type displayed or modified, registered or deleted
 #'
 #' Get the type of the OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} plate
 #' used in the measuring, normalise plate-type names, display known names, or
-#' modify the plate type after inputting the plate data.
+#' modify the plate type after inputting the plate data. Alternatively, register
+#' or remove user-defined plate types.
 #'
 #' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
 #'   object, or character vector of original plate name(s), or factor. If
 #'   missing, the function displays the plate types \pkg{opm} knows about.
+#'   For \code{register_plate}, either missing, causing the arguments within
+#'   \code{...} to be used, if any, or a list of character vectors or
+#'   \code{NULL} values.
 #' @param full Logical scalar. If \code{TRUE}, add (or replace by) the full name
 #'   of the plate type (if available); otherwise, return it as-is.
 #' @param in.parens Logical scalar. This and the five next arguments work like
@@ -209,7 +289,9 @@ select_colors <- function(
 #'   EcoPlate\eqn{\textsuperscript{\texttrademark}}{(TM)}, use \kbd{eco}; the
 #'   remaining allowed values are only \kbd{sf.n2}, \kbd{sf.p2}, \kbd{an2},
 #'   \kbd{ff} and \kbd{yt}, but matching is case-insensitive.
-#' @param ... Optional arguments passed between the methods.
+#' @param ... Optional arguments passed between the methods. For
+#'   \code{register_plate}, named arguments to be used if \code{object} is
+#'   missing.
 #'
 #' @return Character scalar in the case of the \code{\link{OPM}} and
 #'   \code{\link{OPMS}} methods of \code{plate_type}, otherwise a character
@@ -218,6 +300,10 @@ select_colors <- function(
 #'   names.
 #'
 #'   \code{gen_iii} returns a novel \code{\link{OPMX}} object.
+#'
+#'   \code{register_plate} returns a logical vector whose values indicate
+#'   whether information was registered or deleted and whose names are the
+#'   normalised plate-type names.
 #'
 #' @details The \code{\link{OPM}} and \code{\link{OPMS}} methods of
 #'   \code{plate_type} are convenience methods for one of the more important
@@ -234,17 +320,43 @@ select_colors <- function(
 #'
 #'   \code{gen_iii} change the plate type of an \code{\link{OPM}} object to
 #'   \sQuote{Generation III} or another plate type. This is currently the only
-#'   function to change plate names. It is intended for Generation-III plates
-#'   which were run like \acronym{PM} plates. Usually they will be annotated as
-#'   some \acronym{PM} plate by the
+#'   function to change plate names. It is intended for Generation-III or other
+#'   plates that were not devised for the OmniLog instrument but can be run just
+#'   like \acronym{PM} plates. Usually they will be annotated as some
+#'   \acronym{PM} plate by the
 #'   OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} system. In contrast,
 #'   input ID-mode plates are automatically detected (see
-#'   \code{\link{read_single_opm}}).
+#'   \code{\link{read_single_opm}}). For this reason, \code{gen_iii} does not
+#'   enable changes to \acronym{PM} plate types.
+#'
+#'   User-defined plate types are allowed but need the according prefix (which
+#'   must currently case-insensitively match \sQuote{Custom:}), even though
+#'   additional normalisation is done. It is an error to set a user-defined
+#'   plate type that has not beforehand been registered with
+#'   \code{register_plate}.
 #'
 #'   The actual spelling of the plate type used might (in theory) differ between
 #'   distinct versions of \pkg{opm} but is internally consistent. It is an error
 #'   to set one of the \acronym{PM} plate types or to assign an unknown plate
 #'   type.
+#'
+#'   Two kinds of information can be registered for user-defined plates: the
+#'   full name of the plate and/or the full names of the substrates for all
+#'   well coordinates. Both kinds of information can be deleted again. In any
+#'   case, the name of the argument within \code{...} or within \code{object}
+#'   given as list must indicate the plate type. Normalisation is done, as well
+#'   as adding the usual prefix for user-defined plates.
+#'
+#'   For registering a full plate name, an unnamed character scalar must be
+#'   provided. For registering the mapping from well coordinates to substrate
+#'   names, a named character vector must be provided with the names indicating
+#'   the well coordinates and the elements indicating the according substrate
+#'   names.
+#'
+#'   For deleting a user-defined plate, an empty value (such as \code{NULL} or
+#'   an empty vector) must be provided. Deletion is done for both full plate
+#'   names and mappings from well coordinates to substrate names. It is ignored
+#'   whether or not this information had been registered beforehand.
 #'
 #' @export
 #' @family naming-functions
@@ -316,40 +428,10 @@ setMethod("plate_type", "character", function(object, full = FALSE,
     brackets = FALSE, word.wise = FALSE, paren.sep = " ", downcase = FALSE,
     normalize = TRUE, subtype = FALSE) {
   do_normalize <- function(object, subtype) {
-    normalize_predefined <- function(object, subtype) {
-      normalize_pm <- function(x, subtype) {
-        x <- sub("^PMM", "PM-M", x, FALSE, TRUE)
-        x <- sub("^PM-MTOX", "PM-M TOX", x, FALSE, TRUE)
-        x <- sub("([A-Z]+)$", if (subtype)
-          "-\\1"
-        else
-          "", x, FALSE, TRUE)
-        sub("([^\\d])(\\d)([^\\d]|$)", "\\10\\2\\3", x, FALSE, TRUE)
-      }
-      normalize_sf <- function(x, subtype) {
-        x <- if (subtype)
-          sub("-$", "", sub(SP_PATTERN, "\\1-\\2", x, FALSE, TRUE), FALSE, TRUE)
-        else
-          sub(SP_PATTERN, "\\1", x, FALSE, TRUE)
-        x <- sub("^(G|SF)([NP])", "SF-\\2", x, FALSE, TRUE)
-        sub("^GENIII", "Gen III", x, FALSE, TRUE)
-      }
-      result <- toupper(gsub("\\W", "", object, FALSE, TRUE))
-      pm <- grepl("^PM(M(TOX)?)?\\d+[A-Z]*$", result, FALSE, TRUE)
-      result[pm] <- normalize_pm(result[pm], subtype)
-      sf[sf] <- grepl(SP_PATTERN, result[sf <- !pm], FALSE, TRUE)
-      result[sf] <- normalize_sf(result[sf], subtype)
-      result[bad] <- object[bad <- !(pm | sf)]
-      result
-    }
-    normalize_custom <- function(x) {
-      x <- proper_custom_plate(x)
-      x <- sub("\\W+$", "", sub("^\\W+", "", x, FALSE, TRUE), FALSE, TRUE)
-      prepend_custom_plate(toupper(gsub("\\W+", "-", x, FALSE, TRUE)))
-    }
-    is.custom <- is_custom_plate(object)
-    object[!is.custom] <- normalize_predefined(object[!is.custom], subtype)
-    object[is.custom] <- normalize_custom(object[is.custom])
+    is.custom <- custom_plate_is(object)
+    object[!is.custom] <- normalize_predefined_plate(object[!is.custom],
+      subtype)
+    object[is.custom] <- custom_plate_normalize(object[is.custom])
     object
   }
   orig_and_full <- function(orig, full.name) {
@@ -374,7 +456,7 @@ setMethod("plate_type", "character", function(object, full = FALSE,
   expand_custom <- function(x) {
     if (!length(x))
       return(x)
-    n <- prepend_custom_full_name(proper_custom_plate(x))
+    n <- custom_plate_prepend_full(custom_plate_proper(x))
     ok <- vapply(n, exists, NA, MEMOIZED)
     for (name in x[!ok])
       warning("cannot find full name of plate ", name)
@@ -388,7 +470,7 @@ setMethod("plate_type", "character", function(object, full = FALSE,
     object
   if (!full)
     return(result)
-  is.custom <- is_custom_plate(result)
+  is.custom <- custom_plate_is(result)
   result[!is.custom] <- expand_predefined(result[!is.custom])
   result[is.custom] <- expand_custom(result[is.custom])
   result
@@ -399,7 +481,8 @@ setMethod("plate_type", "factor", function(object, ...) {
 }, sealed = SEALED)
 
 setMethod("plate_type", "missing", function(object, ...) {
-  plate_type(names(PLATE_MAP), ...)
+  other <- ls(MEMOIZED)
+  plate_type(c(names(PLATE_MAP), other[custom_plate_is(other)]), ...)
 }, sealed = SEALED)
 
 #= gen_iii plate_type
@@ -410,8 +493,12 @@ setMethod("plate_type", "missing", function(object, ...) {
 setGeneric("gen_iii", function(object, ...) standardGeneric("gen_iii"))
 
 setMethod("gen_iii", OPM, function(object, to = "gen.iii") {
-  to <- match.arg(tolower(to), names(SPECIAL_PLATES))
-  object@csv_data[[CSV_NAMES[["PLATE_TYPE"]]]] <- SPECIAL_PLATES[[to]]
+  if (custom_plate_is(L(to))) {
+    if (!exists(to <- custom_plate_normalize(to), MEMOIZED))
+      stop("unknown user-defined plate: ", to)
+  } else
+    to <- SPECIAL_PLATES[[match.arg(tolower(to), names(SPECIAL_PLATES))]]
+  object@csv_data[[CSV_NAMES[["PLATE_TYPE"]]]] <- to
   object
 }, sealed = SEALED)
 
@@ -423,6 +510,54 @@ setMethod("gen_iii", OPMS, function(object, ...) {
 setMethod("gen_iii", MOPMX, function(object, ...) {
   object@.Data <- lapply(X = object@.Data, FUN = gen_iii, ...)
   object
+}, sealed = SEALED)
+
+#= register_plate plate_type
+
+#' @rdname plate_type
+#' @export
+#'
+setGeneric("register_plate",
+  function(object, ...) standardGeneric("register_plate"))
+
+setMethod("register_plate", "missing", function(object, ...) {
+  register_plate(list(...))
+}, sealed = SEALED)
+
+setMethod("register_plate", "list", function(object, ...) {
+  valid_names <- function(n) length(n) && !any(is.na(n)) && all(nzchar(n))
+  prepare_names <- function(n) {
+    if (!valid_names(n))
+      stop("all arguments must be validly named")
+    n <- ifelse(custom_plate_is(n), custom_plate_proper(n), n)
+    custom_plate_normalize_proper(n)
+  }
+  prepare_well_map <- function(x) {
+    names(x) <- clean_coords(names(x))
+    if (dup <- anyDuplicated(names(x)))
+      stop("duplicate well coordinate provided: ", names(x)[dup])
+    x
+  }
+  insert_plate_types <- function(x) {
+    named <- vapply(lapply(x, names), valid_names, NA)
+    if (any(vapply(x, length, 0L) > 1L & !named))
+      stop("element unnamed but not of length 1")
+    x[named] <- lapply(x[named], prepare_well_map)
+    names(x) <- ifelse(named, custom_plate_prepend(names(x)),
+      custom_plate_prepend_full(names(x)))
+    list2env(x, MEMOIZED)
+  }
+  remove_plate_types <- function(x) {
+    x <- c(custom_plate_prepend(x), custom_plate_prepend_full(x))
+    suppressWarnings(rm(list = x, envir = MEMOIZED))
+  }
+  if (!missing(...))
+    warning("arguments other than 'object' are ignored")
+  names(object) <- prepare_names(names(object))
+  nonempty <- vapply(object, length, 0L) > 0L
+  insert_plate_types(object[nonempty])
+  remove_plate_types(names(object)[!nonempty])
+  structure(nonempty, names = custom_plate_prepend(names(object)))
 }, sealed = SEALED)
 
 
@@ -615,20 +750,29 @@ clean_plate_positions <- function(x) {
 #' @rdname well_index
 #'
 map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
-    paren.sep = " ", downcase = FALSE, ...) {
-  pos <- match(L(plate), colnames(WELL_MAP))
-  if (is.na(pos)) {
-    warning("cannot find plate type ", plate)
-    return(trim_string(wells, ...))
+    paren.sep = " ", downcase = FALSE, max = opm_opt("max.chars"), ...) {
+  if (custom_plate_is(L(plate))) {
+    if (exists(plate, MEMOIZED))
+      res <- get(plate, MEMOIZED)[wells]
+    else
+      res <- NULL
+  } else {
+    if (is.na(pos <- match(plate, colnames(WELL_MAP))))
+      res <- NULL
+    else
+      res <- WELL_MAP[wells, pos, "name"]
   }
-  res <- WELL_MAP[wells, pos, "name"]
+  if (is.null(res)) {
+    warning("cannot find plate type ", plate)
+    return(trim_string(str = wells, max = max, ...))
+  }
   if (downcase)
     res <- substrate_info(res, "downcase")
   if (in.parens)
     add_in_parens(str.1 = wells, str.2 = res, brackets = brackets,
-      paren.sep = paren.sep, ...)
+      paren.sep = paren.sep, max = max, ...)
   else
-    trim_string(str = res, ...)
+    trim_string(str = res, max = max, ...)
 }
 
 
@@ -843,7 +987,7 @@ setMethod("wells", "ANY", function(object, full = TRUE, in.parens = FALSE,
   if (!is.character(result))
     result <- rownames(WELL_MAP)[result]
   result <- do.call(cbind, rep.int(list(result), length(plate)))
-  pos <- pmatch(plate_type(plate), colnames(WELL_MAP))
+  pos <- pmatch(normalize_predefined_plate(plate), colnames(WELL_MAP))
   colnames(result) <- plate
   if (is.character(object))
     rownames(result) <- object

@@ -1579,3 +1579,113 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 
 
 ################################################################################
+
+
+#' Convert user-defined objects to \acronym{OPMX}
+#'
+#' Convert data frames with user-defined plate types to \code{\link{OPMX}} or
+#' \code{\link{MOPMX}} objects.
+#'
+#' @rdname opmx.function
+#'
+#' @param object Data frame.
+#' @param format Character scalar indicating the data layout within
+#'   \code{object}. See below for details.
+#' @param prefix Character scalar used for identifying the measurements columns.
+#' @export
+#' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL}.
+#' @family conversion-functions
+#' @keywords manip
+#' @details \strong{TODO}.
+#'
+#' @examples
+#' # TODO
+#'
+setGeneric("opmx", function(object, ...) standardGeneric("opmx"))
+
+#= opmx opmx.function
+
+setMethod("opmx", "data.frame", function(object,
+    format = c("horizontal", "vertical"), prefix = "T_") {
+
+  register_substrates <- function(wells, plate.type) {
+    map <- unique.default(wells) # already sorted at this stage
+    map <- structure(rownames(WELL_MAP)[seq_along(map)], names = map)
+    # TODO: this map should be registered for this plate type
+    map_values(wells, map)
+  }
+
+  convert_horizontal_format <- function(x, prefix) {
+    repair_csv_data <- function(x) {
+      map <- c(CSV_NAMES, RESERVED_NAMES[["well"]])
+      map <- structure(map, names = chartr(" ", ".", map))
+      names(x) <- map_values(names(x), map)
+      n <- CSV_NAMES[["SETUP"]]
+      if (!n %in% names(x))
+        x[, n] <- date()
+      n <- CSV_NAMES[["FILE"]]
+      if (!n %in% names(x))
+        x[, n] <- ""
+      x
+    }
+    time_columns <- function(x, prefix) {
+      first <- substring(x, 1L, nchar(prefix))
+      x <- substring(x, nchar(prefix) + 1L, nchar(x))
+      x <- suppressWarnings(as.numeric(x))
+      x[first != prefix] <- NA_real_
+      x
+    }
+    per_plate_type <- function(cd, tp, x, md) {
+      pos <- match(RESERVED_NAMES[["well"]], colnames(md))
+      colnames(x) <- register_substrates(md[, pos],
+        cd[1L, CSV_NAMES[["PLATE_TYPE"]]])
+      # TODO: this must be removed after implementing user-defined plate types
+      cd[, CSV_NAMES[["PLATE_TYPE"]]] <- "Gen III"
+      md <- md[, -pos, drop = FALSE]
+      indexes <- cd[, get("csv.keys", OPM_OPTIONS), drop = FALSE]
+      indexes <- apply(indexes, 1L, paste0, collapse = " ")
+      indexes <- split.default(seq_len(ncol(x)), indexes)
+      result <- vector("list", length(indexes))
+      for (i in seq_along(indexes)) {
+        idx <- indexes[[i]]
+        result[[i]] <- new("OPM", csv_data = cd[idx[1L], ],
+          metadata = lapply(md[idx, , drop = FALSE], unique.default),
+          measurements = cbind(tp, x[, idx, drop = FALSE]))
+      }
+      case(length(result), NULL, result[[1L]], new("OPMS", plates = result))
+    }
+    x <- x[order(x[, RESERVED_NAMES[["well"]]]), , drop = FALSE]
+    x <- repair_csv_data(x)
+    pos <- get("csv.selection", OPM_OPTIONS)
+    pos <- unique.default(c(pos, CSV_NAMES[["PLATE_TYPE"]]))
+    pos <- match(pos, names(x))
+    cd <- as.matrix(x[, pos, drop = FALSE])
+    x <- x[, -pos, drop = FALSE]
+    tp <- time_columns(names(x), prefix)
+    md <- x[, is.na(tp), drop = FALSE]
+    x <- t(as.matrix(x[, !is.na(tp), drop = FALSE]))
+    rownames(x) <- NULL
+    tp <- matrix(tp[!is.na(tp)], nrow(x), 1L, FALSE, list(NULL, HOUR))
+    indexes <- split.default(seq_len(ncol(x)),
+      cd[, CSV_NAMES[["PLATE_TYPE"]]])
+    result <- vector("list", length(indexes))
+    for (i in seq_along(indexes)) {
+      idx <- indexes[[i]]
+      result[[i]] <- per_plate_type(cd[idx, , drop = FALSE], tp,
+        x[, idx, drop = FALSE], md[idx, , drop = FALSE])
+    }
+    as(structure(result, names = names(indexes)), "MOPMX")
+  }
+
+  for (i in which(vapply(object, is.factor, NA)))
+    object[, i] <- as.character(object[, i])
+
+  case(format <- match.arg(format),
+    horizontal = convert_horizontal_format(object, prefix),
+    vertical = stop("not yet supported")
+  )
+}, sealed = SEALED)
+
+
+################################################################################
+
