@@ -43,6 +43,34 @@ test_that("predefined color sets can be obtained", {
 ################################################################################
 
 
+## custom_plate_is
+## UNTESTED
+
+
+## custom_plate_proper
+## UNTESTED
+
+
+## custom_plate_prepend
+## UNTESTED
+
+
+## custom_plate_prepend_full
+## UNTESTED
+
+
+## custom_plate_normalize_proper
+## UNTESTED
+
+
+## custom_plate_normalize
+## UNTESTED
+
+
+## normalize_predefined_plate
+## UNTESTED
+
+
 ## plate_type
 test_that("plate types can be explicitely queried", {
   expect_equal(plate_type(OPM.1), "PM01")
@@ -129,6 +157,28 @@ test_that("the plate type of OPMS objects can be changed", {
   expect_equal(class(x), class(OPMS.INPUT))
   expect_equal(dim(x), dim(OPMS.INPUT))
   expect_false(plate_type(x) == plate_type(OPMS.INPUT))
+})
+
+
+################################################################################
+
+
+## register_plate
+test_that("plate types can be registered", {
+  old <- plate_type()
+  register_plate(SIMPLE = 'simple plate')
+  expect_equal(old, plate_type())
+  norm <- custom_plate_prepend(custom_plate_normalize_proper('SIMPLE'))
+  exp <- paste(norm, "(simple plate)")
+  expect_equal(exp, plate_type("Custom:Simple", TRUE))
+  map <- c(A01 = "Glucose", B07 = "Fructose")
+  register_plate(SIMPLE = map)
+  expect_equal(c(old, norm), plate_type())
+  expect_equal(map, map_well_names(names(map), norm))
+  register_plate(SIMPLE = NULL)
+  expect_equal(old, plate_type())
+  register_plate(SIMPLE = 'simple plate', SIMPLE = NULL)
+  expect_equal(old, plate_type())
 })
 
 

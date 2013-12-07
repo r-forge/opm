@@ -30,25 +30,6 @@ test_that("we can memoize queries", {
 ################################################################################
 
 
-## is_custom_plate
-## UNTESTED
-
-
-## proper_custom_plate
-## UNTESTED
-
-
-## prepend_custom_plate
-## UNTESTED
-
-
-## prepend_custom_full_name
-## UNTESTED
-
-
-################################################################################
-
-
 ## reduce_to_mode
 ## UNTESTED
 
