@@ -67,6 +67,10 @@ test_that("predefined color sets can be obtained", {
 ## UNTESTED
 
 
+## custom_plate_normalize_all
+## UNTESTED
+
+
 ## normalize_predefined_plate
 ## UNTESTED
 

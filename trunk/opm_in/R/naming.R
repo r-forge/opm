@@ -224,6 +224,14 @@ custom_plate_normalize <- function(x) {
 #' @rdname custom_plate_is
 #' @keywords internal
 #'
+custom_plate_normalize_all <- function(x) {
+  x <- ifelse(custom_plate_is(x), custom_plate_proper(x), x)
+  custom_plate_prepend(custom_plate_normalize_proper(x))
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
 normalize_predefined_plate <- function(object, subtype = FALSE) {
   normalize_pm <- function(x, subtype) {
     x <- sub("^PMM", "PM-M", x, FALSE, TRUE)
