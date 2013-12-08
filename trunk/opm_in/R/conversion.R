@@ -1628,13 +1628,13 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   with \pkg{opm}. The mechanism for dealing with user-defined plate types is
 #'   implemented in \code{\link{register_plate}}, whereas \code{opmx} takes also
 #'   care of the necessary changes in format and naming for converting a data
-#'   frame to an code{\link{OPMX}} objects.
+#'   frame to a \code{\link{MOPMX}} object.
 #'
 #' @examples
 #'
 #' ## 'horizontal' input format
 #'
-#' # fake data frame containing growth measurements on sugar substrates
+#' # fake data frame containing growth or respiration measurements
 #' x <- data.frame(
 #'   Treatment = c(rep("Control", 4), rep("Heat stress", 4)),
 #'   Strain = paste0("X", c(1, 2, 2, 1, 2, 1, 1, 2)),
@@ -1646,10 +1646,10 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   T_20 = c(105, 9, 77, 112, 103, 44, 8, 12)
 #' )
 #'
-#' # The plate type is not contained and thus taken from 'full.name'
+#' # The plate type is not contained and thus taken from 'full.name', but
 #' # the wells are obviously within 'Substrate', and each combination of
 #' # 'Treatment' and 'Strain' is apparently one group of measurements
-#' # (intepreted as 'plate').
+#' # (interpreted as 'plate').
 #' y <- opmx(x, well = "Substrate",  position = c("Treatment", "Strain"),
 #'   full.name = c(sugars = "Fake sugar test plate"))
 #'
