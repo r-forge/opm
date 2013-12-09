@@ -88,7 +88,7 @@
 \acrodef{SFB}{\German{Sonderforschungsbereich}}
 \acrodef{TRR}{\German{Transregio}}
 
-
+\usepackage{framed}
 %% Add Revision Control System (RCS) Markups
 \usepackage{ulem}      % use this for sout
 %\usepackage{fancyvrb}
@@ -506,7 +506,8 @@ Attaching the aggregated data to an \proglang{OPM} object yields an object of th
 
 
 \begin{figure}
-\scalebox{1.225}{
+\centering
+\scalebox{1.0}{
 \includegraphics{opm_fig_4}
 }
 \caption{\label{fig:parameters}
@@ -618,6 +619,7 @@ Assume that for each bacterial strain, ten replicates have been performed.
 Do these four bacteria differ in, e.g., the mean value of, e.g., curve parameter \ac{A} of, e.g, well A01?
 Here, a statistical comparison of four groups (four organisms), each containing ten values (curve parameter \ac{A} of 10 replicates of well A01), would need to be performed.
 Statistically, this requires simultaneous inferences across multiple questions \citep{hothorn}.
+
 To address this issue the function \code{opm\_mcp} performs simultaneous multiple comparisons of group means by internally calling \code{glht} from the \pkg{multcomp} package \citep{hothorn} but providing an easier interface for it, specifically adapted to the typical objects used within \pkg{opm}.
 By referring to available metadata and/or the substrate names, the user is able to define groups of interest, set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}.
 The choice of appropriate models and contrasts will be explained in detail below.
@@ -637,6 +639,30 @@ Thus the so-called family-wise error-rate, which is essentially the probability 
 The here internally employed functions from the package \pkg{multcomp} provides solutions for all listed difficulties, since it allows for testing a user-defined set of contrasts based on a broad range of model types while internally controlling the family-wise error-rate.
 
 Users of multiple-comparison procedures, especially of simultaneous multiple contrast tests as applied here, are encouraged to have a look at the books by \citep{hochberg} and \citep{hsu}.
+
+For the sensible topic of sample size estimation and power computation, we now give a brief overview, however, we explicitly also recommend to consult textbooks like \citep{sokal1995} or \citep{zar1999}.
+
+The aim of a statistical test is the determination of whether there is a significant difference between the observed group means.
+An appropriate sample size depends on the following parameters
+
+\begin{itemize}
+\item The individually desired statistical power and the corresponding significance level $\alpha$
+\item If the test is planned as a one- or two-sided comparison
+\item The minimum expected difference, also stated as effect size
+\item The estimated measurement variability
+\end{itemize}
+
+The power of a statistical test is defined as the probability that the test correctly rejects the null-hypothesis when the alternative hypothesis is true.
+A false negative result, the test does not reject the null-hypothesis, although there is a difference is referred as \textit{type II error}.
+The crucial thing of sample size is its effect on statistical \textit{power}.
+Put simply: The higher the sample size, the higher the power and the less often type II errors occur \citep{eng2003}.
+
+Unfortunately, power is directly influenced by the significance criterion $\alpha$: The smaller $\alpha$, the higher the needed sample size to reach a certain power.
+
+Similarly, the minimum expected difference between two groups influences the necessary sample size: The smaller the effect size, the higher the sample size has to be, when a given power should be maintained.
+And finally considering the variability: When dealing with samples having a large variability, the sample size needed to detect a minimum difference increases.
+
+Power calculations in \proglang{R} can be done using functions provided by the package \pkg{pwr} \citep{champely2012} or by the function \code{power.t.test} coming with the \pkg{stats} package.
 
 Especially in situations where groups are defined by more than one metadata entry the evaluation of differences of treatment means may result in quite complex models.
 Then, the application of \textit{cell-means models} (also known as \textit{pseudo-one-way layouts}) as discussed in \citep{schaarschmidt}) is strongly encouraged.
@@ -2288,7 +2314,7 @@ The three resulting states, coded as ``0'', ``1'' and ``2'' (in contrast to ``0'
 Exporting the data in one of the supported phylogeny formats would work as described above.
 If the \code{do\_disc} function described above calls \code{discrete}, then only in gap mode and with \code{middle.na} set to \code{TRUE}, yielding a vector or logical matrix.
 
-\section[Discussion and conclusion]{Discussion and conclusion}
+\section[Discussion and conclusion]{Discussion and conclusion}\label{DisCon}
 
 The high-dimensional sets of longitudinal data collected by the OmniLog\textregistered \ \ac{PM} system call for fast and easily applicable (and extensible) data organisation and analysis facilities.
 The here presented \pkg{opm} package for the free statistical software \proglang{R} \citep{r} features not only the calculation of aggregated values (curve parameters) including their (bootstrapped) confidence intervals, but also provides a rather complete infrastructure for the management of raw kinetic values and curve parameters together with any kind of meta-information of relevance for the user \citep{vaas, Vaas2013}.
@@ -2304,6 +2330,16 @@ Users should nevertheless be aware that loss of information is inherent to discr
 The \pkg{opm} package enables the user to produce highly informative and specialised graphical outputs from both the raw kinetic data as well as the curve-parameter estimates.
 Moreover, the package provides simultaneous multiple comparisons of group means \citep{hothorn, bretz, hsu} with an interface specifically adapted to the typical \ac{PM} data objects.
 In combination with the functionality for annotating the data with meta-information and then selecting subsets of the data, straightforward analyses regarding specific analytical questions can be performed without the need to invoke other \proglang{R} packages.
+
+
+
+\begin{framed}
+\label{sample-size}
+\textbf{Sample size estimation and power computation}
+
+In this box, the principle of choosing an appropriate sample size and the according computation of statistical power will be described briefly.
+However, we explicitly refer the reader to textbooks like \citep{}
+\end{framed}
 
 But since the design of the \pkg{opm} objects is not intended to be limited to specific analysis frameworks, the \pkg{opm} package works as a data containment providing well organised and comprehensive \ac{PM} data for further, more specialised analyses using methods from different \proglang{R} packages or other third-party software tools.
 Particularly the generation of \proglang{S4} objects featuring a rich set of methods as containers for either single or multiple OmniLog\textregistered \ \ac{PM} plates enables not only the transfer of raw kinetic data into \proglang{R} but also eases their further processing.
