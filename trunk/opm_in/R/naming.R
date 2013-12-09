@@ -274,8 +274,9 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #'   object, or character vector of original plate name(s), or factor. If
 #'   missing, the function displays the plate types \pkg{opm} knows about.
 #'   For \code{register_plate}, either missing, causing the arguments within
-#'   \code{...} to be used, if any, or a list of character vectors or
-#'   \code{NULL} values.
+#'   \code{...} to be used, if any, a list of \code{NULL} values or character
+#'   vectors, or a character vector whose elements are interpretable as file
+#'   names. See below for details on the input format.
 #' @param full Logical scalar. If \code{TRUE}, add (or replace by) the full name
 #'   of the plate type (if available); otherwise, return it as-is.
 #' @param in.parens Logical scalar. This and the five next arguments work like
@@ -528,6 +529,16 @@ setMethod("gen_iii", MOPMX, function(object, ...) {
 setGeneric("register_plate",
   function(object, ...) standardGeneric("register_plate"))
 
+setMethod("register_plate", "character", function(object, ...) {
+  x <- do.call(c, lapply(object, function(file) tryCatch(yaml.load_file(file),
+    error = function(e) readRDS(file))))
+  x <- mapply(FUN = function(d, n) {
+      names(d) <- rep.int(n, length(d))
+      d
+    }, d = x, n = names(x), SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  register_plate(do.call(c, x), ...)
+}, sealed = SEALED)
+
 setMethod("register_plate", "missing", function(object, ...) {
   register_plate(list(...))
 }, sealed = SEALED)
@@ -541,6 +552,7 @@ setMethod("register_plate", "list", function(object, ...) {
     custom_plate_normalize_proper(n)
   }
   prepare_well_map <- function(x) {
+    storage.mode(x) <- "character"
     names(x) <- clean_coords(names(x))
     if (dup <- anyDuplicated(names(x)))
       stop("duplicate well coordinate provided: ", names(x)[dup])
