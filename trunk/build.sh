@@ -1349,8 +1349,8 @@ spellcheck_vignettes()
 	saveRDS(words[nzchar(words)], tmpfile <- tempfile(fileext = ".rds"))
 	ctrl <- c("ac", "acf", "acs", "acl")
 	ctrl <- c(ctrl, paste0(ctrl, "p"))
-	ctrl <- c(ctrl, "bibliography", "code", "citep", "pkg", "proglang", "German",
-	  "Plainauthor", "Plainkeywords", "Plaintitle", "Sexpr", "Surname")
+	ctrl <- c(ctrl, "bibliography", "code", "citep", "citet", "pkg", "proglang",
+	  "German", "Plainauthor", "Plainkeywords", "Plaintitle", "Sexpr", "Surname")
 	ctrl <- c("DefineVerbatimEnvironment oppp", "acrodef op", "subsection o",
 	  "subsubsection o", "pdfbookmark opp", "item o", sprintf("%s op", ctrl))
 	ctrl <- c("-t", "-d en_GB", sprintf("--add-tex-command=\"%s\"", ctrl))
