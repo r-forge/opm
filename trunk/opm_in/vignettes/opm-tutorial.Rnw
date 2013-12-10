@@ -671,6 +671,10 @@ The function \code{opm\_mcp} internally reshapes the data into a ``flat'' data f
 For performing the testing procedure, a model has to be stated that specifies the factor levels that determine the grouping \citep{searle, hothorn}.
 The \code{opm\_mcp} function allows for applying such testing directly to \proglang{OPMS} objects, obtaining these factors from stored metadata.
 
+Depending on the individual study design, the underlying experimental question and the used plates, it might be necessary to perform multiple tests and confidence interval estimations for ratios of means rather than differences of means.
+Demonstration of those applications are beyond the scope of this vignette, however, the reshaping of the data implemented in \code{opm\_mcp} provides a ready-to-use input format for test computation.
+In \proglang{R} the necessary functions are available in \pkg{mratios} \citep{mratios2012} and \pkg{SimComp} \citep{simcomp2012}.
+A good overview about the mathematical background is given in \citep{dilba2006} and examples for special applications can be found in \citep{hasler2012}.
 
 \subsection[Discretising and export for phylogenetic analysis]{Discretising the aggregated data and export for phylogenetic analysis}\label{methods discrete-multistate}
 
