@@ -88,7 +88,6 @@
 \acrodef{SFB}{\German{Sonderforschungsbereich}}
 \acrodef{TRR}{\German{Transregio}}
 
-\usepackage{framed}
 %% Add Revision Control System (RCS) Markups
 \usepackage{ulem}      % use this for sout
 %\usepackage{fancyvrb}
@@ -638,33 +637,28 @@ That is, if an increasing number of groups is compared to each other, conclusion
 Thus the so-called family-wise error-rate, which is essentially the probability of at least one false rejection among all the null hypotheses, needs to be controlled \citep{tukey}.
 The here internally employed functions from the package \pkg{multcomp} provides solutions for all listed difficulties, since it allows for testing a user-defined set of contrasts based on a broad range of model types while internally controlling the family-wise error-rate.
 
-Users of multiple-comparison procedures, especially of simultaneous multiple contrast tests as applied here, are encouraged to have a look at the books by \citep{hochberg} and \citep{hsu}.
-
-For the sensible topic of sample size estimation and power computation, we now give a brief overview, however, we explicitly also recommend to consult textbooks like \citep{sokal1995} or \citep{zar1999}.
-
-The aim of a statistical test is the determination of whether there is a significant difference between the observed group means.
-An appropriate sample size depends on the following parameters
+Users of multiple-comparison procedures, especially of simultaneous multiple contrast tests as applied here, are encouraged to have a look at the books by \citet{hochberg} and \citet{hsu}.
+Regarding the important topic of sample size estimation and power computation, we now provide a brief overview but  we also recommend to consult textbooks such as \citet{sokal1995} and \citet{zar1999}.
+The aim of a statistical test is to determine whether or not there is a significant difference between the observed group means.
+An appropriate sample size depends on the following parameters:
 
 \begin{itemize}
-\item The individually desired statistical power and the corresponding significance level $\alpha$
-\item If the test is planned as a one- or two-sided comparison
-\item The minimum expected difference, also stated as effect size
-\item The estimated measurement variability
+\item The desired statistical power and the corresponding significance level $\alpha$.
+\item Whether or not the test is planned as one- or two-sided comparison.
+\item The minimum expected difference, also called the effect size.
+\item The estimated measurement variability.
 \end{itemize}
 
-The power of a statistical test is defined as the probability that the test correctly rejects the null-hypothesis when the alternative hypothesis is true.
-A false negative result, the test does not reject the null-hypothesis, although there is a difference is referred as \textit{type II error}.
-The crucial thing of sample size is its effect on statistical \textit{power}.
-Put simply: The higher the sample size, the higher the power and the less often type II errors occur \citep{eng2003}.
+The crucial issue regarding sample size is its effect on the statistical ``power''.
+The power of a statistical test is defined as the probability that the test correctly rejects the null hypothesis when the alternative hypothesis is true.
+In a false-negative result, the test does not reject the null hypothesis even though there is a difference; this behaviour is referred to as ``type-II error''.
+A larger sample size increases the power and reduces the frequency of type-II errors \citep{eng2003}.
+Unfortunately, power is directly influenced by the significance criterion $\alpha$: for smaller values of $\alpha$, a larger sample size is needed to obtain a certain power.
+Similarly, the minimum expected difference between two groups influences the necessary sample size: The smaller the effect size, the higher the sample size needed to maintain a given power.
+Finally, a larger variability of the samples increases the sample size needed to detect a minimum difference.
+Power calculations in \proglang{R} can be done using functions in the package \pkg{pwr} \citep{champely2012} or using the function \code{power.t.test} from the \pkg{stats} package.
 
-Unfortunately, power is directly influenced by the significance criterion $\alpha$: The smaller $\alpha$, the higher the needed sample size to reach a certain power.
-
-Similarly, the minimum expected difference between two groups influences the necessary sample size: The smaller the effect size, the higher the sample size has to be, when a given power should be maintained.
-And finally considering the variability: When dealing with samples having a large variability, the sample size needed to detect a minimum difference increases.
-
-Power calculations in \proglang{R} can be done using functions provided by the package \pkg{pwr} \citep{champely2012} or by the function \code{power.t.test} coming with the \pkg{stats} package.
-
-Especially in situations where groups are defined by more than one metadata entry the evaluation of differences of treatment means may result in quite complex models.
+Especially in situations where groups are defined by more than a single metadata entry the evaluation of differences of treatment means may result in quite complex models.
 Then, the application of \textit{cell-means models} (also known as \textit{pseudo-one-way layouts}) as discussed in \citep{schaarschmidt}) is strongly encouraged.
 In this approach estimators for treatment and variance are derived from a model with all treatments combined in a single factor.
 Technically, this requires the merging of several defining metadata variables into a single one.
@@ -2330,16 +2324,6 @@ Users should nevertheless be aware that loss of information is inherent to discr
 The \pkg{opm} package enables the user to produce highly informative and specialised graphical outputs from both the raw kinetic data as well as the curve-parameter estimates.
 Moreover, the package provides simultaneous multiple comparisons of group means \citep{hothorn, bretz, hsu} with an interface specifically adapted to the typical \ac{PM} data objects.
 In combination with the functionality for annotating the data with meta-information and then selecting subsets of the data, straightforward analyses regarding specific analytical questions can be performed without the need to invoke other \proglang{R} packages.
-
-
-
-\begin{framed}
-\label{sample-size}
-\textbf{Sample size estimation and power computation}
-
-In this box, the principle of choosing an appropriate sample size and the according computation of statistical power will be described briefly.
-However, we explicitly refer the reader to textbooks like \citep{}
-\end{framed}
 
 But since the design of the \pkg{opm} objects is not intended to be limited to specific analysis frameworks, the \pkg{opm} package works as a data containment providing well organised and comprehensive \ac{PM} data for further, more specialised analyses using methods from different \proglang{R} packages or other third-party software tools.
 Particularly the generation of \proglang{S4} objects featuring a rich set of methods as containers for either single or multiple OmniLog\textregistered \ \ac{PM} plates enables not only the transfer of raw kinetic data into \proglang{R} but also eases their further processing.
