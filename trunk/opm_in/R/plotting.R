@@ -44,6 +44,7 @@
 #'
 setGeneric("summary")
 
+
 setMethod("summary", OPM, function(object, ...) {
   result <- list(
     Class = class(object),
@@ -1432,6 +1433,8 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' @param point.col Indicates the colour(s) of the symbols.
 #' @param poly.col Indicates the colour for filling the drawn polygons, if any.
 #'   Use \code{NA} for no fill (recommended).
+#' @param group.col logical scalar indicating, if replicates belonging to the
+#'   group have the same colour.
 #' @param main The main title of the plot.
 #' @param ... Optional other arguments passed to \code{radial.plot} from the
 #'   \pkg{plotrix} package.
@@ -1477,6 +1480,11 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' (y <-radial_plot(vaas_4[, , 1:5], as.labels = list("Species", "Strain"),
 #'   main = "Test", x = 200, y = 200, rp.type = "s", show.centroid = TRUE))
 #'
+#' # with same colour for members of group
+#' (xy <-radial_plot(vaas_4[, , 1:5], as.labels = list("Species"),
+#'   group.col = TRUE, main = "Test", x = 200, y = 200, rp.type = "s",
+#'   show.centroid = TRUE))
+#'
 #' ## Data-frame method (rarely needed)
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"), dataframe = TRUE)
 #' (yy <- radial_plot(x[, 1:8], as.labels = c("Species", "Strain"),
@@ -1497,18 +1505,16 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
     radlab = FALSE, show.centroid = TRUE, show.grid.labels = 1, lwd = 3,
     mar = c(2, 2, 2, 2), line.col = opm_opt("colors"), draw.legend = TRUE,
     x = "bottom", y = NULL, xpd = TRUE, pch = 15, legend.args = list(),
-    point.symbols = 15, point.col = opm_opt("colors"), poly.col = NA,
-    main = paste0(as.labels, sep = sep), ...) {
+    group.col = FALSE, point.symbols = 15, point.col = opm_opt("colors"),
+    poly.col = NA, main = paste0(as.labels, sep = sep), ...) {
 
   # insert a ready-made colour vector for line.col
-  #adapt_colors <- function(x, colors) {
-  #  x <- as.factor(x)
-  #  if (length(colors) < length(levels(x)))
-  #    stop("not enough colours provided")
-  #  colors[x]
-  #}
-  # adapt_colors mit den rownames laufen lassen
-  # adapt_colors mit den indices der spalten machen
+  adapt_colors <- function(x, colors) {
+    x <- as.factor(x)
+    if (length(colors) < length(levels(x)))
+      stop("not enough colours provided")
+    colors[x]
+  }
 
   LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch)
   line.col <- try_select_colors(line.col)
@@ -1517,9 +1523,14 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
   on.exit(if (!is.null(changed.par))
     par(changed.par))
 
-  # check if line.col has the same length as object[, subset, drop = FALSE]
-  #  if (length(line.col) < nsets)
-  #    nsets <- length(object[, subset, drop = FALSE])
+  if (group.col) {
+    line.col <- adapt_colors(rownames(object), colors = line.col)
+    point.col <- adapt_colors(rownames(object), colors = point.col)
+  } else {
+    line.col <- adapt_colors(seq_len(nrow(object)), colors = line.col)
+    point.col <- adapt_colors(seq_len(nrow(object)), colors = point.col)
+  }
+
   changed.par <- radial.plot(lengths = object[, subset, drop = FALSE],
     labels = colnames(object), rp.type = rp.type, radlab = radlab,
     show.centroid = show.centroid, lwd = lwd, mar = mar,
