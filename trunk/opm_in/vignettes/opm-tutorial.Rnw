@@ -556,6 +556,7 @@ How to use \code{annotated} to produce graphics is explained in a separate vigne
 \subsection[Plotting functions for raw data]{Plotting functions for raw data}\label{methods plotting}
 
 The function \code{xy\_plot} displays the raw measurements on the y-axis in dependency on the time on the x-axis.
+
 For each well one sub-panel is drawn, and the user is free to colourise the plotted curves by either their affiliation to a specific plate or by a combination of metadata entries of choice.
 By default the panels are arranged according to the factual microtiter plate dimensions (eight rows labelled A to H $\times$ twelve columns labelled 01-12), but other user-defined arrangements are easily feasible because the plates can be subset by selecting specific wells.
 Every panel is annotated with the microtiter plate numbering (A01 to H12) and additionally or alternatively with the substrate name (given the plate type, the \pkg{opm} package can translate all well coordinates to substrate names, see also vignette ``Working with substrate information in \pkg{opm}'').
@@ -563,13 +564,18 @@ Thus, the function enables the user to compare the curve data in a customised an
 
 Since the estimation of curve parameters (see Section~\ref{methods aggregating} and \citep{vaas}) is alleviated in the case of curves from finished reactions, we strongly recommend to also use \code{xy\_plot} for assessing whether or not measurement times had been exhaustive and respiration reactions were completely recorded.
 A clear indication of not exhaustively recorded experimental runs is usually the absence of a final plateau phase in the recorded curves.
+
 A statistical test for the completeness of respiration measurements over time is not known to us, but it should be easy to visually identify finished reactions.
-Depending on the question under study, it may or may not be advisable to further process curve parameters from unfinished reactions.
-For instance, the \ac{AUC} can only be compared between curves with the same overall running time.
-But the \code{subset} method for \proglang{OPMS} objects can be used to reduce a set of plates to the time points common to all of them.
-This would avoid comparing apples and oranges, but parameters such as \ac{A} might not always be biologically interpretable as usual if inferred from unfinished reactions.
-Some experimental experience is necessary to determine minimum running times for the organisms under study.
-Plates with slowly reacting organisms can be measured subsequently several times and the results put together using the \code{merge} method.
+Nevertheless, some experimental experience is necessary to determine minimum running times for the organisms under study.
+But plates with slowly reacting organisms can be measured subsequently several times and the results put together using the \code{merge} method.
+
+Depending on the question under study, it may or may not be advisable to further process curve parameters estimated from unfinished reactions.
+However, experimenters should keep in mind, that conclusions can only be drawn from recorded data.
+The parts of curves, which are not measured remains unknown and might obscure important existing differences.
+Please also consider the dependency of the parameter \ac{AUC} on the length of measurement.
+Since it increases constantly with increasing measurement times, it can only be compared between curves with the same overall running time.
+Admittedly, the \code{subset} method for \proglang{OPMS} objects can be used to reduce a set of plates to the time points common to all of them.
+This would avoid comparing apples with pineapples, but parameters such as \ac{A} might not always be biologically interpretable as usual if inferred from unfinished reactions.
 
 The function \code{level\_plot} provides false-colour level plots from the raw respiration measurements over time.
 Each respiration curve can be displayed as a thin horizontal line, in which the measured respiration value (in OmniLog\textregistered \ units) is represented by colour, while the x-axes indicates the measurement times.
@@ -1745,9 +1751,6 @@ Call \code{demo("cluster-with-pvalues", package = "opm")} for running examples b
 Additional example code on visualising curve parameters is available \textit{via} \code{opm\_files("demo")}.
 It is indeed easy to conduct principal-component analysis with matrices created with \code{extract}.
 Call \code{demo("custom-PCA", package = "opm")} for running examples based on the \pkg{BiodiversityR} package \citep{Kindt2005}.
-
-
-\pagebreak
 
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
