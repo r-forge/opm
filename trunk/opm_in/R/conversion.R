@@ -1595,14 +1595,16 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   one to several columns to be joined yielding \sQuote{position} indicators.
 #'   These will be used to uniquely identify each plate. The columns to be
 #'   joined will be kept, too; usually they will end up in the
-#'   \code{\link{metadata}}. Ignored if empty (but then an accordingly named
-#'   column must already be present).
+#'   \code{\link{metadata}}. Mandatory for the \sQuote{rectangular} format.
+#'   Otherwise ignored if empty (but then an accordingly named column must
+#'   already be present).
 #' @param plate.type Character scalar. In \sQuote{horizontal} format, the name
 #'   of the column containing the plate-type indicators. After normalisation,
-#'   these will be used for storing the mapping of well coordinates. Ignored if
-#'   empty (but then an accordingly named column must already be present
-#'   \strong{OR} \code{full.name} must contain a single named element, whose
-#'   name is then inserted as plate name).
+#'   these will be used for storing the mapping of well coordinates. Mandatory
+#'   for the \sQuote{rectangular} format. Otherwise ignored if empty (but then
+#'   an accordingly named column must already be present \strong{OR}
+#'   \code{full.name} must contain a single named element, whose name is then
+#'   inserted as plate name).
 #' @param well Character scalar. In \sQuote{horizontal} format, the name of the
 #'   column containing the well indicators. These should be substrate names; an
 #'   according mapping from (newly assigned) well coordinates to these substrate
@@ -1610,6 +1612,8 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   empty (but then an accordingly named column must be present).
 #' @param prefix Character scalar. In \sQuote{horizontal} format, used for
 #'   identifying the measurements columns.
+#' @param sep Character scalar. In \sQuote{rectangular} format, used for
+#'   identifying the rows and column with time-points and well coordinates.
 #' @param full.name Named character vector indicating the full plate
 #'   names. Ignored if empty. Names should be names of the plate types found
 #'   within \code{object}, if any, but normalisation will be done. Values should
@@ -1619,6 +1623,9 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   the name of \code{full.name}, assuming a uniform plate type throughout
 #'   \code{object}. In that case, \code{full.name} must contain only a single
 #'   element (and a single name).
+#' @param setup.time Character scalar to be inserted if missing in the data.
+#'   Like the next argument, the value goes into the \code{\link{csv_data}}.
+#' @param filename Character scalar to be inserted if missing in the data.
 #' @export
 #' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL}.
 #' @family conversion-functions
@@ -1663,30 +1670,75 @@ setGeneric("opmx", function(object, ...) standardGeneric("opmx"))
 #= opmx opmx.function
 
 setMethod("opmx", "data.frame", function(object,
-    format = c("horizontal", "vertical"), plate.type = NULL,
-    position = NULL, well = NULL, prefix = "T_", full.name = NULL) {
+    format = c("horizontal", "rectangular", "vertical"), plate.type = NULL,
+    position = NULL, well = NULL, prefix = "T_", sep = "<>", full.name = NULL,
+    setup.time = date(), filename = "") {
 
+  convert_rectangular_matrix <- function(x, sep) {
+    convert_time_point <- function(x) {
+      n <- as.integer(x[1L, -1L, drop = TRUE])
+      n <- vapply(x[-1L, 1L], sprintf, character(length(n)), fmt = "%s%02i", n)
+      x <- t(as.matrix(x[-1L, -1L]))
+      converted <- tryCatch({
+          storage.mode(x) <- "numeric"
+          TRUE
+        }, warning = function(w) FALSE)
+      if (converted)
+        structure(c(x), names = n)
+      else
+        NULL
+    }
+    for (i in which(vapply(x, is.factor, NA)))
+      x[, i] <- as.character(x[, i])
+    pos <- logical(nrow(x))
+    for (i in seq_along(x))
+      if (any(pos <- x[, i] == sep)) {
+        x <- x[, c(i, setdiff(seq_along(x), i)), drop = FALSE]
+        break
+      }
+    if (!any(pos))
+      stop("'sep' neither found in some column nor in the row names")
+    x <- split.data.frame(x, sections(pos, TRUE))
+    x <- do.call(rbind, lapply(x, convert_time_point))
+    x <- cbind(seq_len(nrow(x)), x)
+    colnames(x)[1L] <- HOUR
+    rownames(x) <- NULL
+    x
+  }
+
+  convert_rectangular_format <- function(x, sep, position, plate.type,
+      full.name, setup.time, filename) {
+    L(plate.type,
+      .msg = "plate type for rectangular format missing or non-unique")
+    L(position,
+      .msg = "'position' for rectangular format missing or non-unique")
+    custom_plate_assert(plate.type <- custom_plate_normalize_all(plate.type))
+    if (!is.na(full <- full.name[plate.type]))
+      custom_plate_set_full(plate.type, full)
+    x <- convert_rectangular_matrix(x, sep)
+    y <- c(L(filename), plate.type, position, L(setup.time))
+    names(y) <- CSV_NAMES
+    new(OPM, measurements = x, csv_data = y, metadata = list())
+  }
+
+  # 'plate.type' and 'full.name' must already be normalized at this stage.
+  #
   register_substrates <- function(wells, plate.type, full.name) {
     map <- unique.default(wells) # already sorted at this stage
     if (all(grepl("^\\s*[A-Za-z]\\s*\\d+\\s*$", map, FALSE, TRUE))) {
       map <- structure(clean_coords(map), names = map)
     } else {
       map <- structure(rownames(WELL_MAP)[seq_along(map)], names = map)
-      if (exists(plate.type, MEMOIZED))
-        warning("overwriting well map for plate type ", plate.type)
-      MEMOIZED[[plate.type]] <- structure(names(map), names = map)
+      custom_plate_set(plate.type, structure(names(map), names = map))
     }
-    if (!is.na(full <- full.name[plate.type])) {
-      key <- custom_plate_prepend_full(custom_plate_proper(plate.type))
-      if (exists(key, MEMOIZED))
-        warning("overwriting full name for plate type ", plate.type)
-      MEMOIZED[[key]] <- full
-    }
+    if (!is.na(full <- full.name[plate.type]))
+      custom_plate_set_full(plate.type, full)
     map_values(wells, map)
   }
 
-  convert_horizontal_format <- function(x, prefix, full.name) {
-    repair_csv_data <- function(x, full.name) {
+  convert_horizontal_format <- function(x, prefix, full.name, setup.time,
+      filename) {
+    repair_csv_data <- function(x, full.name, setup.time, filename) {
       map <- c(CSV_NAMES, RESERVED_NAMES[["well"]])
       map <- structure(map, names = chartr(" ", ".", map))
       names(x) <- map_values(names(x), map)
@@ -1697,10 +1749,10 @@ setMethod("opmx", "data.frame", function(object,
         x[, n] <- L(names(full.name))
       n <- CSV_NAMES[["SETUP"]]
       if (!n %in% names(x))
-        x[, n] <- date()
+        x[, n] <- setup.time
       n <- CSV_NAMES[["FILE"]]
       if (!n %in% names(x))
-        x[, n] <- ""
+        x[, n] <- filename
       x
     }
     time_point_columns <- function(x, prefix) {
@@ -1730,7 +1782,7 @@ setMethod("opmx", "data.frame", function(object,
       case(length(result), NULL, result[[1L]], new("OPMS", plates = result))
     }
     x <- x[order(x[, RESERVED_NAMES[["well"]]]), , drop = FALSE]
-    x <- repair_csv_data(x, full.name)
+    x <- repair_csv_data(x, full.name, setup.time, filename)
     pos <- get("csv.selection", OPM_OPTIONS)
     pos <- unique.default(c(pos, CSV_NAMES[["PLATE_TYPE"]]))
     pos <- match(pos, names(x))
@@ -1779,7 +1831,9 @@ setMethod("opmx", "data.frame", function(object,
 
   case(format <- match.arg(format),
     horizontal = convert_horizontal_format(prepare_colnames(object,
-      plate.type, position, well), prefix, full.name),
+      plate.type, position, well), prefix, full.name, setup.time, filename),
+    rectangular = convert_rectangular_format(object, sep, position, plate.type,
+      full.name, setup.time, filename),
     vertical = stop("not yet supported")
   )
 }, sealed = SEALED)
