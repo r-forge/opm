@@ -1509,7 +1509,7 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
   #}
   # adapt_colors mit den rownames laufen lassen
   # adapt_colors mit den indices der spalten machen
-  
+
   LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch)
   line.col <- try_select_colors(line.col)
   point.col <- try_select_colors(point.col)
