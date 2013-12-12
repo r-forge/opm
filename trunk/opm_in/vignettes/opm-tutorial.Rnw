@@ -561,6 +561,16 @@ By default the panels are arranged according to the factual microtiter plate dim
 Every panel is annotated with the microtiter plate numbering (A01 to H12) and additionally or alternatively with the substrate name (given the plate type, the \pkg{opm} package can translate all well coordinates to substrate names, see also vignette ``Working with substrate information in \pkg{opm}'').
 Thus, the function enables the user to compare the curve data in a customised and useful arrangement \citep{vaas, Vaas2013}.
 
+Since the estimation of curve parameters (see Section~\ref{methods aggregating} and \citep{vaas}) is alleviated in the case of curves from finished reactions, we strongly recommend to also use \code{xy\_plot} for assessing whether or not measurement times had been exhaustive and respiration reactions were completely recorded.
+A clear indication of not exhaustively recorded experimental runs is usually the absence of a final plateau phase in the recorded curves.
+A statistical test for the completeness of respiration measurements over time is not known to us, but it should be easy to visually identify finished reactions.
+Depending on the question under study, it may or may not be advisable to further process curve parameters from unfinished reactions.
+For instance, the \ac{AUC} can only be compared between curves with the same overall running time.
+But the \code{subset} method for \proglang{OPMS} objects can be used to reduce a set of plates to the time points common to all of them.
+This would avoid comparing apples and oranges, but parameters such as \ac{A} might not always be biologically interpretable as usual if inferred from unfinished reactions.
+Some experimental experience is necessary to determine minimum running times for the organisms under study.
+Plates with slowly reacting organisms can be measured subsequently several times and the results put together using the \code{merge} method.
+
 The function \code{level\_plot} provides false-colour level plots from the raw respiration measurements over time.
 Each respiration curve can be displayed as a thin horizontal line, in which the measured respiration value (in OmniLog\textregistered \ units) is represented by colour, while the x-axes indicates the measurement times.
 With increasing respiration measurement values, the displayed colour changes (by default) from light yellow into dark orange and brownish.
@@ -1436,10 +1446,6 @@ The x-axes show the measurement time in hours, the y-axes the measured colour-va
 }
 
 \end{figure}
-
-Since the estimation of curve parameters (see Section~\ref{application aggregating} and \citep{vaas}) is alleviated when dealing with curves from finished reactions, we strongly recommend to use the \code{xy\_plot} also for assessment, if measurement times had been exhaustive and respiration reactions are recorded completely.
-An alarming sign for not exhaustively recorded experimental runs is usually the absence of a final plateau-phase in the recorded curves.
-At this point, instead of attempting a statistical test, we clearly confide on the experimenters experience with the organisms he/she works with and assume that he/she can easily identify visually experimental data from not finished respiration reaction.
 
 The function \code{level\_plot} (see Figure~\ref{fig:level_plot}) provides false-colour level plots from the raw respiration measurements over time.
 
