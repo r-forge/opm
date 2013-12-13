@@ -247,8 +247,19 @@ custom_plate_exists <- function(x) {
 #' @rdname custom_plate_is
 #' @keywords internal
 #'
-custom_plate_assert <- function(x) {
-  if (!custom_plate_exists(x))
+custom_plate_get <- function(x) {
+  get(x, MEMOIZED)
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_assert <- function(x, coords) {
+  if (custom_plate_exists(x)) {
+    if (any(bad <- !coords %in% names(custom_plate_get(x))))
+      stop("well coordinate missing from plate type '", x, "': ",
+        coords[bad][1L])
+  } else
     stop("unknown user-defined plate type: ", x)
   TRUE
 }
@@ -270,7 +281,7 @@ custom_plate_set_full <- function(x, value) {
   key <- custom_plate_prepend_full(custom_plate_proper(x))
   if (exists(key, MEMOIZED))
     warning("overwriting full name for plate type ", x)
-  MEMOIZED[[x]] <- value
+  MEMOIZED[[key]] <- value
   value
 }
 
@@ -548,7 +559,8 @@ setGeneric("gen_iii", function(object, ...) standardGeneric("gen_iii"))
 
 setMethod("gen_iii", OPM, function(object, to = "gen.iii") {
   if (custom_plate_is(L(to))) {
-    custom_plate_assert(to <- custom_plate_normalize(to))
+    to <- custom_plate_normalize(to)
+    custom_plate_assert(to, colnames(object@measurements)[-1L])
   } else
     to <- SPECIAL_PLATES[[match.arg(tolower(to), names(SPECIAL_PLATES))]]
   object@csv_data[[CSV_NAMES[["PLATE_TYPE"]]]] <- to
