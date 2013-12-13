@@ -62,11 +62,11 @@
 #' \url{http://www.dsmz.de/catalogues/details/culture/DSM-30083.html}
 #' @examples \dontrun{
 #'
-#' # Calling this yielded a variable vaas_4 containing the data. The opm
+#' # Calling this yielded a variable 'vaas_4' containing the data. The opm
 #' # package must be loaded beforehand using library().
 #' data(vaas_4)
 #'
-#' # Calling this yielded a variable vaas_1 containing the data. The opm
+#' # Calling this yielded a variable 'vaas_1' containing the data. The opm
 #' # package must be loaded beforehand using library().
 #' data(vaas_1)
 #' }
@@ -76,3 +76,28 @@ NULL
 
 ################################################################################
 
+
+#' Potato cell-line growth data set
+#'
+#' Example data set for analysing growth curves with \pkg{opm} containing
+#' manually entered fresh mass and dry mass measurements over time from three
+#' distinct potato cell lines under several stress treatments.
+#'
+#' @docType data
+#' @keywords datasets
+#' @name potato
+#' @format Data frame with 540 rows and six columns. \strong{To be extended by
+#'   L.A.I. Vaas.}
+#' @references Sandford, S. A. 1995. Apples and Oranges -- A Comparison. \emph{
+#'   Annals of Improbable Research} \strong{1}, 1--3.
+#' @examples \dontrun{
+#'
+#' # Calling this yielded a variable 'potato' containing the data. The opm
+#' # package must be loaded beforehand using library().
+#' data(potato)
+#' }
+#'
+NULL
+
+
+################################################################################
