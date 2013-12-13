@@ -88,8 +88,12 @@ NULL
 #' @name potato
 #' @format Data frame with 540 rows and six columns. \strong{To be extended by
 #'   L.A.I. Vaas.}
-#' @references Sandford, S. A. 1995. Apples and Oranges -- A Comparison. \emph{
-#'   Annals of Improbable Research} \strong{1}, 1--3.
+#' @references  Vaas, L. A. I., Marheine, M., Sikorski, J., Göker, M.,
+#'   Schumacher H.-M. 2013. Impacts of pr-10a overexpression at the molecular
+#'   and the phenotypic level. \emph{International journal of molecular
+#'   sciences} \strong{14}: 15141-15166.
+#' @references Sandford, S. A. 1995. Apples and Oranges -- A Comparison.
+#'   \emph{Annals of Improbable Research} \strong{1} (3).
 #' @examples \dontrun{
 #'
 #' # Calling this yielded a variable 'potato' containing the data. The opm
