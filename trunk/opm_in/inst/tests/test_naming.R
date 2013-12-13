@@ -75,6 +75,10 @@ test_that("predefined color sets can be obtained", {
 ## UNTESTED
 
 
+## custom_plate_get
+## UNTESTED
+
+
 ## custom_plate_assert
 ## UNTESTED
 

@@ -1712,10 +1712,11 @@ setMethod("opmx", "data.frame", function(object,
       .msg = "plate type for rectangular format missing or non-unique")
     L(position,
       .msg = "'position' for rectangular format missing or non-unique")
-    custom_plate_assert(plate.type <- custom_plate_normalize_all(plate.type))
+    x <- convert_rectangular_matrix(x, sep)
+    plate.type <- custom_plate_normalize_all(plate.type)
+    custom_plate_assert(plate.type, colnames(x)[-1L])
     if (!is.na(full <- full.name[plate.type]))
       custom_plate_set_full(plate.type, full)
-    x <- convert_rectangular_matrix(x, sep)
     y <- c(L(filename), plate.type, position, L(setup.time))
     names(y) <- CSV_NAMES
     new(OPM, measurements = x, csv_data = y, metadata = list())
