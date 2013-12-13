@@ -17,6 +17,7 @@ Preprocess
 Pseudomonas
 Shrestha
 Sikorski
+Solanum
 Solaris
 Sweave
 Vaas
@@ -53,6 +54,7 @@ subdirectories
 subdirectory
 superset
 taxon
+tuberosum
 unary
 versa
 whitespace

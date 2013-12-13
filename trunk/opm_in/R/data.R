@@ -80,20 +80,31 @@ NULL
 #' Potato cell-line growth data set
 #'
 #' Example data set for analysing growth curves with \pkg{opm} containing
-#' manually entered fresh mass and dry mass measurements over time from three
-#' distinct potato cell lines under several stress treatments.
+#' manually entered fresh-mass and dry-mass measurements over time from three
+#' distinct potato (\emph{Solanum tuberosum}) cell lines under several stress
+#' treatments.
 #'
 #' @docType data
 #' @keywords datasets
 #' @name potato
-#' @format Data frame with 540 rows and six columns. \strong{To be extended by
-#'   L.A.I. Vaas.}
-#' @references  Vaas, L. A. I., Marheine, M., Sikorski, J., Göker, M.,
-#'   Schumacher H.-M. 2013. Impacts of pr-10a overexpression at the molecular
-#'   and the phenotypic level. \emph{International journal of molecular
-#'   sciences} \strong{14}: 15141-15166.
+#' @format Data frame with 540 rows and six columns. The columns are:
+#' \describe{
+#'   \item{Genotype}{Factor containing the names of the cell lines.}
+#'   \item{Treatment}{Factor describing the applied stress conditions. There is
+#'     also one level for the control.}
+#'   \item{Replicate}{Integer vector with the number of the replicate. There
+#'     are five replicates per combination of \sQuote{Genotype} and
+#'     \sQuote{Treatment}.}
+#'   \item{Time}{Integer vector containing the measurement times in hours.}
+#'   \item{FM}{Integer vector containing the fresh-mass measurements in grams.}
+#'   \item{DM}{Integer vector containing the dry-mass measurements in grams.}
+#' }
 #' @references Sandford, S. A. 1995. Apples and Oranges -- A Comparison.
 #'   \emph{Annals of Improbable Research} \strong{1} (3).
+#' @references  Vaas, L. A. I., Marheine, M., Sikorski, J., Goeker, M.,
+#'   Schumacher, H.-M. 2013 Impacts of pr-10a overexpression at the molecular
+#'   and the phenotypic level. \emph{International Journal of Molecular
+#'   Sciences} \strong{14}: 15141--15166.
 #' @examples \dontrun{
 #'
 #' # Calling this yielded a variable 'potato' containing the data. The opm

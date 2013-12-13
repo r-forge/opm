@@ -1684,7 +1684,7 @@ setMethod("opmx", "data.frame", function(object,
           TRUE
         }, warning = function(w) FALSE)
       if (converted)
-        structure(c(x), names = n)
+        structure(c(x), names = toupper(n))
       else
         NULL
     }
