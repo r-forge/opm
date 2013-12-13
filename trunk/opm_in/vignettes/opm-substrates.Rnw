@@ -116,7 +116,7 @@ This includes determining the relevant pathways to be used in the visualisations
 More examples for the powerful feature-selection approaches available within \proglang{R} will be explained in future versions of this tutorial.
 }
 
-\Keywords{Respiration Kinetics, pathways, \acs{CAS}, \acs{MeSH}, \acs{ChEBI}, MetaCyc, \acs{KEGG}, \pkg{pathview}}
+\Keywords{Respiration Kinetics, Pathways, \acs{CAS}, \acs{MeSH}, \acs{ChEBI}, MetaCyc, \acs{KEGG}, \pkg{pathview}}
 
 \Plainkeywords{respiration kinetics, pathways, CAS, MeSH, ChEBI, MetaCyc, KEGG, pathview}
 

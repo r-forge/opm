@@ -327,9 +327,11 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #' or remove user-defined plate types.
 #'
 #' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
-#'   object, or character vector of original plate name(s), or factor. If
-#'   missing, the function displays the plate types \pkg{opm} knows about.
-#'   For \code{register_plate}, either missing, causing the arguments within
+#'   object, or character vector of original plate name(s), or factor, or
+#'   logical scalar. If missing, the function displays the plate types \pkg{opm}
+#'   knows about. If a logical scalar, the behaviour is the same, but optionally
+#'   registered to the user-defined or the \pkg{opm}-defined plate types. For
+#'   \code{register_plate}, either missing, causing the arguments within
 #'   \code{...} to be used, if any, a list of \code{NULL} values or character
 #'   vectors, or a character vector whose elements are interpretable as file
 #'   names. See below for details on the input format.
@@ -382,6 +384,11 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #'   might be of interest.
 #'
 #'   Factors are treated by passing their levels through the character method.
+#'
+#'   If a logical scalar is given as \code{object} argument, \code{TRUE}
+#'   restricts the output to user-defined plate types (an empty set by default),
+#'   \code{FALSE} to the plate types that ship with \pkg{opm}, and \code{NA}
+#'   shows all plates.
 #'
 #'   \code{gen_iii} change the plate type of an \code{\link{OPM}} object to
 #'   \sQuote{Generation III} or another plate type. This is currently the only
@@ -546,8 +553,21 @@ setMethod("plate_type", "factor", function(object, ...) {
 }, sealed = SEALED)
 
 setMethod("plate_type", "missing", function(object, ...) {
-  other <- ls(MEMOIZED)
-  plate_type(c(names(PLATE_MAP), other[custom_plate_is(other)]), ...)
+  x <- ls(MEMOIZED)
+  plate_type(c(names(PLATE_MAP), x[custom_plate_is(x)]), ...)
+}, sealed = SEALED)
+
+setMethod("plate_type", "logical", function(object, ...) {
+  if (is.na(L(object))) {
+    x <- ls(MEMOIZED)
+    x <- c(names(PLATE_MAP), x[custom_plate_is(x)])
+  } else if (object) {
+    x <- ls(MEMOIZED)
+    x <- x[custom_plate_is(x)]
+  } else {
+    x <- names(PLATE_MAP)
+  }
+  plate_type(x, ...)
 }, sealed = SEALED)
 
 #= gen_iii plate_type
@@ -607,15 +627,31 @@ setMethod("register_plate", "list", function(object, ...) {
     n <- ifelse(custom_plate_is(n), custom_plate_proper(n), n)
     custom_plate_normalize_proper(n)
   }
+  convert_rectangular_coords <- function(x) {
+    if (!length(j <- as.integer(colnames(x))))
+      j <- seq_len(ncol(x))
+    if (!length(i <- rownames(x)))
+      i <- rep(LETTERS, length.out = nrow(x))
+    n <- vapply(i, sprintf, character(length(j)), fmt = "%s%02i", j)
+    structure(c(t(x)), names = n)
+  }
   prepare_well_map <- function(x) {
+    if (is.data.frame(x)) {
+      for (i in which(vapply(x, is.factor, NA)))
+        x[, i] <- as.character(x[, i])
+      x <- convert_rectangular_coords(as.matrix(x))
+    } else if (is.matrix(x))
+      x <- convert_rectangular_coords(x)
+    else
+      names(x) <- clean_coords(names(x))
     storage.mode(x) <- "character"
-    names(x) <- clean_coords(names(x))
     if (dup <- anyDuplicated(names(x)))
       stop("duplicate well coordinate provided: ", names(x)[dup])
     x
   }
   insert_plate_types <- function(x) {
-    named <- vapply(lapply(x, names), valid_names, NA)
+    named <- vapply(lapply(x, names), valid_names, NA) |
+      vapply(x, is.data.frame, NA) | vapply(x, is.matrix, NA)
     if (any(vapply(x, length, 0L) > 1L & !named))
       stop("element unnamed but not of length 1")
     x[named] <- lapply(x[named], prepare_well_map)

@@ -84,12 +84,11 @@
 
 % authors, first page
 \author{Lea A.I. \Surname{Vaas}\\Leibniz Institute \acs{DSMZ} \And
-        Benjamin \Surname{Hofner}\\\acs{IMBE}, \acs{FAU} \German{Erlangen-N\"{u}rnberg} \And
         Markus \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
 
 
 % title, first page
-\title{Working with substrate information in \pkg{opm}}
+\title{Analysing growth curves and other user-defined plates in \pkg{opm}}
 
 
 % authors, header on every 2nd page
@@ -97,16 +96,16 @@
 
 
 % main title, first page
-\Plaintitle{Working with substrate information in opm}
+\Plaintitle{Analysing growth curves and other user-defined plates in opm}
 
 
 % short title, header on every 2nd page
-\Shorttitle{Substrates in \pkg{opm} (\today)}
+\Shorttitle{User-defined plates in \pkg{opm} (\today)}
 
 
 \Abstract{ here some abstract }
 
-\Keywords{Respiration Kinetics, pathways, \acs{CAS}, \acs{MeSH}, \acs{ChEBI}, MetaCyc, \acs{KEGG}, \pkg{pathview}}
+\Keywords{Growth Kinetics}
 
 \Plainkeywords{respiration kinetics, pathways, CAS, MeSH, ChEBI, MetaCyc, KEGG, pathview}
 
@@ -155,15 +154,15 @@ library("methods")
 
 
 <<label=load-library>>=
-suppressPackageStartupMessages(library("pathview"))
 if ("package:opm" %in% search())
   detach("package:opm", unload = TRUE)
 library("opm")
-data(vaas_et_al, package = "opmdata")
 @
 
 
 \section{growth curve data input}\label{growth curve data input}\label{data input}
+
+In the following we will use the growth-measurements data set from \citet{ijms140715141} as exemplar.
 
 The \pkg{opm} package contains a number of functions suitable for accessing precomputed information on entire plates and on the substrates within certain wells.
 
@@ -191,11 +190,9 @@ Using other values for \code{full}, or additional arguments, distinct spelling v
 \section{Finding the pathways of interest}\label{finding-pathways}
 
 \section[Acknowledgements]{Acknowledgements}
-We are grateful to Barry \Surname{Bochner} (BIOLOG Inc.) for providing substrate and plate information on \ac{PM} assays.
-The integration of missing OmniLog\textregistered \ substrates into \ac{ChEBI} by the \ac{ChEBI} staff is gratefully acknowledged.
-We thank \Surname{Weijun Luo} for providing hints regarding the use of the \pkg{pathview} package.
+We are grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves measured with a TECAN instrument.
 
-\clearpage
+%\clearpage
 
 \bibliography{opm}
 
