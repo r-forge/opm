@@ -1433,8 +1433,8 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' @param point.col Indicates the colour(s) of the symbols.
 #' @param poly.col Indicates the colour for filling the drawn polygons, if any.
 #'   Use \code{NA} for no fill (recommended).
-#' @param group.col logical scalar indicating, if replicates belonging to the
-#'   group have the same colour.
+#' @param group.col Logical scalar indicating whether or not wells from plates
+#'   that belong to the same group shall have the same colour.
 #' @param main The main title of the plot.
 #' @param ... Optional other arguments passed to \code{radial.plot} from the
 #'   \pkg{plotrix} package.
@@ -1480,7 +1480,7 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' (y <-radial_plot(vaas_4[, , 1:5], as.labels = list("Species", "Strain"),
 #'   main = "Test", x = 200, y = 200, rp.type = "s", show.centroid = TRUE))
 #'
-#' # with same colour for members of group
+#' # with the same colour for members of the same group
 #' (xy <-radial_plot(vaas_4[, , 1:5], as.labels = list("Species"),
 #'   group.col = TRUE, main = "Test", x = 200, y = 200, rp.type = "s",
 #'   show.centroid = TRUE))
@@ -1510,25 +1510,24 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
 
   # insert a ready-made colour vector for line.col
   adapt_colors <- function(x, colors) {
-    x <- as.factor(x)
-    if (length(colors) < length(levels(x)))
+    if (length(colors) < length(levels(f <- as.factor(x))))
       stop("not enough colours provided")
-    colors[x]
+    structure(colors[f], names = x)
   }
 
-  LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch)
+  LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch, group.col)
   line.col <- try_select_colors(line.col)
   point.col <- try_select_colors(point.col)
   changed.par <- NULL
   on.exit(if (!is.null(changed.par))
     par(changed.par))
 
-  if (group.col) {
-    line.col <- adapt_colors(rownames(object), colors = line.col)
-    point.col <- adapt_colors(rownames(object), colors = point.col)
+  if (group.col && !is.null(rn <- rownames(object))) {
+    line.col <- adapt_colors(rn, line.col)
+    point.col <- adapt_colors(rn, point.col)
   } else {
-    line.col <- adapt_colors(seq_len(nrow(object)), colors = line.col)
-    point.col <- adapt_colors(seq_len(nrow(object)), colors = point.col)
+    line.col <- adapt_colors(seq_len(nrow(object)), line.col)
+    point.col <- adapt_colors(seq_len(nrow(object)), point.col)
   }
 
   changed.par <- radial.plot(lengths = object[, subset, drop = FALSE],
@@ -1537,18 +1536,22 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
     show.grid.labels = show.grid.labels, line.col = line.col,
     point.symbols = point.symbols, point.col = point.col, poly.col = poly.col,
     main = main, ...)
-  if (!is.null(rn <- rownames(object))) {
+  if (is.null(rn <- rownames(object))) {
+    line.col <- NULL
+  } else {
+    if (group.col) {
+      line.col <- line.col[!duplicated.default(line.col)]
+      rn <- names(line.col)
+    } else {
+      names(line.col) <- rn
+    }
     if (draw.legend) {
       legend.args <- insert(as.list(legend.args), x = x, y = y, col = line.col,
         legend = rn, pch = pch, .force = TRUE)
       do.call(legend, legend.args)
     }
-    result <- suppressWarnings(cbind(rn, line.col))
-    result <- result[seq_len(nrow(object)), , drop = FALSE]
-    result <- structure(result[, 2L], names = as.vector(result[, 1L]))
-  } else
-    result <- NULL
-  invisible(result)
+  }
+  invisible(line.col)
 }, sealed = SEALED)
 
 setMethod("radial_plot", "data.frame", function(object, as.labels,

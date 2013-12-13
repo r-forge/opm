@@ -3,6 +3,7 @@
 2014-01-XX (the 13th release on CRAN)
 
 - new register_plate() and opmx() methods
+- radial_plot() gets a 'group.col' argument
 
 
 ################################################################################
