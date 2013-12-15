@@ -327,7 +327,9 @@ setClassUnion(OPMX, c(OPM, OPMS))
 #'
 NULL
 
-setClassUnion(YAML_VIA_LIST, c(OPM, OPMS, "list"))
+setOldClass("print_easy")
+
+setClassUnion(YAML_VIA_LIST, c(OPM, OPMS, "print_easy"))
 
 
 ################################################################################

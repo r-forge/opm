@@ -99,6 +99,8 @@ NULL
 #'   \item{FM}{Integer vector containing the fresh-mass measurements in grams.}
 #'   \item{DM}{Integer vector containing the dry-mass measurements in grams.}
 #' }
+#' @details How to convert and analyse this data set is explained in the
+#'   vignette on working with growth curves in \pkg{opm}.
 #' @references Sandford, S. A. 1995. Apples and Oranges -- A Comparison.
 #'   \emph{Annals of Improbable Research} \strong{1} (3).
 #' @references  Vaas, L. A. I., Marheine, M., Sikorski, J., Goeker, M.,

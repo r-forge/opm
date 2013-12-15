@@ -1546,7 +1546,7 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
 #'
 setGeneric("to_yaml", function(object, ...) standardGeneric("to_yaml"))
 
-setMethod("to_yaml", YAML_VIA_LIST, function(object, sep = TRUE,
+setMethod("to_yaml", "list", function(object, sep = TRUE,
     line.sep = "\n", json = FALSE, listify = nodots, nodots = FALSE, ...) {
   replace_dots <- function(x) {
     if (any(bad <- grepl(".", x, FALSE, FALSE, TRUE)))
@@ -1558,7 +1558,6 @@ setMethod("to_yaml", YAML_VIA_LIST, function(object, sep = TRUE,
   else
     as.list(items)
   LL(sep, line.sep, json, listify, nodots)
-  object <- as(object, "list")
   if (listify)
     object <- rapply(object, to_map, "ANY", NULL, "replace")
   if (nodots)
@@ -1573,9 +1572,17 @@ setMethod("to_yaml", YAML_VIA_LIST, function(object, sep = TRUE,
   result
 }, sealed = SEALED)
 
+setMethod("to_yaml", YAML_VIA_LIST, function(object, ...) {
+  n <- names(object)
+  object <- as(object, "list")
+  if (is.null(names(object)) && length(object) == length(n))
+    names(object) <- n
+  to_yaml(object, ...)
+}, sealed = SEALED)
+
 setMethod("to_yaml", MOPMX, function(object, ...) {
   to_yaml(lapply(object, as, "list"), ...)
-})
+}, sealed = SEALED)
 
 
 ################################################################################

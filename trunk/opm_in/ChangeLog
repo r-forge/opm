@@ -2,8 +2,11 @@
 
 2014-01-XX (the 13th release on CRAN)
 
+- wells() does not allow for partial matching of plate names any more
 - new register_plate() and opmx() methods
 - radial_plot() gets a 'group.col' argument
+- wells() gets a 'simplify' argument; returned matrices are now of class
+  'well_coords_map', which gets its own listing() method
 
 
 ################################################################################

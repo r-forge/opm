@@ -1449,6 +1449,7 @@ setMethod("heat_map", OPMS, function(object, as.labels,
 #' @param legend.args List of optional other arguments passed to that function.
 #'
 #' @export
+#' @author Lea A.I. Vaas and Markus Goeker
 #' @family plotting-functions
 #' @seealso plotrix::radial.plot graphics::legend
 #' @keywords hplot

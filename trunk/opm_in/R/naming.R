@@ -281,6 +281,7 @@ custom_plate_set_full <- function(x, value) {
   key <- custom_plate_prepend_full(custom_plate_proper(x))
   if (exists(key, MEMOIZED))
     warning("overwriting full name for plate type ", x)
+  names(value) <- NULL
   MEMOIZED[[key]] <- value
   value
 }
@@ -423,7 +424,10 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #'   provided. For registering the mapping from well coordinates to substrate
 #'   names, a named character vector must be provided with the names indicating
 #'   the well coordinates and the elements indicating the according substrate
-#'   names.
+#'   names. Alternatively, a matrix or data frame can be provided that imitates
+#'   that physical structure of the plate. That is, the rows are the plate rows
+#'   (A, B, C, ...) and the columns are the plate columns (1, 2, 3, ...). If
+#'   row or column names are used, they are honoured.
 #'
 #'   For deleting a user-defined plate, an empty value (such as \code{NULL} or
 #'   an empty vector) must be provided. Deletion is done for both full plate
@@ -486,6 +490,26 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #' stopifnot(identical(vaas_4, copy)) # as above
 #' plate_type(copy <- gen_iii(vaas_4, "eco"))
 #' stopifnot(!identical(vaas_4, copy)) # as above
+#'
+#' ## registering plate types
+#'
+#' # well map and full name of a plate can be simultaneously registered
+#' register_plate(myplate = c(A01 = "Glucose", A02 = "Fructose"),
+#'   myplate = "Simple fake test plate")
+#' # note standardization of name
+#' stopifnot("CUSTOM:MYPLATE" %in% plate_type(TRUE))
+#' # queries can be done ignoring case differences
+#' listing(wells(plate = "custom:myplate"))
+#'
+#' # input/output of plate types
+#' plate.file <- tempfile()
+#' write(to_yaml(listing(wells(plate = "custom:myplate"))), plate.file)
+#' register_plate(plate.file)
+#' unlink(plate.file) # tidying up
+#'
+#' # erasing this plate type again; this will delete well map and full name
+#' register_plate(myplate = NULL)
+#' stopifnot(!"CUSTOM:MYPLATE" %in% plate_type(TRUE))
 #'
 setGeneric("plate_type", function(object, ...) standardGeneric("plate_type"))
 
@@ -863,9 +887,9 @@ clean_plate_positions <- function(x) {
 #'
 map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
     paren.sep = " ", downcase = FALSE, max = opm_opt("max.chars"), ...) {
-  if (custom_plate_is(L(plate))) {
-    if (exists(plate, MEMOIZED))
-      res <- get(plate, MEMOIZED)[wells]
+  if (custom_plate_is(plate)) {
+    if (custom_plate_exists(plate))
+      res <- custom_plate_get(plate)[wells]
     else
       res <- NULL
   } else {
@@ -968,11 +992,16 @@ to_sentence.logical <- function(x, html, ...) {
 #'   in \kbd{downcase} mode; see there for details.
 #' @param plate Name of the plate type. Several ones can be given unless
 #'   \code{object} is of class \code{\link{OPM}} or \code{\link{OPMS}}.
-#'   \code{\link{plate_type}} is applied before searching for the substrate
-#'   names, and partial matching is allowed.
+#'   Normalisation as in \code{\link{plate_type}} is applied before searching
+#'   for the substrate names but otherwise the match must be exact.
+#' @param simplify Logical scalar indicating whether the result should be
+#'   simplified to a vector. This will never be done if more than a single
+#'   column is contained, i.e. if data for more than a single plate type are
+#'   queried for.
 #' @param ... Optional arguments passed between the methods.
 #'
-#' @param x \code{\link{OPMD}} or \code{\link{OPMS}} object.
+#' @param x \code{\link{OPMD}}, \code{\link{OPMS}} or \code{well_coords_map}
+#'   object.
 #' @param as.groups Vector or \code{NULL}. If non-empty, passed as eponymous
 #'   argument to \code{\link{extract}}. Thus \code{TRUE} and \code{FALSE} can be
 #'   used, creating either a single group or one per plate. The extracted
@@ -994,9 +1023,15 @@ to_sentence.logical <- function(x, html, ...) {
 #' @param exact Logical scalar passed to \code{\link{metadata}}.
 #' @param strict Logical scalar also passed to \code{\link{metadata}}.
 #'
-#' @return Character vector. For the \code{listing} methods, a character vector
-#'   or matrix with additional class attribute \code{OPMD_Listing} or
-#'   \code{OPMS_Listing}. See the examples for details.
+#' @return The \code{wells} methods return a named character vector or a named
+#'   matrix of the S3 class \code{well_coords_map}, depending on \code{simplify}
+#'   and \code{plate}. The return value of the \code{listing} methods for
+#'   \code{\link{OPMX}} objects is a character vector or matrix with additional
+#'   class attribute \code{OPMD_Listing} or \code{OPMS_Listing}. The
+#'   \code{well_coords_map} method creates a nested list of the class
+#'   \code{well_coords_listing} which can be used in conjunction with
+#'   \code{\link{to_yaml}} or \code{saveRDS} for externally storing well maps.
+#'   See the examples for details.
 #' @export
 #' @family naming-functions
 #' @seealso base::strtrim base::abbreviate
@@ -1030,8 +1065,13 @@ to_sentence.logical <- function(x, html, ...) {
 #' stopifnot(nchar(y) > nchar(x))
 #' (z <- wells(x, plate = "PM1", in.parens = TRUE))
 #' stopifnot(nchar(z) > nchar(y))
-#' # formula yields same result (except for row names)
+#' # formula yields same result
 #' stopifnot(y == wells(~ c(A01, B10), plate = "PM1"))
+#' # querying for several plate types at once
+#' (y <- wells(~ c(A01, B10), plate = c("PM2", "PM3", "PM10")))
+#' stopifnot(dim(y) == c(2, 3))
+#' (z <- listing(y)) # create a printable nested list
+#' stopifnot(is.list(z), sapply(z, is.list), names(z) == colnames(y))
 #' # using a sequence of well coordinates
 #' stopifnot(nrow(wells(~ C02:C06)) == 5) # well sequence
 #' stopifnot(nrow(wells(plate = "PM1")) == 96) # all wells by default
@@ -1082,36 +1122,48 @@ setGeneric("wells", function(object, ...) standardGeneric("wells"))
 setMethod("wells", OPM, function(object, full = FALSE, in.parens = TRUE,
     max = opm_opt("max.chars"), brackets = FALSE, clean = TRUE,
     word.wise = FALSE, paren.sep = " ", downcase = FALSE,
-    plate = plate_type(object)) {
-  result <- setdiff(colnames(measurements(object)), HOUR)
-  if (L(full))
-    map_well_names(result, L(plate), in.parens = in.parens,
+    plate = plate_type(object), simplify = TRUE) {
+  LL(full, simplify, plate)
+  x <- colnames(object@measurements)[-1L]
+  if (!missing(plate))
+    plate <- if (custom_plate_is(plate))
+      custom_plate_normalize(plate)
+    else
+      normalize_predefined_plate(plate)
+  if (full)
+    x <- structure(map_well_names(x, plate, in.parens = in.parens,
       max = max, brackets = brackets, clean = clean, word.wise = word.wise,
-      paren.sep = paren.sep, downcase = downcase)
-  else
-    result
+      paren.sep = paren.sep, downcase = downcase), names = x)
+  if (simplify)
+    return(x)
+  x <- matrix(x, length(x), 1L, FALSE, list(names(x), plate))
+  class(x) <- "well_coords_map"
+  x
 }, sealed = SEALED)
 
 setMethod("wells", "ANY", function(object, full = TRUE, in.parens = FALSE,
     max = opm_opt("max.chars"), brackets = FALSE, clean = TRUE,
-    word.wise = FALSE, paren.sep = " ", downcase = FALSE, plate = "PM01") {
-  result <- well_index(object, rownames(WELL_MAP))
-  if (!is.character(result))
-    result <- rownames(WELL_MAP)[result]
-  result <- do.call(cbind, rep.int(list(result), length(plate)))
-  pos <- pmatch(normalize_predefined_plate(plate), colnames(WELL_MAP))
-  colnames(result) <- plate
-  if (is.character(object))
-    rownames(result) <- object
-  if (!L(full))
-    return(result)
-  for (i in which(!is.na(pos)))
-    result[, i] <- map_well_names(result[, i], colnames(WELL_MAP)[pos[i]],
-      in.parens = in.parens, max = max, brackets = brackets, clean = clean,
-      word.wise = word.wise, paren.sep = paren.sep, downcase = downcase)
-  for (i in which(is.na(pos)))
-    result[, i] <- NA_character_
-  result
+    word.wise = FALSE, paren.sep = " ", downcase = FALSE, plate = "PM01",
+    simplify = FALSE) {
+  LL(full, simplify)
+  x <- well_index(object, rownames(WELL_MAP))
+  if (!is.character(x))
+    x <- rownames(WELL_MAP)[x]
+  ok <- is.custom <- custom_plate_is(plate)
+  x <- matrix(x, length(x), length(plate), FALSE, list(x, ifelse(is.custom,
+    custom_plate_normalize(plate), normalize_predefined_plate(plate))))
+  ok[is.custom] <- vapply(colnames(x)[is.custom], custom_plate_exists, NA)
+  ok[!is.custom] <- match(colnames(x)[!is.custom], colnames(WELL_MAP), 0L) > 0L
+  x[, !ok] <- NA_character_
+  if (full)
+    for (i in which(ok))
+      x[, i] <- map_well_names(x[, i], colnames(x)[i], in.parens = in.parens,
+        max = max, brackets = brackets, clean = clean, word.wise = word.wise,
+        paren.sep = paren.sep, downcase = downcase)
+  if (simplify && ncol(x) == 1L)
+    return(x[, 1L])
+  class(x) <- "well_coords_map"
+  x
 }, sealed = SEALED)
 
 setMethod("wells", "missing", function(object, ...) {
@@ -1124,6 +1176,22 @@ setMethod("wells", "missing", function(object, ...) {
 #' @export
 #'
 setGeneric("listing")
+
+setOldClass("well_coords_map")
+
+setClass("well_coords_listing", contains = "print_easy")
+
+setMethod("listing", "well_coords_map", function(x) {
+  x <- x[!apply(is.na(x), 1L, all), , drop = FALSE]
+  result <- structure(vector("list", ncol(x)), names = plate <- colnames(x))
+  full <- ifelse(custom_plate_is(plate),
+    mget(custom_plate_prepend_full(custom_plate_proper(plate)), MEMOIZED,
+    "character", rep.int(list(NA_character_), length(plate))), PLATE_MAP[plate])
+  for (i in seq_along(result))
+    result[[i]] <- list(full[[i]], as.list(x[, i]))
+  class(result) <- c("well_coords_listing", "print_easy")
+  result
+}, sealed = SEALED)
 
 setMethod("listing", OPMD, function(x, as.groups,
     cutoff = opm_opt("min.mode"), downcase = TRUE, full = TRUE,
@@ -1467,8 +1535,8 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #' @references Hastings, J., de Matos, P., Dekker, A., Ennis, M., Harsha, B.,
 #'   Kale, N., Muthukrishnan, V., Owen, G., Turner, S., Williams, M.,
 #'   Steinbeck, C. 2013 The ChEBI reference database and ontology for
-#'   biologically relevant chemistry: enhancements for 2013. \emph{Nucleic
-#'   Acids Research} \strong{41}: D456--D463.
+#'   biologically relevant chemistry: enhancements for 2013. \emph{Nucleic Acids
+#'   Research} \strong{41}: D456--D463.
 #' @examples
 #'
 #' # Character method; compare correct and misspelled substrate name
