@@ -288,6 +288,7 @@ test_that("substrate names can be translated", {
   exp.2 <- c(A01 = "Negative Control", A02 = "Chondroitin Sulfate C")
   exp.2 <- cbind(exp.1, exp.2)
   colnames(exp.2) <- plates.2
+  class(exp.2) <- "well_coords_map"
   got <- wells(c("A01", "A02"), plate = plates.2, full = TRUE)
   expect_equal(got, exp.2)
 
@@ -296,6 +297,7 @@ test_that("substrate names can be translated", {
   exp.2 <- c(A01 = "Negative Control", A02 = "Chondroitin Sulfate C")
   exp.2 <- cbind(exp.1, exp.2)
   colnames(exp.2) <- c(plates.2[1L], "PM02")
+  class(exp.2) <- "well_coords_map"
   got <- wells(c("A01", "A02"), plate = plates.2, full = TRUE)
   expect_equal(got, exp.2)
 
