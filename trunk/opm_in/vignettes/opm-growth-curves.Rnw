@@ -131,16 +131,22 @@ All these practically relevant issues are explained in detail.
 
 \section{Introduction}\label{introduction}
 
+\subsection[Preliminary notes]{Preliminary notes}
 A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype Microarray Data'' (called ``main tutorial'' in the following).
 How substrate information stored within \pkg{opm} can be accessed and used for advanced visual and statistical analyses is explained in the vignette ``Working with substrate information in \pkg{opm}'' (called ``substrate tutorial'' in the following).
 The description of the methods below presupposes that the user is familiar with the usage of \pkg{opm} and has studied the main tutorial, the substrate tutorial as well as the entries of the \pkg{opm} manual relevant to her or his research.
 Especially the concepts behind, and the methods available for, the different classes of \pkg{opm} objects should be known before starting with this tutorial.
 
-In addition to visual inspection or statistical comparative analyses of \ac{PM} data, as described in the main tutorial and the substrate tutorial, users might be interested in analysing data other than \ac{PM} data, or analysing \ac{PM} with user-defined plate types.
-To work with user-defined \ac{PM} plates only requires registering these plates, i.e. storing a mapping from well coordinates to substrate names, and optionally also a full, descriptive name for the plate.
+\subsection[Growth curve analysis and user-defined PM plates]{Growth curve analysis and user-defined \ac{PM} plates}
+In addition to visual inspection or statistical comparative analyses of \ac{PM} data, as described in the main tutorial and the substrate tutorial, users might be interested in analysing curve data other than \ac{PM} data, or analysing \ac{PM} measured on customised or user-defined plate types.
+
 The analysis of data other than \ac{PM} data, such as growth curves, additionally requires inputting these data and converting them to \proglang{OPMX} objects.
 Moreover, some defaults of the plotting functions are only suitable for \ac{PM} data.
 Hence, the functions should be called slightly distinctly.
+
+Besides these slight restrictions, which are illustrated with examples below, non-\ac{PM} data can be analysed with \pkg{opm} almost like \ac{PM} data.
+
+To work with user-defined \ac{PM} plates only requires registering these plates, i.e. storing a mapping from well coordinates to substrate names, and optionally also a full, descriptive name for the plate.
 
 Besides these slight restrictions, which are illustrated with examples below, non-\ac{PM} data can be analysed with \pkg{opm} almost like \ac{PM} data.
 
@@ -176,7 +182,7 @@ head(potato)
 
 For details on this data set, enter \code{?potato} at the \proglang{R} prompt.
 %TODO Lea: check and if necessary augment the manual entry for this data set.
-% Do NOT REPEAT that stuff here -- here we must concentrate on the format and its manipulation, see nect entry.
+% Do NOT REPEAT that stuff here -- here we must concentrate on the format and its manipulation, see next entry.
 The measurements are in ``long'' format and must be reshaped using the eponymous function into ``wide'' format.
 We do this separately for the dry-mass and fresh-mass measurements within the data set:
 
@@ -187,7 +193,8 @@ potato.dm <- reshape(potato, v.names = "DM", drop = "FM", direction = "wide",
   idvar = c("Genotype", "Treatment", "Replicate"), timevar = "Time")
 @
 
-%TODO Lea: briefly explain what is going on here within the call to reshape().
+The data frame is reshaped from the ``long'' format with the repeated measurements in separate records into the ``wide'' format with repeated measurements in separate columns of the same record. 
+This is necessary for the following conversion step.
 
 The main function for converting user-defined data frames to \proglang{OPMX} or \proglang{MOPMX} objects is \code{opmx}, which can directly be applied to the objects created in the last step.
 This works because the ``horizontal'' input format of \code{opmx} corresponds to the ``wide'' format of \code{reshape}.
@@ -292,4 +299,3 @@ We are grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves meas
 \bibliography{opm}
 
 \end{document}
-
