@@ -464,12 +464,12 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
  \centering
  \scalebox{1.225}{
  \includegraphics[type=png,ext=.png,read=.png]{ko00052.k12.ko}
- }  
+ }
  \caption{\label{fig:1a-pathview-native-sep-strains} Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway.
 The aggregated measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
  }
-\end{figure}     
-       
+\end{figure}
+
 \begin{figure}
  \centering
  \scalebox{1.225}{
@@ -478,12 +478,7 @@ The aggregated measurement data are represented by according colours and mapped 
  \caption{\label{fig:1b-pathview-native-sep-strains} Respiratory data (mean maximum height) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway.
 The aggregated measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
   }
-        
-%        \caption{
-%        \label{fig:pathview-native-sep-strains}
-%        Galactose metabolism pathway maps for the two \textit{E. coli} strains K12 and \ac{DSM} 30083\textsuperscript{T} showing the mean maximum height on 13 substrates.
-%        The aggregated measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
-%   		}
+
 \end{figure}
 
 
@@ -517,18 +512,18 @@ coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
  \includegraphics[type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}
  }
  \caption{\label{fig:pathview-cat-sep-strains-1a} Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway. The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.}
- 
+
 \end{figure}
- 
- 
+
+
 \begin{figure}
  \centering
  \scalebox{1.225}{
  \includegraphics[type=png,ext=.png,read=.png]{ko00052.type.ko.bin}
  }
  \caption{\label{fig:pathview-cat-sep-strains-1b} Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway. The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.}
-  
-    
+
+
        % \caption{
        % \label{fig:pathview-cat-sep-strains}
        % Galactose metabolism pathway maps for the two \textit{E. coli} strains K12 and \ac{DSM} 30083\textsuperscript{T} showing the mean maximum height on 13 substrates.
@@ -705,8 +700,8 @@ cat.coli.comp.150 <- opm_path(
  \centering
  \scalebox{1.225}{
  \includegraphics[type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-0}
- } 
- \caption{\label{fig:pathview-native-sig-differences-1a} 
+ }
+ \caption{\label{fig:pathview-native-sig-differences-1a}
 Indicators of the significance of the respiration differences between \textit{E. coli} K12 and \textit{E. coli} \ac{DSM} 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.
 Blue, significantly larger than the chosen minimum effect size of 0 (default); grey, insignificantly different from the chosen minimum effect size; yellow, significantly smaller than the chosen minimum effect size.
  }
@@ -714,15 +709,15 @@ Blue, significantly larger than the chosen minimum effect size of 0 (default); g
 
 \begin{figure}
  \centering
- \scalebox{1.225}{ 
+ \scalebox{1.225}{
  \includegraphics[type=png,ext=.png,read=.png]{ko00052.cat-coli-comp-150}
- } 
+ }
  \caption{\label{fig:pathview-native-sig-differences-1b} Indicators of the significance of the respiration differences between \textit{E. coli} K12 and \textit{E. coli} \ac{DSM} 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.
 Blue, significantly larger than the chosen minimum effect size of 150; grey, insignificantly different from the chosen minimum effect size; yellow, significantly smaller than the chosen minimum effect size.
 %For the direct mapping of the numeric differences see Figure~\ref{fig:pathview-native-differences}.Using a minimum effect size of 150.
  }
-\end{figure}       
-     
+\end{figure}
+
 %        \caption{
 %        \label{fig:pathview-native-sig-differences}
 %        Indicators of the significance of the respiration differences between \textit{E. coli} K12 and \textit{E. coli} \ac{DSM} 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.

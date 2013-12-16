@@ -1634,7 +1634,7 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   Like the next argument, the value goes into the \code{\link{csv_data}}.
 #' @param filename Character scalar to be inserted if missing in the data.
 #' @export
-#' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL}, 
+#' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL},
 #'   depending on how many distinct plate types are encountered within
 #'   \code{object}.
 #' @family conversion-functions

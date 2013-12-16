@@ -115,6 +115,31 @@ find_docu_script()
 ################################################################################
 
 
+# Export a newer version of ghostscript if possible.
+#
+export_gs_location()
+{
+  [ "$R_GSCMD" ] && return
+  local bindir
+  local exe
+  local suffix
+  for bindir in /usr/bin /usr/local/bin "$HOME"/bin; do
+    for exe in gs-910 gs-906; do
+      for suffix in '' -linux_x86_64; do
+        if [ -x "$bindir/${exe}$suffix" ]; then
+          export R_GSCMD=$bindir/${exe}$suffix
+          return
+        fi
+      done
+    done
+  done
+  return 1
+}
+
+
+################################################################################
+
+
 # Check whether or not each file in the source directory (1st argument) has a
 # more recent *.pdf file in the target directory (2nd argument). Used below for
 # comparing the original graphics files with the resulting PDFs in the vignette
@@ -1619,6 +1644,13 @@ else
   echo "call '$0 help' for help" >&2
   exit 1
 fi
+
+
+################################################################################
+
+
+export_gs_location ||
+  echo "WARNING: could not export location of newer ghostscript executable" >&2
 
 
 ################################################################################
