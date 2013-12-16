@@ -510,25 +510,27 @@ coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
 
 \begin{figure}
  \centering
-        \begin{subfigure}[b]{1.0\textwidth}
-                \centering
-                \fbox{\includegraphics[type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}}
-                \caption{Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway.}
-                \label{fig:pathview-cat-sep-strains-1a}
-        \end{subfigure}
-        \\
-        \vspace{20pt}
-        \begin{subfigure}[b]{1.0\textwidth}
-                \centering
-                \fbox{\includegraphics[type=png,ext=.png,read=.png]{ko00052.type.ko.bin}}
-                \caption{Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway.}
-                \label{fig:pathview-cat-sep-strains-1b}
-        \end{subfigure}
-        \caption{
-        \label{fig:pathview-cat-sep-strains}
-        Galactose metabolism pathway maps for the two \textit{E. coli} strains K12 and \ac{DSM} 30083\textsuperscript{T} showing the mean maximum height on 13 substrates.
-        The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
-        }
+ \scalebox{1.225}{
+ \includegraphics[type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}
+ }
+ \caption{Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway. The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.}
+ \label{fig:pathview-cat-sep-strains-1a}
+\end{figure}
+ 
+ 
+\begin{figure}
+ \centering
+ \scalebox{1.225}{
+ \includegraphics[type=png,ext=.png,read=.png]{ko00052.type.ko.bin}
+ }
+ \caption{Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway. The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.}
+  \label{fig:pathview-cat-sep-strains-1b}
+    
+       % \caption{
+       % \label{fig:pathview-cat-sep-strains}
+       % Galactose metabolism pathway maps for the two \textit{E. coli} strains K12 and \ac{DSM} 30083\textsuperscript{T} showing the mean maximum height on 13 substrates.
+        %The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
+      %  }
 \end{figure}
 
 By using the \code{species} argument it is possible to include the genome annotations available from \ac{KEGG} (see above for details).
