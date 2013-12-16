@@ -1634,7 +1634,9 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   Like the next argument, the value goes into the \code{\link{csv_data}}.
 #' @param filename Character scalar to be inserted if missing in the data.
 #' @export
-#' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL}.
+#' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL}, 
+#'   depending on how many distinct plate types are encountered within
+#'   \code{object}.
 #' @family conversion-functions
 #' @keywords manip
 #' @details The main purpose of this function is to convert objects that hold
@@ -1667,9 +1669,9 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #' y <- opmx(x, well = "Substrate",  position = c("Treatment", "Strain"),
 #'   full.name = c(sugars = "Fake sugar test plate"))
 #'
-#' # This yields a MOPMX object with one entry as there is only one plate type.
-#' stopifnot(is(y, "MOPMX"), length(y) == 1, dim(y[[1]]) == c(4, 5, 2))
-#' print(xy_plot(y[[1]], include = list("Strain", "Treatment"),
+#' # This yields a single OPMX object as there is only one plate type.
+#' stopifnot(is(y, "OPMX"), dim(y) == c(4, 5, 2))
+#' print(xy_plot(y, include = list("Strain", "Treatment"),
 #'   theor.max = FALSE, main = list(in.parens = FALSE), ylab = "Hours"))
 #'
 setGeneric("opmx", function(object, ...) standardGeneric("opmx"))
@@ -1809,7 +1811,8 @@ setMethod("opmx", "data.frame", function(object,
       result[[i]] <- per_plate_type(cd[idx, , drop = FALSE], tp,
         x[, idx, drop = FALSE], md[idx, , drop = FALSE], full.name)
     }
-    as(structure(result, names = names(indexes)), "MOPMX")
+    case(length(result), NULL, result[[1L]],
+      as(structure(result, names = names(indexes)), "MOPMX"))
   }
 
   prepare_colnames <- function(x, plate.type, position, well) {

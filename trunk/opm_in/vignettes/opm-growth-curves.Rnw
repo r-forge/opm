@@ -21,24 +21,9 @@
 % Acronyms
 %
 \usepackage{acronym}
-\acrodef{ASD}{Autism Spectrum Disorder}
-\acrodef{BH}{Benjamin \German{Hofner}}
-\acrodef{CAS}{Chemical Abstracts Service}
-\acrodef{ChEBI}{Chemical Entities of Biological Interest}
-\acrodef{CI}{Confidence Interval}
+\acrodef{CSV}{Comma-Separated Values}
 \acrodef{DSMZ}{\German{Deutsche Sammlung von Mikroorganismen und Zellkulturen}}
-\acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
-\acrodef{EC}{Enzyme Commission}
-\acrodef{FAU}{\German{Friedrich-Alexander-Universit\"{a}t}}
-\acrodef{ID}{Identifier}
-\acrodef{IMBE}{\German{Institut f\"{u}r Medizininformatik, Biometrie und Epidemiologie}}
-\acrodef{KEGG}{Kyoto Encyclopedia of Genes and Genomes}
-\acrodef{KO}{\acs{KEGG} Orthology}
-\acrodef{MeSH}{Medical Subject Headings}
-\acrodef{RF}{Random Forest}
 \acrodef{PM}{Phenotype Microarray}
-\acrodef{PNG}{Portable Network Graphics}
-\acrodef{VIM}{Variable Importance Measure}
 
 %% Add Revision Control System (RCS) Markups
 \usepackage{ulem}      % use this for sout
@@ -103,7 +88,13 @@
 \Shorttitle{User-defined plates in \pkg{opm} (\today)}
 
 
-\Abstract{ here some abstract }
+\Abstract{
+This is tutorial about the analysis of growth curves and other user defined kinetics with the \pkg{opm} package in the version of \today{}.
+It is explained how any kinds of growth or respiration measurements can be input into \pkg{opm}.
+We also show how \ac{PM} data with user-defined plate types can be analysed.
+Analysing such data visually and statistically requires in some cases adaptations of function arguments whose defaults are targeting \ac{PM} data.
+All these practically relevant issues are explained in detail.
+}
 
 \Keywords{Growth Kinetics}
 
@@ -140,7 +131,18 @@
 
 \section{Introduction}\label{introduction}
 
+A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype Microarray Data'' (called ``main tutorial'' in the following).
+How substrate information stored within \pkg{opm} can be accessed and used for advanced visual and statistical analyses is explained in the vignette ``Working with substrate information in \pkg{opm}'' (called ``substrate tutorial'' in the following).
+The description of the methods below presupposes that the user is familiar with the usage of \pkg{opm} and has studied the main tutorial, the substrate tutorial as well as the entries of the \pkg{opm} manual relevant to her or his research.
+Especially the concepts behind, and the methods available for, the different classes of \pkg{opm} objects should be known before starting with this tutorial.
 
+In addition to visual inspection or statistical comparative analyses of \ac{PM} data, as described in the main tutorial and the substrate tutorial, users might be interested in analysing data other than \ac{PM} data, or analysing \ac{PM} with user-defined plate types.
+To work with user-defined \ac{PM} plates only requires registering these plates, i.e. storing a mapping from well coordinates to substrate names, and optionally also a full, descriptive name for the plate.
+The analysis of data other than \ac{PM} data, such as growth curves, additionally requires inputting these data and converting them to \proglang{OPMX} objects.
+Moreover, some defaults of the plotting functions are only suitable for \ac{PM} data.
+Hence, the functions should be called slightly distinctly.
+
+Besides these slight restrictions, which are illustrated with examples below, non-\ac{PM} data can be analysed with \pkg{opm} almost like \ac{PM} data.
 
 \section{Preparation}\label{preparation}
 
@@ -152,6 +154,7 @@ options(useFancyQuotes = FALSE)
 library("methods")
 @
 
+As usual, \pkg{opm} must be loaded before any analysis can begin:
 
 <<label=load-library>>=
 if ("package:opm" %in% search())
@@ -159,37 +162,129 @@ if ("package:opm" %in% search())
 library("opm")
 @
 
+\section{Growth-curve data input}\label{data-input}
 
-\section{growth curve data input}\label{growth curve data input}\label{data input}
+\subsection{User-entered data frames}\label{user-entered-input-data}
 
 In the following we will use the growth-measurements data set from \citet{ijms140715141} as exemplar.
+These data have been entered by hand and then input into \proglang{R} with one of the functions for reading \ac{CSV}, yielding a data frame, which comes with \pkg{opm}:
 
-The \pkg{opm} package contains a number of functions suitable for accessing precomputed information on entire plates and on the substrates within certain wells.
-
-Currently substrate layouts of various plates are available within \pkg{opm}.
-An overview of the plate types available in the respective version of \pkg{opm} is obtained by entering
-
-<<label=plate-types, results=hide>>=
-plate_type(full = TRUE)
+<<label=load-potatoes>>=
+data("potato")
+head(potato)
 @
 
-The resulting vector of names does not only include OmniLog\textregistered \ plates; see the manual and the main tutorial for further details.
-Using other values for \code{full}, or additional arguments, distinct spelling variants of the plate names can be obtained.
+For details on this data set, enter \code{?potato} at the \proglang{R} prompt.
+%TODO Lea: check and if necessary augment the manual entry for this data set.
+% Do NOT REPEAT that stuff here -- here we must concentrate on the format and its manipulation, see nect entry.
+The measurements are in ``long'' format and must be reshaped using the eponymous function into ``wide'' format.
+We do this separately for the dry-mass and fresh-mass measurements within the data set:
+
+<<label=reshape-potatoes>>=
+potato.fm <- reshape(potato, v.names = "FM", drop = "DM", direction = "wide",
+  idvar = c("Genotype", "Treatment", "Replicate"), timevar = "Time")
+potato.dm <- reshape(potato, v.names = "DM", drop = "FM", direction = "wide",
+  idvar = c("Genotype", "Treatment", "Replicate"), timevar = "Time")
+@
+
+%TODO Lea: briefly explain what is going on here within the call to reshape().
+
+The main function for converting user-defined data frames to \proglang{OPMX} or \proglang{MOPMX} objects is \code{opmx}, which can directly be applied to the objects created in the last step.
+This works because the ``horizontal'' input format of \code{opmx} corresponds to the ``wide'' format of \code{reshape}.
+
+<<label=potatoes-to-opmx>>=
+potato.fm <- opmx(potato.fm, position = c("Genotype", "Replicate"),
+  well = "Treatment", prefix = "FM.",
+  full.name = c(fm = "Growth experiment, fresh mass"))
+potato.dm <- opmx(potato.dm, position = c("Genotype", "Replicate"),
+  well = "Treatment", prefix = "DM.",
+  full.name = c(dm = "Growth experiment, dry mass"))
+@
+
+The data frame contains all substrate information (in the ``Treatment'' column).
+Hence, \pkg{opm} registers the mapping from well coordinates to substrate names on the fly.
+The plate type must be provided, however.
+As it is not within the data frame, the short name of the plate type is taken from the \code{full.name} argument, whose main purpose is to enter the full, descriptive name of the plate type.
+``Genotype'' and ``Replicate'' go to the metadata of the resulting object and together identify each plate.
+In the case of \ac{PM} data, this is done using the position of the plate within the OmniLog\textregistered \ reader.
+Thus the relevant argument here is \code{position}, which must be supplied unless there is a column of that name.
+The \code{prefix} argument helps identifying the columns with measurements over time.
+
+The registered plate type can be queried as follows:
+
+<<label=show-potato-plate-type>>=
+dim(potato.fm)
+dim(potato.dm)
+plate_type(TRUE) # shows all user-defined plates
+listing(wells(plate = c("CUSTOM:FM", "CUSTOM:DM")))
+@
+
+Note the prefix ``CUSTOM:'', which is used to distinguish user-defined plate type from those that come with \pkg{opm}.
+The object resulting from \code{listing} can be output with \code{to_yaml} or \code{saveRDS} for externally storing plate types in files.
 
 
-\section[visualisation]{visualisation}\label{visualisation}
+\subsection{Direct registration of plate types}\label{register-plate-type}
+
+\rcsmark{TODO.}
+%TODO Lea: register the well map and the full name of the TECAN plate used below
 
 
-\subsubsection{Finding substrates within pathways}\label{finding-substrates}
+\subsection{Input of TECAN data}\label{tecan-input}
+
+%TODO Lea: explain the instrument where the file comes from. "TECAN" is the corporation, not the instrument...
+
+Here we will use an exemplar that comes with \pkg{opm} as input data file:
+
+<<label=input-tecan>>=
+tecan.file <- opm_files("growth")
+tecan.file <- grep("tecan", tecan.file, ignore.case = TRUE, value = TRUE)
+tecan <- read.table(tecan.file)
+head(tecan)
+@
+
+%TODO Lea: explain how one gets such a file
+
+This format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}.
+
+%TODO Lea: convert the data frame and explain what is going on
+
+
+\rcsmark{TODO.}
 
 
 
-\subsubsection{Visualisation of differences of group means in pathway maps}\label{pathview-group-diffs}
+\section{Visualisation of growth curves}\label{visualisation}
+
+\rcsmark{TODO.}
+
+<<label=plot-potato>>=
+print(xy_plot(potato.fm, theor.max = FALSE, include = "Genotype",
+  main = list(in.parens = FALSE), neg.ctrl = FALSE, ylab = "Mass [g]"))
+print(xy_plot(potato.dm, theor.max = FALSE, include = "Genotype",
+  main = list(in.parens = FALSE), neg.ctrl = FALSE, ylab = "Mass [g]"))
+@
+
+%TODO Lea: finish this and do the same for the TECAN data, make subsections where suitable
+%TODO Lea: check whether plotting functions must be modified to accomodate these data
 
 
-\section{Finding the pathways of interest}\label{finding-pathways}
+\section{Estimating parameters from growth curves}\label{estimation}
 
-\section[Acknowledgements]{Acknowledgements}
+
+\rcsmark{TODO.}
+
+%TODO Lea: check carefully which spline method is the best here, make subsections where suitable
+
+
+\section{Statistical analysis of growth curves}\label{statistics}
+
+
+\rcsmark{TODO.}
+
+%TODO Lea: conduct selected analyses that make sense for these data, make subsections where suitable
+
+
+\section{Acknowledgements}
 We are grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves measured with a TECAN instrument.
 
 %\clearpage
