@@ -42,6 +42,11 @@ copy_dir <- function(from, to, delete) {
 }
 
 
+vignette_subdirs <- function() {
+  c(subdirs <- c("vignettes", "doc"), file.path("inst", subdirs))
+}
+
+
 do_style_check <- function(dirs, opt) {
   check_style <- function(dirs, subdirs, ...) check_R_code(x = dirs,
     what = subdirs, lwd = opt$width, ops = !opt$opsoff, comma = !opt$commaoff,
@@ -51,9 +56,7 @@ do_style_check <- function(dirs, opt) {
   subdirs <- c("tests", "scripts")
   subdirs <- c("R", "demo", subdirs, file.path("inst", subdirs))
   y <- check_style(dirs, subdirs, ignore = opt$good, filter = "none")
-  subdirs <- c("vignettes", "doc")
-  subdirs <- c(subdirs, file.path("inst", subdirs))
-  y <- c(y, check_style(dirs, subdirs, filter = "sweave",
+  y <- c(y, check_style(dirs, vignette_subdirs(), filter = "sweave",
     ignore = I(list(pattern = "\\.[RS]?nw$", ignore.case = TRUE))))
   isna <- is.na(y)
   if (any(y & !isna))
@@ -63,6 +66,15 @@ do_style_check <- function(dirs, opt) {
     message(paste(sprintf("checking file '%s' resulted in an error",
       names(y)[isna]), collapse = "\n"))
   length(which(isna))
+}
+
+
+do_compress <- function(dirs, opt) {
+  pdf.files <- pkg_files(dirs, vignette_subdirs(), FALSE,
+    I(list(ignore.case = TRUE, pattern = "\\.pdf$")))
+  message("GS command is ", Sys.getenv("R_GSCMD", "<empty>"))
+  print(tools::compactPDF(pdf.files, gs_quality = opt$quality))
+  0
 }
 
 
@@ -239,7 +251,9 @@ option.parser <- OptionParser(option_list = list(
   make_option(c("-q", "--quick"), action = "store_true", default = FALSE,
     help = "Do not remove duplicate 'seealso' links [default: %default]"),
 
-  # Q
+  make_option(c("-Q", "--quality"), type = "character", default = "",
+    help = "PDF quality for running in compression mode [default: %default]",
+    metavar = "STR"),
 
   make_option(c("-r", "--remove"), action = "store_true", default = FALSE,
     help = "First remove output directories if distinct [default: %default]"),
@@ -338,6 +352,13 @@ if (opt$Rcheck) { # R style check only
 
 ################################################################################
 
+
+if (nzchar(opt$quality)) { # PDF compression only
+  quit(status = do_compress(package.dirs, opt))
+}
+
+
+################################################################################
 
 
 if (length(package.dirs)) {

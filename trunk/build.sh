@@ -1678,6 +1678,7 @@ if [ "$RUNNING_MODE" = full ]; then
   if [ -d "$OUT_DIR" ]; then
     target=../pkg/$OUT_DIR
     if mkdir -p "$target"; then
+      "$DOCU" -Q ebook "$OUT_DIR"
       reduce_vignette_Rnw_files "$OUT_DIR"
       cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
     fi
