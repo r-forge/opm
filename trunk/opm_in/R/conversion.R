@@ -1603,18 +1603,20 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'     substrate names, metadata that identify the plate, and optionally other
 #'     columns to be used as \code{\link{metadata}} or \code{\link{csv_data}}
 #'     entries. The time points must be given in columns that can be identified
-#'     with a certain prefix. Several plates and even several plate types can be
-#'     contained within \code{object}.}
+#'     with a certain prefix. The part after the prefix must be convertible to
+#'     numeric data (the time points, ideally given in hours). Several plates
+#'     and even several plate types can be contained within \code{object}.}
 #'     \item{rectangular}{Several rows and columns per time point, yielding a
 #'     set of rectangles per plate. Only a single plate, and only measurements
-#'     and time points are contained within \code{object}, thus some of the
-#'     other arguments cannot be empty.}
+#'     are contained within \code{object}, thus some of the other arguments
+#'     cannot be empty. See the \code{interval} argument for setting time
+#'     points.}
 #'     \item{vertical}{One column per well. Only a single plate, and only
 #'     measurements and time points are contained within \code{object}, thus
 #'     some of the other arguments cannot be empty. The time points are either
-#'     contained as column or can be read from the row names. If \code{object}
-#'     has no column names, the first column or the row names yield the time
-#'     points.}
+#'     contained as column or can be read from the row names. Ideally, they are
+#'     given in hours.If \code{object} has no column names, the first column or
+#'     the row names yield the time points.}
 #'   }
 #' @param position Character vector. In \sQuote{horizontal} format, the name of
 #'   one to several columns to be joined yielding \sQuote{position} indicators.
@@ -1651,6 +1653,17 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #' @param setup.time Character scalar to be inserted if missing in the data.
 #'   Like the next argument, the value goes into the \code{\link{csv_data}}.
 #' @param filename Character scalar to be inserted if missing in the data.
+#' @param interval Numeric vector indicating the time interval(s) between
+#'   measurements in the \sQuote{rectangular} format. Ignored if empty, causing
+#'   \code{0, 1, 2, ...} to be used as time points. (This is often acceptable
+#'   as it only causes a different scaling; it is not acceptable if the time
+#'   points were not in regular intervals.)
+#'
+#'   In the case of the \code{vertical} format, a non-empty \code{interval}
+#'   value causes the time points to not be extracted from \code{object} but
+#'   constructed from \code{interval}. Ideally, \code{interval} is given in
+#'   hours.
+#'
 #' @export
 #' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL},
 #'   depending on how many distinct plate types are encountered within
@@ -1713,7 +1726,8 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   # Registering the plate type beforehand is mandatory here because the
 #'   # file does not contain the real substrate names.
 #'   register_plate(XYZ = well.map)
-#'   (y <- opmx(x, "rectangular", plate.type = "XYZ", position = 1))
+#'   (y <- opmx(x, "rectangular", plate.type = "XYZ", position = 1,
+#'     interval = 0.25))
 #'   plate_type(y) # => a custom (user-defined) plate
 #'   stopifnot(setequal(wells(y, full = TRUE, in.parens = FALSE), well.map))
 #'
@@ -1725,7 +1739,9 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'
 #' ## 'vertical' input format
 #'
-#' # Fake data frame.
+#' # Fake data frame. It is safer to set all column names explicitly.
+#' # If none are there, the first column yields the time points unless
+#' # there are explicitly set row names.
 #' x <- data.frame(
 #'   c(0, 5, 10, 15, 20),
 #'   c(12, 23, 79, 103, 105),
@@ -1737,7 +1753,7 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   c(7, 8, 6, 9, 8),
 #'   c(10, 9, 11, 8, 12)
 #' )
-#' colnames(x) <- NULL # necessary here
+#' colnames(x) <- NULL # necessary for this example
 #'
 #' # Creating a fake well map for the fake data frame.
 #' well.map <- paste("Substrate", 1:8)
@@ -1762,9 +1778,9 @@ setGeneric("opmx", function(object, ...) standardGeneric("opmx"))
 setMethod("opmx", "data.frame", function(object,
     format = c("horizontal", "rectangular", "vertical"), plate.type = NULL,
     position = NULL, well = NULL, prefix = "T_", sep = "<>", full.name = NULL,
-    setup.time = date(), filename = "") {
+    setup.time = date(), filename = "", interval = NULL) {
 
-  convert_rectangular_matrix <- function(x, sep) {
+  convert_rectangular_matrix <- function(x, sep, interval) {
     convert_time_point <- function(x) {
       n <- as.integer(x[1L, -1L, drop = TRUE])
       n <- vapply(x[-1L, 1L], sprintf, character(length(n)), fmt = "%s%02i", n)
@@ -1790,13 +1806,16 @@ setMethod("opmx", "data.frame", function(object,
       stop("'sep' neither found in some column nor in the row names")
     x <- split.data.frame(x, sections(pos, TRUE))
     x <- do.call(rbind, lapply(x, convert_time_point))
-    x <- cbind(seq_len(nrow(x)), x)
+    times <- as.double(seq_len(nrow(x)) - 1L)
+    if (length(interval))
+      times <- interval * times
+    x <- cbind(times, x)
     colnames(x)[1L] <- HOUR
     rownames(x) <- NULL
     x
   }
 
-  convert_vertical_matrix <- function(x) {
+  convert_vertical_matrix <- function(x, interval) {
     select_columns <- function(x) {
       n <- clean_coords(colnames(x))
       if (any(ok <- grepl("^[A-H]\\d{2}$", n, FALSE, TRUE))) {
@@ -1808,14 +1827,16 @@ setMethod("opmx", "data.frame", function(object,
           as.integer(chartr("V", " ", colnames(x)[ok]))]
       } else {
         ok <- !logical(ncol(x))
-        if (is.integer(attr(x, "row.names")))
-          ok[1L] <- FALSE
-        colnames(x)[ok] <- rownames(WELL_MAP)[which(ok) - 1L]
+        if (!length(interval) && is.integer(attr(x, "row.names")))
+          ok[1L] <- FALSE # first column contains time points
+        colnames(x)[ok] <- rownames(WELL_MAP)[seq_along(which(ok))]
       }
-      hour <- if (any(!ok))
-        x[, !ok, drop = FALSE][, 1L]
+      if (length(interval))
+        hour <- interval * (seq_len(nrow(x)) - 1L)
+      else if (any(!ok))
+        hour <- x[, !ok, drop = FALSE][, 1L]
       else
-        rownames(x)
+        hour <- rownames(x)
       cbind(hour, x[, ok, drop = FALSE])
     }
     x <- as.matrix(select_columns(x))
@@ -1840,16 +1861,16 @@ setMethod("opmx", "data.frame", function(object,
     new(OPM, measurements = x, csv_data = y, metadata = list())
   }
 
-  convert_rectangular_format <- function(x, sep, position, plate.type,
-      full.name, setup.time, filename) {
-    create_opm_object(convert_rectangular_matrix(x, sep), position, plate.type,
-      full.name, setup.time, filename)
+  convert_rectangular_format <- function(x, sep, interval, position,
+      plate.type, full.name, setup.time, filename) {
+    create_opm_object(convert_rectangular_matrix(x, sep, interval), position,
+      plate.type, full.name, setup.time, filename)
   }
 
-  convert_vertical_format <- function(x, position, plate.type,
+  convert_vertical_format <- function(x, interval, position, plate.type,
       full.name, setup.time, filename) {
-    create_opm_object(convert_vertical_matrix(x), position, plate.type,
-      full.name, setup.time, filename)
+    create_opm_object(convert_vertical_matrix(x, interval), position,
+      plate.type, full.name, setup.time, filename)
   }
 
   # 'plate.type' and 'full.name' must already be normalized at this stage.
@@ -1964,9 +1985,9 @@ setMethod("opmx", "data.frame", function(object,
   case(format <- match.arg(format),
     horizontal = convert_horizontal_format(prepare_colnames(object,
       plate.type, position, well), prefix, full.name, setup.time, filename),
-    rectangular = convert_rectangular_format(object, sep, position, plate.type,
-      full.name, setup.time, filename),
-    vertical = convert_vertical_format(object, position, plate.type,
+    rectangular = convert_rectangular_format(object, sep, interval,
+      position, plate.type, full.name, setup.time, filename),
+    vertical = convert_vertical_format(object, interval, position, plate.type,
       full.name, setup.time, filename)
   )
 }, sealed = SEALED)
