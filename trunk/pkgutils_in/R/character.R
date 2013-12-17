@@ -160,6 +160,8 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #'   used as output line separator, causing output files to always be written
 #'   unless \code{mapfun} returns \code{NULL}. Can be used to just change line
 #'   breaks if \code{mapfun} is \code{identity}.
+#' @param .warn Logical scalar passed as \code{warn} argument to
+#'   \code{readLines}.
 #' @details If \code{mapfun} returns \code{NULL}, it is ignored. Otherwise
 #'   is it an error if \code{mapfun} does not return a character vector. If
 #'   this vector is identical to the lines read from the file, it is not
@@ -196,14 +198,14 @@ map_files <- function(x, ...) UseMethod("map_files")
 #' @export
 #'
 map_files.character <- function(x, mapfun, ..., .attr = ".filename",
-    .encoding = "", .sep = NULL) {
+    .encoding = "", .sep = NULL, .warn = FALSE) {
   doit <- function(filename) tryCatch({
     add_attr <- function(x) {
       attr(x, .attr) <- filename
       x
     }
     connection <- file(description = filename, encoding = .encoding)
-    x <- readLines(con = connection)
+    x <- readLines(con = connection, warn = .warn)
     close(connection)
     if (is.null(y <- mapfun(add_attr(x), ...))) # shortcut
       return(list(FALSE, ""))

@@ -1597,7 +1597,25 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'
 #' @param object Data frame.
 #' @param format Character scalar indicating the data layout within
-#'   \code{object}. See below for details.
+#'   \code{object}. See below for examples. In brief, the formats are:
+#'   \describe{
+#'     \item{horizontal}{One row per well, with additional columns providing the
+#'     substrate names, metadata that identify the plate, and optionally other
+#'     columns to be used as \code{\link{metadata}} or \code{\link{csv_data}}
+#'     entries. The time points must be given in columns that can be identified
+#'     with a certain prefix. Several plates and even several plate types can be
+#'     contained within \code{object}.}
+#'     \item{rectangular}{Several rows and columns per time point, yielding a
+#'     set of rectangles per plate. Only a single plate, and only measurements
+#'     and time points are contained within \code{object}, thus some of the
+#'     other arguments cannot be empty.}
+#'     \item{vertical}{One column per well. Only a single plate, and only
+#'     measurements and time points are contained within \code{object}, thus
+#'     some of the other arguments cannot be empty. The time points are either
+#'     contained as column or can be read from the row names. If \code{object}
+#'     has no column names, the first column or the row names yield the time
+#'     points.}
+#'   }
 #' @param position Character vector. In \sQuote{horizontal} format, the name of
 #'   one to several columns to be joined yielding \sQuote{position} indicators.
 #'   These will be used to uniquely identify each plate. The columns to be
@@ -1674,6 +1692,69 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #' print(xy_plot(y, include = list("Strain", "Treatment"),
 #'   theor.max = FALSE, main = list(in.parens = FALSE), ylab = "Hours"))
 #'
+#' ## 'rectangular' input format
+#'
+#' # Get the input file. The rectangular format is hardly suitable for R
+#' # but produced by plate readers such as those distributed by the TECAN
+#' # company.
+#' growth.data.file <- grep("tecan", opm_files("growth"), ignore.case = TRUE,
+#'   value = TRUE)
+#'
+#' if (length(growth.data.file)) { # if the file was found
+#'
+#'   x <- read.table(growth.data.file)
+#'   head(x)
+#'
+#'   # Creating a fake well map. For really making sense of these data, one
+#'   # would need to know the real substrate names.
+#'   well.map <- rbind(1:6, 1:6, 1:6, 1:6)
+#'   well.map[] <- paste0("Substrate ", LETTERS[1:4], well.map)
+#'
+#'   # Registering the plate type beforehand is mandatory here because the
+#'   # file does not contain the real substrate names.
+#'   register_plate(XYZ = well.map)
+#'   (y <- opmx(x, "rectangular", plate.type = "XYZ", position = 1))
+#'   plate_type(y) # => a custom (user-defined) plate
+#'   stopifnot(setequal(wells(y, full = TRUE, in.parens = FALSE), well.map))
+#'
+#'   register_plate(XYZ = NULL) # tidying up
+#'
+#' } else {
+#'   warning("file with growth data not found")
+#' }
+#'
+#' ## 'vertical' input format
+#'
+#' # Fake data frame.
+#' x <- data.frame(
+#'   c(0, 5, 10, 15, 20),
+#'   c(12, 23, 79, 103, 105),
+#'   c(5, 7, 9, 8, 9),
+#'   c(8, 7, 10, 46, 77),
+#'   c(6, 18, 64, 99, 112),
+#'   c(8, 30, 67, 101, 103),
+#'   c(9, 10, 8, 17, 44),
+#'   c(7, 8, 6, 9, 8),
+#'   c(10, 9, 11, 8, 12)
+#' )
+#' colnames(x) <- NULL # necessary here
+#'
+#' # Creating a fake well map for the fake data frame.
+#' well.map <- paste("Substrate", 1:8)
+#' names(well.map) <- paste0("A", 1:8)
+#'
+#' # Registering the plate type beforehand is mandatory here because the
+#' # file does not contain the real substrate names.
+#' register_plate(XYZ = well.map)
+#' wells(plate = "CUSTOM:XYZ")[1:10]
+#'
+#' (y <- opmx(x, "vertical", plate.type = "XYZ", position = 1))
+#'
+#' plate_type(y) # => a custom (user-defined) plate
+#' stopifnot(setequal(wells(y, full = TRUE, in.parens = FALSE), well.map))
+#'
+#' register_plate(XYZ = NULL) # tidying up
+#'
 setGeneric("opmx", function(object, ...) standardGeneric("opmx"))
 
 #= opmx opmx.function
@@ -1715,13 +1796,41 @@ setMethod("opmx", "data.frame", function(object,
     x
   }
 
-  convert_rectangular_format <- function(x, sep, position, plate.type,
-      full.name, setup.time, filename) {
-    L(plate.type,
-      .msg = "plate type for rectangular format missing or non-unique")
-    L(position,
-      .msg = "'position' for rectangular format missing or non-unique")
-    x <- convert_rectangular_matrix(x, sep)
+  convert_vertical_matrix <- function(x) {
+    select_columns <- function(x) {
+      n <- clean_coords(colnames(x))
+      if (any(ok <- grepl("^[A-H]\\d{2}$", n, FALSE, TRUE))) {
+        colnames(x)[ok] <- n[ok]
+      } else if (any(ok <- grepl("^\\d{3}$", n, FALSE, TRUE))) {
+        colnames(x)[ok] <- rownames(WELL_MAP)[as.integer(colnames(x)[ok])]
+      } else if (any(ok <- grepl("^V\\d{2}$", n, FALSE, TRUE))) {
+        colnames(x)[ok] <- rownames(WELL_MAP)[
+          as.integer(chartr("V", " ", colnames(x)[ok]))]
+      } else {
+        ok <- !logical(ncol(x))
+        if (is.integer(attr(x, "row.names")))
+          ok[1L] <- FALSE
+        colnames(x)[ok] <- rownames(WELL_MAP)[which(ok) - 1L]
+      }
+      hour <- if (any(!ok))
+        x[, !ok, drop = FALSE][, 1L]
+      else
+        rownames(x)
+      cbind(hour, x[, ok, drop = FALSE])
+    }
+    x <- as.matrix(select_columns(x))
+    must(storage.mode(x) <- "double")
+    rownames(x) <- NULL
+    colnames(x)[1L] <- HOUR
+    x
+  }
+
+  # At this stage, 'x' must be a matrix acceptable as 'measurements' entry.
+  #
+  create_opm_object <- function(x, position, plate.type, full.name, setup.time,
+      filename) {
+    L(plate.type, .msg = "plate type missing or non-unique")
+    L(position, .msg = "'position' missing or non-unique")
     plate.type <- custom_plate_normalize_all(plate.type)
     custom_plate_assert(plate.type, colnames(x)[-1L])
     if (!is.na(full <- full.name[plate.type]))
@@ -1729,6 +1838,18 @@ setMethod("opmx", "data.frame", function(object,
     y <- c(L(filename), plate.type, position, L(setup.time))
     names(y) <- CSV_NAMES
     new(OPM, measurements = x, csv_data = y, metadata = list())
+  }
+
+  convert_rectangular_format <- function(x, sep, position, plate.type,
+      full.name, setup.time, filename) {
+    create_opm_object(convert_rectangular_matrix(x, sep), position, plate.type,
+      full.name, setup.time, filename)
+  }
+
+  convert_vertical_format <- function(x, position, plate.type,
+      full.name, setup.time, filename) {
+    create_opm_object(convert_vertical_matrix(x), position, plate.type,
+      full.name, setup.time, filename)
   }
 
   # 'plate.type' and 'full.name' must already be normalized at this stage.
@@ -1845,7 +1966,8 @@ setMethod("opmx", "data.frame", function(object,
       plate.type, position, well), prefix, full.name, setup.time, filename),
     rectangular = convert_rectangular_format(object, sep, position, plate.type,
       full.name, setup.time, filename),
-    vertical = stop("not yet supported")
+    vertical = convert_vertical_format(object, position, plate.type,
+      full.name, setup.time, filename)
   )
 }, sealed = SEALED)
 

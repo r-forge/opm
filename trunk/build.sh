@@ -119,7 +119,7 @@ find_docu_script()
 #
 export_gs_location()
 {
-  [ "$R_GSCMD" ] && return
+  [ "${R_GSCMD:-}" ] && return
   local bindir
   local exe
   local suffix
@@ -1460,6 +1460,7 @@ remind_of_external_tests=
 
 case $RUNNING_MODE in
   ascii )
+    [ $# -eq 0 ] && set -- `find . -type f -iname '*.Rnw'`
     show_lines_with_forbidden_characters "$@"
     exit $?
   ;;
