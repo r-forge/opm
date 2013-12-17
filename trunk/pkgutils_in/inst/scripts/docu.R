@@ -69,7 +69,7 @@ do_style_check <- function(dirs, opt) {
 }
 
 
-do_compress <- function(dirs, opt) {
+do_compact <- function(dirs, opt) {
   pdf.files <- pkg_files(dirs, vignette_subdirs(), FALSE,
     I(list(ignore.case = TRUE, pattern = "\\.pdf$")))
   message("GS command is ", Sys.getenv("R_GSCMD", "<empty>"))
@@ -353,14 +353,6 @@ if (opt$Rcheck) { # R style check only
 ################################################################################
 
 
-if (nzchar(opt$quality)) { # PDF compression only
-  quit(status = do_compress(package.dirs, opt))
-}
-
-
-################################################################################
-
-
 if (length(package.dirs)) {
   if (length(bad <- package.dirs[!is_pkg_dir(package.dirs)]))
     stop("not a package directory: ", bad[1L])
@@ -483,6 +475,11 @@ for (i in seq_along(package.dirs)) {
   if (!opt$zapoff) {
     message("Deleting object files (if any) of", msg)
     errs <- errs + !all(delete_o_files(out.dir))
+  }
+
+  if (nzchar(opt$quality)) {
+    message("Compacting PDF files (if any) of", msg)
+    do_compact(out.dir, opt)
   }
 
   pkg.file <- out.dir

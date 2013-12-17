@@ -984,9 +984,14 @@ count_roxygen_tags()
 #
 remove_R_CMD_check_dirs()
 {
-  mkdir -p "$RESCUED_MANUALS" &&
-    find . -type f -wholename '*.Rcheck/*-manual.pdf' \
-      -exec mv -vt "$RESCUED_MANUALS" \{\} + || return 1
+  local pat
+  if mkdir -p "$RESCUED_MANUALS"; then
+    for pat in '*.Rcheck/*-manual.pdf' '*.Rcheck/*/doc/*.pdf'; do
+      find . -type f -wholename "$pat" -exec mv -vt "$RESCUED_MANUALS" \{\} +
+    done
+  else
+    return 1
+  fi
   find . -type d -name '*.Rcheck' -prune -exec rm -fr \{\} +
 }
 
@@ -1692,7 +1697,7 @@ delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --no-internal --modify --preprocess --S4methods --junk "$delete_pat" \
   --mark-duplicates --good 00Index,well-map.R,substrate-info.R,plate-map.R \
-  --whitelist "$WHITELIST_MANUAL" "$PKG_DIR"
+  --whitelist "$WHITELIST_MANUAL" --quality ebook "$PKG_DIR"
 
 
 OUT_DIR=${PKG_DIR%_in}
@@ -1711,7 +1716,6 @@ if [ "$RUNNING_MODE" = full ]; then
   if [ -d "$OUT_DIR" ]; then
     target=../pkg/$OUT_DIR
     if mkdir -p "$target"; then
-      "$DOCU" -Q ebook "$OUT_DIR"
       reduce_vignette_Rnw_files "$OUT_DIR"
       cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
     fi
