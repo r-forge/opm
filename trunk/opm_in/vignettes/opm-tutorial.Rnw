@@ -786,7 +786,7 @@ library(opm)
 @
 
 The example data set distributed with the package \citep{vaas} comprises the results from running 114 GEN-III plates (BIOLOG Inc.) in the \ac{PM} mode of the OmniLog\textregistered \ reader.
-The organisms used were two strains of \textit{Escherichia coli} (\ac{DSM} 18039 $=$ K1 and the type strain \ac{DSM} 30083\textsuperscript{T}) and two strains of \textit{Pseudomonas aeruginosa} (\ac{DSM} 1707 and 429SC \citep{Selezska2012}).
+The organisms used were two strains of \textit{Escherichia coli} (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) and two strains of \textit{Pseudomonas aeruginosa} (\ac{DSM} 1707 and 429SC \citep{Selezska2012}).
 The strains with a \ac{DSM} number could be ordered from the Leibniz Institute \ac{DSMZ} -- German Collection of Microorganisms and Cell Cultures (\url{http://www.dsmz.de/}).
 
 Each strain was measured in two biological replicates, each comprising ten technical replicates, yielding a total of 80 plates.

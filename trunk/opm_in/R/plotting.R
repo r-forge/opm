@@ -353,7 +353,10 @@ setGeneric("improved_max",
 
 setMethod("improved_max", "numeric", function(object, by = 10) {
   LL(by)
-  ceiling(max(object) / by) * by + by # => error unless 'by' is numeric
+  m <- max(object)
+  while (by >= m)
+    by <- by / 10
+  ceiling(m / by) * by + by # => error unless 'by' is numeric
 }, sealed = SEALED)
 
 setMethod("improved_max", OPMX, function(object, theor.max = TRUE, by = 10) {
