@@ -36,6 +36,7 @@
 \acrodef{KO}{\acs{KEGG} Orthology}
 \acrodef{MeSH}{Medical Subject Headings}
 \acrodef{RF}{Random Forest}
+\acrodef{PDF}{Portable Document Format}
 \acrodef{PM}{Phenotype Microarray}
 \acrodef{PNG}{Portable Network Graphics}
 \acrodef{VIM}{Variable Importance Measure}
@@ -467,6 +468,7 @@ Note particularly the substrates Raffinose, Stachyose and Sucrose (in the middle
  }
  \caption{\label{fig:1a-pathview-native-sep-strains} Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway.
 The aggregated measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
+(If the resolution of this figure is insufficient, this is due to \ac{PDF} compaction, not due to the \pkg{pathview} graphics.)
  }
 \end{figure}
 
@@ -477,6 +479,7 @@ The aggregated measurement data are represented by according colours and mapped 
  }
  \caption{\label{fig:1b-pathview-native-sep-strains} Respiratory data (mean maximum height) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway.
 The aggregated measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
+(If the resolution of this figure is insufficient, this is due to \ac{PDF} compaction, not due to the \pkg{pathview} graphics.)
   }
 
 \end{figure}
@@ -511,7 +514,9 @@ coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
  \scalebox{1.225}{
  \includegraphics[type=png,ext=.png,read=.png]{ko00052.k12.ko.bin}
  }
- \caption{\label{fig:pathview-cat-sep-strains-1a} Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway. The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.}
+ \caption{\label{fig:pathview-cat-sep-strains-1a} Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway. The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
+(If the resolution of this figure is insufficient, this is due to \ac{PDF} compaction, not due to the \pkg{pathview} graphics.)
+ }
 
 \end{figure}
 
@@ -521,7 +526,9 @@ coli.map.type.bin <- opm_path(cpd.data = anno.type.bin, species = "ko",
  \scalebox{1.225}{
  \includegraphics[type=png,ext=.png,read=.png]{ko00052.type.ko.bin}
  }
- \caption{\label{fig:pathview-cat-sep-strains-1b} Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway. The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.}
+ \caption{\label{fig:pathview-cat-sep-strains-1b} Respiratory data (mean maximum height, discretised) of \textit{Escherichia coli} type strain \ac{DSM} 30083\textsuperscript{T} mapped on the \ac{KEGG} Galactose pathway. The aggregated and discretised measurement data are represented by according colours and mapped on the corresponding substrates (circles) in the graph.
+(If the resolution of this figure is insufficient, this is due to \ac{PDF} compaction, not due to the \pkg{pathview} graphics.)
+ }
 
 
        % \caption{
@@ -667,6 +674,7 @@ coli.comp.map <- opm_path(cpd.data = annotated(coli.comp), species = "ko",
 \caption{\label{fig:pathview-native-differences}
 Respiration differences between \textit{E. coli} K12 and \ac{DSM} 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.
 Compare also Figure~\ref{fig:e_coli_comp_ci}, which directly depicts the magnitude of the differences.
+(If the resolution of this figure is insufficient, this is due to \ac{PDF} compaction, not due to the \pkg{pathview} graphics.)
 }
 \end{figure}
 
@@ -704,6 +712,7 @@ cat.coli.comp.150 <- opm_path(
  \caption{\label{fig:pathview-native-sig-differences-1a}
 Indicators of the significance of the respiration differences between \textit{E. coli} K12 and \textit{E. coli} \ac{DSM} 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.
 Blue, significantly larger than the chosen minimum effect size of 0 (default); grey, insignificantly different from the chosen minimum effect size; yellow, significantly smaller than the chosen minimum effect size.
+(If the resolution of this figure is insufficient, this is due to \ac{PDF} compaction, not due to the \pkg{pathview} graphics.)
  }
 \end{figure}
 
@@ -714,6 +723,7 @@ Blue, significantly larger than the chosen minimum effect size of 0 (default); g
  }
  \caption{\label{fig:pathview-native-sig-differences-1b} Indicators of the significance of the respiration differences between \textit{E. coli} K12 and \textit{E. coli} \ac{DSM} 30083\textsuperscript{T} regarding the maximum-height values mapped on the Galactose pathway.
 Blue, significantly larger than the chosen minimum effect size of 150; grey, insignificantly different from the chosen minimum effect size; yellow, significantly smaller than the chosen minimum effect size.
+(If the resolution of this figure is insufficient, this is due to \ac{PDF} compaction, not due to the \pkg{pathview} graphics.)
 %For the direct mapping of the numeric differences see Figure~\ref{fig:pathview-native-differences}.Using a minimum effect size of 150.
  }
 \end{figure}
@@ -754,6 +764,7 @@ coli.graphvizmap.k12 <- opm_path(cpd.data = anno.k12, species = "ko",
 Respiratory data (mean maximum height) of \textit{Escherichia coli} strain K12 mapped on the \ac{KEGG} Galactose pathway and rendered by \pkg{pathview} using the \proglang{Graphviz} layout engine.
 Compare Figure~\ref{fig:1a-pathview-native-sep-strains}, which shows the native \ac{KEGG} rendering of these data.
 See the main text for a description of some of the limitations when creating graphics in this way.
+(If the resolution of this figure is insufficient, this is due to \ac{PDF} compaction, not due to the \pkg{pathview} graphics.)
 }
 \end{figure}
 
