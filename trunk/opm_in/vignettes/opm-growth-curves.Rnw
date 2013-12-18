@@ -183,6 +183,11 @@ The measurements are in ``long'' format and must be reshaped using the eponymous
 We do this separately for the \ac{DM} and \ac{FM} measurements within the data set:
 
 <<label=reshape-potatoes>>=
+# order the treatment
+potato$Treatment <- factor(potato$Treatment,
+  levels = c("Control", "0.16M NaCl", "0.32M NaCl", "0.5M Sorbitol"),
+  ordered = TRUE)
+# reshape
 potato.fm <- reshape(potato, v.names = "FM", drop = "DM", direction = "wide",
   idvar = c("Genotype", "Treatment", "Replicate"), timevar = "Time")
 potato.dm <- reshape(potato, v.names = "DM", drop = "FM", direction = "wide",
@@ -192,7 +197,12 @@ potato.dm <- reshape(potato, v.names = "DM", drop = "FM", direction = "wide",
 ``long'' format means, that each measurement is stored in a separate record with one entry per line (see above).
 Thus for each data point the entries in ``Genotype'', ``Treatment'' and ``Time'' have to be repeated, resulting in a data frame with dimensions of \Sexpr{dim(potato)[1]} rows in \Sexpr{dim(potato)[2]} columns.
 
-With the \code{reshape} it is possible to rearrange the data set in a form, where the columns ``Genotype'', ``Treatment'' and ``Replicate'' are kept and columns ``Time'' and either ``\ac{FM}'', or ``\ac{DM}'' respectively, are merged resulting in 9 columns representing the measurement times.
+With the \code{reshape} it is possible to rearrange the data set in a form, where the columns ``Genotype'', ``Treatment'' and ``Replicate'' are kept and columns ``Time'' and either ``\ac{FM}'', or ``\ac{DM}'' respectively, are merged resulting in 9 columns representing the measurement times (see below the first six rows of object \code{potato.fm}).
+
+<<label=potato-reshaped>>=
+head(potato.fm)
+@
+
 Thus the dimension of the data object dwindled to \Sexpr{dim(potato.fm)[1]} rows in \Sexpr{dim(potato.fm)[2]} columns.
 
 Now the data are in the right arrangement for the next step, the conversion into \proglang{OPMX} or \proglang{MOPMX} objects.
@@ -221,19 +231,20 @@ The \code{prefix} argument helps identifying the columns with measurements over 
 The registered plate type can be queried as follows:
 
 <<label=show-potato-plate-type>>=
-dim(potato.fm)
-dim(potato.dm)
-plate_type(TRUE) # shows all user-defined plates
+plate_type(TRUE) # shows all existing user-defined plates
 listing(wells(plate = c("CUSTOM:FM", "CUSTOM:DM")))
 @
 
 Note the prefix ``CUSTOM:'', which is used to distinguish user-defined plate type from those that come with \pkg{opm}.
+Please keep in mind, that the definition of plate types is only available in the current \proglang{R} session. The definitions will be lost, when the session is terminated. Saving and/or loading of a session can be managed by the functionality provided by \pkg{session} \citep{warnes2012}.
+
 The object resulting from \code{listing} can be output with \code{to_yaml} or \code{saveRDS} for externally storing plate types in files.
 
+With the  \code{potato.dm} and \code{potato.fm} objects the user can now follow the work flow as it is envisaged for processing of usual \ac{PM} data. Please continue in Section~\ref{visualisation} and following for plotting and statistical analysis of the estimated curve parameters.
 
 \subsection{Direct registration of plate types}\label{overview-register-plate-type}
 
-An input file comes along with \pkg{opm}, providing growth curve data which were derived from an growth challenging experiment with two \textit{Escherichia coli} strains (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) on increasing Glucose concentrations.
+An example input file comes along with \pkg{opm}, providing growth curve data which were derived from an growth challenging experiment with two \textit{Escherichia coli} strains (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) on increasing Glucose concentrations.
 Each strain-Glucose-concentration combination was repeated twice on the plate.
 Thus, it will first be shown, how to prepare a plate map, register it as a new plate type and import the data with subsequently conversion of the data into an \proglang{OPMX} or \proglang{MOPMX} object.
 Afterwards it will be shown how to use the \code{split} function in order to split the objects to provide objects representing the repetitions.
@@ -246,26 +257,27 @@ For small set ups it might be feasible to type the substrate allocation manually
 %\rcsmark{TODO.}
 %TODO Lea: register the well map and the full name of the TECAN plate used below
 <<label=register_plate>>=
-register_plate(growth = c(A01 = "negative control", A02 = "10mM Glucose",
-A03 = "20mM Glucose", A04 = "50mM Glucose", A05 = "100mM Glucose",
-A06 = "200mM Glucose",
-B01 = "negative control", B02 = "10mM Glucose",
-B03 = "20mM Glucose", B04 = "50mM Glucose", B05 = "100mM Glucose",
-B06 = "200mM Glucose",
-C01 = "negative control", C02 = "10mM Glucose",
-C03 = "20mM Glucose", C04 = "50mM Glucose", C05 = "100mM Glucose",
-C06 = "200mM Glucose",
-D01 = "negative control", D02 = "10mM Glucose",
-D03 = "20mM Glucose", D04 = "50mM Glucose", D05 = "100mM Glucose",
-D06 = "200mM Glucose"),
+register_plate(growth = c(A01 = "negative control #1", A02 = "10mM Glucose #1",
+A03 = "20mM Glucose #1", A04 = "50mM Glucose #1", A05 = "100mM Glucose #1",
+A06 = "200mM Glucose #1",
+B01 = "negative control #2", B02 = "10mM Glucose #2",
+B03 = "20mM Glucose #2", B04 = "50mM Glucose #2", B05 = "100mM Glucose #2",
+B06 = "200mM Glucose #2",
+C01 = "negative control #3", C02 = "10mM Glucose #3",
+C03 = "20mM Glucose #3", C04 = "50mM Glucose #3", C05 = "100mM Glucose #3",
+C06 = "200mM Glucose #3",
+D01 = "negative control #4", D02 = "10mM Glucose #4",
+D03 = "20mM Glucose #4", D04 = "50mM Glucose #4", D05 = "100mM Glucose #4",
+D06 = "200mM Glucose #4"),
 growth = "growth")
 #listing(wells(plate = "custom:growth"))
 @
 
-However, this procedure is error prone and not efficient, if dealing with set ups for more than a few wells.
-Thus we show how to register a user-designed plate with plate map given as matrix, which depicts the allocation of the used substrates on the plate.
+However, this procedure is error prone and not efficient when dealing with sets containing more than a few wells.
+Alternatively, a user-designed plate can also be registered with a plate map given as matrix.
+The matrix then directly represents the allocation of the used substrates on the plate.
 
-First, the matrix for the plate map is set up
+First, the matrix for the plate map has to be stated as follows.
 <<label=setup_plate_map_matrix>>=
 growth <- matrix(rep(c("negative control", "10mM Glucose", "20mM Glucose",
   "50mM Glucose", "100mM Glucose", "200mM Glucose"), each = 4),
@@ -319,12 +331,26 @@ This format is not particularly useful within \proglang{R} but can be converted 
 
 \section{Visualisation of growth curves}\label{visualisation}
 
+visualisation of potato data
+
+\begin{figure}
+\centering
+<<label=potato-growth,fig=TRUE,echo=FALSE,width=10,height=8>>=
+xy_plot(potato.fm, theor.max = FALSE, main = "potato growth", rcr = 1,
+  include = "Genotype")
+@
+\caption{
+\label{fig:potato_xy_plot}
+here some caption about the plot
+}
+\end{figure}
+
 here some description
 
 \begin{figure}
 \centering
-<<label=xy-plot,fig=TRUE>>=
-xy_plot(y, theor.max = FALSE)
+<<label=xy-plot-coli,fig=TRUE,echo=FALSE,width=10,height=8>>=
+xy_plot(y, theor.max = FALSE, main = "E. coli growth on Glucose")
 @
 \caption{
 \label{fig:growth_xy_plot}
@@ -332,9 +358,17 @@ here some caption about the plot
 }
 \end{figure}
 
-
-
-
+%
+%\begin{figure}
+%\centering
+%<<label=xy-plot-coli-split,fig=TRUE,echo=FALSE,width=10,height=8>>=
+%xy_plot(yy, theor.max = FALSE, main = "E. coli growth on Glucose")
+%@
+%\caption{
+%\label{fig:_xy_plot}
+%here some caption about the plot
+%}
+%\end{figure}
 \rcsmark{TODO.}
 
 <<label=plot-potato>>=
