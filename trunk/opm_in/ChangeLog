@@ -7,6 +7,8 @@
 - radial_plot() gets a 'group.col' argument
 - wells() gets a 'simplify' argument; returned matrices are now of class
   'well_coords_map', which gets its own listing() method
+- heat_map() gets an 'abbrev' argument
+- xy_plot() gets a 'rcr' argument
 
 
 ################################################################################

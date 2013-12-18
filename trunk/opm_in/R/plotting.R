@@ -1233,6 +1233,10 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #' @param lmap Numeric scalar with at least three elements, or empty. If empty,
 #'   ignored. Otherwise used for mapping logical values to numeric values. See
 #'   \code{\link{map_values}} for details. Ignored if the data are not logical.
+#' @param abbrev Character scalar indicating whether row or column shall be
+#'   abbreviated before plotting. Note that abbreviation is done by shortening
+#'   words and ending them with a dot, so there is no guarantee that a certain
+#'   maximum length will be obtained.
 #'
 #' @param ... Optional arguments passed to \code{heatmap} or \code{heatmap.2}.
 #'   Note that some defaults of \code{heatmap.2} are overwritten even though
@@ -1288,8 +1292,16 @@ setMethod("heat_map", "matrix", function(object,
     else
       c(5, 5),
     col = opm_opt("heatmap.colors"), asqr = FALSE, lmap = 1L:3L,
+    abbrev = c("none", "row", "column", "both"),
     ...,
     use.fun = c("gplots", "stats")) {
+
+  shorten <- function(x, n1 = 0L, n2 = 3L) {
+    x <- gsub(sprintf("^\\b([A-Z][a-z]{%i})[a-z]{2,}\\b(?!\\.)", n1),
+      "\\1.", x, FALSE, TRUE)
+    gsub(sprintf("\\b([a-z]{%i})[a-z]{2,}\\b(?!\\.)", n2),
+      "\\1.", x, FALSE, TRUE)
+  }
 
   get_fun <- function(infun, usefun) {
     if (is.character(infun))
@@ -1333,6 +1345,16 @@ setMethod("heat_map", "matrix", function(object,
     }
     asin(sqrt(x))
   }
+
+  case(match.arg(abbrev),
+    none = NULL,
+    row = rownames(object) <- shorten(rownames(object)),
+    column = colnames(object) <- shorten(colnames(object)),
+    both = {
+      rownames(object) <- shorten(rownames(object))
+      colnames(object) <- shorten(colnames(object))
+    }
+  )
 
   clustfun <- get_fun(hclustfun, hclust)
   dfun <- get_fun(distfun, dist)
