@@ -587,7 +587,8 @@ default_color_regions <- function(colors, space, bias, n) {
 #'   names in the legend.
 #' @param draw.legend Logical scalar. If \code{FALSE}, no legend is drawn, and
 #'   the two aforementioned arguments are ignored.
-#'
+#' @param rcr Numeric scalar (row-column-ratio) interpreted as number of rows
+#'   per number of columns. Determines the arrangement of the subplots.
 #' @param ... Arguments that are passed to \code{\link{flatten}}. For the
 #'   \code{\link{OPMS}} method, \code{include} is particularly important: the
 #'   selected metadata are joined into a single factor, and the assignment of
@@ -658,13 +659,13 @@ setMethod("xy_plot", OPM, function(x, col = "midnightblue", lwd = 1,
     neg.ctrl = "A01", base.col = "grey10", base.lwd = lwd,
     main = list(), xlab = "Time [h]", ylab = "Value [OmniLog units]",
     theor.max = TRUE, draw.grid = TRUE,
-    strip.fmt = list(), striptext.fmt = list(),
+    strip.fmt = list(), striptext.fmt = list(), rcr = 0.75,
     ...) {
 
   ## BEGIN must be synchronized with xy_plot,OPMS
 
   # Setup
-  layout <- best_layout(dim(x)[2L])
+  layout <- best_layout(dim(x)[2L], rcr)
   y.max <- improved_max(x, theor.max)
   main <- main_title(x, main)
   neg.ctrl <- negative_control(x, neg.ctrl)
@@ -708,13 +709,13 @@ setMethod("xy_plot", OPMS, function(x, col = opm_opt("colors"), lwd = 1,
     main = list(), xlab = "Time [h]", ylab = "Value [OmniLog units]",
     theor.max = TRUE, draw.grid = TRUE, space = "top",
     strip.fmt = list(), striptext.fmt = list(),
-    legend.fmt = list(), legend.sep = " ", draw.legend = TRUE,
+    legend.fmt = list(), legend.sep = " ", draw.legend = TRUE, rcr = 0.75,
     ...) {
 
   ## BEGIN must be synchronized with xy_plot,OPM
 
   # Setup
-  layout <- best_layout(dim(x)[3L])
+  layout <- best_layout(dim(x)[3L], rcr)
   y.max <- improved_max(x, theor.max)
   main <- main_title(x, main)
   neg.ctrl <- negative_control(x, neg.ctrl)
@@ -781,7 +782,8 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
     col = opm_opt("colors"), lwd = 1, neg.ctrl = NULL, base.col = "black",
     base.lwd = lwd, main = groups, xlab = elem(f, 3L:2L), ylab = elem(f, 2L),
     draw.grid = TRUE, space = "top", strip.fmt = list(), striptext.fmt = list(),
-    legend.fmt = list(), legend.sep = " ", draw.legend = TRUE, ...) {
+    legend.fmt = list(), legend.sep = " ", draw.legend = TRUE, rcr = 0.75,
+    ...) {
 
   elem <- function(x, i) {
     pos <- 1L
@@ -798,7 +800,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 
   # Layout
   xvar <- as.factor(x[, elem(f, 3L:3L)])
-  layout <- best_layout(length(levels(xvar)))
+  layout <- best_layout(length(levels(xvar)), rcr)
 
   # Put grouping variable together
   pos <- match(groups, names(x))

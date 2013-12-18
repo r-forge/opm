@@ -1654,10 +1654,12 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   Like the next argument, the value goes into the \code{\link{csv_data}}.
 #' @param filename Character scalar to be inserted if missing in the data.
 #' @param interval Numeric vector indicating the time interval(s) between
-#'   measurements in the \sQuote{rectangular} format. Ignored if empty, causing
-#'   \code{0, 1, 2, ...} to be used as time points. (This is often acceptable
-#'   as it only causes a different scaling; it is not acceptable if the time
-#'   points were not in regular intervals.)
+#'   measurements in the \sQuote{rectangular} format. Also non equal interval
+#'   lengths are possible, however, the vector has to contain one time for each
+#'   existing measurement. Ignored if empty, causing \code{0, 1, 2, ...} to be
+#'   used as time points. (This is often acceptable as it only causes a
+#'   different scaling; it is not acceptable if the time points were not in
+#'   regular intervals.)
 #'
 #'   In the case of the \code{vertical} format, a non-empty \code{interval}
 #'   value causes the time points to not be extracted from \code{object} but
@@ -1807,8 +1809,12 @@ setMethod("opmx", "data.frame", function(object,
     x <- split.data.frame(x, sections(pos, TRUE))
     x <- do.call(rbind, lapply(x, convert_time_point))
     times <- as.double(seq_len(nrow(x)) - 1L)
-    if (length(interval))
+    if (length(interval) == 1L)
       times <- interval * times
+    else if (length(interval) == nrow(x))
+      times <- must(as.double(interval))
+    else if (length(interval))
+      stop("length of 'interval' must be 0, 1, or nrow(x)")
     x <- cbind(times, x)
     colnames(x)[1L] <- HOUR
     rownames(x) <- NULL
@@ -1832,7 +1838,12 @@ setMethod("opmx", "data.frame", function(object,
         colnames(x)[ok] <- rownames(WELL_MAP)[seq_along(which(ok))]
       }
       if (length(interval))
-        hour <- interval * (seq_len(nrow(x)) - 1L)
+        if (length(interval) == 1L)
+          hour <- interval * (seq_len(nrow(x)) - 1L)
+        else if (length(interval) == nrow(x))
+          hour <- must(as.double(interval))
+        else
+          stop("length of 'interval' must be 0, 1, or nrow(x)")
       else if (any(!ok))
         hour <- x[, !ok, drop = FALSE][, 1L]
       else
