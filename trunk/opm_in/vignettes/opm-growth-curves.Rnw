@@ -183,11 +183,6 @@ The measurements are in ``long'' format and must be reshaped using the eponymous
 We do this separately for the \ac{DM} and \ac{FM} measurements within the data set:
 
 <<label=reshape-potatoes>>=
-# order the treatment
-potato$Treatment <- factor(potato$Treatment,
-  levels = c("Control", "0.16M NaCl", "0.32M NaCl", "0.5M Sorbitol"),
-  ordered = TRUE)
-# reshape
 potato.fm <- reshape(potato, v.names = "FM", drop = "DM", direction = "wide",
   idvar = c("Genotype", "Treatment", "Replicate"), timevar = "Time")
 potato.dm <- reshape(potato, v.names = "DM", drop = "FM", direction = "wide",
@@ -206,6 +201,11 @@ head(potato.fm)
 Thus the dimension of the data object dwindled to \Sexpr{dim(potato.fm)[1]} rows in \Sexpr{dim(potato.fm)[2]} columns.
 
 Now the data are in the right arrangement for the next step, the conversion into \proglang{OPMX} or \proglang{MOPMX} objects.
+
+It is possible to first register the plate and then convert the data into an \proglang{OPM} object.
+<<label=register_first>>=
+
+@
 
 The main function for converting user-defined data frames to \proglang{OPMX} or \proglang{MOPMX} objects is \code{opmx}, which can directly be applied to the objects created in the last step.
 This works because the ``horizontal'' input format of \code{opmx} corresponds to the ``wide'' format of \code{reshape}.
