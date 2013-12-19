@@ -331,11 +331,13 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #'   object, or character vector of original plate name(s), or factor, or
 #'   logical scalar. If missing, the function displays the plate types \pkg{opm}
 #'   knows about. If a logical scalar, the behaviour is the same, but optionally
-#'   registered to the user-defined or the \pkg{opm}-defined plate types. For
-#'   \code{register_plate}, either missing, causing the arguments within
-#'   \code{...} to be used, if any, a list of \code{NULL} values or character
-#'   vectors, or a character vector whose elements are interpretable as file
-#'   names. See below for details on the input format.
+#'   restricted to the user-defined or the \pkg{opm}-defined plate types.
+#'
+#'   For \code{register_plate}, \code{object} is either missing (the easiest way
+#'   to apply the function), causing the arguments within \code{...} (which
+#'   should be named) to be used, if any, a named list of \code{NULL} values or
+#'   character vectors, or a character vector whose elements are interpretable
+#'   as file names. See below for details on the input format.
 #' @param full Logical scalar. If \code{TRUE}, add (or replace by) the full name
 #'   of the plate type (if available); otherwise, return it as-is.
 #' @param in.parens Logical scalar. This and the five next arguments work like

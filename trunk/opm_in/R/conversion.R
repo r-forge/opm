@@ -1887,11 +1887,17 @@ setMethod("opmx", "data.frame", function(object,
   # 'plate.type' and 'full.name' must already be normalized at this stage.
   #
   register_substrates <- function(wells, plate.type, full.name) {
-    map <- unique.default(wells) # already sorted at this stage
-    if (all(grepl("^\\s*[A-Za-z]\\s*\\d+\\s*$", map, FALSE, TRUE))) {
-      map <- structure(clean_coords(map), names = map)
+    wn <- unique.default(wells) # already sorted at this stage
+    if (all(grepl("^\\s*[A-Za-z]\\s*\\d+\\s*$", wn, FALSE, TRUE))) {
+      map <- structure(clean_coords(wn), names = wn)
+    } else if (custom_plate_exists(plate.type)) {
+      map <- custom_plate_get(plate.type)
+      if (any(bad <- !wn %in% map))
+        stop("plate type '", plate.type, "' already exists but lacks ",
+          "substrate '", wn[bad][1L], "'")
+      map <- structure(names(map), names = map)
     } else {
-      map <- structure(rownames(WELL_MAP)[seq_along(map)], names = map)
+      map <- structure(rownames(WELL_MAP)[seq_along(wn)], names = wn)
       custom_plate_set(plate.type, structure(names(map), names = map))
     }
     if (!is.na(full <- full.name[plate.type]))
