@@ -1595,7 +1595,9 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'
 #' @rdname opmx.function
 #'
-#' @param object Data frame.
+#' @param object Data frame containing numeric data with growth or respiration
+#'   measurements and optional or mandatory additional columns, depending on
+#'   the \code{format} argument.
 #' @param format Character scalar indicating the data layout within
 #'   \code{object}. See below for examples. In brief, the formats are:
 #'   \describe{
@@ -1622,21 +1624,40 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   one to several columns to be joined yielding \sQuote{position} indicators.
 #'   These will be used to uniquely identify each plate. The columns to be
 #'   joined will be kept, too; usually they will end up in the
-#'   \code{\link{metadata}}. Mandatory for the \sQuote{rectangular} format.
-#'   Otherwise ignored if empty (but then an accordingly named column must
-#'   already be present).
-#' @param plate.type Character scalar. In \sQuote{horizontal} format, the name
-#'   of the column containing the plate-type indicators. After normalisation,
-#'   these will be used for storing the mapping of well coordinates. Mandatory
-#'   for the \sQuote{rectangular} format. Otherwise ignored if empty (but then
-#'   an accordingly named column must already be present \strong{OR}
-#'   \code{full.name} must contain a single named element, whose name is then
-#'   inserted as plate name).
+#'   \code{\link{metadata}}. An empty \code{position} argument is (but then an
+#'   accordingly named column must already be present).
+#'
+#'   The \code{position} argument is mandatory for the \sQuote{rectangular} and
+#'   \sQuote{vertical} formats. It should be chosen so as to identify the
+#'   resulting \code{\link{OPM}} object again once it is combined with others
+#'   into an \code{\link{OPMS}} object. (By default the setup time is
+#'   additionally considered but the default for the \code{setup.time} argument
+#'   is just the time of the call to \code{opmx}.)
+#'
+#' @param plate.type Character scalar. In \sQuote{horizontal} mode, the name of
+#'   the column containing the plate-type indicators. After normalisation, these
+#'   will be used for storing the mapping of well coordinates. The argument is
+#'   ignored if empty. But then an accordingly named column must already be
+#'   present \strong{OR} \code{full.name} must contain a single named element,
+#'   whose name is then inserted as plate name.
+#'
+#'   The \code{plate.type} argument is mandatory for the \sQuote{rectangular}
+#'   and \code{vertical} formats. An according plate type must already have been
+#'   stored using \code{\link{register_plate}} and contain the well coordinates
+#'   found in \code{object}. Normalisation of the plate-type name is done,
+#'   however.
+#'
+#'   In \sQuote{horizontal} mode, the plate type can be registered beforehand,
+#'   too, which is useful to enforce a certain ordering of wells. But then the
+#'   registered well-coordinate map must contains all well coordinates found in
+#'   \code{object}.
+#'
 #' @param well Character scalar. In \sQuote{horizontal} format, the name of the
 #'   column containing the well indicators. These should be substrate names; an
 #'   according mapping from (newly assigned) well coordinates to these substrate
-#'   names will then be stored using \code{\link{register_plate}}. Ignored if
-#'   empty (but then an accordingly named column must be present).
+#'   names will then be stored using \code{\link{register_plate}} if it is not
+#'   yet present. Ignored if empty (but then an accordingly named column must be
+#'   present).
 #' @param prefix Character scalar. In \sQuote{horizontal} format, used for
 #'   identifying the measurements columns.
 #' @param sep Character scalar. In \sQuote{rectangular} format, used for
@@ -1653,18 +1674,20 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #' @param setup.time Character scalar to be inserted if missing in the data.
 #'   Like the next argument, the value goes into the \code{\link{csv_data}}.
 #' @param filename Character scalar to be inserted if missing in the data.
-#' @param interval Numeric vector indicating the time interval(s) between
-#'   measurements in the \sQuote{rectangular} format. Also non equal interval
-#'   lengths are possible, however, the vector has to contain one time for each
-#'   existing measurement. Ignored if empty, causing \code{0, 1, 2, ...} to be
-#'   used as time points. (This is often acceptable as it only causes a
+#' @param interval Numeric vector. If of length one, indicating the time
+#'   interval between measurements in the \sQuote{rectangular} format. If the
+#'   length corresponds to the number of measurements per well in \code{object},
+#'   it is interpreted directly as the time points. This is useful of the
+#'   intervals are non-unique. Ignored if empty, causing \code{0, 1, 2, ...} to
+#'   be used as time points. (This is often acceptable as it only causes a
 #'   different scaling; it is not acceptable if the time points were not in
 #'   regular intervals.)
 #'
 #'   In the case of the \code{vertical} format, a non-empty \code{interval}
 #'   value causes the time points to not be extracted from \code{object} but
 #'   constructed from \code{interval}. Ideally, \code{interval} is given in
-#'   hours.
+#'   hours (because this corresponds to the default axis labelling of some
+#'   plotting functions).
 #'
 #' @export
 #' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL},
@@ -1675,7 +1698,7 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #' @details The main purpose of this function is to convert objects that hold
 #'   non-\acronym{PM} data to \code{\link{OPMX}} objects that can be analysed
 #'   with \pkg{opm}. The mechanism for dealing with user-defined plate types is
-#'   implemented in \code{\link{register_plate}}, whereas \code{opmx} takes also
+#'   implemented in \code{\link{register_plate}}, whereas \code{opmx} also takes
 #'   care of the necessary changes in format and naming for converting a data
 #'   frame to a \code{\link{MOPMX}} object.
 #'
@@ -1792,7 +1815,7 @@ setMethod("opmx", "data.frame", function(object,
           TRUE
         }, warning = function(w) FALSE)
       if (converted)
-        structure(c(x), names = toupper(n))
+        structure(c(x), names = toupper(c(n)))
       else
         NULL
     }
@@ -1915,7 +1938,8 @@ setMethod("opmx", "data.frame", function(object,
       if (pos <- match(n, colnames(x), 0L))
         x[, pos] <- custom_plate_normalize_all(x[, pos])
       else
-        x[, n] <- L(names(full.name))
+        x[, n] <- L(names(full.name),
+          .msg = "plate type neither in 'object' nor (uniquely) in 'full.name'")
       n <- CSV_NAMES[["SETUP"]]
       if (!n %in% names(x))
         x[, n] <- setup.time
@@ -1943,10 +1967,10 @@ setMethod("opmx", "data.frame", function(object,
       indexes <- split.default(seq_len(ncol(x)), indexes)
       result <- vector("list", length(indexes))
       for (i in seq_along(indexes)) {
-        idx <- indexes[[i]]
+        val <- x[, idx <- indexes[[i]], drop = FALSE]
         result[[i]] <- new("OPM", csv_data = cd[idx[1L], ],
           metadata = lapply(md[idx, , drop = FALSE], unique.default),
-          measurements = cbind(tp, x[, idx, drop = FALSE]))
+          measurements = cbind(tp, val[, order(colnames(val)), drop = FALSE]))
       }
       case(length(result), NULL, result[[1L]], new("OPMS", plates = result))
     }

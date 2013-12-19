@@ -279,9 +279,9 @@ custom_plate_set <- function(x, value) {
 #'
 custom_plate_set_full <- function(x, value) {
   key <- custom_plate_prepend_full(custom_plate_proper(x))
-  if (exists(key, MEMOIZED))
-    warning("overwriting full name for plate type ", x)
   names(value) <- NULL
+  if (exists(key, MEMOIZED) && !identical(value, get(key, MEMOIZED)))
+    warning("overwriting full name for plate type ", x)
   MEMOIZED[[key]] <- value
   value
 }
@@ -659,7 +659,7 @@ setMethod("register_plate", "list", function(object, ...) {
     if (!length(i <- rownames(x)))
       i <- rep(LETTERS, length.out = nrow(x))
     n <- vapply(i, sprintf, character(length(j)), fmt = "%s%02i", j)
-    structure(c(t(x)), names = n)
+    structure(c(t(x)), names = c(n))
   }
   prepare_well_map <- function(x) {
     if (is.data.frame(x)) {
