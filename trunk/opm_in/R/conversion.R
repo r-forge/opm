@@ -1805,6 +1805,8 @@ setMethod("opmx", "data.frame", function(object,
     position = NULL, well = NULL, prefix = "T_", sep = "<>", full.name = NULL,
     setup.time = date(), filename = "", interval = NULL) {
 
+  # Create a matrix acceptable as 'measurements' entry.
+  #
   convert_rectangular_matrix <- function(x, sep, interval) {
     convert_time_point <- function(x) {
       n <- as.integer(x[1L, -1L, drop = TRUE])
@@ -1844,6 +1846,8 @@ setMethod("opmx", "data.frame", function(object,
     x
   }
 
+  # Create a matrix acceptable as 'measurements' entry.
+  #
   convert_vertical_matrix <- function(x, interval) {
     select_columns <- function(x) {
       n <- clean_coords(colnames(x))
@@ -1895,18 +1899,6 @@ setMethod("opmx", "data.frame", function(object,
     new(OPM, measurements = x, csv_data = y, metadata = list())
   }
 
-  convert_rectangular_format <- function(x, sep, interval, position,
-      plate.type, full.name, setup.time, filename) {
-    create_opm_object(convert_rectangular_matrix(x, sep, interval), position,
-      plate.type, full.name, setup.time, filename)
-  }
-
-  convert_vertical_format <- function(x, interval, position, plate.type,
-      full.name, setup.time, filename) {
-    create_opm_object(convert_vertical_matrix(x, interval), position,
-      plate.type, full.name, setup.time, filename)
-  }
-
   # 'plate.type' and 'full.name' must already be normalized at this stage.
   #
   register_substrates <- function(wells, plate.type, full.name) {
@@ -1928,6 +1920,9 @@ setMethod("opmx", "data.frame", function(object,
     map_values(wells, map)
   }
 
+  # A mapping of the column names of 'x' must already have been conducted at
+  # this stage.
+  #
   convert_horizontal_format <- function(x, prefix, full.name, setup.time,
       filename) {
     repair_csv_data <- function(x, full.name, setup.time, filename) {
@@ -1947,6 +1942,11 @@ setMethod("opmx", "data.frame", function(object,
       if (!n %in% names(x))
         x[, n] <- filename
       x
+    }
+    csv_positions <- function(x) {
+      pos <- get("csv.selection", OPM_OPTIONS)
+      pos <- unique.default(c(pos, CSV_NAMES[["PLATE_TYPE"]]))
+      match(pos, colnames(x))
     }
     time_point_columns <- function(x, prefix) {
       first <- substring(x, 1L, nchar(prefix))
@@ -1974,11 +1974,20 @@ setMethod("opmx", "data.frame", function(object,
       }
       case(length(result), NULL, result[[1L]], new("OPMS", plates = result))
     }
+    traverse_plate_types <- function(cd, tp, x, md, full.name) {
+      indexes <- split.default(seq_len(ncol(x)),
+        cd[, CSV_NAMES[["PLATE_TYPE"]]])
+      result <- vector("list", length(indexes))
+      for (i in seq_along(indexes)) {
+        idx <- indexes[[i]]
+        result[[i]] <- per_plate_type(cd[idx, , drop = FALSE], tp,
+          x[, idx, drop = FALSE], md[idx, , drop = FALSE], full.name)
+      }
+      result
+    }
     x <- x[order(x[, RESERVED_NAMES[["well"]]]), , drop = FALSE]
     x <- repair_csv_data(x, full.name, setup.time, filename)
-    pos <- get("csv.selection", OPM_OPTIONS)
-    pos <- unique.default(c(pos, CSV_NAMES[["PLATE_TYPE"]]))
-    pos <- match(pos, names(x))
+    pos <- csv_positions(x)
     cd <- as.matrix(x[, pos, drop = FALSE])
     x <- x[, -pos, drop = FALSE]
     tp <- time_point_columns(names(x), prefix)
@@ -1986,19 +1995,14 @@ setMethod("opmx", "data.frame", function(object,
     x <- t(as.matrix(x[, !is.na(tp), drop = FALSE]))
     rownames(x) <- NULL
     tp <- matrix(tp[!is.na(tp)], nrow(x), 1L, FALSE, list(NULL, HOUR))
-    indexes <- split.default(seq_len(ncol(x)),
-      cd[, CSV_NAMES[["PLATE_TYPE"]]])
-    result <- vector("list", length(indexes))
-    for (i in seq_along(indexes)) {
-      idx <- indexes[[i]]
-      result[[i]] <- per_plate_type(cd[idx, , drop = FALSE], tp,
-        x[, idx, drop = FALSE], md[idx, , drop = FALSE], full.name)
-    }
+    result <- traverse_plate_types(cd, tp, x, md, full.name)
     case(length(result), NULL, result[[1L]],
       as(structure(result, names = names(indexes)), "MOPMX"))
   }
 
-  prepare_colnames <- function(x, plate.type, position, well) {
+  # Only for the 'horizontal' format.
+  #
+  map_colnames <- function(x, plate.type, position, well) {
     map <- list()
     map[[CSV_NAMES[["PLATE_TYPE"]]]] <- plate.type
     map[[RESERVED_NAMES[["well"]]]] <- well
@@ -2015,21 +2019,29 @@ setMethod("opmx", "data.frame", function(object,
     x
   }
 
+  prepare_full_name <- function(x) {
+    if (!length(x))
+      return(structure(character(), names = character()))
+    names(x) <- custom_plate_normalize_all(names(x))
+    x
+  }
+
   for (i in which(vapply(object, is.factor, NA)))
     object[, i] <- as.character(object[, i])
 
-  if (length(full.name))
-    names(full.name) <- custom_plate_normalize_all(names(full.name))
-  else
-    full.name <- structure(character(), names = character())
+  full.name <- prepare_full_name(full.name)
 
-  case(format <- match.arg(format),
-    horizontal = convert_horizontal_format(prepare_colnames(object,
+  case(match.arg(format),
+
+    horizontal = convert_horizontal_format(map_colnames(object,
       plate.type, position, well), prefix, full.name, setup.time, filename),
-    rectangular = convert_rectangular_format(object, sep, interval,
-      position, plate.type, full.name, setup.time, filename),
-    vertical = convert_vertical_format(object, interval, position, plate.type,
-      full.name, setup.time, filename)
+
+    rectangular = create_opm_object(convert_rectangular_matrix(object, sep,
+      interval), position, plate.type, full.name, setup.time, filename),
+
+    vertical = create_opm_object(convert_vertical_matrix(object, interval),
+      position, plate.type, full.name, setup.time, filename)
+
   )
 }, sealed = SEALED)
 

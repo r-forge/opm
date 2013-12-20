@@ -39,9 +39,9 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
     split.default(x, sections(found, include))
   } else if (is.numeric(pattern)) {
     if (identical(pattern <- as.integer(pattern), 1L))
-      return(strsplit(x, "", fixed = TRUE))
+      return(strsplit(x, "", TRUE))
     pattern <- sprintf("(.{%i,%i})", pattern, pattern)
-    strsplit(gsub(pattern, "\\1\a", x, perl = TRUE), "\a", fixed = TRUE)
+    strsplit(gsub(pattern, "\\1\a", x, FALSE, TRUE), "\a", TRUE)
   } else
     stop("'pattern' must be a character or numeric scalar")
 }
@@ -49,14 +49,14 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 map_files <- function(x, ...) UseMethod("map_files")
 
 map_files.character <- function(x, mapfun, ..., .attr = ".filename",
-    .encoding = "", .sep = NULL) {
+    .encoding = "", .sep = NULL, .warn = FALSE) {
   doit <- function(filename) tryCatch({
     add_attr <- function(x) {
       attr(x, .attr) <- filename
       x
     }
     connection <- file(description = filename, encoding = .encoding)
-    x <- readLines(con = connection)
+    x <- readLines(con = connection, warn = .warn)
     close(connection)
     if (is.null(y <- mapfun(add_attr(x), ...))) # shortcut
       return(list(FALSE, ""))
@@ -73,7 +73,7 @@ map_files.character <- function(x, mapfun, ..., .attr = ".filename",
   case(length(.sep),
     {
       optional.output <- TRUE
-      if (grepl("windows", .Platform$OS.type, ignore.case = TRUE, perl = TRUE))
+      if (grepl("windows", Sys.info()[["sysname"]], TRUE, TRUE))
         sep <- "\r\n"
       else
         sep <- "\n"

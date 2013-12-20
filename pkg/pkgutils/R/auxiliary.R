@@ -33,7 +33,7 @@ rd_quote.character <- function(x, text, ...) {
 NULL
 
 subset.Rd <- function(x, subset, values = FALSE, ...) {
-  prepend <- !grepl("^\\\\", subset, perl = TRUE)
+  prepend <- !grepl("^\\\\", subset, FALSE, TRUE)
   subset[prepend] <- sprintf("\\%s", subset[prepend])
   y <- vapply(x, attr, "", which = "Rd_tag") %in% subset
   if (L(values)) {
@@ -44,21 +44,20 @@ subset.Rd <- function(x, subset, values = FALSE, ...) {
 }
 
 subset.pack_desc <- function(x, ...) {
-  result <- vector("list", 5L)
-  names(result) <- c("Depends", "Imports", "Suggests", "Enhances", "Collate")
+  result <- c("Depends", "Imports", "Suggests", "Enhances", "Collate")
+  result <- structure(vector("list", length(result)), names = result)
   for (name in c("Depends", "Imports", "Suggests", "Enhances"))
-    if (!is.null(entry <- x[[name]])) {
-      entry <- unlist(strsplit(entry, "\\s*,\\s*", perl = TRUE))
-      entry <- sub("^\\s+", "", entry, perl = TRUE)
-      entry <- sub("\\s+$", "", entry, perl = TRUE)
-      entry <- sub("\\s*\\([^)]*\\)$", "", entry, perl = TRUE)
-      result[[name]] <- entry[entry != "R"]
+    if (!is.null(y <- x[[name]])) {
+      y <- unlist(strsplit(y, "\\s*,\\s*", FALSE, TRUE), FALSE, FALSE)
+      y <- sub("\\s+$", "", sub("^\\s+", "", y, FALSE, TRUE), FALSE, TRUE)
+      y <- sub("\\s*\\([^)]*\\)$", "", y, FALSE, TRUE)
+      result[[name]] <- y[y != "R"]
     }
   for (name in "Collate")
-    if (!is.null(entry <- x[[name]])) {
-      entry <- unlist(strsplit(entry, "\\s+", perl = TRUE))
-      result[[name]] <- gsub('"', "", gsub("'", "", entry, fixed = TRUE),
-        fixed = TRUE)
+    if (!is.null(y <- x[[name]])) {
+      y <- unlist(strsplit(y, "\\s+", FALSE, TRUE))
+      result[[name]] <- gsub('"', "", gsub("'", "", y, FALSE, FALSE, TRUE),
+        FALSE, FALSE, TRUE)
     }
   result
 }

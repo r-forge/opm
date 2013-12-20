@@ -7,9 +7,10 @@
 
 - repair_docu() gets new arguments 'drop.interal', 'text.dups' and 'infile'
 
-- the 'merge.R' script gets new options -i and -f
+- the 'merge.R' script gets new options -i, -f and -m; by default column names
+  are not output any mpore if the -b option is used
 
-- the 'docu.R' scripts gets new options -L, -M, -N and -W
+- the 'docu.R' scripts gets new options -L, -M, -N, -Q and -W
 
 - check_R_code() gets a 'filter' argument
 
