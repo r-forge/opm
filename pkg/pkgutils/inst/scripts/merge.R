@@ -28,7 +28,7 @@ COLUMN_DEFAULT_NAME <- "Object"
 
 do_write <- function(x, options) {
   write.table(x, sep = options$separator, row.names = FALSE,
-    quote = !options$unquoted)
+    quote = !options$unquoted, col.names = !opt$bald || opt$`make-header`)
 }
 
 
@@ -124,6 +124,10 @@ option.parser <- OptionParser(option_list = list(
 
   make_option(c("-k", "--keep"), action = "store_true",
     help = "Keep whitespace surrounding the separators [default: %default]",
+    default = FALSE),
+
+  make_option(c("-m", "--make-header"), action = "store_true",
+    help = "Output headers even for input without headers [default: %default]",
     default = FALSE),
 
   make_option(c("-n", "--names"), action = "store_true",
