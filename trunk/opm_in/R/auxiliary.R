@@ -430,7 +430,7 @@ metadata_key.default <- function(x, to.formula = FALSE, remove = NULL, ...) {
     stop(NOT_YET)
   if (length(x) == 1L && x %in% remove)
     return(NULL)
-  if (to.formula) ## TODO check whether this makes sense
+  if (to.formula) # no 'syntactic' argument here -- should always be syntactic
     create_formula("~ c(%s)", paste0(x, collapse = ", "))
   else
     x
@@ -441,7 +441,7 @@ metadata_key.default <- function(x, to.formula = FALSE, remove = NULL, ...) {
 #' @export
 #'
 metadata_key.factor <- function(x, ...) {
-  metadata_key.character(as.character(x), ...)
+  metadata_key.character(structure(as.character(x), names = names(x)), ...)
 }
 
 #' @rdname metadata_key

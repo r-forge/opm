@@ -1455,7 +1455,7 @@ reduce_vignette_Rnw_files()
 # mode indicator as (optional) first argument.
 #
 if [ $# -gt 0 ] && [ "${1%%-*}" ]; then
-  RUNNING_MODE=$1
+  RUNNING_MODE=`echo "$1" | awk '{print tolower($0)}' -`
   shift
 else
   RUNNING_MODE=norm
