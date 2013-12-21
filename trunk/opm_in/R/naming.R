@@ -1635,10 +1635,17 @@ setMethod("substrate_info", "character", function(object,
   }
 
   extract_concentration <- function(x) {
-    # TODO: maybe extraction method for "mM" and "%" data also useful
-    x <- ifelse(grepl(SUBSTRATE_PATTERN[["either"]], x, FALSE, TRUE),
-      substr(x, 1L, nchar(x) - 1L), x)
+    in.parens <- grepl(SUBSTRATE_PATTERN[["either"]], x, FALSE, TRUE)
+    x <- ifelse(in.parens, substr(x, 1L, nchar(x) - 1L), x)
     m <- regexpr("(?<=#)\\s*\\d+\\s*$", x, FALSE, TRUE)
+    # The following code is currently not in use because the only plate to
+    # which it is applicable (PM09) does not show regularity anyway. Conversion
+    # to integer would also be problematic because conctrations such as 5.5 or
+    # 6.5 are present.
+    #if (all(m < 0L)) {
+    #  x <- ifelse(in.parens, substr(x, 6L, nchar(x)), x)
+    #  m <- regexpr("^(?:\\d+(?:\\.\\d+)?)(?=%|mM)", x, FALSE, TRUE)
+    #}
     as.integer(substr(x, m, m + attr(m, "match.length") - 1L))
   }
 

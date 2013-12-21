@@ -582,7 +582,9 @@ test_that("aggregated parameters can be extracted as dataframe with CIs", {
     subset = "lambda", dataframe = TRUE, sep = "***", ci = TRUE,
     as.groups = ~ J(run - organism))
   expect_equal(dim(mat2), c(6L, 102L))
-  expect_equivalent(mat, mat2[, -102L]) # TODO: unclear why different
+  # the following subsetting itself causes differences in column names
+  expect_equivalent(mat, mat2[, -102L])
+  expect_equal(colnames(mat), colnames(mat2)[-102L])
 
 })
 
