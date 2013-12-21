@@ -91,6 +91,8 @@
 \Shorttitle{User-defined plates in \pkg{opm} (\today)}
 
 
+%% BEGIN FROZEN SECTION
+
 \Abstract{
 This is tutorial about the analysis of growth curves and other user defined kinetics with the \pkg{opm} package in the version of \today{}.
 It is explained how any kinds of growth or respiration measurements can be input into \pkg{opm}.
@@ -171,7 +173,7 @@ library("opm")
 \subsection{User-entered data frames}\label{user-entered-input-data}
 
 In the following we will use the growth-measurements data set from \citet{ijms140715141} as exemplar.
-These data have been entered by hand and then input into \proglang{R} with one of the functions for reading \ac{CSV}, yielding a data frame, which comes with \pkg{opm}:
+These data have been entered by hand and then input into \proglang{R} with one of the functions for reading \ac{CSV}, yielding a data frame that comes with \pkg{opm}:
 
 <<label=load-potatoes>>=
 data("potato")
@@ -180,7 +182,8 @@ head(potato)
 
 For details on this data set, enter \code{?potato} at the \proglang{R} prompt.
 The measurements are in ``long'' format and must be reshaped using the eponymous function into ``wide'' format.
-We do this separately for the \ac{DM} and \ac{FM} measurements within the data set:
+The ``long'' format was deliberately chosen for demonstrating the use of the \code{reshape} function.
+We reshape separately for the \ac{DM} and \ac{FM} measurements within the data set:
 
 <<label=reshape-potatoes>>=
 potato.fm <- reshape(potato, v.names = "FM", drop = "DM", direction = "wide",
@@ -189,23 +192,17 @@ potato.dm <- reshape(potato, v.names = "DM", drop = "FM", direction = "wide",
   idvar = c("Genotype", "Treatment", "Replicate"), timevar = "Time")
 @
 
-``long'' format means, that each measurement is stored in a separate record with one entry per line (see above).
-Thus for each data point the entries in ``Genotype'', ``Treatment'' and ``Time'' have to be repeated, resulting in a data frame with dimensions of \Sexpr{dim(potato)[1]} rows in \Sexpr{dim(potato)[2]} columns.
-
-With the \code{reshape} it is possible to rearrange the data set in a form, where the columns ``Genotype'', ``Treatment'' and ``Replicate'' are kept and columns ``Time'' and either ``\ac{FM}'', or ``\ac{DM}'' respectively, are merged resulting in 9 columns representing the measurement times (see below the first six rows of object \code{potato.fm}).
+For \code{reshape}, ``long'' format means that each measurement is stored in a separate record with one entry per row (see above).
+Thus here for each data point the ``Genotype'', ``Treatment'' and ``Time'' entries have to be repeated, resulting in a data frame with \Sexpr{nrow(potato)} rows in \Sexpr{ncol(potato)} columns.
+A call to \code{reshape} can rearrange the data set into a form where the columns ``Genotype'', ``Treatment'' and ``Replicate'' are kept and the columns ``Time'' and either ``\ac{FM}'' or ``\ac{DM}'', respectively, are merged, resulting in \Sexpr{length(grep("^FM[.]", colnames(potato.fm), FALSE, TRUE))} columns representing the measurement times:
 
 <<label=potato-reshaped>>=
 head(potato.fm)
 @
 
-Thus the dimension of the data object dwindled to \Sexpr{dim(potato.fm)[1]} rows in \Sexpr{dim(potato.fm)[2]} columns.
-
+Thus the dimensions of the data dwindled to \Sexpr{nrow(potato.fm)} rows in \Sexpr{ncol(potato.fm)} columns.
 Now the data are in the right arrangement for the next step, the conversion into \proglang{OPMX} or \proglang{MOPMX} objects.
-
-It is possible to first register the plate and then convert the data into an \proglang{OPM} object.
-<<label=register_first>>=
-
-@
+(When entering data manually, users who directly choose the ``wide'' format can, of course, skip the conversion with \code{reshape}.)
 
 The main function for converting user-defined data frames to \proglang{OPMX} or \proglang{MOPMX} objects is \code{opmx}, which can directly be applied to the objects created in the last step.
 This works because the ``horizontal'' input format of \code{opmx} corresponds to the ``wide'' format of \code{reshape}.
@@ -219,8 +216,9 @@ potato.dm <- opmx(potato.dm, position = c("Genotype", "Replicate"),
   full.name = c(dm = "Growth experiment, dry mass"))
 @
 
-The data frame contains all substrate information (in the ``Treatment'' column).
+The data frames passed to \code{opmx} contain all substrate information (in the ``Treatment'' column).
 Hence, \pkg{opm} registers the mapping from well coordinates to substrate names on the fly.
+The substrate names are taken directly from the data frame in ``horizontal'' format and registered after sorting.
 The plate type must be provided, however.
 As it is not within the data frame, the short name of the plate type is taken from the \code{full.name} argument, whose main purpose is to enter the full, descriptive name of the plate type.
 ``Genotype'' and ``Replicate'' go to the metadata of the resulting object and together identify each plate.
@@ -235,78 +233,93 @@ plate_type(TRUE) # shows all existing user-defined plates
 listing(wells(plate = c("CUSTOM:FM", "CUSTOM:DM")))
 @
 
-Note the prefix ``CUSTOM:'', which is used to distinguish user-defined plate type from those that come with \pkg{opm}.
-Please keep in mind, that the definition of plate types is only available in the current \proglang{R} session. The definitions will be lost, when the session is terminated. Saving and/or loading of a session can be managed by the functionality provided by \pkg{session} \citep{warnes2012}.
-
+Note the prefix ``CUSTOM:'', which is used to distinguish user-defined plate types from those that come with \pkg{opm}.
 The object resulting from \code{listing} can be output with \code{to_yaml} or \code{saveRDS} for externally storing plate types in files.
+Indeed, please keep in mind, that the definition of plate types is only available in the current \proglang{R} session.
+The definitions will be lost once the session is terminated.
 
-With the  \code{potato.dm} and \code{potato.fm} objects the user can now follow the work flow as it is envisaged for processing of usual \ac{PM} data. Please continue in Section~\ref{visualisation} and following for plotting and statistical analysis of the estimated curve parameters.
+%% END FROZEN SECTION
 
-\subsection{Direct registration of plate types}\label{overview-register-plate-type}
+%Saving and/or loading of a session can be managed by the functionality provided by \pkg{session} \citep{warnes2012}.
+%TODO Lea: It is a good idea that you searched for and found this package. But whether this approach really would rescue the user-entered plate types must be carefully tested. Otherwise it should not be recommended here.
 
-An example input file comes along with \pkg{opm}, providing growth curve data which were derived from an growth challenging experiment with two \textit{Escherichia coli} strains (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) on increasing Glucose concentrations.
-Each strain-Glucose-concentration combination was repeated twice on the plate.
-Thus, it will first be shown, how to prepare a plate map, register it as a new plate type and import the data with subsequently conversion of the data into an \proglang{OPMX} or \proglang{MOPMX} object.
-Afterwards it will be shown how to use the \code{split} function in order to split the objects to provide objects representing the repetitions.
+%% BEGIN FROZEN SECTION
 
-\subsubsection{Set up a plate map and register plate types}\label{register-plate-type}
-Provided by \code{register_plate}, \pkg{opm} brings several options for setting up a user defined plate layout.
-This function works with both customised \ac{PM} plates run, as well as plates of other well design and formats used for measurement of for example growth in a conventional plate reader.
+With the resulting \code{potato.dm} and \code{potato.fm} objects the user can now follow the \pkg{opm} work flow for processing \ac{PM} data.
+Please continue in Section~\ref{visualisation} and the following sections for plotting and statistical analysis of the estimated curve parameters.
 
-For small set ups it might be feasible to type the substrate allocation manually into a character string, as it is done in the following.
-%\rcsmark{TODO.}
-%TODO Lea: register the well map and the full name of the TECAN plate used below
-<<label=register_plate>>=
-register_plate(growth = c(A01 = "negative control #1", A02 = "10mM Glucose #1",
-A03 = "20mM Glucose #1", A04 = "50mM Glucose #1", A05 = "100mM Glucose #1",
-A06 = "200mM Glucose #1",
-B01 = "negative control #2", B02 = "10mM Glucose #2",
-B03 = "20mM Glucose #2", B04 = "50mM Glucose #2", B05 = "100mM Glucose #2",
-B06 = "200mM Glucose #2",
-C01 = "negative control #3", C02 = "10mM Glucose #3",
-C03 = "20mM Glucose #3", C04 = "50mM Glucose #3", C05 = "100mM Glucose #3",
-C06 = "200mM Glucose #3",
-D01 = "negative control #4", D02 = "10mM Glucose #4",
-D03 = "20mM Glucose #4", D04 = "50mM Glucose #4", D05 = "100mM Glucose #4",
-D06 = "200mM Glucose #4"),
-growth = "growth")
-#listing(wells(plate = "custom:growth"))
+It is possible to first register the plate, as shown in Section~\ref{register-plate-type}, and then convert the data \textit{via} \code{opmx}.
+This makes most sense if another ordering of wells should be enforced.
+Otherwise \code{opmx} takes the substrate names directly from the data frame in ``horizontal'' format and registers them after sorting.
+
+\subsection{Direct registration of plate types}\label{register-plate-type}
+
+An example input file comes with \pkg{opm} containing growth-curve data derived from an experiment with two \textit{Escherichia coli} strains (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) on increasing Glucose concentrations.
+Each combination of strain and Glucose concentration was repeated twice on the plate.
+Thus, it will here be shown how to prepare a plate map and register it as a new plate type.
+Section~\ref{register-plate-type} then shows how to import the data and subsequently convert them to an \proglang{OPMX} or \proglang{MOPMX} object.
+Finally, it will be shown how to use the \code{split} function to split the object into one object per repetition.
+
+The \pkg{opm} package offers several ways to set up a user-defined plate layout.
+The function \code{register_plate} is useful for both customised \ac{PM} plates and measurements from quite different experiments such as growth curves and other kinds of kinetics.
+
+For small data sets it might be feasible to type the substrate allocation manually into a character vector, as done in the following.
+The short name of the plate type will be ``growth'', as simply given by the named function argument.
+Here two argument of the same name are passed to the function for registering the full name and the well map in a single call:
+
+<<label=register_plate, results=hide>>=
+register_plate(
+  growth = c(
+    A01 = "Negative Control #1", A02 = "10mM Glucose #1",
+    A03 = "20mM Glucose #1", A04 = "50mM Glucose #1",
+    A05 = "100mM Glucose #1", A06 = "200mM Glucose #1",
+    B01 = "Negative Control #2", B02 = "10mM Glucose #2",
+    B03 = "20mM Glucose #2", B04 = "50mM Glucose #2",
+    B05 = "100mM Glucose #2", B06 = "200mM Glucose #2",
+    C01 = "Negative Control #3", C02 = "10mM Glucose #3",
+    C03 = "20mM Glucose #3", C04 = "50mM Glucose #3",
+    C05 = "100mM Glucose #3", C06 = "200mM Glucose #3",
+    D01 = "Negative Control #4", D02 = "10mM Glucose #4",
+    D03 = "20mM Glucose #4", D04 = "50mM Glucose #4",
+    D05 = "100mM Glucose #4", D06 = "200mM Glucose #4"
+  ),
+  growth = "Growth on Glucose"
+)
+listing(wells(plate = "custom:growth"))
 @
 
-However, this procedure is error prone and not efficient when dealing with sets containing more than a few wells.
+However, manually entering the well map is error prone and not efficient when dealing with data sets containing more than a few wells.
 Alternatively, a user-designed plate can also be registered with a plate map given as matrix.
 The matrix then directly represents the allocation of the used substrates on the plate.
+Because of the repetitions in the substrate names (note the numbering, which is necessary here to generate unique substrate names, and later on important to split the plate), the texts can also be generated with fewer code:
 
-First, the matrix for the plate map has to be stated as follows.
-<<label=setup_plate_map_matrix>>=
-growth <- matrix(rep(c("negative control", "10mM Glucose", "20mM Glucose",
-  "50mM Glucose", "100mM Glucose", "200mM Glucose"), each = 4),
-  nrow = 4, ncol = 6)
-rownames(growth) <- LETTERS[1:4]
-colnames(growth) <- 1:6
+<<label=register-plate-via-matrix, results=hide>>=
+growth <- c("Negative Control", "10mM Glucose", "20mM Glucose",
+  "50mM Glucose", "100mM Glucose", "200mM Glucose")
+growth <- paste(rep(growth, each = 4), rep(1:4, 4), sep = " #")
+growth <- matrix(growth, nrow = 4, ncol = 6,
+  dimnames = list(LETTERS[1:4], 1:6))
+register_plate(growth = growth, growth = "Growth on Glucose")
+listing(wells(plate = "custom:growth"))
 @
 
-The next step is to register the layout as a new plate type.
-Here it is named ``growth''.
+Plates with other layouts can be put together in the same way but using other more or fewer row and/or column names.
+Plates with other repetition structure, or no repetitions of substrates at all, can be put together in the same way, too, but modifying or omitting the way a substrate numbering is introduced.
+Instead of a matrix, a data frame could be used as well.
+We will try this here after showing how to delete a plate type again by providing a \code{NULL} argument:
 
-<<label=register_plate_matrix>>=
-growth.reg <- register_plate(growth = growth)
-# listing(wells(plate = "CUSTOM:GROWTH"))
+<<label=register-plate-via-data-frame, results=hide>>=
+register_plate(growth = NULL)
+growth <- as.data.frame(growth)
+register_plate(growth = growth, growth = "Growth on Glucose")
+listing(wells(plate = "CUSTOM:GROWTH"))
 @
 
-Alternatively, the input for \code{register_plate} can also be a data frame.
-
-<<label=setup_plate_map_dataframe>>=
-growth.dat <- as.data.frame(growth)
-growth.dat.reg <- register_plate(growth.dat = growth.dat)
-# listing(wells(plate = "CUSTOM:GROWTH-DAT"))
-@
 
 \subsection{Input of TECAN data}\label{tecan-input}
 
-%TODO Lea: explain the instrument where the file comes from. "TECAN" is the corporation, not the instrument...
-
-Here we will use an exemplar that comes with \pkg{opm} as input data file:
+The data for which we have registered a full plate name and a mapping from well coordinates to substrate names in Section~\ref{register-plate-type} are contained in an exemplar input file that comes with \pkg{opm}.
+It can be found, and input into \proglang{R}, as follows:
 
 <<label=input-tecan>>=
 tecan.file <- opm_files("growth")
@@ -315,93 +328,115 @@ tecan <- read.table(tecan.file)
 head(tecan)
 @
 
-%TODO Lea: explain how one gets such a file
+%% END FROZEN SECTION
 
-This format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}.
+This file was output by a \rcsmark{[Lea please enter the name]} instrument as distributed by the TECAN corporation.
+After recording the data, the \rcsmark{[Lea please enter the name]} software provided by TECAN generated such as file \textit{via} \rcsmark{[Lea please enter the procedure]}.
 
-%TODO Lea: convert the data frame and explain what is going on
+The resulting format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}:
 
 <<label=opmx-rectangular>>=
-# rectangular input, as it comes from the 'tecan' object
-(y <- opmx(tecan, "rectangular", plate.type = "growth", position = 1,
-    interval = 1))
+tecan <- opmx(tecan, "rectangular", plate.type = "growth", position = 1,
+  interval = 1)
+tecan
 @
 
-\rcsmark{TODO.}
+Note that we have to refer to the previously registered plate type, ``growth''.
+The \code{position} argument is important for identifying each plate if several plates of this plate type are dealt with.
+The optional \code{interval} argument provides the time interval between two consecutive measurements.
+Ideally, it is provided in hours.
+Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
+
+\rcscom{
+TODO: Lea, please check whether this is the correct interval argument for these data.
+}
+
+The generated \proglang{OPM} object can now be split according to the repetition structure of the wells, and metadata can be added that describe each resulting plate:
+
+<<label=split-tecan>>=
+tecan <- split(tecan)
+metadata(tecan) <- data.frame(Replicate = c(1, 2, 1, 2),
+  Strain = rep(c("Strain 1", "Strain 2"), each = 2),
+  stringsAsFactors = FALSE)
+dim(tecan)
+@
+
+\rcscom{
+TODO: Lea, please enter the correct strain designations in the code snippet for assigning metadata.
+}
+
 
 \section{Visualisation of growth curves}\label{visualisation}
 
-visualisation of potato data
+Visualising raw measurements of growth curves with the methods intended for \ac{PM} data is straightforward, but some adaptations are necessary due to the deviations between the distinct kinds of data.
+For instance, the expected maximum for \ac{PM} data can seldom be used for delimiting the y axes, and the data are not measured in OmniLog\textregistered \ units:
+
+<<label=potato-growth-dummy, eval=FALSE>>=
+xy_plot(potato.fm, theor.max = FALSE, rcr = 1, include = "Genotype",
+  main = list(in.parens = FALSE), ylab = "Mass [g]")
+@
 
 \begin{figure}
 \centering
-<<label=potato-growth,fig=TRUE,echo=FALSE,width=10,height=8>>=
-xy_plot(potato.fm, theor.max = FALSE, main = "potato growth", rcr = 1,
-  include = "Genotype")
+<<label=potato-growth-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
+xy_plot(potato.fm, theor.max = FALSE, rcr = 1, include = "Genotype",
+  main = list(in.parens = FALSE), ylab = "Mass [g]")
 @
 \caption{
 \label{fig:potato_xy_plot}
-here some caption about the plot
+Potato cell line growth measurements, recorded as fresh mass, visualised using the \code{xy\_plot} method.
+See the main tutorial for details in this kind of plotting.
 }
 \end{figure}
 
-here some description
+The result is shown in Figure~\ref{fig:potato_xy_plot}.
+The TECAN data can be visualised in the same way as the potato data, yielding Figure~\ref{fig:growth_xy_plot}:
+
+<<label=xy-plot-coli-dummy, eval=FALSE, echo=TRUE>>=
+xy_plot(tecan, theor.max = FALSE, include = "Strain",
+  main = list(in.parens = FALSE), ylab = "Value")
+@
 
 \begin{figure}
 \centering
-<<label=xy-plot-coli,fig=TRUE,echo=FALSE,width=10,height=8>>=
-xy_plot(y, theor.max = FALSE, main = "E. coli growth on Glucose")
+<<label=xy-plot-coli-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
+xy_plot(tecan, theor.max = FALSE, include = "Strain",
+  main = list(in.parens = FALSE), ylab = "Value")
 @
 \caption{
 \label{fig:growth_xy_plot}
-here some caption about the plot
+Growth of two \textit{E. coli} strains on Glucose, visualised using the \code{xy\_plot} method.
+See the main tutorial for details in this kind of plotting.
 }
 \end{figure}
 
-%
-%\begin{figure}
-%\centering
-%<<label=xy-plot-coli-split,fig=TRUE,echo=FALSE,width=10,height=8>>=
-%xy_plot(yy, theor.max = FALSE, main = "E. coli growth on Glucose")
-%@
-%\caption{
-%\label{fig:_xy_plot}
-%here some caption about the plot
-%}
-%\end{figure}
-\rcsmark{TODO.}
 
-<<label=plot-potato>>=
-print(xy_plot(potato.fm, theor.max = FALSE, include = "Genotype",
-  main = list(in.parens = FALSE), neg.ctrl = FALSE, ylab = "Mass [g]"))
-print(xy_plot(potato.dm, theor.max = FALSE, include = "Genotype",
-  main = list(in.parens = FALSE), neg.ctrl = FALSE, ylab = "Mass [g]"))
-@
-
-%TODO Lea: finish this and do the same for the TECAN data, make subsections where suitable
-%TODO Lea: check whether plotting functions must be modified to accomodate these data
+\rcscom{
+  TODO: Lea, please enter an appropriate y-axis description for the E. coli plot.
+}
 
 
 \section{Estimating parameters from growth curves}\label{estimation}
 
 
-\rcsmark{TODO.}
-
-%TODO Lea: check carefully which spline method is the best here, make subsections where suitable
+\rcscom{
+TODO: Lea, please make recommendations regarding the spline method to be used with these date.
+For issues not specific to growth data refer to the main tutorial.
+}
 
 
 \section{Statistical analysis of growth curves}\label{statistics}
 
 
-\rcsmark{TODO.}
-
-%TODO Lea: conduct selected analyses that make sense for these data, make subsections where suitable
+\rcscom{
+TODO: Lea, please conduct selected analyses that make sense for these data.
+For issues not specific to growth data refer to the main tutorial.
+}
 
 
 \section{Acknowledgements}
 We are grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves measured with a TECAN instrument.
 
-%\clearpage
 
 \bibliography{opm}
 
