@@ -96,6 +96,7 @@
 \Abstract{
 This is tutorial about the analysis of growth curves and other user defined kinetics with the \pkg{opm} package in the version of \today{}.
 It is explained how any kinds of growth or respiration measurements can be input into \pkg{opm}.
+Data without a real structuring into plates and wells can nevertheless be studied with \pkg{opm} by using a \textit{virtual} arrangement into plates and wells.
 We also show how \ac{PM} data with user-defined plate types can be analysed.
 Analysing such data visually and statistically requires in some cases adaptations of function arguments whose defaults are targeting \ac{PM} data.
 All these practically relevant issues are explained in detail.
@@ -138,12 +139,16 @@ All these practically relevant issues are explained in detail.
 
 A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype Microarray Data'' (called ``main tutorial'' in the following).
 How substrate information stored within \pkg{opm} can be accessed and used for advanced visual and statistical analyses is explained in the vignette ``Working with substrate information in \pkg{opm}'' (called ``substrate tutorial'' in the following).
-The description of the methods below presupposes that the user is familiar with the usage of \pkg{opm} and has studied the main tutorial, the substrate tutorial as well as the entries of the \pkg{opm} manual relevant to her or his research.
-Especially the concepts behind, and the methods available for, the different classes of \pkg{opm} objects should be known before starting with this tutorial.
+The description of the methods below do not presuppose that the user is already familiar with the usage of \pkg{opm}.
+But for details on its approaches to visualisation and statistical analysis we will refer to the main tutorial, the substrate tutorial as well as the entries of the \pkg{opm} manual.
+Especially the concepts behind the different classes of \pkg{opm} objects are only explained in the main tutorial, and the methods available for these classes are only explained in the main and substrate tutorial.
 
 In addition to visual inspection or statistical comparative analyses of \ac{PM} data, as described in the main tutorial and the substrate tutorial, users might be interested in analysing data other than \ac{PM} data, or analysing \ac{PM} with user-defined plate types.
 To work with user-defined \ac{PM} plates only requires registering these plates, i.e. storing a mapping from well coordinates to substrate names, and optionally also a full, descriptive name for the plate.
 The analysis of data other than \ac{PM} data, such as growth curves, additionally requires inputting these data and converting them to \proglang{OPMX} objects.
+If these data are not really structured into plates and wells, a \textit{virtual} arrangement into plates and wells must be established, as well as a virtual positioning of the plates in a reader, which is used for identifying each plate.
+This nomenclature may be unusual for data that have not been measured in plate readers, but presents no problems in practice.
+Users should be aware, however, which kinds of comparisons can be made within and between plates of the same plate type.
 Moreover, some defaults of the plotting functions are only suitable for \ac{PM} data.
 Hence, the functions should be called slightly distinctly.
 
@@ -216,14 +221,17 @@ potato.dm <- opmx(potato.dm, position = c("Genotype", "Replicate"),
   full.name = c(dm = "Growth experiment, dry mass"))
 @
 
-The data frames passed to \code{opmx} contain all substrate information (in the ``Treatment'' column).
+The data frames passed to \code{opmx} contain all substrate information in their ``Treatment'' column.
+Its content will be interpreted as substrate names for wells, which are virtual in our case.
 Hence, \pkg{opm} registers the mapping from well coordinates to substrate names on the fly.
 The substrate names are taken directly from the data frame in ``horizontal'' format and registered after sorting.
 The plate type must be provided, however.
 As it is not within the data frame, the short name of the plate type is taken from the \code{full.name} argument, whose main purpose is to enter the full, descriptive name of the plate type.
+That is, a virtual plate with virtual wells, yielding a user-defined plate type, will be registered.
 ``Genotype'' and ``Replicate'' go to the metadata of the resulting object and together identify each plate.
 In the case of \ac{PM} data, this is done using the position of the plate within the OmniLog\textregistered \ reader.
 Thus the relevant argument here is \code{position}, which must be supplied unless there is a column of that name.
+So the ``plate position'' is also virtual, but just acts as an identifier of the plate.
 The \code{prefix} argument helps identifying the columns with measurements over time.
 
 The registered plate type can be queried as follows:
@@ -235,7 +243,7 @@ listing(wells(plate = c("CUSTOM:FM", "CUSTOM:DM")))
 
 Note the prefix ``CUSTOM:'', which is used to distinguish user-defined plate types from those that come with \pkg{opm}.
 The object resulting from \code{listing} can be output with \code{to_yaml} or \code{saveRDS} for externally storing plate types in files.
-Indeed, please keep in mind, that the definition of plate types is only available in the current \proglang{R} session.
+Indeed, please keep in mind that the definition of plate types is only available in the current \proglang{R} session.
 The definitions will be lost once the session is terminated.
 
 %% END FROZEN SECTION
@@ -255,17 +263,18 @@ Otherwise \code{opmx} takes the substrate names directly from the data frame in 
 \subsection{Direct registration of plate types}\label{register-plate-type}
 
 An example input file comes with \pkg{opm} containing growth-curve data derived from an experiment with two \textit{Escherichia coli} strains (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) on increasing Glucose concentrations.
-Each combination of strain and Glucose concentration was repeated twice on the plate.
+Here we are dealing with a real plate with real wells, but the registering procedure would be the same for virtual plates with virtual wells.
 Thus, it will here be shown how to prepare a plate map and register it as a new plate type.
 Section~\ref{register-plate-type} then shows how to import the data and subsequently convert them to an \proglang{OPMX} or \proglang{MOPMX} object.
-Finally, it will be shown how to use the \code{split} function to split the object into one object per repetition.
+Each combination of strain and Glucose concentration was repeated twice on the plate.
+It will thus be shown how to define a numbering of these repetitions suitable for later on using the \code{split} function to split the object into one object per repetition.
 
 The \pkg{opm} package offers several ways to set up a user-defined plate layout.
 The function \code{register_plate} is useful for both customised \ac{PM} plates and measurements from quite different experiments such as growth curves and other kinds of kinetics.
 
 For small data sets it might be feasible to type the substrate allocation manually into a character vector, as done in the following.
 The short name of the plate type will be ``growth'', as simply given by the named function argument.
-Here two argument of the same name are passed to the function for registering the full name and the well map in a single call:
+Here two argument of the same name are passed to the function for registering the full name and the well mapping in a single call:
 
 <<label=register_plate, results=hide>>=
 register_plate(
@@ -288,17 +297,21 @@ register_plate(
 listing(wells(plate = "custom:growth"))
 @
 
-However, manually entering the well map is error prone and not efficient when dealing with data sets containing more than a few wells.
+However, manually entering the well mapping is error prone and not efficient when dealing with data sets containing more than a few wells.
 Alternatively, a user-designed plate can also be registered with a plate map given as matrix.
 The matrix then directly represents the allocation of the used substrates on the plate.
 Because of the repetitions in the substrate names (note the numbering, which is necessary here to generate unique substrate names, and later on important to split the plate), the texts can also be generated with fewer code:
 
 <<label=register-plate-via-matrix, results=hide>>=
+# create constant part of the substrate names
 growth <- c("Negative Control", "10mM Glucose", "20mM Glucose",
   "50mM Glucose", "100mM Glucose", "200mM Glucose")
+# create repetitions and assign according numbers
 growth <- paste(rep(growth, each = 4), rep(1:4, 4), sep = " #")
+# create matrix that mirrors the plate layout
 growth <- matrix(growth, nrow = 4, ncol = 6,
   dimnames = list(LETTERS[1:4], 1:6))
+# register this plate type and show the result
 register_plate(growth = growth, growth = "Growth on Glucose")
 listing(wells(plate = "custom:growth"))
 @
@@ -330,8 +343,8 @@ head(tecan)
 
 %% END FROZEN SECTION
 
-This file was output by a \rcsmark{[Lea please enter the name]} instrument as distributed by the TECAN corporation.
-After recording the data, the \rcsmark{[Lea please enter the name]} software provided by TECAN generated such as file \textit{via} \rcsmark{[Lea please enter the procedure]}.
+This file was output by a \rcsmark{[Lea, please enter the name]} instrument as distributed by the TECAN corporation.
+After recording the data, the \rcsmark{[Lea, please enter the name]} software provided by TECAN generated such as file \textit{via} \rcsmark{[Lea, please enter the procedure]}.
 
 The resulting format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}:
 
@@ -346,12 +359,10 @@ The \code{position} argument is important for identifying each plate if several 
 The optional \code{interval} argument provides the time interval between two consecutive measurements.
 Ideally, it is provided in hours.
 Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
-
-\rcscom{
-TODO: Lea, please check whether this is the correct interval argument for these data.
-}
+\rcscom{[Lea, please check whether this is the correct interval argument for these data.]}
 
 The generated \proglang{OPM} object can now be split according to the repetition structure of the wells, and metadata can be added that describe each resulting plate:
+\rcscom{[Lea, please enter the correct strain designations in the code snippet for assigning metadata.]}
 
 <<label=split-tecan>>=
 tecan <- split(tecan)
@@ -361,37 +372,36 @@ metadata(tecan) <- data.frame(Replicate = c(1, 2, 1, 2),
 dim(tecan)
 @
 
-\rcscom{
-TODO: Lea, please enter the correct strain designations in the code snippet for assigning metadata.
-}
-
 
 \section{Visualisation of growth curves}\label{visualisation}
 
 Visualising raw measurements of growth curves with the methods intended for \ac{PM} data is straightforward, but some adaptations are necessary due to the deviations between the distinct kinds of data.
-For instance, the expected maximum for \ac{PM} data can seldom be used for delimiting the y axes, and the data are not measured in OmniLog\textregistered \ units:
+For instance, the expected maximum for \ac{PM} data can seldom be used for delimiting the y axes, and the data are not measured in OmniLog\textregistered \ units, and a negative control might not be present:
 
 <<label=potato-growth-dummy, eval=FALSE>>=
 xy_plot(potato.fm, theor.max = FALSE, rcr = 1, include = "Genotype",
-  main = list(in.parens = FALSE), ylab = "Mass [g]")
+  main = list(in.parens = FALSE), ylab = "Mass [g]", neg.ctrl = FALSE)
 @
 
 \begin{figure}
 \centering
 <<label=potato-growth-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
 xy_plot(potato.fm, theor.max = FALSE, rcr = 1, include = "Genotype",
-  main = list(in.parens = FALSE), ylab = "Mass [g]")
+  main = list(in.parens = FALSE), ylab = "Mass [g]", neg.ctrl = FALSE)
 @
 \caption{
 \label{fig:potato_xy_plot}
 Potato cell line growth measurements, recorded as fresh mass, visualised using the \code{xy\_plot} method.
-See the main tutorial for details in this kind of plotting.
+See the main tutorial for details on this kind of plotting.
+The plot indicates that the wild type grows better than the genetically modified cell lines under non-stress (control) conditions.
+It also indicates that the stresses impair growth but that the genetically modified cells grow better then the wild type under moderate stress conditions.
 }
 \end{figure}
 
 The result is shown in Figure~\ref{fig:potato_xy_plot}.
-The TECAN data can be visualised in the same way as the potato data, yielding Figure~\ref{fig:growth_xy_plot}.
+The TECAN data (which contain a negative control) can be visualised in the same way as the potato data, yielding Figure~\ref{fig:growth_xy_plot}.
 Note the \code{rm.num} argument, which causes the removal of the numbering from the end of the full well names (which is not needed any more after applying the \code{split} function as described in Section~\ref{tecan-input}):
+\rcsmark{[Lea, please enter an appropriate y-axis description for the E. coli plot.]}
 
 <<label=xy-plot-coli-dummy, eval=FALSE, echo=TRUE>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
@@ -407,21 +417,17 @@ xy_plot(tecan, theor.max = FALSE, include = "Strain",
 \caption{
 \label{fig:growth_xy_plot}
 Growth of two \textit{E. coli} strains on Glucose, visualised using the \code{xy\_plot} method.
-See the main tutorial for details in this kind of plotting.
+See the main tutorial for details on this kind of plotting.
+The plot indicates that one of the strains outgrows the other unless high concentrations of Glucose are applied.
 }
 \end{figure}
-
-
-\rcscom{
-  TODO: Lea, please enter an appropriate y-axis description for the E. coli plot.
-}
 
 
 \section{Estimating parameters from growth curves}\label{estimation}
 
 
 \rcscom{
-TODO: Lea, please make recommendations regarding the spline method to be used with these date.
+TODO: Lea, please make recommendations regarding the spline method to be used with these data.
 For issues not specific to growth data refer to the main tutorial.
 }
 
@@ -431,6 +437,7 @@ For issues not specific to growth data refer to the main tutorial.
 
 \rcscom{
 TODO: Lea, please conduct selected analyses that make sense for these data.
+For instance, the interpretations given in the figure captions should be assessed using \code{opm\_mcp}.
 For issues not specific to growth data refer to the main tutorial.
 }
 
