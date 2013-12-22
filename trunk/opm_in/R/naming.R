@@ -843,6 +843,7 @@ map_param_names <- function(subset = NULL, ci = TRUE, plain = FALSE,
 #' @param brackets Logical scalar. See \code{\link{wells}}.
 #' @param paren.sep Character scalar. See \code{\link{wells}}.
 #' @param downcase Logical scalar. See \code{\link{wells}}.
+#' @param rm.num Logical scalar. See \code{\link{wells}}.
 #' @param ... Arguments that can be passed to both \code{\link{add_in_parens}}
 #'   and \code{\link{trim_string}}.
 #' @return Either \code{x}, \code{TRUE} or (if a formula) the result of
@@ -888,7 +889,8 @@ clean_plate_positions <- function(x) {
 #' @rdname well_index
 #'
 map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
-    paren.sep = " ", downcase = FALSE, max = opm_opt("max.chars"), ...) {
+    paren.sep = " ", downcase = FALSE, rm.num = FALSE,
+    max = opm_opt("max.chars"), ...) {
   if (custom_plate_is(plate)) {
     if (custom_plate_exists(plate))
       res <- custom_plate_get(plate)[wells]
@@ -904,6 +906,8 @@ map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
     warning("cannot find plate type ", plate)
     return(trim_string(str = wells, max = max, ...))
   }
+  if (rm.num)
+    res <- sub("\\s*#\\s*\\d+\\s*$", "", res, FALSE, TRUE)
   if (downcase)
     res <- substrate_info(res, "downcase")
   if (in.parens)
@@ -992,6 +996,9 @@ to_sentence.logical <- function(x, html, ...) {
 #' @param downcase Logical scalar indicating whether full names should be
 #'   (carefully) converted to lower case. This uses \code{\link{substrate_info}}
 #'   in \kbd{downcase} mode; see there for details.
+#' @param rm.num Logical scalar indicating whether numbering (used in the case
+#'   of replicated substrates per plate) should be stripped from the end of the
+#'   full well names.
 #' @param plate Name of the plate type. Several ones can be given unless
 #'   \code{object} is of class \code{\link{OPM}} or \code{\link{OPMS}}.
 #'   Normalisation as in \code{\link{plate_type}} is applied before searching
@@ -1123,7 +1130,7 @@ setGeneric("wells", function(object, ...) standardGeneric("wells"))
 
 setMethod("wells", OPM, function(object, full = FALSE, in.parens = TRUE,
     max = opm_opt("max.chars"), brackets = FALSE, clean = TRUE,
-    word.wise = FALSE, paren.sep = " ", downcase = FALSE,
+    word.wise = FALSE, paren.sep = " ", downcase = FALSE, rm.num = FALSE,
     plate = plate_type(object), simplify = TRUE) {
   LL(full, simplify, plate)
   x <- colnames(object@measurements)[-1L]
@@ -1135,7 +1142,7 @@ setMethod("wells", OPM, function(object, full = FALSE, in.parens = TRUE,
   if (full)
     x <- structure(map_well_names(x, plate, in.parens = in.parens,
       max = max, brackets = brackets, clean = clean, word.wise = word.wise,
-      paren.sep = paren.sep, downcase = downcase), names = x)
+      paren.sep = paren.sep, downcase = downcase, rm.num = rm.num), names = x)
   if (simplify)
     return(x)
   x <- matrix(x, length(x), 1L, FALSE, list(names(x), plate))
@@ -1145,8 +1152,8 @@ setMethod("wells", OPM, function(object, full = FALSE, in.parens = TRUE,
 
 setMethod("wells", "ANY", function(object, full = TRUE, in.parens = FALSE,
     max = opm_opt("max.chars"), brackets = FALSE, clean = TRUE,
-    word.wise = FALSE, paren.sep = " ", downcase = FALSE, plate = "PM01",
-    simplify = FALSE) {
+    word.wise = FALSE, paren.sep = " ", downcase = FALSE, rm.num = FALSE,
+    plate = "PM01", simplify = FALSE) {
   LL(full, simplify)
   x <- well_index(object, rownames(WELL_MAP))
   if (!is.character(x))
@@ -1161,7 +1168,7 @@ setMethod("wells", "ANY", function(object, full = TRUE, in.parens = FALSE,
     for (i in which(ok))
       x[, i] <- map_well_names(x[, i], colnames(x)[i], in.parens = in.parens,
         max = max, brackets = brackets, clean = clean, word.wise = word.wise,
-        paren.sep = paren.sep, downcase = downcase)
+        paren.sep = paren.sep, downcase = downcase, rm.num = rm.num)
   if (simplify && ncol(x) == 1L)
     return(x[, 1L])
   class(x) <- "well_coords_map"

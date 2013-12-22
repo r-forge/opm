@@ -10,7 +10,8 @@
 #' The \pkg{opm} package
 #'
 #' Package for analysing OmniLog\eqn{\textsuperscript{\textregistered}}{(R)}
-#' phenotype microarray (\acronym{PM}) data.
+#' phenotype microarray (\acronym{PM}) data, as well as similar kinetic data
+#' such as growth curves.
 #'
 #' @name opm.package
 #' @docType package
@@ -40,6 +41,12 @@
 #'   layout, and each well contains the respiration measurements on one
 #'   substrate or inhibitor, or combination of substrates or inhibitors. For
 #'   input example files, see \code{\link{opm_files}}.}
+#'
+#'   \item{alternatives}{In addition to \acronym{PM} data, kinetics from other
+#'   kinds of kinetic information, such as growth curves, can be analysed. The
+#'   method of choice for converting such data to the objects suitable for
+#'   \pkg{opm} is \code{\link{opmx}}, which accepts a variety of data-frame
+#'   formats.}
 #'
 #'   \item{global options}{Options affecting the default parameters of a number
 #'   of \pkg{opm} functions can be set and queried for using

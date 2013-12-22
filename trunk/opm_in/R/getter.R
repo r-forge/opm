@@ -832,7 +832,8 @@ setMethod("has_disc", OPM, function(object) {
 #'   \code{collect} method form the \pkg{pkgutils} package, with
 #'   \code{dataframe} and \code{keep.unnamed} set to \code{TRUE} but
 #'   \code{stringsAsFactors} to \code{FALSE}.
-#' @param ... Optional arguments passed between the methods.
+#' @param ... Optional arguments passed between the methods or to
+#'   \code{\link{wells}}.
 #' @export
 #' @family getter-functions
 #' @details Note that the conversion of the settings list to a matrix or data
@@ -980,7 +981,8 @@ setMethod("aggr_settings", MOPMX, function(object, join = NULL) {
 #' @param max Numeric scalar also passed to that function.
 #' @param join Empty or character scalar. Works like the eponymous argument of
 #'   \code{\link{aggr_settings}}; see there for details.
-#' @param ... Optional arguments passed between the methods.
+#' @param ... Optional arguments passed between the methods or to
+#'   \code{\link{wells}}.
 #' @export
 #' @family getter-functions
 #' @return Logical vector or matrix in the case of \code{discretized}, named
