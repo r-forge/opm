@@ -282,14 +282,14 @@ test_that("substrate names can be translated", {
 
   plate.1 <- "PM01"
   exp.1 <- c(A01 = "Negative Control", A02 = "L-Arabinose")
-  got <- wells(c("A01", "A02"), plate = plate.1, full = TRUE)
+  got <- wells(c("A01", "A02"), plate = plate.1, full = TRUE, rm.num = TRUE)
 
   plates.2 <- c(plate.1, "PM02")
   exp.2 <- c(A01 = "Negative Control", A02 = "Chondroitin Sulfate C")
   exp.2 <- cbind(exp.1, exp.2)
   colnames(exp.2) <- plates.2
   class(exp.2) <- "well_coords_map"
-  got <- wells(c("A01", "A02"), plate = plates.2, full = TRUE)
+  got <- wells(c("A01", "A02"), plate = plates.2, full = TRUE, rm.num = TRUE)
   expect_equal(got, exp.2)
 
   # Partial matching is allowed
@@ -298,7 +298,7 @@ test_that("substrate names can be translated", {
   exp.2 <- cbind(exp.1, exp.2)
   colnames(exp.2) <- c(plates.2[1L], "PM02")
   class(exp.2) <- "well_coords_map"
-  got <- wells(c("A01", "A02"), plate = plates.2, full = TRUE)
+  got <- wells(c("A01", "A02"), plate = plates.2, full = TRUE, rm.num = TRUE)
   expect_equal(got, exp.2)
 
 })

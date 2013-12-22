@@ -390,18 +390,19 @@ See the main tutorial for details in this kind of plotting.
 \end{figure}
 
 The result is shown in Figure~\ref{fig:potato_xy_plot}.
-The TECAN data can be visualised in the same way as the potato data, yielding Figure~\ref{fig:growth_xy_plot}:
+The TECAN data can be visualised in the same way as the potato data, yielding Figure~\ref{fig:growth_xy_plot}.
+Note the \code{rm.num} argument, which causes the removal of the numbering from the end of the full well names (which is not needed any more after applying the \code{split} function as described in Section~\ref{tecan-input}):
 
 <<label=xy-plot-coli-dummy, eval=FALSE, echo=TRUE>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
-  main = list(in.parens = FALSE), ylab = "Value")
+  main = list(in.parens = FALSE), ylab = "Value", rm.num = TRUE)
 @
 
 \begin{figure}
 \centering
 <<label=xy-plot-coli-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
-  main = list(in.parens = FALSE), ylab = "Value")
+  main = list(in.parens = FALSE), ylab = "Value", rm.num = TRUE)
 @
 \caption{
 \label{fig:growth_xy_plot}
