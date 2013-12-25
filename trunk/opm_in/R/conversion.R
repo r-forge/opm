@@ -1630,8 +1630,11 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   one to several columns to be joined yielding \sQuote{position} indicators.
 #'   These will be used to uniquely identify each plate. The columns to be
 #'   joined will be kept, too; usually they will end up in the
-#'   \code{\link{metadata}}. An empty \code{position} argument is (but then an
-#'   accordingly named column must already be present).
+#'   \code{\link{metadata}}. In this case, the resulting \sQuote{position}
+#'   indicators are newly generated rather than literally taken from the input,
+#'   but yield the same grouping. An empty \code{position} argument is possible,
+#'   but then an accordingly named column must already be present, whose content
+#'   is used literally.
 #'
 #'   The \code{position} argument is mandatory for the \sQuote{rectangular} and
 #'   \sQuote{vertical} formats. It should be chosen so as to identify the
@@ -1639,6 +1642,11 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   into an \code{\link{OPMS}} object. (By default the setup time is
 #'   additionally considered but the default for the \code{setup.time} argument
 #'   is just the time of the call to \code{opmx}.)
+#'
+#'   For plate position values to be used literally, integers between 0 and 99
+#'   (inclusively) followed by a single letters are recommended, because this
+#'   allows \pkg{opm} to normalise this entry. See the eponymous argument of
+#'   \code{\link{csv_data}}.
 #'
 #' @param plate.type Character scalar. In \sQuote{horizontal} mode, the name of
 #'   the column containing the plate-type indicators. After normalisation, these
@@ -1791,7 +1799,7 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #' names(well.map) <- paste0("A", 1:8)
 #'
 #' # Registering the plate type beforehand is mandatory here because the
-#' # file does not contain the real substrate names.
+#' # input data frame does not contain the real substrate names.
 #' register_plate(XYZ = well.map)
 #' wells(plate = "CUSTOM:XYZ")[1:10]
 #'
@@ -2009,6 +2017,10 @@ setMethod("opmx", "data.frame", function(object,
   # Only for the 'horizontal' format.
   #
   map_colnames <- function(x, plate.type, position, well) {
+    to_positions <- function(x) {
+      x <- paste(as.integer(x), rep(c("A", "B"), each = 100L)[seq_along(x)])
+      clean_plate_positions(x)
+    }
     map <- list()
     map[[CSV_NAMES[["PLATE_TYPE"]]]] <- plate.type
     map[[RESERVED_NAMES[["well"]]]] <- well
@@ -2020,7 +2032,7 @@ setMethod("opmx", "data.frame", function(object,
       map <- list(position)
       names(map) <- pos <- CSV_NAMES[["POS"]]
       x <- extract_columns(x, map)
-      x[, pos] <- as.integer(x[, pos])
+      x[, pos] <- to_positions(x[, pos])
     }
     x
   }

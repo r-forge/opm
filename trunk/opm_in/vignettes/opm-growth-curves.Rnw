@@ -76,7 +76,7 @@
 
 
 % title, first page
-\title{Analysing growth curves and other user-defined plates in \pkg{opm}}
+\title{Analysing growth curves and other user-defined data in \pkg{opm}}
 
 
 % authors, header on every 2nd page
@@ -84,7 +84,7 @@
 
 
 % main title, first page
-\Plaintitle{Analysing growth curves and other user-defined plates in opm}
+\Plaintitle{Analysing growth curves and other user-defined data in opm}
 
 
 % short title, header on every 2nd page
@@ -97,6 +97,7 @@
 This is tutorial about the analysis of growth curves and other user defined kinetics with the \pkg{opm} package in the version of \today{}.
 It is explained how any kinds of growth or respiration measurements can be input into \pkg{opm}.
 Data without a real structuring into plates and wells can nevertheless be studied with \pkg{opm} by using a \textit{virtual} arrangement into plates and wells.
+This convention is not an oddity but rather the appropriate means to enable the visual and statistical comparisons of interest and to disable those that make no sense for the data.
 We also show how \ac{PM} data with user-defined plate types can be analysed.
 Analysing such data visually and statistically requires in some cases adaptations of function arguments whose defaults are targeting \ac{PM} data.
 All these practically relevant issues are explained in detail.
@@ -137,7 +138,7 @@ All these practically relevant issues are explained in detail.
 
 \section{Introduction}\label{introduction}
 
-A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype Microarray Data'' (called ``main tutorial'' in the following).
+A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing Phenotype Microarray and Growth Curve Data'' (called ``main tutorial'' in the following).
 How substrate information stored within \pkg{opm} can be accessed and used for advanced visual and statistical analyses is explained in the vignette ``Working with substrate information in \pkg{opm}'' (called ``substrate tutorial'' in the following).
 The description of the methods below do not presuppose that the user is already familiar with the usage of \pkg{opm}.
 But for details on its approaches to visualisation and statistical analysis we will refer to the main tutorial, the substrate tutorial as well as the entries of the \pkg{opm} manual.
@@ -149,7 +150,8 @@ The analysis of data other than \ac{PM} data, such as growth curves, additionall
 If these data are not really structured into plates and wells, a \textit{virtual} arrangement into plates and wells must be established, as well as a virtual positioning of the plates in a reader, which is used for identifying each plate.
 This nomenclature may be unusual for data that have not been measured in plate readers, but presents no problems in practice.
 Users should be aware, however, which kinds of comparisons can be made within and between plates of the same plate type.
-Moreover, some defaults of the plotting functions are only suitable for \ac{PM} data.
+Indeed, the arrangement into virtual plates and wells is the appropriate means to ensure that the visual and statistical comparisons of interest for the data are possible and that those that make no sense are disabled.
+Note that some defaults of the plotting functions are only suitable for \ac{PM} data.
 Hence, the functions should be called slightly distinctly.
 
 Besides these slight restrictions, which are illustrated with examples below, non-\ac{PM} data can be analysed with \pkg{opm} almost like \ac{PM} data.
@@ -228,11 +230,13 @@ The substrate names are taken directly from the data frame in ``horizontal'' for
 The plate type must be provided, however.
 As it is not within the data frame, the short name of the plate type is taken from the \code{full.name} argument, whose main purpose is to enter the full, descriptive name of the plate type.
 That is, a virtual plate with virtual wells, yielding a user-defined plate type, will be registered.
+The \code{prefix} argument helps identifying the columns with measurements over time.
+
 ``Genotype'' and ``Replicate'' go to the metadata of the resulting object and together identify each plate.
 In the case of \ac{PM} data, this is done using the position of the plate within the OmniLog\textregistered \ reader.
 Thus the relevant argument here is \code{position}, which must be supplied unless there is a column of that name.
-So the ``plate position'' is also virtual, but just acts as an identifier of the plate.
-The \code{prefix} argument helps identifying the columns with measurements over time.
+If so, its content is used literally, otherwise it is newly constructed from the columns explicitly given in the \code{position} argument, yielding a grouping of plates equivalent to the combination of factor levels in these columns.
+So the ``plate position'' is usually also virtual, but just acts as an identifier of the plate.
 
 The registered plate type can be queried as follows:
 
@@ -349,13 +353,14 @@ After recording the data, the \rcsmark{[Lea, please enter the name]} software pr
 The resulting format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}:
 
 <<label=opmx-rectangular>>=
-tecan <- opmx(tecan, "rectangular", plate.type = "growth", position = 1,
+tecan <- opmx(tecan, "rectangular", plate.type = "growth", position = "1A",
   interval = 1)
 tecan
 @
 
 Note that we have to refer to the previously registered plate type, ``growth''.
-The \code{position} argument is important for identifying each plate if several plates of this plate type are dealt with.
+The \code{position} argument is important for identifying each plate if several plates of this plate type are to be dealt with.
+The format of the \code{position} entry can, in principle, be arbitrarily selected by the user, but the shown format is the recommended one, i.e. an integer followed by a single letter.
 The optional \code{interval} argument provides the time interval between two consecutive measurements.
 Ideally, it is provided in hours.
 Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
