@@ -1,13 +1,13 @@
 Package: opmDB
-Version: 0.0.7
-Date: 2013-11-18
+Version: 0.0.8
+Date: 2013-12-25
 Title: Connecting opm to databases
 Author: Markus Goeker
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
 Imports: methods, rjson (>= 0.2.12)
 Depends: opm (>= 0.10.52)
 Suggests: RODBC, testthat
-Description: The package `opm' provides tools for analyzing OmniLog(R)
+Description: The package `opm' provides tools for analysing OmniLog(R)
         Phenotype Microarray (PM) data as produced by the device
         distributed by BIOLOG Inc. The package `opmDB' augments `opm'
         with methods for database I/O.

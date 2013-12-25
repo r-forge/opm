@@ -142,13 +142,13 @@ Markus \Surname{G\"{o}ker}\\
 
 
 % title, first page
-\title{\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype Microarray Data}
+\title{\pkg{opm}: An R Package for Analysing Phenotype Microarray and Growth Curve Data}
 
 % authors, header on every 2nd page
 \Plainauthor{J. Sikorski, L.A.I. Vaas, B. Hofner, M. G\"{o}ker}
 
 % main title, first page
-\Plaintitle{opm: An R package for analysing OmniLog Phenotype Microarray Data}
+\Plaintitle{opm: An R package for analysing phenotype microarray and growth curve Data}
 
 % short title, header on every 2nd page
 \Shorttitle{Phenotype Microarray Data (\today)}
@@ -158,7 +158,7 @@ The OmniLog\textregistered \ \ac{PM} system is able to monitor simultaneously, o
 The phenotypic reactions are recorded as respiration kinetics with a shape comparable to growth curves.
 Tools for storing the curve kinetics, aggregating the curve parameters, recording associated metadata of organisms and experimental settings as well as methods for analysing graphically and statistically these highly complex data sets are increasingly in demand.
 
-The \pkg{opm} \proglang{R} package facilitates management, visualisation and statistical analysis of \ac{PM} data.
+The \pkg{opm} \proglang{R} package facilitates management, visualisation and statistical analysis of \ac{PM} data and similar data such as growth curves.
 Raw measurements can be easily input into \proglang{R}, combined with relevant meta-information and accordingly analysed.
 The kinetics can be aggregated by estimating curve parameters using several methods.
 Some of them have been specifically adapted for obtaining robust parameter estimates from \ac{PM} data.
@@ -236,6 +236,7 @@ The interested user would nevertheless find them in Section~\ref{scientific intr
 All web resources regarding \pkg{opm} are linked on its main website \url{http://opm.dsmz.de/}.
 
 Note that details on how substrate information can be processed by \pkg{opm} are found in a separate vignette, ``Working with substrate information in \pkg{opm}'', which is also available together with the package.
+How to process growth-curve data and user-defined \ac{PM} plates is described in the vignette ``Analysing growth curves and other user-defined data in \pkg{opm}'' that comes with the package, too.
 Finally, do not overlook that there is an \pkg{opm} manual that describes all functions and arguments in much greater detail than possible in any if the vignettes.
 
 
@@ -545,10 +546,12 @@ But export in some useful file formats is also possible.
 \includegraphics{opm_fig_5}
 }
 \caption{\label{fig:overview}
-This scheme provides a detailed overview of the possible strategies and appropriate functions for data analysis using the \pkg{opm} package.
-Beginning with one to several \ac{CSV} files containing raw kinetic data exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis}, or \proglang{YAML} or \proglang{JSON} files that have been generated in previous \pkg{opm} runs, a variety of work flows are possible for setting up  \proglang{OPM} or \proglang{OPMS} objects.
-Additionally, methods for metadata management, plotting the data in a customised manner, querying and sub-setting the generated objects, statistical comparison of multiple group means, and data-conversion tools including discretisation, report generation and output in files are provided.
-How to use \code{annotated} to produce graphics is explained in a separate vignette, ``Working with substrate information in \pkg{opm}'', which is also available together with the package.
+Overview of the possible strategies and appropriate functions for data analysis using the \pkg{opm} package.
+Beginning with one to several \ac{CSV} files containing raw kinetic data exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis}, or \proglang{YAML} or \proglang{JSON} files that have been generated in previous \pkg{opm} runs, \proglang{OPM} or \proglang{OPMS} objects can easily be generated.
+Methods for metadata management, plotting the data in a customised manner, querying and sub-setting the generated objects, statistical comparison of multiple group means, and data-conversion tools including discretisation, report generation and output in files are provided.
+How to use \code{annotated} to produce graphics is explained in the tutorial on substrate information in \pkg{opm}.
+The input of growth-curve data, or any other data that have neither been measured with an OmniLog\textregistered \ nor a with a MicroStation\texttrademark \ system, is described in the tutorial on analysing growth curves and other user-defined data.
+As shown in the upper left part of the figure, it only requires the creation of a data frame that can be converted with the \code{opmx} function.
 }
 \end{figure}
 

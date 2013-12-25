@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS plates (
   plate_type varchar (10) NOT NULL,
   -- one might need other datatype in other RDBMS, should cover date AND time:
   setup_time timestamp NOT NULL,
-  -- string length does not vary, but this type is efficient in PostgreSQL:
-  position varchar (4) NOT NULL,
+  -- string length does not vary (we assume standardisation):
+  position character (4) NOT NULL,
   -- necessary if several instruments are involved:
   machine_id integer NOT NULL,
   -- this holds all originally read CSV data in JSON format for restoring them:
@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS plates (
 CREATE TABLE IF NOT EXISTS wells (
   id integer PRIMARY KEY,
   plate_id integer NOT NULL REFERENCES plates,
-  -- string length does not vary, but this type is efficient in PostgreSQL:
-  coordinate varchar (3) NOT NULL,
+  -- string length does not vary (we assume standardisation):
+  coordinate character (3) NOT NULL,
   UNIQUE (plate_id, coordinate)
 );
 

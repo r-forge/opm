@@ -153,7 +153,7 @@ More examples for the powerful feature-selection approaches available within \pr
 
 \section{Introduction}\label{introduction}
 
-A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing OmniLog\textregistered \ Phenotype Microarray Data'' (called ``main tutorial'' in the following).
+A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing Phenotype Microarray and Growth Curve Data'' (called ``main tutorial'' in the following).
 The description of the methods below presupposes that the user is familiar with the usage of \pkg{opm} and has studied the main tutorial as well as the entries of the \pkg{opm} manual relevant to her or his research.
 Especially the concepts behind, and the methods available for, the different classes of \pkg{opm} objects should be known before starting with this tutorial.
 
@@ -808,7 +808,7 @@ Optimal stopping of the algorithm can be done via cross-validation.
 For a detailed hands-on introduction to boosting methods using the package \pkg{mboost} we refer to \citep{Hofner:mboost:2012}.
 
 <<install.package.mboost, echo = FALSE, results = hide>>=
-if (!require("mboostDevel"))
+if (!suppressPackageStartupMessages(require("mboostDevel")))
     install.packages("mboostDevel", repos = "http://r-forge.r-project.org")
 ## set seed (for reproducible results)
 set.seed(1907)
@@ -817,7 +817,7 @@ set.seed(1907)
 <<mboost_model_fitting, results = hide>>=
 ## load package mboost
 ## (currently the development version "mboostDevel" from r-forge is used)
-library("mboostDevel")
+suppressPackageStartupMessages(library("mboostDevel"))
 ## fit the boosting model with 1000 initial iterations
 mod <- glmboost(Value ~ ., data = coli.anno,
   control = boost_control(mstop = 1000))
