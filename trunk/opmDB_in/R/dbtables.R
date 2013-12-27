@@ -7,7 +7,7 @@
 #
 
 
-#' DBTABLES class
+#' \code{DBTABLES} class
 #'
 #' This virtual class is intended for holding, in each slot, a data frame that
 #' can be written to (or read from) a table in a relational database.
@@ -83,7 +83,7 @@ print.DBTABLES_Summary <- function(x, ...) {
 ################################################################################
 
 
-#' Methods for DBTABLES objects
+#' Methods for \code{DBTABLES} objects
 #'
 #' Return or check the supposed primary and foreign keys in a
 #' \code{\link{DBTABLES}} object, or show, traverse, combine, or split such
@@ -143,9 +143,11 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   before passing them to \code{FUN}.
 #' @param do_inline Logical scalar indicating how \code{FUN} should be used and
 #'   which kind of return value should be produced.
-#' @param simplify Logical scalar passed to \code{mapply} as \sQuote{SIMPLIFY}
-#'   argument if \code{do_inline} is \code{TRUE}. Otherwise indicating whether
-#'   \acronym{SQL} should be generated and passed to \code{FUN}, see above.
+#' @param simplify Logical scalar. If \code{do_inline} is \code{TRUE}, this
+#'   causes the order of the first two (unnamed) arguments of \code{FUN} to be
+#'   inverted. If \code{do_inline} is \code{FALSE}, this argument indicates
+#'   whether \acronym{SQL} should be generated and passed to \code{FUN}, see
+#'   above.
 #' @return
 #'   \code{pkeys} yields a character vector with the (expected) name of
 #'   the primary key column for each table. \code{fkeys} returns a matrix
@@ -178,8 +180,8 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   that refer to it. \code{c} can be used to get the original object back.
 #'
 #'   \code{by} returns the result of \code{FUN} or \code{INDICES} as a list or
-#'   other kind of object, depending on \code{simplify},  if \code{do_inline} is
-#'   \code{TRUE}.
+#'   other kind of object, depending on \code{simplify},  if \code{do_inline}
+#'   is \code{TRUE}.
 #'
 #'   If  \code{do_inline} is \code{FALSE}, \code{by} creates a novel
 #'   \code{DBTABLES} object. It starts with passing \code{INDICES} as indexes
@@ -251,13 +253,13 @@ print.DBTABLES_Summary <- function(x, ...) {
 #' ## ids are not necessarily the same than before but still OK
 #'
 #' # traverse the object
-#' (y <- by(x, TRUE, function(a, b) is.data.frame(a)))
-#' stopifnot(y, !is.null(names(y)))
-#' (z <- by(x, 2:1, function(a, b) is.character(b)))
-#' stopifnot(z, names(z) == rev(names(y))) # other order
-#' (z <- by(x, 1:2, function(a, b) b,
+#' (y <- by(x, TRUE, function(a, b) is.data.frame(a), simplify = FALSE))
+#' stopifnot(unlist(y), !is.null(names(y)))
+#' (z <- by(x, 2:1, function(a, b) is.character(b), simplify = FALSE))
+#' stopifnot(unlist(z), names(z) == rev(names(y))) # other order
+#' (z <- by(x, 1:2, function(a, b) b, simplify = FALSE,
 #'   do_map = c(experiments = "A", results = "B"))) # with renaming
-#' stopifnot(z == c("A", "B")) # new names passed as 2nd argument to FUN
+#' stopifnot(unlist(z) == c("A", "B")) # new names passed as 2nd argument to FUN
 #'
 #' # to illustrate by() in inline mode, we use a function that simply yields
 #' # the already present slots
@@ -595,8 +597,12 @@ setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
   } else {
     tn1 <- names(pkeys(data))[INDICES]
     tn2 <- map_items(tn1, do_map)
-    mapply(FUN = FUN, sapply(tn1, slot, object = data, simplify = FALSE), tn2,
-      MoreArgs = list(...), SIMPLIFY = simplify, USE.NAMES = TRUE)
+    if (simplify)
+      mapply(FUN = FUN, tn2, sapply(tn1, slot, object = data, simplify = FALSE),
+          MoreArgs = list(...), SIMPLIFY = FALSE, USE.NAMES = TRUE)
+    else
+      mapply(FUN = FUN, sapply(tn1, slot, object = data, simplify = FALSE), tn2,
+        MoreArgs = list(...), SIMPLIFY = FALSE, USE.NAMES = TRUE)
   }
 }, sealed = SEALED)
 

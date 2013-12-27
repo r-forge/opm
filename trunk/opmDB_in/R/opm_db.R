@@ -3,7 +3,7 @@
 ################################################################################
 
 
-#' Classes for opm database I/O
+#' Classes for \pkg{opm} database I/O
 #'
 #' These child classes of \code{\link{DBTABLES}} hold intermediary objects that
 #' can be used for database input and output of \acronym{OPMX} objects as
