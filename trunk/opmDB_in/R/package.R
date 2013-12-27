@@ -7,9 +7,9 @@
 #
 
 
-#' The opmDB package
+#' The \pkg{opmDB} package
 #'
-#' Package for database I/O of OmniLog Phenotype MicroArray data.
+#' Package for database I/O of phenotype microarray data.
 #'
 #' @name opmDB-package
 #' @docType package

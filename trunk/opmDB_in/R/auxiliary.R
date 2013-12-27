@@ -8,7 +8,8 @@
 #
 
 
-# Used for the measurements slot.
+# Used for the measurements slot. Also provides the correct order of columns.
+# See forward_OPM_to_list() for its use.
 #
 MEASUREMENT_COLUMN_MAP <- c(Well = "well_id", Time = "time", Value = "value")
 
@@ -33,6 +34,7 @@ NULL
 #'
 settings_forward <- function(x, plate.id) {
   x$options <- toJSON(x$options)
+  x <- x[c("software", "version", "method", "options")]
   data.frame(id = 1L, plate_id = plate.id, x, stringsAsFactors = FALSE,
     check.names = FALSE)
 }
@@ -63,7 +65,8 @@ forward_OPM_to_list <- function(from) {
     stringsAsFactors = FALSE, check.names = FALSE)
   m <- flatten(object = from, numbers = TRUE)
   names(m) <- map_values(names(m), MEASUREMENT_COLUMN_MAP)
-  list(plates = p, wells = w, measurements = cbind(id = seq.int(nrow(m)), m))
+  m <- cbind(id = seq.int(nrow(m)), m[, MEASUREMENT_COLUMN_MAP])
+  list(plates = p, wells = w, measurements = m)
 }
 
 #' @rdname conversion

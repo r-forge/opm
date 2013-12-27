@@ -11,7 +11,7 @@
 -- DROP TABLE IF EXISTS plates;
 CREATE TABLE IF NOT EXISTS plates (
   id integer PRIMARY KEY,
-  plate_type varchar (10) NOT NULL,
+  plate_type varchar (25) NOT NULL,
   -- one might need other datatype in other RDBMS, should cover date AND time:
   setup_time timestamp NOT NULL,
   -- string length does not vary (we assume standardisation):
@@ -25,10 +25,10 @@ CREATE TABLE IF NOT EXISTS plates (
 );
 
 -- NB: THIS TABLE MIGHT NEED ADDITIONS BY THE USER!
--- The metadata of interest should be added as columns to the 'plates' table
--- after finding appropriate data types. We do not fix them here because OPMX
--- objects can contain any kinds of metadata.
-
+-- The metadata of interest, if any, should be added as columns to the 'plates'
+-- table after the columns defined above and with appropriate data types. We do
+-- not include metadata columns here because an OPMX object can contain any
+-- combination of metadata.
 
 -- -----------------------------------------------------------------------------
 

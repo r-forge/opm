@@ -1,6 +1,6 @@
 Package: opmDB
-Version: 0.0.8
-Date: 2013-12-25
+Version: 0.0.10
+Date: 2013-12-27
 Title: Connecting opm to databases
 Author: Markus Goeker
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
