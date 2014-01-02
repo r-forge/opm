@@ -143,6 +143,9 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   before passing them to \code{FUN}.
 #' @param do_inline Logical scalar indicating how \code{FUN} should be used and
 #'   which kind of return value should be produced.
+#' @param do_quote Character scalar or function used for generating
+#'   \acronym{SQL} identifiers. If a function, used directly; otherwise used
+#'   as quote character (to be doubled within the character string).
 #' @param simplify Logical scalar. If \code{do_inline} is \code{TRUE}, this
 #'   causes the order of the first two (unnamed) arguments of \code{FUN} to be
 #'   inverted. If \code{do_inline} is \code{FALSE}, this argument indicates
@@ -553,18 +556,14 @@ setMethod("split", c("DBTABLES", "ANY", "logical"), function(x, f, drop) {
 setGeneric("by")
 
 setMethod("by", c("DBTABLES", "ANY", "character"), function(data, INDICES,
-    FUN, ..., do_map = NULL, do_inline = FALSE, simplify = TRUE) {
-  by(data, INDICES, match.fun(FUN), ..., do_map = do_map,
-    do_inline = do_inline, simplify = simplify)
+    FUN, ..., simplify = TRUE) {
+  by(data, INDICES, match.fun(FUN), ..., simplify = simplify)
 }, sealed = SEALED)
 
 setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
-    FUN, ..., do_map = NULL, do_inline = FALSE, simplify = TRUE) {
-  dq <- function(x) sprintf('"%s"', gsub('"', '""', x, FALSE, FALSE, TRUE))
-  sq <- function(x) if (is.numeric(x))
-    x
-  else
-    sprintf("'%s'", gsub("'", "''", x, FALSE, FALSE, TRUE))
+    FUN, ..., do_map = NULL, do_inline = FALSE, do_quote = '"',
+    simplify = TRUE) {
+
   map_items <- function(x, mapping) {
     if (!length(names(mapping)))
       return(x)
@@ -572,7 +571,20 @@ setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
     x[found] <- mapping[pos[found <- pos > 0L]]
     x
   }
+
+  sq <- function(x) if (is.numeric(x))
+    x
+  else
+    sprintf("'%s'", gsub("'", "''", x, FALSE, FALSE, TRUE))
+
+  if (is.function(do_quote))
+    dq <- do_quote
+  else
+    dq <- function(x) sprintf(sprintf("%s%%s%s", do_quote, do_quote),
+      gsub(do_quote, paste0(do_quote, do_quote), x, FALSE, FALSE, TRUE))
+
   if (do_inline) {
+
     get_fun <- if (simplify)
         function(.TBL, .COL, .IDX, ...) FUN(
           sprintf("SELECT * FROM %s WHERE %s;", dq(.TBL),
@@ -594,15 +606,18 @@ setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
         cr[["from.tbl"]], do_map), cr[["from.col"]], INDICES, ...))
     }
     do.call(new, c(list(Class = class(data)), result))
+
   } else {
+
     tn1 <- names(pkeys(data))[INDICES]
     tn2 <- map_items(tn1, do_map)
     if (simplify)
       mapply(FUN = FUN, tn2, sapply(tn1, slot, object = data, simplify = FALSE),
-          MoreArgs = list(...), SIMPLIFY = FALSE, USE.NAMES = TRUE)
-    else
-      mapply(FUN = FUN, sapply(tn1, slot, object = data, simplify = FALSE), tn2,
         MoreArgs = list(...), SIMPLIFY = FALSE, USE.NAMES = TRUE)
+    else
+      mapply(FUN = FUN, sapply(tn1, slot, object = data, simplify = FALSE),
+        tn2, MoreArgs = list(...), SIMPLIFY = FALSE, USE.NAMES = TRUE)
+
   }
 }, sealed = SEALED)
 

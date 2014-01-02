@@ -54,7 +54,7 @@ forward_OPM_to_list <- function(from) {
     setup_time = csv_data(from, what = "setup_time", normalize = TRUE),
     position = csv_data(from, what = "position", normalize = TRUE),
     machine_id = opm_opt("machine.id"), stringsAsFactors = FALSE,
-    csv_data = toJSON(csv_data(from)), check.names = FALSE)
+    csv_data = toJSON(csv_data(from, normalize = TRUE)), check.names = FALSE)
   if (length(md <- from@metadata)) {
     if (any(bad <- names(md) %in% colnames(p)))
       stop("use of forbidden metadata name: ", names(md)[bad][1L])

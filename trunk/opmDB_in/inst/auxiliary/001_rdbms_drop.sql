@@ -7,6 +7,7 @@
 --
 -- -----------------------------------------------------------------------------
 
+BEGIN;
 
 DROP TABLE IF EXISTS discretized;
 DROP TABLE IF EXISTS disc_settings;
@@ -18,3 +19,6 @@ DROP TABLE IF EXISTS measurements;
 
 DROP TABLE IF EXISTS wells;
 DROP TABLE IF EXISTS plates;
+
+COMMIT;
+
