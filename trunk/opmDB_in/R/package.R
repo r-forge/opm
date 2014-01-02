@@ -34,7 +34,7 @@ NULL
 #'
 NULL
 
-#' @import methods opm
+#' @import methods opm DBI
 #'
 NULL
 

@@ -572,7 +572,8 @@ setMethod("seq", OPMS, function(...) {
 #'   time entries (if selected) should be normalised. This should always work
 #'   for the plate positions, but for the setup times it depends on the values
 #'   for the \code{\link{opm_opt}} keys \code{time.fmt} and \code{time.zone}
-#'   (see also \code{\link{merge}}).
+#'   (see also \code{\link{merge}}). For other entries, normalisation means
+#'   replacing backslashes by slashes.
 #' @param ... Optional arguments passed between the methods.
 #' @return For the \code{\link{OPM}} method, a named character vector (unnamed
 #'   character scalar in the case of \code{filename}, \code{setup_time} and
@@ -646,6 +647,8 @@ setMethod("csv_data", OPM, function(object,
     keys = character(), strict = TRUE,
     what = c("select", "filename", "setup_time", "position", "other"),
     normalize = FALSE) {
+  no_backslash <- function(x) gsub("\\",
+    "/", x, FALSE, FALSE, TRUE)
   LL(strict, normalize)
   result <- case(match.arg(what),
       select = NULL,
@@ -658,7 +661,10 @@ setMethod("csv_data", OPM, function(object,
           clean_plate_positions(object@csv_data[[CSV_NAMES[["POS"]]]])
         else
           object@csv_data[[CSV_NAMES[["POS"]]]],
-      other = object@csv_data[!names(object@csv_data) %in% CSV_NAMES]
+      other = if (normalize)
+          no_backslash(object@csv_data[!names(object@csv_data) %in% CSV_NAMES])
+        else
+          object@csv_data[!names(object@csv_data) %in% CSV_NAMES]
     )
   if (length(result))
     return(result)
@@ -678,6 +684,8 @@ setMethod("csv_data", OPM, function(object,
       result[pos[1L]] <- as.character(parse_time(result[pos[1L]]))
     if (pos[2L])
       result[pos[2L]] <- clean_plate_positions(result[pos[2L]])
+    pos <- setdiff(seq_along(result), pos)
+    result[pos] <- no_backslash(result[pos])
   }
   result
 }, sealed = SEALED)

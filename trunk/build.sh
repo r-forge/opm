@@ -1164,6 +1164,7 @@ test_demos()
   done
   local rscript
   local errs=0
+  export OPM_SQLITE_DB=$wdir/misc/pmdata.db
   for rscript in "$wdir"/"$1"/demo/*.R; do
     [ -s "$rscript" ] || continue
     echo "TESTING ${rscript##*/}..."
@@ -1180,6 +1181,7 @@ test_demos()
   rm -rf "$tmpdir"
   return $errs
 }
+
 
 ################################################################################
 
@@ -1283,7 +1285,7 @@ ____EOF
   fi
   if [ "$postgresql_dbname" ]; then
     for infile; do
-      psql -q -1 -o /dev/null -d "$postgresql_dbname" -f "$infile" &&
+      psql -q -o /dev/null -d "$postgresql_dbname" -f "$infile" &&
         outcome=0 || outcome=1
       print_test_result $outcome POSTGRESQL "$infile"
       errs=$((errs + outcome))

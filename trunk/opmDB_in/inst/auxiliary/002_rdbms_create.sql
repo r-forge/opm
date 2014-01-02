@@ -8,6 +8,12 @@
 -- -----------------------------------------------------------------------------
 
 
+BEGIN;
+
+
+-- -----------------------------------------------------------------------------
+
+
 -- DROP TABLE IF EXISTS plates;
 CREATE TABLE IF NOT EXISTS plates (
   id integer PRIMARY KEY,
@@ -36,7 +42,7 @@ CREATE TABLE IF NOT EXISTS plates (
 -- DROP TABLE IF EXISTS wells;
 CREATE TABLE IF NOT EXISTS wells (
   id integer PRIMARY KEY,
-  plate_id integer NOT NULL REFERENCES plates,
+  plate_id integer NOT NULL REFERENCES plates ON DELETE CASCADE,
   -- string length does not vary (we assume standardisation):
   coordinate character (3) NOT NULL,
   UNIQUE (plate_id, coordinate)
@@ -49,7 +55,7 @@ CREATE TABLE IF NOT EXISTS wells (
 -- DROP TABLE IF EXISTS measurements;
 CREATE TABLE IF NOT EXISTS measurements (
   id integer PRIMARY KEY,
-  well_id integer NOT NULL REFERENCES wells,
+  well_id integer NOT NULL REFERENCES wells ON DELETE CASCADE,
   time real NOT NULL,
   value real NOT NULL,
   UNIQUE (well_id, time)
@@ -62,7 +68,7 @@ CREATE TABLE IF NOT EXISTS measurements (
 -- DROP TABLE IF EXISTS aggr_settings;
 CREATE TABLE IF NOT EXISTS aggr_settings (
   id integer PRIMARY KEY,
-  plate_id integer NOT NULL REFERENCES plates,
+  plate_id integer NOT NULL REFERENCES plates ON DELETE CASCADE,
   software varchar (25) NOT NULL,
   version varchar (25) NOT NULL,
   method varchar (25) NOT NULL,
@@ -77,8 +83,8 @@ CREATE TABLE IF NOT EXISTS aggr_settings (
 -- DROP TABLE IF EXISTS aggregated;
 CREATE TABLE IF NOT EXISTS aggregated (
   id integer PRIMARY KEY,
-  well_id integer NOT NULL REFERENCES wells,
-  aggr_setting_id integer NOT NULL REFERENCES aggr_settings,
+  well_id integer NOT NULL REFERENCES wells ON DELETE CASCADE,
+  aggr_setting_id integer NOT NULL REFERENCES aggr_settings ON DELETE CASCADE,
   parameter varchar (25) NOT NULL,
   value double precision NOT NULL,
   UNIQUE (well_id, aggr_setting_id, parameter)
@@ -92,7 +98,7 @@ CREATE TABLE IF NOT EXISTS aggregated (
 -- DROP TABLE IF EXISTS disc_settings;
 CREATE TABLE IF NOT EXISTS disc_settings (
   id integer PRIMARY KEY,
-  plate_id integer NOT NULL REFERENCES plates,
+  plate_id integer NOT NULL REFERENCES plates ON DELETE CASCADE,
   software varchar (25) NOT NULL,
   version varchar (25) NOT NULL,
   method varchar (25) NOT NULL,
@@ -107,13 +113,18 @@ CREATE TABLE IF NOT EXISTS disc_settings (
 -- DROP TABLE IF EXISTS discretized;
 CREATE TABLE IF NOT EXISTS discretized (
   id integer PRIMARY KEY,
-  well_id integer NOT NULL REFERENCES wells,
-  disc_setting_id integer NOT NULL REFERENCES disc_settings,
+  well_id integer NOT NULL REFERENCES wells ON DELETE CASCADE,
+  disc_setting_id integer NOT NULL REFERENCES disc_settings ON DELETE CASCADE,
   value boolean, -- NULL is allowed because it means intermediate/ambiguous
   UNIQUE (well_id, disc_setting_id)
 );
 
 
 -- -----------------------------------------------------------------------------
+
+
+COMMIT;
+
+
 
 
