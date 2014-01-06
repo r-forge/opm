@@ -32,7 +32,8 @@ pack_desc.character <- function(pkg,
       remove <- !logical(nrow(res))
       for (desc in x) {
         ok <- subset(desc)[c("Depends", "Imports", "Enhances", "Suggests")]
-        ok <- sub("\\d+$", "", c(ok, desc$Package), FALSE, TRUE)
+        ok <- unlist(c(ok, desc$Package), TRUE, FALSE)
+        ok <- sub("\\d+$", "", ok, FALSE, TRUE)
         remove <- remove &
           !(res[, "Original"] %in% ok & res[, "File"] == attr(desc, "file"))
       }

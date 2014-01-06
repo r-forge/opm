@@ -1,7 +1,8 @@
 
 
-library(tools)
+library(pkgutils)
 library(opmDB)
+library(opm)
 library(RODBC)
 
 
@@ -35,15 +36,20 @@ xDB <- as(x, "OPMD_DB")
 
 chan <- odbcConnect("test_opm;TextAsLongVarchar=1;MaxLongVarcharSize=8190")
 
+
+do_save <- function(name, data, ...) {
+  sqlSave(dat = data, tablename = name, ...)
+}
+
 # 'rownames = FALSE' is crucial, otherwise segfault.
 #
-by(xDB, TRUE, sqlSave, channel = chan, append = TRUE, test = FALSE,
+by(xDB, TRUE, do_save, channel = chan, append = TRUE, test = FALSE,
   rownames = FALSE, verbose = FALSE, fast = TRUE, simplify = FALSE)
 
 # Cannot INSERT the same IDs again.
 #
-assertError(by(xDB, TRUE, sqlSave, channel = chan, append = TRUE, test = FALSE,
-  rownames = FALSE, verbose = FALSE, fast = TRUE))
+tools::assertError(by(xDB, TRUE, do_save, channel = chan, append = TRUE,
+  test = FALSE, rownames = FALSE, verbose = FALSE, fast = TRUE))
 
 # Receiving data again, using the known IDs.
 #

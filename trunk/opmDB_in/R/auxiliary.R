@@ -63,7 +63,7 @@ forward_OPM_to_list <- function(from) {
   w <- wells(from)
   w <- data.frame(id = seq_along(w), plate_id = 1L, coordinate = w,
     stringsAsFactors = FALSE, check.names = FALSE)
-  m <- flatten(object = from, numbers = TRUE)
+  m <- opm::flatten(object = from, numbers = TRUE)
   names(m) <- map_values(names(m), MEASUREMENT_COLUMN_MAP)
   m <- cbind(id = seq.int(nrow(m)), m[, MEASUREMENT_COLUMN_MAP])
   list(plates = p, wells = w, measurements = m)

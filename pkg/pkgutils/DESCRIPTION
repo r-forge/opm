@@ -1,13 +1,14 @@
 Package: pkgutils
-Version: 0.5.34
-Date: 2013-12-20
+Version: 0.5.37
+Date: 2014-01-05
 Title: pkgutils -- Utilities for creating R packages.
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
 Depends:
     R (>= 2.15.0)
 Imports:
-    tools
+    tools,
+    methods
 Enhances: roxygen2
 Description: Tools for creating R packages, particularly for checking
     the documentation produced by roxygen2 and for adding support
@@ -29,5 +30,6 @@ Collate:
     'directory.R'
     'rd.R'
     'plotting.R'
+    'dbtables.R'
 LazyData: yes
 LazyDataCompression: bzip2

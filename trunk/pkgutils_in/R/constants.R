@@ -42,6 +42,12 @@ NULL
 ################################################################################
 
 
+# We cannot change this to TRUE as long as pkgutils is used to document, check
+# and install itself.
+#
+SEALED <- FALSE
+
+
 # See check_keywords() for the use of this environment.
 #
 PKGUTILS_OPTIONS <- new.env(parent = emptyenv())

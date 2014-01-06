@@ -12,3 +12,6 @@
 NULL
 
 
+#' @import methods
+#'
+NULL
