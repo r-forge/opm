@@ -6,69 +6,34 @@ library(opm)
 library(RODBC)
 
 
-################################################################################
-
-
-slots_equal <- function(a, b) {
-  sapply(setdiff(slotNames(a), "csv_data"),
-    function(n) all.equal(slot(a, n), slot(b, n)))
-}
-
-
-################################################################################
+conn <- odbcConnect("test_opm;TextAsLongVarchar=1;MaxLongVarcharSize=8190")
 
 # Insertions via RODBC in this manner are slow. Subsetting speeds things up.
-#
-x <- vaas_4[, 1:5, 12:14]
+result <- opm_dbcheck(conn, time.points = 1:5, wells = 12:14)
 
-# Metadata removal is crucial because columns are missing; otherwise a seqfault
-# results. We add names to empty list to ease the comparisons.
-#
-metadata(x) <- structure(list(), names = character())
+print(opm_dbnext(2L, conn))
 
-xDB <- as(x, "OPMD_DB")
+if (all(result == "ok")) {
 
+  # addition of metadata columns
+  sqlQuery(conn,
+    "ALTER TABLE plates ADD COLUMN strain text, ADD COLUMN replicate integer;")
 
-################################################################################
-#
-# RODBC
-#
+  # check with metadata
+  md <- data.frame(strain = c("X", "Y"), replicate = c(3L, 7L),
+    stringsAsFactors = FALSE)
+  result2 <- opm_dbcheck(conn, md, time.points = 1:5, wells = 12:14)
 
-chan <- odbcConnect("test_opm;TextAsLongVarchar=1;MaxLongVarcharSize=8190")
+  # removal of metadata columns
+  sqlQuery(conn,
+    "ALTER TABLE plates DROP COLUMN strain, DROP COLUMN replicate;")
 
-
-do_save <- function(name, data, ...) {
-  sqlSave(dat = data, tablename = name, ...)
 }
 
-# 'rownames = FALSE' is crucial, otherwise segfault.
-#
-by(xDB, TRUE, do_save, channel = chan, append = TRUE, test = FALSE,
-  rownames = FALSE, verbose = FALSE, fast = TRUE, simplify = FALSE)
+odbcClose(conn)
 
-# Cannot INSERT the same IDs again.
-#
-tools::assertError(by(xDB, TRUE, do_save, channel = chan, append = TRUE,
-  test = FALSE, rownames = FALSE, verbose = FALSE, fast = TRUE))
-
-# Receiving data again, using the known IDs.
-#
-y <- new("OPMD_DB")
-y <- by(y, xDB@plates[, "id"], sqlQuery, channel = chan,
-  stringsAsFactors = FALSE, do_inline = TRUE)
-
-## TODO: add drop example
-
-odbcClose(chan)
-
-# Comparison with original OPMS object
-#
-y <- as(y, "OPMS")
-stopifnot(dim(y) == dim(x))
-stopifnot(sapply(1:4, function(i) slots_equal(y[i], x[i])))
-
-
-################################################################################
-
-
+print(result)
+stopifnot(result == "ok")
+print(result2)
+stopifnot(result2 == "ok")
 
