@@ -31,8 +31,6 @@
 #' then also need to be overwritten to not ignore these other slots when
 #' creating new objects of the class.
 #'
-#' For real classes inheriting from \code{DBTABLES}, see \code{\link{OPM_DB}}.
-#'
 #' For the methods of \code{DBTABLES}, see \code{\link{DBTABLES-methods}}.
 #' @name DBTABLES-class
 #' @docType class
@@ -122,8 +120,8 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'   works via the defined foreign keys. Thus, used for querying for data slots
 #'   for a novel \code{\link{DBTABLES}} with \code{FUN}.
 #' @param FUN Function to be applied to each table in turn. If \code{do_inline}
-#'   is \code{FALSE}, it should accept a data frame (the table) and a character
-#'   scalar (name of that table) as the first two (unnamed) arguments.
+#'   is \code{FALSE}, it should accept a character scalar (name of a table) a
+#'   data frame (this table) and as the first two (unnamed) arguments.
 #'
 #'   If \code{do_inline} is \code{TRUE} and \code{simplify} is \code{FALSE},
 #'   \code{FUN} should accept three first arguments (in addition to those in
@@ -142,15 +140,17 @@ print.DBTABLES_Summary <- function(x, ...) {
 #' @param do_map Optional vector for mapping the slot names in \code{data}
 #'   before passing them to \code{FUN}.
 #' @param do_inline Logical scalar indicating how \code{FUN} should be used and
-#'   which kind of return value should be produced.
+#'   which kind of return value should be produced.  See \code{FUN} for details.
 #' @param do_quote Character scalar or function used for generating
 #'   \acronym{SQL} identifiers. If a function, used directly; otherwise used
 #'   as quote character (to be doubled within the character string).
-#' @param simplify Logical scalar. If \code{do_inline} is \code{TRUE}, this
-#'   causes the order of the first two (unnamed) arguments of \code{FUN} to be
-#'   inverted. If \code{do_inline} is \code{FALSE}, this argument indicates
-#'   whether \acronym{SQL} should be generated and passed to \code{FUN}, see
-#'   above.
+#' @param simplify Logical scalar. If \code{do_inline} is \code{FALSE}, this
+#'   argument indicates whether \acronym{SQL} should be generated and passed to
+#'   \code{FUN}, see above. If \code{do_inline} is \code{TRUE}, \code{simplify}
+#'   determines the second argument passed to \code{FUN}: if \code{TRUE}, the
+#'   name of the primary \acronym{ID} column of the database table is used, if
+#'   \code{FALSE} the according data frame contained in \code{data} is passed.
+#'   If missing, \code{do_inline} is used as default for \code{simplify}.
 #' @return
 #'   \code{pkeys} yields a character vector with the (expected) name of
 #'   the primary key column for each table. \code{fkeys} returns a matrix
@@ -198,7 +198,7 @@ print.DBTABLES_Summary <- function(x, ...) {
 #' @name DBTABLES-methods
 #' @seealso methods::setClass
 #' @family dbtables
-#' @keywords attribute
+#' @keywords database
 #' @examples
 #'
 #' # example class, with 'results' referring to 'experiments'
@@ -256,11 +256,11 @@ print.DBTABLES_Summary <- function(x, ...) {
 #' ## ids are not necessarily the same than before but still OK
 #'
 #' # traverse the object
-#' (y <- by(x, TRUE, function(a, b) is.data.frame(a), simplify = FALSE))
+#' (y <- by(x, TRUE, function(a, b) is.data.frame(b), simplify = FALSE))
 #' stopifnot(unlist(y), !is.null(names(y)))
-#' (z <- by(x, 2:1, function(a, b) is.character(b), simplify = FALSE))
+#' (z <- by(x, 2:1, function(a, b) is.character(a), simplify = FALSE))
 #' stopifnot(unlist(z), names(z) == rev(names(y))) # other order
-#' (z <- by(x, 1:2, function(a, b) b, simplify = FALSE,
+#' (z <- by(x, 1:2, function(a, b) a, simplify = FALSE,
 #'   do_map = c(experiments = "A", results = "B"))) # with renaming
 #' stopifnot(unlist(z) == c("A", "B")) # new names passed as 2nd argument to FUN
 #'
@@ -372,6 +372,11 @@ setMethod("pkeys_valid", "DBTABLES", function(object) {
 }, sealed = SEALED)
 
 #= summary DBTABLES-methods
+
+#' @rdname DBTABLES-methods
+#' @export
+#'
+setGeneric("summary")
 
 setMethod("summary", "DBTABLES", function(object) {
   structure(list(Class = class(object), Size = length(object),
@@ -555,14 +560,30 @@ setMethod("split", c("DBTABLES", "ANY", "logical"), function(x, f, drop) {
 #'
 setGeneric("by")
 
-setMethod("by", c("DBTABLES", "ANY", "character"), function(data, INDICES,
-    FUN, ..., simplify = TRUE) {
-  by(data, INDICES, match.fun(FUN), ..., simplify = simplify)
+setMethod("by", c("DBTABLES", "ANY", "character", "missing"), function(data,
+    INDICES, FUN, ..., do_map = NULL, do_inline = FALSE, do_quote = '"',
+    simplify) {
+  by(data, INDICES, match.fun(FUN), ..., do_map = do_map, do_inline = do_inline,
+    do_quote = do_quote, simplify = do_inline)
 }, sealed = SEALED)
 
-setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
-    FUN, ..., do_map = NULL, do_inline = FALSE, do_quote = '"',
-    simplify = TRUE) {
+setMethod("by", c("DBTABLES", "ANY", "character", "logical"), function(data,
+    INDICES, FUN, ..., do_map = NULL, do_inline = FALSE, do_quote = '"',
+    simplify) {
+  by(data, INDICES, match.fun(FUN), ..., do_map = do_map, do_inline = do_inline,
+    do_quote = do_quote, simplify = simplify)
+}, sealed = SEALED)
+
+setMethod("by", c("DBTABLES", "ANY", "function", "missing"), function(data,
+    INDICES, FUN, ..., do_map = NULL, do_inline = FALSE, do_quote = '"',
+    simplify) {
+  by(data, INDICES, FUN, ..., do_map = do_map, do_inline = do_inline,
+    do_quote = do_quote, simplify = do_inline)
+}, sealed = SEALED)
+
+setMethod("by", c("DBTABLES", "ANY", "function", "logical"), function(data,
+    INDICES, FUN, ..., do_map = NULL, do_inline = FALSE, do_quote = '"',
+    simplify) {
 
   map_items <- function(x, mapping) {
     if (!length(names(mapping)))
@@ -607,21 +628,22 @@ setMethod("by", c("DBTABLES", "ANY", "function"), function(data, INDICES,
     }
     do.call(new, c(list(Class = class(data)), result))
 
+  } else if (simplify) {
+
+    ids <- pkeys(data)[INDICES]
+    tns <- map_items(names(ids), do_map)
+    mapply(FUN = FUN, tns, ids, MoreArgs = list(...))
+
   } else {
 
-    tn1 <- names(pkeys(data))[INDICES]
-    tn2 <- map_items(tn1, do_map)
-    if (simplify)
-      mapply(FUN = FUN, tn2, sapply(tn1, slot, object = data, simplify = FALSE),
-        MoreArgs = list(...), SIMPLIFY = FALSE, USE.NAMES = TRUE)
-    else
-      mapply(FUN = FUN, sapply(tn1, slot, object = data, simplify = FALSE),
-        tn2, MoreArgs = list(...), SIMPLIFY = FALSE, USE.NAMES = TRUE)
+    tn2 <- map_items(tn1 <- names(pkeys(data))[INDICES], do_map)
+    mapply(FUN = FUN, tn2, lapply(tn1, slot, object = data),
+      MoreArgs = list(...))
 
   }
+
 }, sealed = SEALED)
 
 
 ################################################################################
-
 

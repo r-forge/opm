@@ -7,19 +7,11 @@
 #
 
 
-#' @import methods grofit mgcv nlme
+#' @import methods grofit mgcv nlme pkgutils
 #'
 NULL
 
-#' @importFrom pkgutils L LL must case sections listing pkg_files flatten
-#'
-NULL
-
-#' @importFrom pkgutils mypdf collect
-#'
-NULL
-
-#' @importFrom stats aggregate optimize kmeans heatmap update reshape var
+#' @importFrom stats aggregate optimize kmeans heatmap reshape var
 #'
 NULL
 

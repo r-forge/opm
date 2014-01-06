@@ -3,7 +3,7 @@
 ################################################################################
 ################################################################################
 #
-# Package description, imports and constants
+# Package description and constants
 #
 
 
@@ -24,21 +24,6 @@
 #' For the application of these conversions to \pkg{opm} data objects, see the
 #' \code{\link{OPM_DB-classes}}.
 #' @keywords package
-#'
-NULL
-
-
-################################################################################
-
-#' @importFrom stats update
-#'
-NULL
-
-#' @import methods opm DBI
-#'
-NULL
-
-#' @importFrom rjson toJSON fromJSON
 #'
 NULL
 

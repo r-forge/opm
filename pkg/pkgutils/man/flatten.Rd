@@ -57,7 +57,7 @@
   names should be inserted for elements of \code{x} that
   miss them. If \code{NA}, they are skipped, but with a
   warning; if \code{FALSE}, they are skipped silently.
-  This has only an effect in conjunction with the last
+  This only has an effect in conjunction with the last
   three values of \code{what}. If \kbd{datasets} are
   chosen, it usually has only an effect if all elements of
   \code{x} are atomic.}
