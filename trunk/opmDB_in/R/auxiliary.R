@@ -17,20 +17,16 @@ MEASUREMENT_COLUMN_MAP <- c(Well = "well_id", Time = "time", Value = "value")
 ################################################################################
 
 
-#' Conversion helper functions
+#' Database I/O object conversion helper functions
 #'
-#' Internal helper functions for the \code{as} methods defined in this package.
+#' Internal helper functions for the \code{as} methods for the database I/O
+#' helper objects defined in this package.
 #'
 #' @param from List or one of the S4 objects defined in this package.
 #' @param x List with aggregation or discretization settings.
 #' @param plate.id Integer scalar.
 #' @return List.
 #' @keywords internal
-#' @name conversion
-#'
-NULL
-
-#' @rdname conversion
 #'
 settings_forward <- function(x, plate.id) {
   x$options <- toJSON(x$options)
@@ -39,7 +35,7 @@ settings_forward <- function(x, plate.id) {
     check.names = FALSE)
 }
 
-#' @rdname conversion
+#' @rdname settings_forward
 #'
 settings_backward <- function(x) {
   x <- x[, c("method", "options", "software", "version"), drop = TRUE]
@@ -47,7 +43,7 @@ settings_backward <- function(x) {
   x
 }
 
-#' @rdname conversion
+#' @rdname settings_forward
 #'
 forward_OPM_to_list <- function(from) {
   p <- data.frame(id = 1L, plate_type = plate_type(from),
@@ -69,7 +65,7 @@ forward_OPM_to_list <- function(from) {
   list(plates = p, wells = w, measurements = m)
 }
 
-#' @rdname conversion
+#' @rdname settings_forward
 #'
 backward_OPM_to_list <- function(from) {
   to_measurements <- function(m, w) {
@@ -86,7 +82,7 @@ backward_OPM_to_list <- function(from) {
     csv_data = unlist(fromJSON(p[, "csv_data"])))
 }
 
-#' @rdname conversion
+#' @rdname settings_forward
 #'
 forward_OPMA_to_list <- function(from) {
   aggr_forward <- function(x, coords) data.frame(id = seq_along(x),
@@ -99,7 +95,7 @@ forward_OPMA_to_list <- function(from) {
   x
 }
 
-#' @rdname conversion
+#' @rdname settings_forward
 #'
 backward_OPMA_to_list <- function(from) {
   aggr_backward <- function(a, w) {
@@ -112,7 +108,7 @@ backward_OPMA_to_list <- function(from) {
     aggregated = aggr_backward(from@aggregated, from@wells)))
 }
 
-#' @rdname conversion
+#' @rdname settings_forward
 #'
 backward_OPMD_to_list <- function(from) {
   disc_backward <- function(d, w) as.list(structure(as.logical(d[, "value"]),
@@ -126,4 +122,42 @@ backward_OPMD_to_list <- function(from) {
 ################################################################################
 
 
+#' Database I/O helper functions
+#'
+#' Internal helper functions for the databsse I/O methods.
+#'
+#' @param x Character or integer vector.
+#' @param s Character scalar.
+#' @return Character or integer vector or \code{OPMX} object or \code{NULL}.
+#' @keywords internal
+#'
+quote_protected <- function(x, s) {
+  sprintf(sprintf("%s%%s%s", s, s),
+    gsub(s, sprintf("%s%s", s, s), x, FALSE, FALSE, TRUE))
+}
+
+#' @rdname quote_protected
+#'
+int2dbclass <- function(x) {
+  new(paste0(case(x, "OPM", "OPMA", "OPMD"), "_DB"))
+}
+
+#' @rdname quote_protected
+#'
+db2opmx <- function(x) {
+  x <- as(x, "list")
+  case(length(x), NULL, x[[1L]], new("OPMS", plates = x))
+}
+
+#' @rdname quote_protected
+#'
+db2ids <- function(x) {
+  x <- unlist(x, FALSE, FALSE)
+  storage.mode(x) <- "integer"
+  x[is.na(x)] <- 0L
+  x + 1L
+}
+
+
+################################################################################
 

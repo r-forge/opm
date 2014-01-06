@@ -328,6 +328,7 @@ setGeneric("fkeys_valid",
   function(object) standardGeneric("fkeys_valid"))
 
 setMethod("fkeys_valid", "DBTABLES", function(object) {
+  join <- function(x) paste0(unique.default(x), collapse = " ")
   x <- fkeys(object)[-1L, , drop = FALSE]
   bad <- is.na(x[, "from.col"])
   errs <- sprintf("no references in slot '%s'", x[bad, "from.tbl"])
@@ -336,9 +337,9 @@ setMethod("fkeys_valid", "DBTABLES", function(object) {
       other <- slot(object, row["to.tbl"])[, row["to.col"]]
       self <- slot(object, row["from.tbl"])[, row["from.col"]]
       if (!all(self %in% other))
-        stop("dead references")
+        stop(sprintf("dead references: %s <=> %s", join(self), join(other)))
       if (!all(other %in% self))
-        stop("superfluous ids")
+        stop(sprintf("superfluous ids: %s <=> %s", join(other), join(self)))
       NA_character_
     }, error = conditionMessage))
   if (any(really <- !is.na(bad)))

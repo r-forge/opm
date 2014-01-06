@@ -255,14 +255,23 @@ setAs("OPMD_DB", "OPMS", function(from) {
 ################################################################################
 
 
+setOldClass("RODBC")
+
+
 #' Database I/O for \pkg{opm}
 #'
 #' Methods for inserting, querying and deleting \code{\link{OPMX}} object into
-#' or from relational databases.
+#' or from (\acronym{SQL}-based) relational databases. A common database scheme
+#' is assumed as defined in the auxiliary \acronym{SQL} files of this package,
+#' but tables could be named differently, and columns could be added containing
+#' user-defined combinations of metadata.
 #'
-#' @param object \code{\link{OPMX}} or \code{\link{OPM_DB}} object or integer
-#'   vector containing real or potential primary keys of a database table.
-#' @param conn Database connection object.
+#' @param object \code{\link{OPMX}} or \code{\link{OPM_DB}} object, integer
+#'   vector containing real or potential primary keys of a database table, or
+#'   character scalar containing an \acronym{SQL} query.
+#' @param conn Database connection object. Currently \code{DBIConnection} object
+#'   from one of the reverse dependencies of \pkg{DBI} (recommended) and
+#'   \code{RODBC} objects as created by the \pkg{RODBC} package are supported.
 #' @param map_tables Passed as \code{do_map} argument to \code{\link{by}}.
 #' @param include Integer scalar indicating whether aggregated data (1) or
 #'   aggregated and discretised data (2) should be added to the result.
@@ -270,22 +279,27 @@ setAs("OPMD_DB", "OPMS", function(from) {
 #'   those in \code{object} should be coerced. Necessary for appending to a
 #'   database table without overwriting previously inserted data.
 #' @param metadata Empty or data frame with metadata to be added to the check
-#'   object \code{vaas_4}. If a data frame, the number of rows must be equal to
-#'   \code{length(vaas_4)}. Adding metadata makes only sense if according
-#'   columns have been added to the database table for the plates. The original
-#'   metadata of \code{vaas_4} are always removed.
+#'   object \code{vaas_4}. If a data frame, it must contain exactly 2 rows.
+#'   Adding metadata makes only sense if according columns have been added to
+#'   the database table for the plates; see the examples below. The original
+#'   metadata from \code{vaas_4} are always removed.
+#' @param time.points Index of one to several time points. Selection speeds up
+#'   database I/O during checking.
+#' @param wells Index of one to several wells. Selection speeds up database I/O
+#'   during checking.
 #' @param ... Optional arguments passed between the methods.
 #'
-#' @details Table and column names are passed through \code{make.db.names} from
-#'   the \pkg{DBI} package or its dependencies before including them into
-#'   \acronym{SQL} queries, if any. As dictated by \code{by} from the
-#'   \pkg{pkgutils} packages, this is done after applying \code{map_tables}.
+#' @details The \code{DBIConnection} methods send table and column names are
+#'   through \code{make.db.names} from the \pkg{DBI} package or its dependencies
+#'   before including them into \acronym{SQL} queries, if any. As dictated by
+#'   \code{by} from the \pkg{pkgutils} packages, this is done after applying
+#'   \code{map_tables}. The \code{RODBC} methods use a simple quoting scheme.
 #'
-#'   \code{opm_dbcheck} attempts to insert, query and delete the object
-#'   \code{vaas_4} into the database. If everything is correctly set up, this
-#'   should work without error \strong{unless} \code{vaas_4} has already been
-#'   inserted. If errors occur, it is up to the user to clean up the data base
-#'   (as far as necessary).
+#'   \code{opm_dbcheck} attempts to insert, query and delete the first two
+#'   plates from the object \code{vaas_4} into the database. If everything is
+#'   correctly set up, this should work without error \strong{unless} these two
+#'   plates from \code{vaas_4} have already been inserted. If errors occur, it
+#'   is up to the user to clean up the data base (as far as necessary).
 #'
 #' @return
 #'   \code{opm_dbget} returns an \code{\link{OPMX}} object or \code{NULL}.
@@ -308,9 +322,13 @@ setAs("OPMD_DB", "OPMS", function(from) {
 #' @keywords database
 #' @export
 #' @examples
-#' demo(package = "opmDB")
+#' # The SQL files for generating the expected database tables. Tables can
+#' # be renamed, but the an according 'map_tables' argument must be used.
+#' pkgutils::pkg_files("opmDB", "auxiliary")
+#'
 #' # Usage examples are given in these demos. An according database must be
 #' # made accessible beforehand.
+#' demo(package = "opmDB")
 #'
 setGeneric("opm_dbput",
   function(object, conn, ...) standardGeneric("opm_dbput"))
@@ -322,6 +340,18 @@ setMethod("opm_dbput", c("OPM_DB", "DBIConnection"), function(object, conn,
     do_quote = function(x) make.db.names(conn, x), do_map = map_tables)
   object@plates[, "id"]
 }, sealed = SEALED)
+
+setMethod("opm_dbput", c("OPM_DB", "RODBC"), function(object, conn,
+    map_tables = NULL, start = opm_dbnext(object, conn, map_tables)) {
+  object <- update(object, start, TRUE)
+  by(object, TRUE, function(n, x, ...) sqlSave(dat = x, tablename = n, ...),
+    channel = conn, append = TRUE, test = FALSE, rownames = FALSE, fast = TRUE,
+    verbose = FALSE, do_quote = if (attr(conn, "isMySQL"))
+      "`"
+    else
+      "\"", do_map = map_tables, simplify = FALSE)
+  object@plates[, "id"]
+}, sealed = FALSE)
 
 setMethod("opm_dbput", c("OPM", "ANY"), function(object, conn, ...) {
   opm_dbput(as(object, paste0(class(object), "_DB")), conn, ...)
@@ -347,12 +377,35 @@ setGeneric("opm_dbget",
 
 setMethod("opm_dbget", c("integer", "DBIConnection"), function(object, conn,
     map_tables = NULL, include = 2L) {
-  klass <- paste0(case(include, "OPM", "OPMA", "OPMD"), "_DB")
-  do_quote <- function(x) make.db.names(conn, x)
-  x <- by(new(klass), object, dbGetQuery, conn = conn, do_map = map_tables,
-    do_inline = TRUE, do_quote = do_quote, simplify = TRUE)
-  case(length(x <- as(x, "list")), NULL, x[[1L]], new("OPMS", plates = x))
+  db2opmx(by(int2dbclass(include), object, dbGetQuery, conn = conn,
+    do_map = map_tables, do_inline = TRUE, simplify = TRUE,
+    do_quote = function(x) make.db.names(conn, x)))
 }, sealed = SEALED)
+
+setMethod("opm_dbget", c("character", "DBIConnection"), function(object, conn,
+    map_tables = NULL, include = 2L) {
+  db2opmx(by(int2dbclass(include), object, dbGetQuery, conn = conn,
+    do_map = map_tables, do_inline = TRUE, simplify = FALSE,
+    do_quote = function(x) make.db.names(conn, x)))
+}, sealed = SEALED)
+
+setMethod("opm_dbget", c("integer", "RODBC"), function(object, conn,
+    map_tables = NULL, include = 2L) {
+  db2opmx(by(int2dbclass(include), object, sqlQuery, channel = conn,
+    do_map = map_tables, do_inline = TRUE, do_quote = if (attr(conn, "isMySQL"))
+      "`"
+    else
+      "\"", stringsAsFactors = FALSE, simplify = TRUE))
+}, sealed = FALSE)
+
+setMethod("opm_dbget", c("character", "RODBC"), function(object, conn,
+    map_tables = NULL, include = 2L) {
+  db2opmx(by(int2dbclass(include), object, sqlQuery, channel = conn,
+    do_map = map_tables, do_inline = TRUE, do_quote = if (attr(conn, "isMySQL"))
+      "`"
+    else
+      "\"", stringsAsFactors = FALSE, simplify = FALSE))
+}, sealed = FALSE)
 
 #= opm_dbnext opm_dbput
 
@@ -372,8 +425,7 @@ setMethod("opm_dbnext", c("OPMS", "ANY"), function(object, conn, ...) {
 
 setMethod("opm_dbnext", c("integer", "ANY"), function(object, conn,
     map_tables = NULL) {
-  object <- new(paste0(case(object, "OPM", "OPMA", "OPMD"), "_DB"))
-  opm_dbnext(object, conn, map_tables)
+  opm_dbnext(int2dbclass(object), conn, map_tables)
 }, sealed = SEALED)
 
 setMethod("opm_dbnext", c("OPM_DB", "DBIConnection"), function(object, conn,
@@ -383,13 +435,23 @@ setMethod("opm_dbnext", c("OPM_DB", "DBIConnection"), function(object, conn,
       make.db.names(conn, tn))
     dbGetQuery(conn, sql)
   }
-  x <- by(object, TRUE, get_last, conn = conn, do_map = map_tables,
-    do_inline = FALSE, simplify = TRUE)
-  x <- unlist(x, FALSE, FALSE)
-  storage.mode(x) <- "integer"
-  x[is.na(x)] <- 0L
-  x + 1L
+  db2ids(by(object, TRUE, get_last, conn = conn, do_map = map_tables,
+    do_inline = FALSE, simplify = TRUE))
 }, sealed = SEALED)
+
+setMethod("opm_dbnext", c("OPM_DB", "RODBC"), function(object, conn,
+    map_tables = NULL) {
+  get_last <- function(tn, id, conn, char) {
+    sql <- sprintf("SELECT max(%s) FROM %s;",
+      quote_protected(id, char), quote_protected(tn, char))
+    sqlQuery(conn, sql)
+  }
+  db2ids(by(object, TRUE, get_last, conn = conn,
+    char = if (attr(conn, "isMySQL"))
+      "`"
+    else
+      "\"", do_map = map_tables, do_inline = FALSE, simplify = TRUE))
+}, sealed = FALSE)
 
 #= opm_dbclear opm_dbput
 
@@ -407,6 +469,18 @@ setMethod("opm_dbclear", c("integer", "DBIConnection"), function(object, conn,
   invisible(dbGetQuery(conn, sql))
 }, sealed = SEALED)
 
+setMethod("opm_dbclear", c("integer", "RODBC"), function(object, conn,
+    map_tables = NULL) {
+  pk <- pkeys(new("OPM_DB"))[1L]
+  char = if (attr(conn, "isMySQL"))
+      "`"
+    else
+      "\""
+  sql <- sprintf("DELETE FROM %s WHERE %s;", quote_protected(names(pk), char),
+    paste(quote_protected(pk, char), object, sep = " = ", collapse = " OR "))
+  invisible(sqlQuery(conn, sql))
+}, sealed = SEALED)
+
 #= opm_dbcheck opm_dbput
 
 #' @rdname opm_dbput
@@ -414,7 +488,8 @@ setMethod("opm_dbclear", c("integer", "DBIConnection"), function(object, conn,
 #'
 setGeneric("opm_dbcheck", function(conn, ...) standardGeneric("opm_dbcheck"))
 
-setMethod("opm_dbcheck", "DBIConnection", function(conn, metadata = NULL) {
+setMethod("opm_dbcheck", "ANY", function(conn, metadata = NULL,
+    time.points = TRUE, wells = TRUE) {
   slots_equal <- function(a, b) {
     fmt <- "%Y-%m-%d %H:%M:%S"
     old <- opm_opt("time.fmt")
@@ -426,7 +501,7 @@ setMethod("opm_dbcheck", "DBIConnection", function(conn, metadata = NULL) {
       function(n) all.equal(slot(a, n), slot(b, n))),
       all.equal(csv_data(a, normalize = TRUE), csv_data(b, normalize = TRUE)))
   }
-  x <- vaas_4
+  x <- vaas_4[1L:2L, time.points, wells]
   metadata(x) <- structure(list(), names = character())
   if (length(metadata))
     if (is.data.frame(metadata))
