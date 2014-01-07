@@ -142,7 +142,9 @@ stopifnot(listing(pi) == "1: 3.141593") # controlled by getOption("digits")
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},
-    \code{\link{collect}},   \code{\link{flatten}},   \code{\link{must}}
+    \code{\link{collect}},   \code{\link{contains}}, \code{\link{flatten}},
+    \code{\link{map_names}},
+  \code{\link{map_values}}, \code{\link{must}}
 }
 \keyword{utilities}
 
