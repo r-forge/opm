@@ -149,7 +149,9 @@ stopifnot(dim(got) == c(3, 3), any(is.na(got)))
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},
-    \code{\link{listing}},         \code{\link{must}}
+    \code{\link{contains}}, \code{\link{listing}},
+          \code{\link{map_names}}, \code{\link{map_values}},
+  \code{\link{must}}
 }
 \keyword{manip}
 

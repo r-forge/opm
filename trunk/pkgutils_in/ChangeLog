@@ -7,6 +7,9 @@
 
 - new virtual S4 class 'DBTABLES' with a couple of associated methods
 
+- new methods contains(), map_values() and map_names() (copied from 'opm' to
+  'pkgutils', to be removed from 'opm' later on)
+
 - new function check_Sweave_start(), now also used by 'docu.R'
 
 - repair_docu() gets new arguments 'drop.interal', 'text.dups' and 'infile'
