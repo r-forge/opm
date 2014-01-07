@@ -3,6 +3,8 @@
 - fixed minor bug in the 'repair_docu.rb' script that affected aliases to
   generic functions
 
+- added tests based on the 'testthat' package
+
 - new virtual S4 class 'DBTABLES' with a couple of associated methods
 
 - new function check_Sweave_start(), now also used by 'docu.R'
