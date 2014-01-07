@@ -20,7 +20,7 @@
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
 #
-# (C) 2012, 2013 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
+# (C) 2012-2014 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
 #
 ################################################################################
 
@@ -1396,6 +1396,29 @@ spellcheck_vignettes()
 	}
 ____EOF
   done | awk -v FS="\t" 'NF > 1' -
+}
+
+
+################################################################################
+
+
+# Run code from the 'staticdocs' package to create HTML documentation. Does not
+# yield fully convincing results yet but 'staticdocs' is work in progress.
+#
+run_staticdocs()
+{
+  local pkg
+  local outdir
+  for pkg; do
+    outdir=${pkg#/}_html
+    mkdir -pv "$outdir"
+    [ -d "$pkg/demo" ] && rm -rv "$pkg/demo"
+    mkdir -pv "$pkg/inst/staticdocs"
+    R --vanilla --interactive <<-____EOF
+	staticdocs::build_package("$pkg", "$outdir")
+	quit("no")
+____EOF
+  done
 }
 
 

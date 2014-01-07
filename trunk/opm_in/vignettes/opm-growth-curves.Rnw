@@ -67,7 +67,7 @@
 
 
 %% needed for CRAN checking
-%\VignetteIndexEntry{Substrate information in opm}
+%\VignetteIndexEntry{Growth curves in opm}
 
 
 % authors, first page
