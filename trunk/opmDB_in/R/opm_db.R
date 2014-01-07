@@ -268,11 +268,12 @@ setOldClass("RODBC")
 #'
 #' @param object \code{\link{OPMX}} or \code{\link{OPM_DB}} object, integer
 #'   vector containing real or potential primary keys of a database table, or
-#'   character scalar containing an \acronym{SQL} query.
+#'   character scalar containing a partial \acronym{SQL} query (the part after
+#'   the \sQuote{WHERE} keyword).
 #' @param conn Database connection object. Currently \code{DBIConnection} object
 #'   from one of the reverse dependencies of \pkg{DBI} (recommended) and
 #'   \code{RODBC} objects as created by the \pkg{RODBC} package are supported.
-#' @param map_tables Passed as \code{do_map} argument to \code{\link{by}}.
+#' @param map.tables Passed as \code{do_map} argument to \code{\link{by}}.
 #' @param include Integer scalar indicating whether aggregated data (1) or
 #'   aggregated and discretised data (2) should be added to the result.
 #' @param start Integer vector determining the minimum primary keys to which
@@ -293,7 +294,7 @@ setOldClass("RODBC")
 #'   through \code{make.db.names} from the \pkg{DBI} package or its dependencies
 #'   before including them into \acronym{SQL} queries, if any. As dictated by
 #'   \code{by} from the \pkg{pkgutils} packages, this is done after applying
-#'   \code{map_tables}. The \code{RODBC} methods use a simple quoting scheme.
+#'   \code{map.tables}. The \code{RODBC} methods use a simple quoting scheme.
 #'
 #'   \code{opm_dbcheck} attempts to insert, query and delete the first two
 #'   plates from the object \code{vaas_4} into the database. If everything is
@@ -323,7 +324,7 @@ setOldClass("RODBC")
 #' @export
 #' @examples
 #' # The SQL files for generating the expected database tables. Tables can
-#' # be renamed, but the an according 'map_tables' argument must be used.
+#' # be renamed, but the an according 'map.tables' argument must be used.
 #' pkgutils::pkg_files("opmDB", "auxiliary")
 #'
 #' # Usage examples are given in these demos. An according database must be
@@ -334,22 +335,22 @@ setGeneric("opm_dbput",
   function(object, conn, ...) standardGeneric("opm_dbput"))
 
 setMethod("opm_dbput", c("OPM_DB", "DBIConnection"), function(object, conn,
-    map_tables = NULL, start = opm_dbnext(object, conn, map_tables)) {
+    map.tables = NULL, start = opm_dbnext(object, conn, map.tables)) {
   object <- update(object, start, TRUE)
   by(object, TRUE, dbWriteTable, conn = conn, append = TRUE, row.names = FALSE,
-    do_quote = function(x) make.db.names(conn, x), do_map = map_tables)
+    do_quote = function(x) make.db.names(conn, x), do_map = map.tables)
   object@plates[, "id"]
 }, sealed = SEALED)
 
 setMethod("opm_dbput", c("OPM_DB", "RODBC"), function(object, conn,
-    map_tables = NULL, start = opm_dbnext(object, conn, map_tables)) {
+    map.tables = NULL, start = opm_dbnext(object, conn, map.tables)) {
   object <- update(object, start, TRUE)
   by(object, TRUE, function(n, x, ...) sqlSave(dat = x, tablename = n, ...),
     channel = conn, append = TRUE, test = FALSE, rownames = FALSE, fast = TRUE,
     verbose = FALSE, do_quote = if (attr(conn, "isMySQL"))
       "`"
     else
-      "\"", do_map = map_tables, simplify = FALSE)
+      "\"", do_map = map.tables, simplify = FALSE)
   object@plates[, "id"]
 }, sealed = FALSE)
 
@@ -367,6 +368,42 @@ setMethod("opm_dbput", c("OPMS", "ANY"), function(object, conn, ...) {
   opm_dbput(as(object, paste0(klass, "_DB")), conn, ...)
 })
 
+#= opm_dbfind opm_dbput
+
+#' @rdname opm_dbput
+#' @export
+#'
+setGeneric("opm_dbfind",
+  function(object, conn, ...) standardGeneric("opm_dbfind"))
+
+setMethod("opm_dbfind", c("character", "DBIConnection"), function(object, conn,
+    map.tables = NULL) {
+  pk <- pkeys(new("OPM_DB"))[1L]
+  sql <- sprintf("SELECT %s FROM %s WHERE %s;", make.db.names(conn, pk),
+    make.db.names(conn, map_values(names(pk), map.tables)), object)
+  ids <- dbGetQuery(conn, sql)
+  if (ncol(ids))
+    as.integer(ids[, 1L])
+  else
+    integer()
+}, sealed = SEALED)
+
+setMethod("opm_dbfind", c("character", "RODBC"), function(object, conn,
+    map.tables = NULL) {
+  pk <- pkeys(new("OPM_DB"))[1L]
+  char <- if (attr(conn, "isMySQL"))
+      "`"
+    else
+      "\""
+  sql <- sprintf("SELECT %s FROM %s WHERE %s;", quote_protected(pk, char),
+    quote_protected(map_values(names(pk), map.tables), char), object)
+  ids <- sqlQuery(conn, sql)
+  if (ncol(ids))
+    as.integer(ids[, 1L])
+  else
+    integer()
+}, sealed = SEALED)
+
 #= opm_dbget opm_dbput
 
 #' @rdname opm_dbput
@@ -376,36 +413,25 @@ setGeneric("opm_dbget",
   function(object, conn, ...) standardGeneric("opm_dbget"))
 
 setMethod("opm_dbget", c("integer", "DBIConnection"), function(object, conn,
-    map_tables = NULL, include = 2L) {
+    map.tables = NULL, include = 2L) {
   db2opmx(by(int2dbclass(include), object, dbGetQuery, conn = conn,
-    do_map = map_tables, do_inline = TRUE, simplify = TRUE,
-    do_quote = function(x) make.db.names(conn, x)))
-}, sealed = SEALED)
-
-setMethod("opm_dbget", c("character", "DBIConnection"), function(object, conn,
-    map_tables = NULL, include = 2L) {
-  db2opmx(by(int2dbclass(include), object, dbGetQuery, conn = conn,
-    do_map = map_tables, do_inline = TRUE, simplify = FALSE,
+    do_map = map.tables, do_inline = TRUE, simplify = TRUE,
     do_quote = function(x) make.db.names(conn, x)))
 }, sealed = SEALED)
 
 setMethod("opm_dbget", c("integer", "RODBC"), function(object, conn,
-    map_tables = NULL, include = 2L) {
+    map.tables = NULL, include = 2L) {
   db2opmx(by(int2dbclass(include), object, sqlQuery, channel = conn,
-    do_map = map_tables, do_inline = TRUE, do_quote = if (attr(conn, "isMySQL"))
+    do_map = map.tables, do_inline = TRUE, do_quote = if (attr(conn, "isMySQL"))
       "`"
     else
       "\"", stringsAsFactors = FALSE, simplify = TRUE))
 }, sealed = FALSE)
 
-setMethod("opm_dbget", c("character", "RODBC"), function(object, conn,
-    map_tables = NULL, include = 2L) {
-  db2opmx(by(int2dbclass(include), object, sqlQuery, channel = conn,
-    do_map = map_tables, do_inline = TRUE, do_quote = if (attr(conn, "isMySQL"))
-      "`"
-    else
-      "\"", stringsAsFactors = FALSE, simplify = FALSE))
-}, sealed = FALSE)
+setMethod("opm_dbget", c("character", "ANY"), function(object, conn,
+    map.tables = NULL, include = 2L) {
+  opm_dbget(opm_dbfind(object, conn, map.tables), conn, map.tables, include)
+}, sealed = SEALED)
 
 #= opm_dbnext opm_dbput
 
@@ -424,23 +450,23 @@ setMethod("opm_dbnext", c("OPMS", "ANY"), function(object, conn, ...) {
 })
 
 setMethod("opm_dbnext", c("integer", "ANY"), function(object, conn,
-    map_tables = NULL) {
-  opm_dbnext(int2dbclass(object), conn, map_tables)
+    map.tables = NULL) {
+  opm_dbnext(int2dbclass(object), conn, map.tables)
 }, sealed = SEALED)
 
 setMethod("opm_dbnext", c("OPM_DB", "DBIConnection"), function(object, conn,
-    map_tables = NULL) {
+    map.tables = NULL) {
   get_last <- function(tn, id, conn) {
     sql <- sprintf("SELECT max(%s) FROM %s;", make.db.names(conn, id),
       make.db.names(conn, tn))
     dbGetQuery(conn, sql)
   }
-  db2ids(by(object, TRUE, get_last, conn = conn, do_map = map_tables,
+  db2ids(by(object, TRUE, get_last, conn = conn, do_map = map.tables,
     do_inline = FALSE, simplify = TRUE))
 }, sealed = SEALED)
 
 setMethod("opm_dbnext", c("OPM_DB", "RODBC"), function(object, conn,
-    map_tables = NULL) {
+    map.tables = NULL) {
   get_last <- function(tn, id, conn, char) {
     sql <- sprintf("SELECT max(%s) FROM %s;",
       quote_protected(id, char), quote_protected(tn, char))
@@ -450,7 +476,7 @@ setMethod("opm_dbnext", c("OPM_DB", "RODBC"), function(object, conn,
     char = if (attr(conn, "isMySQL"))
       "`"
     else
-      "\"", do_map = map_tables, do_inline = FALSE, simplify = TRUE))
+      "\"", do_map = map.tables, do_inline = FALSE, simplify = TRUE))
 }, sealed = FALSE)
 
 #= opm_dbclear opm_dbput
@@ -461,22 +487,29 @@ setMethod("opm_dbnext", c("OPM_DB", "RODBC"), function(object, conn,
 setGeneric("opm_dbclear",
   function(object, conn, ...) standardGeneric("opm_dbclear"))
 
+setMethod("opm_dbclear", c("character", "ANY"), function(object, conn,
+    map.tables = NULL) {
+  opm_dbclear(opm_dbfind(object, conn, map.tables), conn, map.tables)
+}, sealed = SEALED)
+
 setMethod("opm_dbclear", c("integer", "DBIConnection"), function(object, conn,
-    map_tables = NULL) {
+    map.tables = NULL) {
   pk <- pkeys(new("OPM_DB"))[1L]
-  sql <- sprintf("DELETE FROM %s WHERE %s;", make.db.names(conn, names(pk)),
+  sql <- sprintf("DELETE FROM %s WHERE %s;", make.db.names(conn,
+    map_values(names(pk), map.tables)),
     paste(make.db.names(conn, pk), object, sep = " = ", collapse = " OR "))
   invisible(dbGetQuery(conn, sql))
 }, sealed = SEALED)
 
 setMethod("opm_dbclear", c("integer", "RODBC"), function(object, conn,
-    map_tables = NULL) {
+    map.tables = NULL) {
   pk <- pkeys(new("OPM_DB"))[1L]
-  char = if (attr(conn, "isMySQL"))
+  char <- if (attr(conn, "isMySQL"))
       "`"
     else
       "\""
-  sql <- sprintf("DELETE FROM %s WHERE %s;", quote_protected(names(pk), char),
+  sql <- sprintf("DELETE FROM %s WHERE %s;",
+    quote_protected(map_values(names(pk), map.tables), char),
     paste(quote_protected(pk, char), object, sep = " = ", collapse = " OR "))
   invisible(sqlQuery(conn, sql))
 }, sealed = SEALED)

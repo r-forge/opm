@@ -285,8 +285,9 @@ check_R_tests()
           getline
           sub(/\r$/, "") # repair Windows/DOS line breaks
           if (!(item in items)) {
-            printf "WARNING: unknown name \"%s\" in file %s, line %i\n", item,
-              FILENAME, FNR - 1 > "/dev/stderr"
+            if (item != "?")
+              printf "WARNING: unknown name \"%s\" in file %s, line %i\n", item,
+                FILENAME, FNR - 1 > "/dev/stderr"
             next
           }
           if ($1 == "##" && $2 == "UNTESTED") {
@@ -1586,7 +1587,7 @@ ____EOF
   pfull|pnorm )
     PKG_DIR=pkgutils_in
     RUNNING_MODE=${RUNNING_MODE#p}
-    CHECK_R_TESTS=
+    CHECK_R_TESTS=yes
   ;;
   plex )
     show_example_pdf_files
