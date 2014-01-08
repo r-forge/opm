@@ -1115,56 +1115,6 @@ setMethod("tidy", "list", function(object, ...) {
 ################################################################################
 ################################################################################
 #
-# Easter eggs
-#
-
-
-## NOTE: not an S4 method because conversion is done
-
-#' Stanley Kubrick
-#'
-#' Stanley Kubrick memorial function. Prints a quote from one of his movies.
-#'
-#' @param movie Character scalar (name of the movie) or convertible to such. If
-#'   empty, the quotation is chosen randomly. Otherwise, partial matching is
-#'   allowed.
-#' @return Character scalar (quotation), returned invisibly.
-#' @export
-#' @family auxiliary-functions
-#' @keywords utilities
-#' @examples
-#' x <- kubrick()
-#' stopifnot(is.character(x), length(x) == 1L)
-#'
-kubrick <- function(movie = character()) {
-  data <- c(
-    `Paths Of Glory` = paste(
-      "You see, George, those men know that I would never let them down."),
-    Spartacus = "I am Spartacus!",
-    Lolita = "The wedding was a quiet affair.",
-    `Dr. Strangelove` = paste(
-      "Gentlemen, you can't fight in here! This is the War Room!"),
-    `2001: A Space Odyssey` = "My God, it's full of stars.",
-    `A Clockwork Orange` = paste("It's a sin! Using Ludwig van like that.",
-      "He did no harm to anyone. Beethoven just wrote music."),
-    `Barry Lyndon` = paste(
-      "I'm under arrest? Captain Potzdorf, sir! I'm a British officer."),
-    `The Shining` = "All work and no play makes Jack a dull boy.",
-    `Full Metal Jacket` = "Sir, yes, sir!",
-    `Eyes Wide Shut` = "If you men only knew..."
-  )
-  idx <- if (length(movie))
-      as.character(movie)
-    else
-      as.integer(runif(1L, max = length(data))) + 1L
-  message(msg <- data[[idx, exact = FALSE]])
-  invisible(msg)
-}
-
-
-################################################################################
-################################################################################
-#
 # Mapping functions
 #
 
