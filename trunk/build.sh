@@ -1410,6 +1410,10 @@ run_staticdocs()
   local pkg
   local outdir
   for pkg; do
+    if [ ! -d "$pkg" ]; then
+      echo "WARNING: directory '$pkg' does not exist -- skipped" >&2
+      continue
+    fi
     outdir=${pkg#/}_html
     mkdir -pv "$outdir"
     [ -d "$pkg/demo" ] && rm -rv "$pkg/demo"
@@ -1568,6 +1572,7 @@ case $RUNNING_MODE in
 	  space   Remove trailing whitespace from all R and Rnw code files found.
 	  spell   Check spelling in the vignette files (see below for the Rd files).
 	  sql     SQL-based tests. Call '$0 sql -h' for a description.
+	  sta     Run staticdocs on the temporary package directories, if any.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
 	  time    Show the timings of the last examples, if any, in order.
@@ -1622,6 +1627,10 @@ ____EOF
   ;;
   rout )
     show_example_results "$@"
+    exit $?
+  ;;
+  sta )
+    run_staticdocs opm opmdata pkgutils opmDB
     exit $?
   ;;
   space )
