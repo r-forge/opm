@@ -144,8 +144,8 @@ NULL
 #' stopifnot(d == c(42, 378, 96), ha, hd)
 #'
 #' ## Brief overview
-#' flatten(shrestha_et_al[,1,"A01"], include = list("experiment", "strain",
-#' "variant", "replicate", "growth_medium","slot", "strain_variant"))
+#' flatten(shrestha_et_al[, 1, "A01"], include = list("experiment", "strain",
+#'   "variant", "replicate", "growth_medium", "slot", "strain_variant"))
 #'
 NULL
 
