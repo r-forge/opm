@@ -985,6 +985,8 @@ add_in_parens <- function(str.1, str.2, max = 1000L, append = ".",
 #' @param css Character vector containing the names of \acronym{CSS} files to
 #'   link.
 #' @param meta Character vector defining additional meta tags.
+#' @param ... Optional arguments (for \code{single_tag}, named arguments with
+#'   \acronym{HTML} tga attributes).
 #' @return Character scalar or vector.
 #' @details  If applied to lists, this functions works recursively, generating
 #'   \sQuote{div} elements from each list. Names are used as \sQuote{class} and
@@ -1019,10 +1021,14 @@ list2html <- function(x, level = 1L, fmt = opm_opt("html.class"), fac = 2L) {
 #' @rdname list2html
 #' @keywords internal
 #'
+single_tag <- function(x, ...) {
+  listing(list(...), c("<", x), ">", style = " %s=\"%s\"", collapse = "")
+}
+
+#' @rdname list2html
+#' @keywords internal
+#'
 html_head <- function(title, css, meta) {
-  single_tag <- function(x, ...) {
-    listing(list(...), c("<", x), ">", style = " %s=\"%s\"", collapse = "")
-  }
   html_comment <- function(x) {
     safe_labels(x, "html", comment = TRUE, enclose = FALSE)
   }
