@@ -91,8 +91,8 @@ NULL
 #' This \code{OPMS} object contains all measurements from the study by Shrestha
 #' \emph{et al.} (2013). Metadata have been added to fully describe the
 #' conducted OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} phenotype
-#' microarray (\sQuote{PM}) experiments. The plate type is \sQuote{Generation
-#' III}, but the running mode was as for the usual \sQuote{PM} plates.
+#' microarray (\acronym{PM}) experiments. The plate type is \sQuote{Generation
+#' III}, but the running mode was as for the usual \acronym{PM} plates.
 #'
 #' @docType data
 #' @keywords datasets
@@ -103,30 +103,29 @@ NULL
 #'   points).
 #' @details All plates also contain aggregated and discretised values generated
 #'   \emph{via} \code{do_aggr} and \code{do_disc} from the \pkg{opm} package
-#'   under default values. 
-#'   
-#'   For each of two strains of the plant pathogenic bacterium 
-#'   \emph{Acidovorax citrulli}, M6 and 7a1, two phenotypic variants V1 and V2 
-#'   were generated. \sQuote{PM} experiments were conducted in order to identify 
-#'   differences between the parental wildtype and any of its two variant 
-#'   descendants.
-#'  
-#'   The following metadata entries are contained in the Shrestha
-#'  \emph{et al.} \code{OPMS} object:
-#'  \itemize{
-#'   \item \sQuote{experiment} lists the experimental replicates \bold{zero}, 
-#'   \bold{first}, \bold{second}, and \bold{third}.
-#'   \item \sQuote{replicate} lists the terchnical replicates \bold{a} or 
-#'   \bold{b}. Technical replicates have precisely the same inoculum.
-#'   \item \sQuote{slot} lists the left \bold{A} or right \bold{B} plate sliding 
-#'   carriage in the OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} 
-#'   reader.
-#'   \item \sQuote{growth_medium} lists agar plate medium in which the bacteria 
-#'   were grown for inoculation,  \bold{NB} or \bold{LB} medium, respectively.
-#'   \item \sQuote{strain}, \sQuote{variant}, and \sQuote{strain_variant}
-#'   are self explanatory.
+#'   under default values.
+#'
+#'   For each of two strains of the plant pathogenic bacterium \emph{Acidovorax
+#'   citrulli}, M6 and 7a1, two phenotypic variants V1 and V2 were generated.
+#'   \acronym{PM} experiments were conducted in order to identify differences
+#'   between the parental wild type and any of its two variant descendants.
+#'
+#'   In addition to \sQuote{strain}, \sQuote{variant} and
+#'   \sQuote{strain_variant}, the following metadata entries are contained in
+#'   the Shrestha
+#'   \emph{et al.} \code{OPMS} object:
+#'   \describe{
+#'   \item{experiment}{Lists the experimental replicates \strong{zero},
+#'   \strong{first}, \strong{second}, and \strong{third}.}
+#'   \item{replicate}{Lists the technical replicates \strong{a} or
+#'   \strong{b}. Technical replicates have precisely the same inoculum.}
+#'   \item{slot}{Lists the left (\strong{A}) or right (\strong{B}) plate sliding
+#'   carriage in the OmniLog\eqn{\textsuperscript{\textregistered}}{(R)}
+#'   reader.}
+#'   \item{growth_medium}{Lists the agar plate medium in which the bacteria were
+#'   grown for inoculation, \strong{NB} or \strong{LB} medium, respectively.}
 #' }
-#'   
+#'
 #' @references Bochner, B.R., Savageau, M.A. 1977. Generalized indicator plate
 #'   for genetic, metabolic, and taxonomic studies with microorganisms. \emph{
 #'   Applied and Environmental Microbiology} \strong{33}, 434--444.
@@ -143,13 +142,13 @@ NULL
 #' (ha <- has_aggr(shrestha_et_al))
 #' (hd <- has_disc(shrestha_et_al))
 #' stopifnot(d == c(42, 378, 96), ha, hd)
-#' 
+#'
 #' ## Brief overview
-#' data(shrestha_et_al)
-#' flatten(shrestha_et_al[,1,"A01"], include = list("experiment", "strain", 
+#' flatten(shrestha_et_al[,1,"A01"], include = list("experiment", "strain",
 #' "variant", "replicate", "growth_medium","slot", "strain_variant"))
 #'
 NULL
+
 
 ################################################################################
 

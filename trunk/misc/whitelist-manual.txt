@@ -1,3 +1,4 @@
+Acidovorax
 BIOLOG
 Calinski
 Discretisation
@@ -26,6 +27,7 @@ YAML
 aeruginosa
 al
 arcsine
+citrulli
 coli
 covariates
 deparsing
@@ -37,6 +39,7 @@ encoding
 encodings
 et
 globbing
+inoculum
 logarithmised
 logfile
 maxima
@@ -44,6 +47,7 @@ metadata
 microarray
 namespace
 parallelisation
+phenotypic
 postprocessing
 prepend
 prepended
