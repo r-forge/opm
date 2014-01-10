@@ -132,7 +132,7 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     roxygen.space = 1L, comma = TRUE, ops = TRUE, parens = TRUE,
     assign = TRUE, modify = FALSE, ignore = NULL, accept.tabs = FALSE,
     three.dots = TRUE, what = "R", encoding = "",
-    filter = c("none", "sweave"), ...) {
+    filter = c("none", "sweave", "roxygen"), ...) {
   spaces <- function(n) paste0(rep.int(" ", n), collapse = "")
   LL(lwd, indention, roxygen.space, modify, comma, ops, parens, assign,
     accept.tabs, three.dots)
@@ -189,6 +189,14 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     lines_to_filter_out <- function(x, how) {
       case(how,
         none = FALSE,
+        roxygen = {
+          pos <- grepl("^#'\\s*@\\w+\\b", x, FALSE, TRUE)
+          pos <- pos | !grepl("^#'", x, FALSE, TRUE)
+          pos <- as.integer(sections(pos, TRUE))
+          pos[is.na(pos)] <- -1L
+          starts <- grepl("^#'\\s*@examples\\b", x, FALSE, TRUE)
+          !(pos %in% pos[starts]) | starts
+        },
         sweave = {
           starts <- grepl("^<<.*>>=", x, FALSE, TRUE)
           stops <- grepl("^@", x, FALSE, TRUE)
@@ -200,6 +208,10 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     if (any(filtered <- lines_to_filter_out(x, filter))) {
       orig <- x
       x[filtered] <- ""
+      if (filter == "roxygen") {
+        x[!filtered] <- sub(roxygen.space, "", x[!filtered], FALSE, TRUE)
+        filtered[!filtered] <- TRUE
+      }
     } else {
       orig <- NULL
     }
