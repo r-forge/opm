@@ -143,9 +143,8 @@ NULL
 #' (hd <- has_disc(shrestha_et_al))
 #' stopifnot(d == c(42, 378, 96), ha, hd)
 #'
-#' ## Brief overview
-#' flatten(shrestha_et_al[, 1, "A01"], include = list("experiment", "strain",
-#'   "variant", "replicate", "growth_medium", "slot", "strain_variant"))
+#' ## Brief overview of the metadata
+#' head(to_metadata(shrestha_et_al))
 #'
 NULL
 
@@ -165,8 +164,8 @@ NULL
 #' @keywords datasets
 #' @name wittmann_et_al
 #' @format \code{OPMS} object with the dimensions 121 x 382 x 96, i.e. 121
-#'   plates with 382 time points and 96 wells per plate. (xx plates have xx, xx
-#'   or xx time points, respectively; the remaining xx plates have xx time
+#'   plates with 384 time points and 96 wells per plate. (115 plates have 384
+#'   time points; five plates have 382 time points and one plate has 383 time
 #'   points).
 #' @details All plates also contain aggregated values generated \emph{via}
 #'   \code{do_aggr} using the \code{"opm-fast"} method without bootstrapping.
@@ -209,10 +208,8 @@ NULL
 #' (ha <- has_aggr(wittmann_et_al))
 #' stopifnot(d == c(121, 382, 96), ha)
 #'
-#' ## Brief overview
-#' flatten(wittmann_et_al[, 1, "A01"], include = list("genus", "species",
-#'   "strain", "country", "city", "year", "isolated_from", "source", "habitat",
-#'   "replicate", "MLSTcluster"))
+#' ## Brief overview of the metadata
+#' head(to_metadata(wittmann_et_al))
 #'
 NULL
 

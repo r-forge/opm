@@ -15,7 +15,7 @@
     ops = TRUE, parens = TRUE, assign = TRUE,
     modify = FALSE, ignore = NULL, accept.tabs = FALSE,
     three.dots = TRUE, what = "R", encoding = "",
-    filter = c("none", "sweave"), ...)
+    filter = c("none", "sweave", "roxygen"), ...)
 
   check_Sweave_start(x, ...)
 
@@ -30,7 +30,7 @@
   \method{logfile}{character} (x)
 }
 \arguments{
-  \item{x}{For \code{check_r_code}, a character vector of
+  \item{x}{For \code{check_R_code}, a character vector of
   names of input files, or names of \R package directories.
   The latter will be expanded as appropriate. \code{x} is
   passed to \code{\link{pkg_files}} with the
@@ -98,7 +98,11 @@
   files.}
 
   \item{filter}{Character scalar indicating the filter to
-  use.}
+  use. The \code{"roxygen"} filter extracts the examples
+  from \pkg{roxygen2}-style comments, assuming that the
+  \sQuote{#} character that start such a comment are not
+  preceded by whitespace. (Lines in which this is the case
+  are detected if no filtering is used.)}
 
   \item{...}{Optional other arguments passed to
   \code{\link{pkg_files}}.}
