@@ -810,3 +810,260 @@ setAs(from = "matrix", to = CMAT, function(from) {
 
 ################################################################################
 
+
+#' Classes for \pkg{opm} database I/O
+#'
+#' These child classes of \code{DBTABLES} from the \pkg{pkgutils} package hold
+#' intermediary objects that can be used for database input and output of
+#' \code{\link{OPMX}} objects. These classes are not normally directly dealt
+#' with by an \pkg{opm} user but are documented here for completeness. See
+#' \code{\link{opm_dbput}} for methods that internally use these classes for
+#' database I/O.
+#'
+#' @details
+#'   See their documentation for details on \code{\link{OPMX}} objects
+#'   themselves.
+#'   We here define the following additional classes: \describe{
+#'   \item{OPM_DB}{Holds all data that occur in an \code{\link{OPM}} object, or
+#'   in several such objects as contained in an \code{\link{OPMS}} object.}
+#'   \item{OPMA_DB}{Holds all data that occur in an \code{\link{OPMA}} object,
+#'   or in several such objects as contained in an \code{\link{OPMS}} object.}
+#'   \item{OPMD_DB}{Holds all data that occur in an \code{\link{OPMD}} object,
+#'   or in several such objects as contained in an \code{\link{OPMS}} object.}
+#'   }
+#'   The inheritance relationships thus mirror those of the \code{\link{OPMX}}
+#'   objects (with the exception of \code{\link{OPMS}}). Conversion with
+#'   \code{as} is implemented from all \code{\link{OPMX}} classes to all classes
+#'   defined here. Lists can also be converted provided they only contain
+#'   \code{\link{OPMX}} objects (or lists of such objects).
+#'
+#'   Conversion in the other direction, yielding one of the \code{\link{OPMX}}
+#'   classes, is also implemented. Attempting to convert several plates to an
+#'   \code{\link{OPMX}} class other than \code{\link{OPMS}} will yield an error,
+#'   however, as well as trying to convert a single plate to \code{\link{OPMS}},
+#'   or several plates with distinct plate types. In contrast, conversion to a
+#'   list will work in all instances, and such a list could further be processed
+#'   with the \code{\link{opms}} function, irrespective of the number of plates
+#'   contained.
+#'
+#'   In contrast to the \code{\link{OPMX}} classes, the three ones defined here
+#'   can be created using \code{new}, yielding empty objects. These can neither
+#'   be converted to \code{\link{OPMX}} objects nor combined with them using
+#'   \code{c}. Instead, they are useful in conjunction with \code{by} from the
+#'   \pkg{pkgutils} package with \code{do_inline} set to \code{TRUE}. They
+#'   contain all \code{fkeys} information and can be filled using a suitable
+#'   \code{FUN} argument.
+#'
+#' @docType class
+#' @export
+#' @name OPM_DB
+#' @aliases OPM_DB-class
+#' @seealso methods::Methods methods::new opm::opms
+#' @family classes
+#' @keywords methods classes database
+#' @examples
+#'
+#' library(pkgutils)
+#'
+#' ## show all conversions with as()
+#' showMethods("coerce", classes = c("OPM_DB", "OPMA_DB", "OPMD_DB"))
+#'
+#' ## conversions back and forth, OPMD as starting point
+#' (x <- as(vaas_1, "OPMD_DB"))
+#' (y <- as(x, "OPMD"))
+#' stopifnot(
+#'   dim(y) == dim(vaas_1),
+#'   # numeric data remain except for rounding errors:
+#'   all.equal(measurements(y), measurements(vaas_1)),
+#'   all.equal(aggregated(y), aggregated(vaas_1)),
+#'   all.equal(discretized(y), discretized(vaas_1)),
+#'   # file names get normalized, hence CSV dat may get unequal:
+#'   !isTRUE(all.equal(csv_data(y), csv_data(vaas_1)))
+#' )
+#' (y <- try(as(x, "OPMS"), silent = TRUE))
+#' stopifnot(inherits(y, "try-error")) # does not work because only 1 plate
+#'
+#' ## conversions back and forth, OPMS as starting point
+#' (x <- as(vaas_4, "OPMD_DB"))
+#' (y <- as(x, "OPMS"))
+#' stopifnot(sapply(1:length(y), # same values
+#'   function(i) dim(y[i]) == dim(vaas_4[i])))
+#' (y <- try(as(x, "OPMD"), silent = TRUE)) # does not work because > 1 plate
+#' stopifnot(inherits(y, "try-error"))
+#' (y <- as(x, "list")) # one can always go through a list
+#' stopifnot(sapply(y, is, "OPMD")) # opms() could now be called
+#'
+#' ## one can create new objects without data
+#' (y <- new("OPMD_DB"))
+#' stopifnot(fkeys_valid(y), fkeys(y) == fkeys(x), !length(y))
+#' # such objects cannot be converted to OPMX but can be filled using by()
+#'
+setClass("OPM_DB",
+  contains = "DBTABLES",
+  slots = c(plates = "data.frame", wells = "data.frame",
+    measurements = "data.frame"),
+  prototype = list(plates = data.frame(id = integer(), machine_id = integer()),
+    wells = data.frame(id = integer(), plate_id = integer()),
+    measurements = data.frame(id = integer(), well_id = integer())),
+  validity = fkeys_valid,
+  sealed = SEALED
+)
+
+#' @rdname OPM_DB
+#' @name OPMA_DB
+#' @aliases OPMA_DB-class
+#' @docType class
+#' @export
+#'
+setClass("OPMA_DB",
+  contains = "OPM_DB",
+  # the superclass slots must be repeated here to enforce the ordering
+  slots = c(plates = "data.frame", wells = "data.frame",
+    measurements = "data.frame", aggr_settings = "data.frame",
+    aggregated = "data.frame"),
+  prototype = list(plates = data.frame(id = integer(), machine_id = integer()),
+    wells = data.frame(id = integer(), plate_id = integer()),
+    measurements = data.frame(id = integer(), well_id = integer()),
+    aggr_settings = data.frame(id = integer(), plate_id = integer()),
+    aggregated = data.frame(id = integer(), well_id = integer(),
+      aggr_setting_id = integer())),
+  validity = fkeys_valid,
+  sealed = SEALED
+)
+
+#' @rdname OPM_DB
+#' @name OPMD_DB
+#' @aliases OPMD_DB-class
+#' @docType class
+#' @export
+#'
+setClass("OPMD_DB",
+  contains = "OPMA_DB",
+  # the superclass slots must be repeated here to enforce the ordering
+  slots = c(plates = "data.frame", wells = "data.frame",
+    measurements = "data.frame", aggr_settings = "data.frame",
+    aggregated = "data.frame", disc_settings = "data.frame",
+    discretized = "data.frame"),
+  prototype = list(plates = data.frame(id = integer(), machine_id = integer()),
+    wells = data.frame(id = integer(), plate_id = integer()),
+    measurements = data.frame(id = integer(), well_id = integer()),
+    aggr_settings = data.frame(id = integer(), plate_id = integer()),
+    aggregated = data.frame(id = integer(), well_id = integer(),
+      aggr_setting_id = integer()),
+    disc_settings = data.frame(id = integer(), plate_id = integer()),
+    discretized = data.frame(id = integer(), well_id = integer(),
+      disc_setting_id = integer())),
+  validity = fkeys_valid,
+  sealed = SEALED
+)
+
+
+################################################################################
+#
+# Conversions with as()
+#
+
+
+setAs("OPM", "OPM_DB", function(from) {
+  x <- forward_OPM_to_list(from)
+  new("OPM_DB", plates = x$plates, wells = x$wells,
+    measurements = x$measurements)
+})
+
+setAs("OPM_DB", "OPM", function(from) {
+  as(backward_OPM_to_list(from), "OPM")
+})
+
+setAs("OPMA", "OPMA_DB", function(from) {
+  x <- forward_OPMA_to_list(from)
+  new("OPMA_DB", plates = x$plates, wells = x$wells,
+    measurements = x$measurements, aggr_settings = x$aggr_settings,
+    aggregated = x$aggregated)
+})
+
+setAs("OPMA_DB", "OPMA", function(from) {
+  as(backward_OPMA_to_list(from), "OPMA")
+})
+
+setAs("OPMD", "OPMD_DB", function(from) {
+  x <- forward_OPMA_to_list(from)
+  dsets <- settings_forward(from@disc_settings, x$plates[, "id"])
+  ddata <- from@discretized
+  ddata <- data.frame(id = seq_along(ddata), stringsAsFactors = FALSE,
+    well_id = match(names(ddata), x$wells[, "coordinate"]),
+    disc_setting_id = 1L, value = unname(ddata), check.names = FALSE)
+  new("OPMD_DB", plates = x$plates, wells = x$wells,
+    measurements = x$measurements, aggr_settings = x$aggr_settings,
+    aggregated = x$aggregated, disc_settings = dsets, discretized = ddata)
+})
+
+setAs("OPMD_DB", "OPMD", function(from) {
+  as(backward_OPMD_to_list(from), "OPMD")
+})
+
+
+################################################################################
+#
+# Conversion to and from lists
+#
+
+
+setAs("list", "OPM_DB", function(from) {
+  do.call(c, rapply(object = from, f = as, Class = "OPM_DB"))
+})
+
+setAs("list", "OPMA_DB", function(from) {
+  do.call(c, rapply(object = from, f = as, Class = "OPMA_DB"))
+})
+
+setAs("list", "OPMD_DB", function(from) {
+  do.call(c, rapply(object = from, f = as, Class = "OPMD_DB"))
+})
+
+setAs("OPM_DB", "list", function(from) {
+  lapply(split(from), as, "OPM")
+})
+
+setAs("OPMA_DB", "list", function(from) {
+  lapply(split(from), as, "OPMA")
+})
+
+setAs("OPMD_DB", "list", function(from) {
+  lapply(split(from), as, "OPMD")
+})
+
+
+################################################################################
+#
+# Conversion to and from OPMS objects
+#
+
+
+setAs("OPMS", "OPM_DB", function(from) {
+  do.call(c, lapply(from@plates, as, "OPM_DB"))
+})
+
+setAs("OPMS", "OPMA_DB", function(from) {
+  do.call(c, lapply(from@plates, as, "OPMA_DB"))
+})
+
+setAs("OPMS", "OPMD_DB", function(from) {
+  do.call(c, lapply(from@plates, as, "OPMD_DB"))
+})
+
+setAs("OPM_DB", "OPMS", function(from) {
+  as(lapply(split(from), backward_OPM_to_list), "OPMS")
+})
+
+setAs("OPMA_DB", "OPMS", function(from) {
+  as(lapply(split(from), backward_OPMA_to_list), "OPMS")
+})
+
+setAs("OPMD_DB", "OPMS", function(from) {
+  as(lapply(split(from), backward_OPMD_to_list), "OPMS")
+})
+
+
+################################################################################
+
+

@@ -1154,7 +1154,8 @@ remove_R_session_files()
 ################################################################################
 
 
-# Run the R code in the files delivered with opm as demos.
+# Run the R code in the files delivered with a package as demos. Omit the
+# SQL-based ones, if any.
 #
 test_demos()
 {
@@ -1170,9 +1171,41 @@ test_demos()
   done
   local rscript
   local errs=0
-  export OPM_SQLITE_DB=$wdir/misc/pmdata.db
   for rscript in "$wdir"/"$1"/demo/*.R; do
     [ -s "$rscript" ] || continue
+    [ "$1" = opm_in ] && [[ $rscript =~ SQL|ODBC ]] && continue
+    echo "TESTING ${rscript##*/}..."
+    if R CMD BATCH "$rscript"; then
+      echo "	<<<SUCCESS>>>"
+    else
+      echo "	<<<FAILURE>>>"
+      errs=$((errs + 1))
+      cp "${rscript##*/}out" "$wdir"
+    fi
+    echo
+  done
+  cd "$wdir"
+  rm -rf "$tmpdir"
+  return $errs
+}
+
+
+################################################################################
+
+
+# Run the R code in the SQL-based files delivered with opm as demos.
+#
+test_sql_demos()
+{
+  local wdir=`pwd`
+  local tmpdir=`mktemp -d --tmpdir`
+  cd "$tmpdir"
+  local rscript
+  local errs=0
+  export OPM_SQLITE_DB=$wdir/misc/pmdata.db
+  for rscript in "$wdir"/opm_in/demo/*.R; do
+    [ -s "$rscript" ] || continue
+    [[ $rscript =~ SQL|ODBC ]] || continue
     echo "TESTING ${rscript##*/}..."
     if R CMD BATCH "$rscript"; then
       echo "	<<<SUCCESS>>>"
@@ -1225,8 +1258,7 @@ print_test_result()
 ################################################################################
 
 
-# Test the database I/O functions of opmDB. Fails unless the test databases are
-# accessible.
+# Test the SQL coming with opm. Fails unless the test databases are accessible.
 #
 test_sql()
 {
@@ -1251,7 +1283,7 @@ test_sql()
 
   if [ "$help_msg" ]; then
     cat >&2 <<-____EOF
-	Test the SQL included in the opmDB package. Requires access to SQLite, MySQL
+	Test the SQL files included in a package. Requires access to SQLite, MySQL
 	and/or PostgreSQL databases with read/write access for the current user.
 
 	Options:
@@ -1261,8 +1293,7 @@ test_sql()
 	  -s x  Use SQLite database x.
 
 	The default database name is 'pmdata'. An empty database name turns off the
-	according test. Unless explicitly provided, SQL files to test are search in
-	the 'opmDB_in' directory.
+	according test.
 
 ____EOF
     return 1
@@ -1271,6 +1302,7 @@ ____EOF
   local errs=0
   local outcome
   local infile
+
   if [ "$sqlite3_dbname" ]; then
     local dirpart=${sqlite3_dbname%/*}
     [ "$dirpart" != "$sqlite3_dbname" ] && mkdir -p "$dirpart"
@@ -1281,6 +1313,7 @@ ____EOF
       errs=$((errs + outcome))
     done
   fi
+
   if [ "$mysql_dbname" ]; then
     for infile; do
       mysql --show-warnings -B -s "$mysql_dbname" < "$infile" > /dev/null &&
@@ -1289,6 +1322,7 @@ ____EOF
       errs=$((errs + outcome))
     done
   fi
+
   if [ "$postgresql_dbname" ]; then
     for infile; do
       psql -q -o /dev/null -d "$postgresql_dbname" -f "$infile" &&
@@ -1407,28 +1441,28 @@ ____EOF
 ################################################################################
 
 
-# Run code from the 'staticdocs' package to create HTML documentation. Does not
-# yield fully convincing results yet but 'staticdocs' is work in progress.
-#
-run_staticdocs()
-{
-  local pkg
-  local outdir
-  for pkg; do
-    if [ ! -d "$pkg" ]; then
-      echo "WARNING: directory '$pkg' does not exist -- skipped" >&2
-      continue
-    fi
-    outdir=${pkg#/}_html
-    mkdir -pv "$outdir"
-    [ -d "$pkg/demo" ] && rm -rv "$pkg/demo"
-    mkdir -pv "$pkg/inst/staticdocs"
-    R --vanilla --interactive <<-____EOF
-	staticdocs::build_package("$pkg", "$outdir")
-	quit("no")
-____EOF
-  done
-}
+## Run code from the 'staticdocs' package to create HTML documentation. Does not
+## yield fully convincing results yet but 'staticdocs' is work in progress.
+##
+#run_staticdocs()
+#{
+#  local pkg
+#  local outdir
+#  for pkg; do
+#    if [ ! -d "$pkg" ]; then
+#      echo "WARNING: directory '$pkg' does not exist -- skipped" >&2
+#      continue
+#    fi
+#    outdir=${pkg#/}_html
+#    mkdir -pv "$outdir"
+#    [ -d "$pkg/demo" ] && rm -rv "$pkg/demo"
+#    mkdir -pv "$pkg/inst/staticdocs"
+#    R --vanilla --interactive <<-____EOF
+#	staticdocs::build_package("$pkg", "$outdir")
+#	quit("no")
+#____EOF
+#  done
+#}
 
 
 ################################################################################
@@ -1504,11 +1538,6 @@ case $RUNNING_MODE in
     show_lines_with_forbidden_characters "$@"
     exit $?
   ;;
-  bnorm )
-    PKG_DIR=opmDB_in
-    RUNNING_MODE=${RUNNING_MODE#b}
-    CHECK_R_TESTS=
-  ;;
   cran )
     for mode in test demo sql time plex spell; do
       "$0" "$mode" || :
@@ -1529,8 +1558,8 @@ case $RUNNING_MODE in
   ;;
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
-      remove_dirs_carefully pkgutils opm opmdata opmDB &&
-      remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmDB_doc
+      remove_dirs_carefully pkgutils opm opmdata &&
+      remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc
     exit $?
   ;;
   example )
@@ -1557,7 +1586,6 @@ case $RUNNING_MODE in
 
 	Possible values for 'mode':
 	  ascii   Show lines that contain forbidden characters (such as non-ASCII).
-	  bnorm   Normal build of the opmDB package.
 	  cran    Run in all modes that should be run before a CRAN submission.
 	  demo    Test the demo code that comes with opm.
 	  dfull   Full build of the opmdata package.
@@ -1578,7 +1606,6 @@ case $RUNNING_MODE in
 	  space   Remove trailing whitespace from all R and Rnw code files found.
 	  spell   Check spelling in the vignette files (see below for the Rd files).
 	  sql     SQL-based tests. Call '$0 sql -h' for a description.
-	  sta     Run staticdocs on the temporary package directories, if any.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
 	  time    Show the timings of the last examples, if any, in order.
@@ -1628,17 +1655,17 @@ ____EOF
     exit $?
   ;;
   rnw )
-    run_Stangle opm_in opmdata_in pkgutils_in opmDB_in
+    run_Stangle opm_in opmdata_in pkgutils_in
     exit $?
   ;;
   rout )
     show_example_results "$@"
     exit $?
   ;;
-  sta )
-    run_staticdocs opm opmdata pkgutils opmDB
-    exit $?
-  ;;
+#  sta )
+#    run_staticdocs opm opmdata pkgutils
+#    exit $?
+#  ;;
   space )
     remove_trailing_whitespace
     exit $?
@@ -1649,8 +1676,8 @@ ____EOF
     exit $?
   ;;
   sql )
-    set -- "$@" -- `find opmDB_in -type f -iname '*.sql' -exec ls \{\} +`
-    test_sql "$@" && test_demos opmDB_in
+    set -- "$@" -- `find opm_in -type f -iname '*.sql' -exec ls \{\} +`
+    test_sql "$@" && test_sql_demos
     exit $?
   ;;
   tags )
@@ -1662,7 +1689,7 @@ ____EOF
     exit $?
   ;;
   time )
-    show_example_timings opm opmdata pkgutils opmDB
+    show_example_timings opm opmdata pkgutils
     exit $?
   ;;
   todo )

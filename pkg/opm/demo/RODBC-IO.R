@@ -15,7 +15,6 @@
 
 
 library(opm)
-library(opmDB)
 library(RODBC)
 
 

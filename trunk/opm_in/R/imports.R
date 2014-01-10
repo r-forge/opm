@@ -7,7 +7,7 @@
 #
 
 
-#' @import methods grofit mgcv nlme pkgutils
+#' @import methods grofit mgcv nlme pkgutils DBI
 #'
 NULL
 
@@ -51,7 +51,7 @@ NULL
 #'
 NULL
 
-#' @importFrom rjson toJSON
+#' @importFrom rjson toJSON fromJSON
 #'
 NULL
 

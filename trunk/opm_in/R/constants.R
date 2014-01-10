@@ -98,6 +98,12 @@ RESERVED_NAMES <- c("Plate", "Well", "Time", "Value", "Parameter")
 names(RESERVED_NAMES) <- tolower(RESERVED_NAMES)
 
 
+# Used for the measurements slot. Also provides the correct order of columns.
+# See forward_OPM_to_list() for its use.
+#
+MEASUREMENT_COLUMN_MAP <- c(Well = "well_id", Time = "time", Value = "value")
+
+
 # Names used in aggregation/discretization settings.
 #
 SOFTWARE <- "software"

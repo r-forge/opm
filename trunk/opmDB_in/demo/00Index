@@ -1,4 +1,0 @@
-RODBC_IO    Database I/O using RODBC
-MySQL_IO    Database I/O using RMySQL
-SQLite_IO    Database I/O using RSQLite
-PostgreSQL_IO    Database I/O using RPostgreSQL_IO

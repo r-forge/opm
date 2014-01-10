@@ -40,7 +40,7 @@ listing <- function(x, ...) UseMethod("listing")
 
 listing.double <- function(x, ...) {
   x <- signif(x, getOption("digits"))
-  mode(x) <- "character"
+  storage.mode(x) <- "character"
   listing.character(x, ...)
 }
 

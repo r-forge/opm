@@ -521,7 +521,7 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #' \pkg{utils} package for editing the metadata by hand.
 #'
 #' @param object \code{\link{OPM}} (\code{\link{WMD}}), \code{\link{OPMS}} or
-#'   \code{\link{MOPMX}} object.
+#'   \code{\link{MOPMX}} object. For \code{map_values}, a list.
 #'
 #' @param name Like \code{object}, but for the \code{edit} method.
 #'
@@ -536,7 +536,7 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #' @param remove.keys Logical scalar. When including \code{md} in the metadata,
 #'   discard the \code{keys} columns?
 #'
-#' @param mapping In most cases passed to \code{\link{map_values}}. \itemize{
+#' @param mapping In most cases passed to \code{map_values}. \itemize{
 #'   \item If a function, this is just a wrapper for \code{rapply}, with
 #'   \code{how} set to \sQuote{replace}, if \code{values} is \code{TRUE}. It is
 #'   applied to all non-list elements of \code{\link{metadata}}, which is
@@ -545,12 +545,15 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #'   be used to create a template for such a vector.
 #'   \item \code{mapping} can also be a formula; in that case,
 #'   \code{\link{metadata}} is replaced by the according  method of
-#'   \code{\link{map_values}}. If the left side of the formula is missing, the
+#'   \code{map_values}. If the left side of the formula is missing, the
 #'   entire metadata are replaced by the result, which is an error if the result
 #'   is not a list.
 #'   \item If \code{mapping} is missing, the behaviour is special; see the next
 #'   two arguments.
 #' }
+#' The \pkg{opm} package augments \code{map_values} with a method for lists and
+#' formulae. For all other methods, see the \pkg{pkgutils} package.
+#'
 #' @param values Mostly a logical scalar. \itemize{
 #'   \item For the function and character-vector methods, if \code{FALSE},
 #'   metadata names, not values, are mapped, and \code{classes} is ignored
@@ -568,11 +571,13 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #'
 #'   If \code{classes} is \code{TRUE}, \code{mapping} is treated as a mapping
 #'   between class names, and the according conversions are applied. See the
-#'   \code{coerce} argument of \code{\link{map_values}} for details.
+#'   \code{coerce} argument of \code{map_values} for details.
 #'
 #'   If \code{mapping} is missing, \code{classes} specifies classes that are
 #'   converted to character vectors.
 #'
+#' @param coerce Character vector or \code{TRUE}. See the description of
+#'   \code{map_values} in the \pkg{pkgutils} package for details.
 #' @param ... Optional arguments passed to \code{mapping} if it is a function,
 #'   and from the \code{\link{OPMS}} method to the \code{\link{WMD}} method, or
 #'   from \code{include_metadata} to \code{\link{to_metadata}}, or as additional
@@ -680,6 +685,23 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #'   x <- edit(x) # overwrite x in 2nd editing step
 #'   ## This will not necessarily work if the metadata are nested!
 #' }
+#'
+#' ## List/formula method of map_values()
+#' x <- list(a = 1:8, c = 9, d = 'x')
+#' (y <- map_values(x, ~ a + c))
+#' stopifnot(is.numeric(y), y == c(10:17))
+#' (y <- map_values(x, b ~ a + c))
+#' stopifnot(is.list(y), y$b == c(10:17))
+#'
+#' # ...applied to a data frame
+#' x <- data.frame(a = 1:5, b = 6:10)
+#' (y <- map_values(x, c ~ a + b))
+#' stopifnot(is.data.frame(y), dim(y) == c(5, 3))
+#' (z <- map_values(x, ~ a + b))
+#' stopifnot(identical(z, y$c))
+#' # same effect with an expression
+#' (z <- map_values(x, expression(c <- a + b)))
+#' stopifnot(identical(z, y))
 #'
 setGeneric("include_metadata",
   function(object, ...) standardGeneric("include_metadata"))
@@ -821,6 +843,29 @@ setMethod("map_metadata", c(MOPMX, "ANY"), function(object, mapping, ...) {
   object@.Data <- lapply(X = object@.Data, FUN = map_metadata,
     mapping = mapping, ...)
   object
+}, sealed = SEALED)
+
+#= map_values include_metadata
+
+#' @rdname include_metadata
+#' @export
+#'
+setGeneric("map_values")
+
+setMethod("map_values", c("list", "formula"), function(object, mapping,
+    coerce = parent.frame()) {
+  if (length(mapping) > 2L) {
+    right <- eval(mapping[[3L]], object, coerce)
+    left <- metadata_key.formula(mapping[-3L], FALSE, envir = coerce)
+    if (is.list(left)) {
+      right <- rep(right, length.out = length(left))
+      for (i in seq_along(left))
+        object[[left[[i]]]] <- right[[i]]
+    } else
+      object[[left]] <- right
+    object
+  } else
+    eval(mapping[[2L]], object, coerce)
 }, sealed = SEALED)
 
 #= edit include_metadata

@@ -242,7 +242,9 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #'
 #' # other 'x' arguments
 #' stopifnot(listing(x) == listing(as.list(x)))
-#' stopifnot(listing(pi) == "1: 3.141593") # controlled by getOption("digits")
+#' old.opt <- options(digits = 3)
+#' stopifnot(listing(pi) == "1: 3.14") # controlled by getOption("digits")
+#' options(old.opt)
 #'
 listing <- function(x, ...) UseMethod("listing")
 
@@ -252,7 +254,7 @@ listing <- function(x, ...) UseMethod("listing")
 #'
 listing.double <- function(x, ...) {
   x <- signif(x, getOption("digits"))
-  mode(x) <- "character"
+  storage.mode(x) <- "character"
   listing.character(x, ...)
 }
 

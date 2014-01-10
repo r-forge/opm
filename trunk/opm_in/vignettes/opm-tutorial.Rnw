@@ -166,7 +166,9 @@ Containers of \pkg{opm} data can easily be queried for and subset by using the i
 The raw kinetic data can be displayed with customised plotting functions.
 In addition to 95\% confidence plots and enhanced heat-map graphics for visual comparisons of the estimated curve parameters, the package includes customised methods for user-defined simultaneous multiple comparisons of group means.
 It is also possible to discretise the curve parameters and to export them for reconstructing character evolution or inferring phylogenies with external programs.
+
 Tabular and textual summaries suitable for, e.g., taxonomic journals can also be automatically created and customised.
+Data storage within, and data retrieval from, relational or other databases is easily possible.
 Export and import in the \proglang{YAML} (or \proglang{JSON}) markup language (or as character-separated values) facilitates the data exchange among labs.
 All methods are exemplified using real-world data sets that are part of the \pkg{opm} \proglang{R} package or are included in the accompanying data package \pkg{opmdata}.
 
@@ -174,9 +176,10 @@ This is the tutorial of \pkg{opm} in the version of \today{}.
 
 }
 
-\Keywords{Bootstrap, Cell Lines, \pkg{grofit}, Growth Curves, \pkg{lattice}, Metadata, Microbiology, Respiration Kinetics, Splines, \proglang{YAML}, \proglang{JSON}, \acs{CSV}}
+\Keywords{Bootstrap, Cell Lines, \pkg{grofit}, Growth Curves, \pkg{lattice}, Metadata, Microbiology, Respiration Kinetics, Splines, \proglang{YAML}, \proglang{JSON}, \acs{CSV},
+\acs{RDBMS}}
 
-\Plainkeywords{bootstrap, cell lines, grofit, growth curves, lattice, metadata, microbiology, respiration kinetics, splines, YAML, JSON, CSV}
+\Plainkeywords{bootstrap, cell lines, grofit, growth curves, lattice, metadata, microbiology, respiration kinetics, splines, YAML, JSON, CSV, RDBMS}
 
 \Address{
   Markus \Surname{G\"{o}ker}\\
@@ -372,7 +375,7 @@ Example code, including the export of discretisation results as  publication-rea
 Textual reports with or without formatting markup can also be produced, as exemplified in Section~\ref{application discrete-text}.
 The discretisation settings can be modified in detail; see Section~\ref{application discrete-finetuning}.
 
-Furthermore, substrate information can be accessed, including accession numbers for relevant databases.
+Furthermore, substrate information can be accessed, including accession numbers for relevant public databases.
 Detailed explanations and code examples are included in the vignette ``Working with substrate information in \pkg{opm}''.
 
 Database interaction for storing and receiving \ac{PM} data is described in the Section~\ref{methods database}.
@@ -470,6 +473,7 @@ See their help pages (e.g., \code{?has\_aggr}) and Section~\ref{application} for
 Another container class, \proglang{MOPMX}, offers looser collections of objects.
 \proglang{MOPMX} objects are lists restricted to objects of the previously listed classes as elements, which may or may not have the same plate type.
 The non-virtual classes in the upper part of the figure are either well-known in \proglang{R} (e.g., matrices) or not directly manipulated by the user (\proglang{CMAT}).
+The \proglang{OPM\_DB} class and its child classes are internally used by \pkg{opm} for interactions with \acs{RDBMS}.
 }
 \end{figure}
 
@@ -734,22 +738,24 @@ If intermediary values were coded as missing information they could be analysed 
 
 This topic is for advanced users and bioinformaticians, as it requires setting up, or at least having access to, a database server.
 For this reason, automatically executed (and thus checked) code for database I/O of \ac{PM} data directly within \proglang{R} can neither be included here nor in the example sections of the \pkg{opm} manual.
-We have tested all of the following statements, and all of the mentioned code examples, on our own workstations.
+So we have tested all of the following statements, and all of the mentioned code examples, on our own workstations.
 But for a successful database interaction users might need information that is not directly related to \pkg{opm} and thus cannot be treated in the documentation of this package.
 We can nevertheless provide example code that uses \pkg{opm} together with database-specific \proglang{R} packages for storing and receiving \ac{PM} data.
 
 Database interaction differs greatly depending on whether a relational database or one of the more recent \proglang{NoSQL} alternatives is concerned.
+For working with a \ac{RDBMS}, a scheme needs to be defined beforehand for storing the \ac{PM} data, and additional conversions and selections are necessary.
+The scheme required by the \code{opm\_dbput} function and its accompanying functions such as \code{opm\_dbget} is provided with \pkg{opm} \textit{via} \code{opm\_files("sql")}.
+Whereas these functions require certain column names, as well as inter-table relationships defined by foreign keys, the tables could be renamed.
+Note particularly that columns for the metadata of interest could (and should) be added to the ``plates'' table.
+Call \code{demo(package = "opm")} to see examples for \proglang{SQLite}, \proglang{MySQL} and \proglang{PostgreSQL}.
+This code was successfully tested locally with \pkg{RSQLite} \citep{James2013}, \pkg{RMySQL} \citep{James2012}, \pkg{RPostgreSQL} \citep{Conway2013} and \pkg{RODBC} \citep{Ripley2013}.
+
 A popular document-oriented database is \proglang{MongoDB}, which is accessible \textit{via} the \pkg{RMongo} package \citep{Chheng2013}.
 If you have set up a local \proglang{MongoDB} server and installed \pkg{RMongo}, call \code{demo("MongoDB-IO", package = "opm")} for a usage example.
 The data storage used within \pkg{opm} fits well to a document-oriented database because \proglang{OPMX} objects do not enforce a particular structure for storing the metadata (see Section~\ref{methods metadata}).
 The same holds for the ``options'' entries of the aggregation and discretisation settings.
 
-For working with a \ac{RDBMS}, a scheme needs to be defined beforehand for storing the \ac{PM} data, and additional conversions and selections are necessary.
-Future versions of this tutorial will provide hints regarding working with \ac{RDBMS} and \ac{PM} data in this section.
-Example code for \ac{RDBMS} usage exists, but is so far only available from the \pkg{opm} R-Forge repository \textit{via} \proglang{SVN}.
-Programmers interested in this code should download it from there and consult the documentation or contact the authors.
-In the meantime, however, the output \proglang{YAML} format (or its subset, \proglang{JSON}) is likely to facilitate the quick establishment of third-party software for importing \ac{PM} data into a database.
-
+Finally, the output \proglang{YAML} format (or its subset, \proglang{JSON}) is likely to facilitate the quick establishment of third-party software for importing \ac{PM} data into a database.
 
 \subsection[Global settings]{Global settings}\label{methods settings}
 

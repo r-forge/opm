@@ -1,6 +1,6 @@
-### Analysing Phenotype MicroArray data: database I/O with MySQL
+### Analysing Phenotype MicroArray data: database I/O with PostgreSQL
 
-# This is example R code for using opm to store PM data in a MySQL database
+# This is example R code for using opm to store PM data in a PostgreSQL database
 # and retrieving them again.
 #
 # This code can be used to check whether a database either found in an
@@ -15,11 +15,10 @@
 
 
 library(opm)
-library(opmDB)
-library(RMySQL)
+library(RPostgreSQL)
 
-
-conn <- dbConnect("MySQL", dbname = Sys.getenv("OPM_MYSQL_DB", "pmdata"))
+conn <- dbConnect("PostgreSQL",
+  dbname = Sys.getenv("OPM_POSTGRESQL_DB", "pmdata"))
 
 # check without metadata
 result <- opm_dbcheck(conn)

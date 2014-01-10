@@ -135,7 +135,9 @@ stopifnot(grepl("^(define\\\([^)]+\\\)dnl\n?)+$", y), length(y) == 1)
 
 # other 'x' arguments
 stopifnot(listing(x) == listing(as.list(x)))
-stopifnot(listing(pi) == "1: 3.141593") # controlled by getOption("digits")
+old.opt <- options(digits = 3)
+stopifnot(listing(pi) == "1: 3.14") # controlled by getOption("digits")
+options(old.opt)
 }
 \seealso{
   base::message base::warning base::stop base::formatDL
