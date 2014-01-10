@@ -1312,6 +1312,7 @@ setMethod("thin_out", OPMS, function(object, ...) {
 #' Check whether duplicated \code{\link{OPM}} or \code{\link{OPMA}} objects are
 #' contained within an \code{\link{OPMS}} object. For reasons of consistency,
 #' the \code{\link{OPM}} methods always returns \code{FALSE} or \code{0}.
+#' Alternatively, query \code{\link{OPMX}} objects with other such objects.
 #'
 #' @param x \code{\link{OPMX}} object.
 #' @param  incomparables Vector passed to \code{duplicated} from the \pkg{base}
@@ -1327,15 +1328,23 @@ setMethod("thin_out", OPMS, function(object, ...) {
 #'   all, it is passed as \code{key} argument to \code{\link{metadata}}, and the
 #'   resulting metadata subsets are compared.
 #' @param ... Optional arguments passed to \code{duplicated} from the \pkg{base}
-#'   package.
+#'   package. For \code{contains}, optional arguments passed to \code{identical}
+#'   from the \pkg{base} package, allowing for fine-control of identity.
+#' @param object \code{\link{OPMX}} object.
+#' @param other For the \code{\link{OPMX}} method of \code{contains}, an
+#'   \code{\link{OPMX}} object used as query.
 #' @export
 #' @return Logical vector in the case of \code{duplicated}, integer scalar in
 #'   the case of \code{anyDuplicated}. \code{0} if no values are duplicated, the
 #'   index of the first or last (depending on \code{fromLast}) duplicated object
 #'   otherwise.
+#' @details The \code{\link{OPMS}} and \code{\link{OPM}} methods of
+#'   \code{contains} test, for instance, whether an \code{\link{OPM}} object is
+#'   contained in an \code{\link{OPMS}} object. The test may also be vice versa
+#'   but then trivially fails.
 #' @family getter-functions
 #' @keywords attribute
-#' @seealso base::duplicated base::anyDuplicated
+#' @seealso base::duplicated base::anyDuplicated base::identical
 #' @examples
 #'
 #' # 'OPM' methods
@@ -1364,6 +1373,13 @@ setMethod("thin_out", OPMS, function(object, ...) {
 #' x <- vaas_4[c(1, 1)] # complete plate duplicated
 #' stopifnot(identical(anyDuplicated(x), 2L))
 #'
+#' ## contains: 'OPMS'/'OPM' methods
+#' stopifnot(contains(vaas_4, vaas_4[3])) # single one contained
+#' stopifnot(contains(vaas_4, vaas_4)) # all contained
+#' stopifnot(!contains(vaas_4[3], vaas_4)) # OPMS cannot be contained in OPM
+#' stopifnot(contains(vaas_4[3], vaas_4[3])) # identical OPM objects
+#' stopifnot(!contains(vaas_4[3], vaas_4[2])) # non-identical OPM objects
+#'
 setGeneric("duplicated")
 
 setMethod("duplicated", c(OPM, "ANY"), function(x, incomparables, ...) {
@@ -1386,12 +1402,12 @@ setMethod("duplicated", c(OPMS, "ANY"), function(x, incomparables,
   ), incomparables = incomparables, ...)
 }, sealed = SEALED)
 
-#= anyDuplicated duplicated
-
 #' @rdname duplicated
 #' @export
 #'
 setGeneric("anyDuplicated")
+
+#= anyDuplicated duplicated
 
 setMethod("anyDuplicated", c(OPM, "ANY"), function(x, incomparables, ...) {
   0L
@@ -1404,6 +1420,38 @@ setMethod("anyDuplicated", c(OPMS, "missing"), function(x, incomparables, ...) {
 setMethod("anyDuplicated", c(OPMS, "ANY"), function(x, incomparables, ...) {
   dups <- which(duplicated(x = x, incomparables = incomparables, ...))
   case(length(dups), 0L, dups[1L])
+}, sealed = SEALED)
+
+#= contains duplicated
+
+#' @rdname duplicated
+#' @export
+#'
+setGeneric("contains")
+
+setMethod("contains", c(OPMS, OPM), function(object, other, ...) {
+  for (plate in object@plates)
+    if (identical(x = plate, y = other, ...))
+      return(TRUE)
+  FALSE
+}, sealed = SEALED)
+
+setMethod("contains", c(OPMS, OPMS), function(object, other, ...) {
+  single_contained <- function(x) {
+    for (plate in object@plates)
+      if (identical(x = plate, y = x, ...))
+        return(TRUE)
+    FALSE
+  }
+  vapply(other@plates, single_contained, NA)
+}, sealed = SEALED)
+
+setMethod("contains", c(OPM, OPMS), function(object, other, ...) {
+  FALSE
+}, sealed = SEALED)
+
+setMethod("contains", c(OPM, OPM), function(object, other, ...) {
+  identical(x = object, y = other, ...)
 }, sealed = SEALED)
 
 
