@@ -149,6 +149,7 @@ NULL
 #'
 NULL
 
+
 ################################################################################
 
 
@@ -163,44 +164,43 @@ NULL
 #' @docType data
 #' @keywords datasets
 #' @name wittmann_et_al
-#' @format \code{OPMS} object with the dimensions 121 x 382 x 96, i.e. 121 plates
-#'   with 382 time points and 96 wells per plate. (xx plates have xx, xx or
-#'   xx time points, respectively; the remaining xx plates have xx time
+#' @format \code{OPMS} object with the dimensions 121 x 382 x 96, i.e. 121
+#'   plates with 382 time points and 96 wells per plate. (xx plates have xx, xx
+#'   or xx time points, respectively; the remaining xx plates have xx time
 #'   points).
-#' @details All plates also contain aggregated values generated
-#'   \emph{via} \code{do_aggr} using the \sQuote{opm-fast} method without 
-#'   bootstrapping.
+#' @details All plates also contain aggregated values generated \emph{via}
+#'   \code{do_aggr} using the \code{"opm-fast"} method without bootstrapping.
 #'
-#'   For 62 strains of the opportunistic pathogenic bacterium \emph{Achromobacter
-#'   xylosoxidans} \acronym{PM} experiments were conducted with GenIII 
-#'   microplates using inoculation fluid IF-A. All plates were incubated in the 
-#'   left plate sliding carriage of the 
-#'   OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} reader.}
+#'   For 62 strains of the opportunistic pathogenic bacterium
+#'   \emph{Achromobacter xylosoxidans} \acronym{PM} experiments were conducted
+#'   with Generation-III plates using inoculation fluid IF-A. All plates were
+#'   incubated in the left plate sliding carriage of the
+#'   OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} reader.
 #'
-#'   In addition to \sQuote{genus}, \sQuote{species} and
-#'   \sQuote{strain}, the following metadata entries are contained in
-#'   the wittmann
-#'   \emph{et al.} \code{OPMS} object:
+#'   In addition to \sQuote{genus}, \sQuote{species} and \sQuote{strain}, the
+#'   following metadata entries are contained in the Wittmann \emph{et al.}
+#'   \code{OPMS} object:
 #'   \describe{
-#'   \item{country}{Lists the geographical origin}
-#'   \item{city}{Lists the city where the strain was isolated}
-#'   \item{year}{Lists the year in which the strain was isolated}
-#'   \item{isolated_from}{Lists the scientist who isolated the strain}#'   
-#'   \item{source}{distinguishes between environmental or clinical origin, if known}
-#'   \item{habitat}{Lists details on the habitat, if known}
-#'   \item{replicate}{Lists the number of experimental plate replicates per strain.
-#'   2-3 replicates per strain were performed}
-#'   \item{MLSTcluster}{name of phylogenetic cluster to which a strain is affiliated}.
-#'   See reference Wittmann \emph{et al}.
+#'   \item{country}{Lists the geographical origin.}
+#'   \item{city}{Lists the city where the strain was isolated.}
+#'   \item{year}{Lists the year in which the strain was isolated.}
+#'   \item{isolated_from}{Lists the scientist who isolated the strain.}
+#'   \item{source}{Distinguishes between environmental or clinical origin, if
+#'   known.}
+#'   \item{habitat}{Lists details on the habitat, if known.}
+#'   \item{replicate}{Lists the number of experimental plate replicates per
+#'   strain. 2-3 replicates per strain were performed.}
+#'   \item{MLSTcluster}{Name of phylogenetic cluster to which a strain is
+#'   affiliated. See reference Wittmann \emph{et al}.}
 #' }
 #'
 #' @references Bochner, B.R., Savageau, M.A. 1977. Generalized indicator plate
 #'   for genetic, metabolic, and taxonomic studies with microorganisms. \emph{
 #'   Applied and Environmental Microbiology} \strong{33}, 434--444.
-#' @references Wittmann, J., Dreiseikelmann, B., Rohde, C., Rohde, M., 
-#'  Sikorski, J. 2014 Isolation and characterization of numerous novel phages 
-#'  targeting diverse strains of the ubiquitious and opportunistic pathogen 
-#'  \emph{Achromobacter xylosoxidans}. \emph{PLoS ONE},  in press.
+#' @references Wittmann, J., Dreiseikelmann, B., Rohde, C., Rohde, M.,
+#'   Sikorski, J. 2014 Isolation and characterization of numerous novel phages
+#'   targeting diverse strains of the ubiquitious and opportunistic pathogen
+#'   \emph{Achromobacter xylosoxidans}. \emph{PLoS ONE}, in press.
 #'
 #' @examples
 #' data(wittmann_et_al)
@@ -210,10 +210,11 @@ NULL
 #' stopifnot(d == c(121, 382, 96), ha)
 #'
 #' ## Brief overview
-#' flatten(wittmann_et_al[,1,"A01"], include = list("genus", "species", 
-#' "strain", "country", "city", "year", "isolated_from", "source", "habitat",
-#' "replicate", "MLSTcluster"))
+#' flatten(wittmann_et_al[, 1, "A01"], include = list("genus", "species",
+#'   "strain", "country", "city", "year", "isolated_from", "source", "habitat",
+#'   "replicate", "MLSTcluster"))
 #'
 NULL
+
 ################################################################################
 

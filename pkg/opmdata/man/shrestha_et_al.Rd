@@ -52,8 +52,8 @@ plate_type(shrestha_et_al) # should indicate generation-III plates
 stopifnot(d == c(42, 378, 96), ha, hd)
 
 ## Brief overview
-flatten(shrestha_et_al[,1,"A01"], include = list("experiment", "strain",
-"variant", "replicate", "growth_medium","slot", "strain_variant"))
+flatten(shrestha_et_al[, 1, "A01"], include = list("experiment", "strain",
+  "variant", "replicate", "growth_medium", "slot", "strain_variant"))
 }
 \references{
   Bochner, B.R., Savageau, M.A. 1977. Generalized indicator
@@ -68,6 +68,5 @@ flatten(shrestha_et_al[,1,"A01"], include = list("experiment", "strain",
   citrulli}.  \emph{PLoS ONE} \strong{8}, e73189
   (\url{http://dx.doi.org/10.1371/journal.pone.0073189}).
 }
-\keyword{datasets}
 \keyword{datasets}
 

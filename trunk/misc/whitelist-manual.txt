@@ -1,4 +1,5 @@
 Acidovorax
+Achromobacter
 BIOLOG
 Calinski
 Discretisation
@@ -23,6 +24,7 @@ Solaris
 Sweave
 Vaas
 Whitespace
+Wittmann
 YAML
 aeruginosa
 al
@@ -64,3 +66,4 @@ versa
 whitespace
 wildcard
 wildcards
+xylosoxidans
