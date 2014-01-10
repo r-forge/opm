@@ -75,9 +75,9 @@
 #'   'Plate number' = 3))
 #'
 #' # plot the data approximately as in Vaas et al. (2012)
-#' xy_plot(vaas.1.3[, , c("D01", "D02" ,"C10", "C11")],
+#' xy_plot(vaas.1.3[, , c("D01", "D02", "C10", "C11")],
 #'   main = "E. coli vs. P. aeruginosa", include = list("Species", "Strain"))
-#' level_plot(vaas.1.3[, , c("D01", "D02" ,"C10", "C11")],
+#' level_plot(vaas.1.3[, , c("D01", "D02", "C10", "C11")],
 #'   main = "E. coli vs. P. aeruginosa", include = list("Species", "Strain"))
 #' }
 NULL

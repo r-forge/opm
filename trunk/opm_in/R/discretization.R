@@ -17,10 +17,10 @@
 #' category in which most of the elements within this combination of row group
 #' and column are located.
 #'
-#' @param x Numeric vector or a \code{\link{MOA}} object convertible to a
-#'   numeric vector. The data-frame method first calls \code{\link{extract}},
-#'   restricting the columns to the numeric ones. \code{best_cutoff} only
-#'   accepts a numeric matrix.
+#' @param x Numeric vector or array object convertible to a numeric vector. The
+#'   data-frame method first calls \code{\link{extract}}, restricting the
+#'   columns to the numeric ones. \code{best_cutoff} only accepts a numeric
+#'   matrix.
 #'
 #' @param range If a numeric vector, in non-\code{gap} mode (see next argument)
 #'   the assumed real range of the data; must contain all elements of \code{x},
@@ -296,7 +296,7 @@ setMethod("discrete", "numeric", function(x, range, gap = FALSE,
   }
 }, sealed = SEALED)
 
-setMethod("discrete", MOA, function(x, ...) {
+setMethod("discrete", "array", function(x, ...) {
   map_values(object = x, mapping = discrete, ...)
 }, sealed = SEALED)
 

@@ -56,6 +56,7 @@ do_style_check <- function(dirs, opt) {
   subdirs <- c("tests", "scripts")
   subdirs <- c("R", "demo", subdirs, file.path("inst", subdirs))
   y <- check_style(dirs, subdirs, ignore = opt$good, filter = "none")
+  y <- c(y, check_style(dirs, subdirs, ignore = opt$good, filter = "roxygen"))
   y <- c(y, check_style(dirs, vignette_subdirs(), filter = "sweave",
     ignore = I(list(pattern = "\\.[RS]?nw$", ignore.case = TRUE))))
   isna <- is.na(y)

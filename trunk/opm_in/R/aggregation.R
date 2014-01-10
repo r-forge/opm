@@ -365,7 +365,7 @@ pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
 #' # Compare the results to the ones precomputed with grofit
 #' # (1) A
 #' a.grofit <- aggregated(vaas_1, "A", ci = FALSE)
-#' a.fast <-  aggregated(copy, "A", ci = FALSE)
+#' a.fast <- aggregated(copy, "A", ci = FALSE)
 #' plot(a.grofit, a.fast)
 #' stopifnot(cor.test(a.fast, a.grofit)$estimate > 0.999)
 #' # (2) AUC

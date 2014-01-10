@@ -1,4 +1,8 @@
-2012-XX-XX (6th release on CRAN)
+2014-XX-XX (7th release on CRAN)
+
+- new filter option for check_R_code()
+
+2014-01-10 (6th release on CRAN)
 
 - fixed minor bug in the 'repair_docu.rb' script that affected aliases to
   generic functions
@@ -28,7 +32,7 @@
   names of automatically generated methods; methods to be documented within the
   same Rd file are now written in order
 
-2012-09-18 (5th release on CRAN)
+2013-09-18 (5th release on CRAN)
 
 - fixed bug in 'docu.R' that caused wrong archive file name to be passed to 'R
   CMD check' when running script not from parent directory
@@ -59,7 +63,7 @@
 - 'merge.R' gets an option for joining rows and deals now with duplicated
   join-column entries in conjunction with -c
 
-2012-04-15 (4th release on CRAN)
+2013-04-15 (4th release on CRAN)
 
 - fixed bug in check_R_code() that caused removal of quoted sections of a line
   of code to remove too much; fixed other bug causing false reports of missing

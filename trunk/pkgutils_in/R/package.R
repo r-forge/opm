@@ -416,7 +416,7 @@ swap_code.character <- function(x, ..., ignore = NULL) {
 #' Alternatively, check the labels used in the lines that start a Sweave code
 #' chunk.
 #'
-#' @param x For \code{check_r_code}, a character vector of names of input files,
+#' @param x For \code{check_R_code}, a character vector of names of input files,
 #'   or names of \R package directories. The latter will be expanded as
 #'   appropriate. \code{x} is passed to \code{\link{pkg_files}} with the
 #'   \sQuote{installed} argument set to \code{FALSE}. See there for further
@@ -460,7 +460,11 @@ swap_code.character <- function(x, ..., ignore = NULL) {
 #' @param ignore Passed to \code{\link{pkg_files}}. See there for details. A
 #'   logical scalar is used for selecting or discarding a default filter
 #'   suitable for the target files.
-#' @param filter Character scalar indicating the filter to use.
+#' @param filter Character scalar indicating the filter to use. The
+#'   \code{"roxygen"} filter extracts the examples from \pkg{roxygen2}-style
+#'   comments, assuming that the \sQuote{#} character that start such a comment
+#'   are not preceded by whitespace. (Lines in which this is the case are
+#'   detected if no filtering is used.)
 #' @param ... Optional other arguments passed to \code{\link{pkg_files}}.
 #'
 #' @return \code{check_R_code} yields a logical vector; see
@@ -523,7 +527,7 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     roxygen.space = 1L, comma = TRUE, ops = TRUE, parens = TRUE,
     assign = TRUE, modify = FALSE, ignore = NULL, accept.tabs = FALSE,
     three.dots = TRUE, what = "R", encoding = "",
-    filter = c("none", "sweave"), ...) {
+    filter = c("none", "sweave", "roxygen"), ...) {
   spaces <- function(n) paste0(rep.int(" ", n), collapse = "")
   LL(lwd, indention, roxygen.space, modify, comma, ops, parens, assign,
     accept.tabs, three.dots)
@@ -580,6 +584,14 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     lines_to_filter_out <- function(x, how) {
       case(how,
         none = FALSE,
+        roxygen = {
+          pos <- grepl("^#'\\s*@\\w+\\b", x, FALSE, TRUE)
+          pos <- pos | !grepl("^#'", x, FALSE, TRUE)
+          pos <- as.integer(sections(pos, TRUE))
+          pos[is.na(pos)] <- -1L
+          starts <- grepl("^#'\\s*@examples\\b", x, FALSE, TRUE)
+          !(pos %in% pos[starts]) | starts
+        },
         sweave = {
           starts <- grepl("^<<.*>>=", x, FALSE, TRUE)
           stops <- grepl("^@", x, FALSE, TRUE)
@@ -591,6 +603,10 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
     if (any(filtered <- lines_to_filter_out(x, filter))) {
       orig <- x
       x[filtered] <- ""
+      if (filter == "roxygen") {
+        x[!filtered] <- sub(roxygen.space, "", x[!filtered], FALSE, TRUE)
+        filtered[!filtered] <- TRUE
+      }
     } else {
       orig <- NULL
     }
