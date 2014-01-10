@@ -9,9 +9,8 @@
 
 #' Virtual classes of the \pkg{opm} package
 #'
-#' Classes that are virtual and thus are not directly dealt with by an
-#' \pkg{opm} user: \acronym{WMD}, \acronym{MOA}, \acronym{FOE}, \acronym{OPMX}
-#' and \code{YAML_VIA_LIST}.
+#' Classes that are virtual and thus are not directly dealt with by an \pkg{opm}
+#' user: \acronym{WMD}, \acronym{FOE}, \acronym{OPMX} and \code{YAML_VIA_LIST}.
 #'
 #' @details
 #' \acronym{WMD} is an acronym for \sQuote{with metadata}.
@@ -33,12 +32,6 @@
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{CSV} files.
 #' Metadata might already be present in \acronym{YAML} files created by the
 #' \pkg{opm} package, however.
-#'
-#' \acronym{MOA} is an acronym for \sQuote{matrix or array}. \acronym{MOA} is a
-#' virtual class facilitating the implementation of functionality for
-#' both matrices and arrays. Methods defined for objects from the class can be
-#' applied to either kind of object. See \code{\link{map_values}} and
-#' \code{\link{map_names}} for usage examples.
 #'
 #' \acronym{FOE} is an acronym for \sQuote{formula or expression}.
 #' This is a virtual class facilitating the implementation of functionality
@@ -71,16 +64,6 @@ setClass(WMD,
   contains = "VIRTUAL",
   sealed = SEALED
 )
-
-#' @rdname WMD
-#' @name MOA
-#' @aliases MOA-class
-#' @docType class
-#' @export
-#'
-NULL
-
-setClassUnion(MOA, c("matrix", "array"))
 
 #' @rdname WMD
 #' @name FOE

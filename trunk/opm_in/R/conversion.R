@@ -848,22 +848,22 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   dataframe = TRUE))[, 1:3]
 #'
 #' # no normalisation, but grouping for 'Species'
-#' y <- extract(x, as.groups = "Species",  norm.per = "none")
+#' y <- extract(x, as.groups = "Species", norm.per = "none")
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 350, y = 1)
 #'
 #' # normalisation by plate means
-#' y <- extract(x, as.groups = "Species",  norm.per = "row")
+#' y <- extract(x, as.groups = "Species", norm.per = "row")
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 130, y = 1)
 #'
 #' # normalisation by well means
-#' y <- extract(x, as.groups = "Species",  norm.per = "column")
+#' y <- extract(x, as.groups = "Species", norm.per = "column")
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 20, y = 1)
 #'
 #' # normalisation by subtraction of the well means of well A10 only
-#' y <- extract(x, as.groups = "Species",  norm.per = "row", norm.by = 10,
+#' y <- extract(x, as.groups = "Species", norm.per = "row", norm.by = 10,
 #'   subtract = TRUE)
 #' # plotting using ci_plot()
 #' ci_plot(y[, c(1:6, 12)], legend.field = NULL, x = 0, y = 0)
@@ -1736,7 +1736,7 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #' # the wells are obviously within 'Substrate', and each combination of
 #' # 'Treatment' and 'Strain' is apparently one group of measurements
 #' # (interpreted as 'plate').
-#' y <- opmx(x, well = "Substrate",  position = c("Treatment", "Strain"),
+#' y <- opmx(x, well = "Substrate", position = c("Treatment", "Strain"),
 #'   full.name = c(sugars = "Fake sugar test plate"))
 #'
 #' # This yields a single OPMX object as there is only one plate type.

@@ -1005,14 +1005,19 @@ remove_R_CMD_check_dirs()
 remove_dirs_carefully()
 {
   local indir
+  local gooddir
   local errs=0
   for indir; do
     # missing directories are OK because they may already have been removed
     [ -d "$indir" ] || continue
-    if [ -d "${indir}_in" ]; then
+    gooddir=${indir%_*}_in
+    if [ "$indir" = "$gooddir" ]; then
+      echo "directory '$indir' cannot be removed" >&2
+      errs=$(($errs + 1))
+    elif [ -d "$gooddir" ]; then
       rm -rf "$indir"
     else
-      echo "directory '$indir' given, but '${indir}_in' is missing" >&2
+      echo "directory '$indir' given, but '$gooddir' is missing" >&2
       errs=$(($errs + 1))
     fi
   done
@@ -1524,7 +1529,8 @@ case $RUNNING_MODE in
   ;;
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
-      remove_dirs_carefully pkgutils opm opmdata opmDB
+      remove_dirs_carefully pkgutils opm opmdata opmDB &&
+      remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmDB_doc
     exit $?
   ;;
   example )

@@ -281,7 +281,7 @@ setMethod("is_constant", "list", function(x, na.rm = TRUE) {
   all(duplicated.default(x)[-1L])
 }, sealed = SEALED)
 
-setMethod("is_constant", MOA, function(x, margin = 1L, na.rm = TRUE) {
+setMethod("is_constant", "array", function(x, margin = 1L, na.rm = TRUE) {
   if (!margin)
     return(is_constant(as.vector(x), na.rm = na.rm))
   apply(X = x, MARGIN = margin, FUN = is_constant, na.rm = na.rm)
@@ -1171,14 +1171,14 @@ prepare_class_names.character <- function(x) {
 #' @param object When mapping values, a list (may be nested), data frame or
 #'   character vector. If it has names, they are preserved. \code{NULL} can also
 #'   be given and yields \code{NULL} or an empty named character vector (if
-#'   \code{mapping} is missing). \code{object} may also belong to the virtual
-#'   class \code{\link{MOA}}, comprising matrices and arrays.
+#'   \code{mapping} is missing). \code{object} may also belong to the class
+#'   \code{array}, comprising matrices and arrays.
 #'
 #'   When mapping names, \code{object} can be any \R object. The default method
 #'   applies the mapping to the \sQuote{names} attribute. The behaviour is
 #'   special for lists, which are traversed recursively to also consider
-#'   contained lists with names. Data frames and \code{\link{MOA}} objects (that
-#'   is, including matrices and arrays) are also treated specially because the
+#'   contained lists with names. Data frames and array objects (that is,
+#'   including matrices and arrays) are also treated specially because the
 #'   \code{dimnames} attribute, not the \sQuote{names} attribute is considered.
 #'
 #' @param mapping When mapping values, a character vector, function, formula,
@@ -1193,11 +1193,11 @@ prepare_class_names.character <- function(x) {
 #'   eases the construction of mapping vectors specific for \code{object}. If
 #'   \code{mapping} is missing, the \code{coerce} argument must be named.
 #'   \code{mapping} changes its usage if \code{coerce} is \code{TRUE}.
-#'   \item For \code{\link{MOA}} objects, if \code{mapping} was a function, it
+#'   \item For array objects, if \code{mapping} was a function, it
 #'   would be applied to \code{object} after conversion with \code{as.vector},
 #'   and it would be attempted to add the original attributes (particularly
 #'   important are \sQuote{dim} and \code{dimnames} back to the result.
-#'   \item For \code{\link{MOA}} objects, if \code{mapping} is the usual
+#'   \item For array objects, if \code{mapping} is the usual
 #'   character vector, it then is used for mapping the \code{storage.mode}, not
 #'   the \code{class} of \code{object}.
 #'   \item \code{mapping} can also be a formula, it is then used to compute on
@@ -1585,7 +1585,7 @@ setMethod("map_values", c("data.frame", "missing"), function(object,
 
 #-------------------------------------------------------------------------------
 
-setMethod("map_values", c(MOA, "character"), function(object, mapping,
+setMethod("map_values", c("array", "character"), function(object, mapping,
     coerce = TRUE) {
   if (isTRUE(coerce)) {
     storage.mode(object) <- map_values(storage.mode(object), mapping)
@@ -1600,7 +1600,7 @@ setMethod("map_values", c(MOA, "character"), function(object, mapping,
   }
 }, sealed = SEALED)
 
-setMethod("map_values", c(MOA, "missing"), function(object, coerce = TRUE) {
+setMethod("map_values", c("array", "missing"), function(object, coerce = TRUE) {
   if (isTRUE(coerce))
     result <- storage.mode(object)
   else {
@@ -1612,7 +1612,7 @@ setMethod("map_values", c(MOA, "missing"), function(object, coerce = TRUE) {
   map_values(result)
 }, sealed = SEALED)
 
-setMethod("map_values", c(MOA, "function"), function(object, mapping, ...) {
+setMethod("map_values", c("array", "function"), function(object, mapping, ...) {
   result <- mapping(as.vector(object), ...)
   mostattributes(result) <- c(attributes(result), attributes(object))
   result
@@ -1764,17 +1764,17 @@ setMethod("map_names", c("data.frame", "missing"), function(object) {
 
 #-------------------------------------------------------------------------------
 
-setMethod("map_names", c(MOA, "function"), function(object, mapping, ...) {
+setMethod("map_names", c("array", "function"), function(object, mapping, ...) {
   dimnames(object) <- map_values(dimnames(object), mapping, ...)
   object
 }, sealed = SEALED)
 
-setMethod("map_names", c(MOA, "character"), function(object, mapping) {
+setMethod("map_names", c("array", "character"), function(object, mapping) {
   dimnames(object) <- map_values(dimnames(object), mapping)
   object
 }, sealed = SEALED)
 
-setMethod("map_names", c(MOA, "missing"), function(object) {
+setMethod("map_names", c("array", "missing"), function(object) {
   map_values(dimnames(object))
 }, sealed = SEALED)
 
