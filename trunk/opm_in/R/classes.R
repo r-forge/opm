@@ -10,7 +10,8 @@
 #' Virtual classes of the \pkg{opm} package
 #'
 #' Classes that are virtual and thus are not directly dealt with by an \pkg{opm}
-#' user: \acronym{WMD}, \acronym{FOE}, \acronym{OPMX} and \code{YAML_VIA_LIST}.
+#' user: \acronym{WMD}, \acronym{WMDS}, \acronym{FOE}, \acronym{OPMX} and
+#' \code{YAML_VIA_LIST}.
 #'
 #' @details
 #' \acronym{WMD} is an acronym for \sQuote{with metadata}.
@@ -32,6 +33,11 @@
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{CSV} files.
 #' Metadata might already be present in \acronym{YAML} files created by the
 #' \pkg{opm} package, however.
+#'
+#' \acronym{WMDS} is virtual class containing a collection of \acronym{WMD}
+#' objects (the name \acronym{WMDS} is just the plural of \acronym{WMD}). It
+#' shares many methods with \acronym{WMD} but they often return a collection
+#' of the return values of the according \acronym{WMD} method.
 #'
 #' \acronym{FOE} is an acronym for \sQuote{formula or expression}.
 #' This is a virtual class facilitating the implementation of functionality
@@ -61,6 +67,18 @@
 #'
 setClass(WMD,
   slots = c(metadata = "list"),
+  contains = "VIRTUAL",
+  sealed = SEALED
+)
+
+#' @rdname WMD
+#' @name WMDS
+#' @aliases WMDS-class
+#' @docType class
+#' @export
+#'
+setClass(WMDS,
+  slots = c(plates = "list"),
   contains = "VIRTUAL",
   sealed = SEALED
 )
@@ -155,9 +173,10 @@ setClassUnion(FOE, c("formula", "expression"))
 #' organisms and/or replicates, but \strong{must} correspond to the same plate
 #' type and \strong{must} contain the same wells.
 #'
-#' As a rule, \acronym{OPMS} has the same methods as the \acronym{OPM} class,
-#' but adapted to a collection of more than one \acronym{OPM} object. Also,
-#' \acronym{OPMS} can hold \acronym{OPMD} and \acronym{OPMA} as well as
+#' \acronym{OPMS} inherits from \code{\link{WMDS}} and, hence, has all its
+#' methods. As a rule, \acronym{OPMS} has the same methods as the \acronym{OPM}
+#' class, but adapted to a collection of more than one \acronym{OPM} object.
+#' Also, \acronym{OPMS} can hold \acronym{OPMD} and \acronym{OPMA} as well as
 #' \acronym{OPM} objects, even though this is not indicated for all its methods
 #' in this manual.
 #'
@@ -258,7 +277,7 @@ setClass(OPMD,
 #' @aliases OPMS-class
 #'
 setClass(OPMS,
-  slots = c(plates = "list"),
+  contains = WMDS,
   validity = function(object) {
     if (length(errs <- opms_problems(object@plates)))
       errs

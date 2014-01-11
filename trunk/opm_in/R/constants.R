@@ -16,6 +16,7 @@ BUG_MSG <- "a bug -- this should not happen"
 # Class names
 #
 WMD <- "WMD"
+WMDS <- "WMDS"
 OPM <- "OPM"
 OPMA <- "OPMA"
 OPMD <- "OPMD"
