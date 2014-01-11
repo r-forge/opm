@@ -15,7 +15,7 @@ Description: Tools for creating R packages, particularly for checking
         interactive R sessions. Finally, R syntax-highlighting patterns
         for some text editors are contained.
 License: GPL (>= 2)
-URL: http://www.dsmz.de/
+URL: http://opm.dsmz.de/
 Collate: 'imports.R' 'constants.R' 'data.R' 'auxiliary.R' 'coding.R'
         'character.R' 'package.R' 'class.R' 'directory.R' 'rd.R'
         'plotting.R'

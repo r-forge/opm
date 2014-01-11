@@ -10,7 +10,7 @@
 #' Replace metadata
 #'
 #' Set the meta-information stored together with the data. For most kinds of
-#' arguments the \code{\link{OPMS}} and \code{\link{MOPMX}} methods set the
+#' arguments the \code{\link{WMDS}} and \code{\link{MOPMX}} methods set the
 #' meta-information stored together with the measurements for all plates at
 #' once. But they can address the plates individually if \code{value} is a data
 #' frame, and they can address metadata keys individually if \code{value} is a
@@ -19,7 +19,7 @@
 #' @name metadata.set
 #' @aliases metadata<-
 #'
-#' @param object \code{\link{WMD}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#' @param object \code{\link{WMD}}, \code{\link{WMDS}} or \code{\link{MOPMX}}
 #'   object.
 #' @param key Missing, numeric scalar, character vector, factor, or list.
 #' \itemize{
@@ -39,7 +39,7 @@
 #'   \code{key} to mode \sQuote{character}.
 #' }
 #' @param value Character vector, list, data frame, formula, \code{\link{WMD}}
-#'   or \code{\link{OPMS}} object.
+#'   or \code{\link{WMDS}} object.
 #'   \itemize{
 #'   \item If \code{key} is a character vector, this can be arbitrary value(s)
 #'   to be included in the metadata (if \code{NULL}, this metadata entry is
@@ -50,11 +50,11 @@
 #'   \item Formulae can also be used as \code{value}. In that case, the formula
 #'   can specify the key to be replaced. See the examples below and
 #'   \code{\link{map_values}} for details.
-#'   \item If \code{object} is of class \code{\link{OPMS}}, \code{value} can be
+#'   \item If \code{object} is of class \code{\link{WMDS}}, \code{value} can be
 #'   a data frame whose number of rows must be equal to the number of plates.
 #'   Metadata to be set will then be selected from each individual row in turn
 #'   and in input order. This works analogously if \code{value} is an
-#'   \code{\link{OPMS}} object. The lengths of both objects must match. If
+#'   \code{\link{WMDS}} object. The lengths of both objects must match. If
 #'   \code{value} is a \code{\link{WMD}} object, its metadata entries will be
 #'   recycled. \item If \code{object} is of class \code{\link{WMD}},
 #'   \code{value} cannot be of class \code{\link{WMD}}.
@@ -131,9 +131,9 @@
 #' metadata(copy, as.factor("Strain")) <- metadata(vaas_1, "Strain")
 #' stopifnot(metadata(copy, "Strain") == metadata(vaas_1, "Strain"))
 #'
-#' ## OPMS methods
+#' ## WMDS methods
 #'
-#' # OPMS/missing/list method
+#' # WMDS/missing/list method
 #' copy <- vaas_4
 #' (metadata(copy) <- list(x = -99)) # will replace all of them
 #' stopifnot(identical(unique(metadata(copy)), list(list(x = -99))))
@@ -141,17 +141,17 @@
 #' stopifnot(identical(unique(metadata(copy)),
 #'   list(list(x = -99), list(x = 1))))
 #'
-#' # OPMS/missing/WMD method
+#' # WMDS/missing/WMD method
 #' (metadata(copy) <- vaas_1) # will also replace all of them
 #' stopifnot(identical(unique(metadata(copy)), list(metadata(vaas_1))))
 #'
-#' # OPMS/missing/formula method
+#' # WMDS/missing/formula method
 #' copy <- vaas_4
 #' metadata(copy) <- Organism ~ paste(Species, Strain)
 #' (x <- metadata(copy, "Organism"))
 #' stopifnot(length(x) == length(metadata(vaas_4, "Organism")) + 4)
 #'
-#' # OPMS/ANY/ANY method
+#' # WMDS/ANY/ANY method
 #' copy <- vaas_4
 #' (metadata(copy, "Species") <- "Bacillus subtilis") # will set all of them
 #' stopifnot(identical(unique(metadata(copy, "Species")), "Bacillus subtilis"))
@@ -162,7 +162,7 @@
 #' (metadata(copy) <- vaas_1) # set everything to metadata of vaas_1
 #' stopifnot(identical(unique(metadata(copy)), list(metadata(vaas_1))))
 #'
-#' # OPMS/character/data frame method
+#' # WMDS/character/data frame method
 #' copy <- vaas_4
 #' (x <- data.frame(Type = grepl("T$", metadata(vaas_4, "Strain"))))
 #' metadata(copy, "Type") <- x
@@ -180,7 +180,7 @@ setGeneric("metadata<-",
   function(object, key, ..., value) standardGeneric("metadata<-"))
 
 #-------------------------------------------------------------------------------
-# 1:1 relationship with the OPMS methods
+# 1:1 relationship with the WMDS methods
 
 #' @name metadata.set
 #'
@@ -216,7 +216,7 @@ setMethod("metadata<-", c(WMD, "missing", WMD), function(object, key, value) {
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(WMD, "missing", OPMS), function(object, key, value) {
+setMethod("metadata<-", c(WMD, "missing", WMDS), function(object, key, value) {
   stop("lengths of 'object' and 'value' do not fit")
 }, sealed = SEALED)
 
@@ -256,7 +256,7 @@ setMethod("metadata<-", c(WMD, "character", "WMD"), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(WMD, "character", "OPMS"), function(object, key,
+setMethod("metadata<-", c(WMD, "character", "WMDS"), function(object, key,
     value) {
   stop("lengths of 'object' and 'value' do not fit")
 }, sealed = SEALED)
@@ -297,7 +297,7 @@ setMethod("metadata<-", c(WMD, "numeric", "WMD"), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(WMD, "numeric", OPMS), function(object, key, value) {
+setMethod("metadata<-", c(WMD, "numeric", WMDS), function(object, key, value) {
   stop("lengths of 'object' and 'value' do not fit")
 }, sealed = SEALED)
 
@@ -328,7 +328,7 @@ setMethod("metadata<-", c(WMD, "list", "data.frame"), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(WMD, "list", "WMD"), function(object, key,
+setMethod("metadata<-", c(WMD, "list", WMD), function(object, key,
     value) {
   metadata(object, key) <- value@metadata
   object
@@ -336,7 +336,7 @@ setMethod("metadata<-", c(WMD, "list", "WMD"), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(WMD, "list", OPMS), function(object, key, value) {
+setMethod("metadata<-", c(WMD, "list", WMDS), function(object, key, value) {
   stop("lengths of 'object' and 'value' do not fit")
 }, sealed = SEALED)
 
@@ -355,7 +355,7 @@ setMethod("metadata<-", c(WMD, "ANY", "ANY"), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "missing", FOE), function(object, key,
+setMethod("metadata<-", c(WMDS, "missing", FOE), function(object, key,
     value) {
   for (i in seq_along(object@plates))
     object@plates[[i]]@metadata <- map_values(object@plates[[i]]@metadata,
@@ -365,7 +365,7 @@ setMethod("metadata<-", c(OPMS, "missing", FOE), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "missing", "list"), function(object, key,
+setMethod("metadata<-", c(WMDS, "missing", "list"), function(object, key,
     value) {
   for (i in seq_along(object@plates))
     object@plates[[i]]@metadata <- value
@@ -374,7 +374,7 @@ setMethod("metadata<-", c(OPMS, "missing", "list"), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "missing", "data.frame"), function(object,
+setMethod("metadata<-", c(WMDS, "missing", "data.frame"), function(object,
     key, value) {
   LL(object, .wanted = nrow(value))
   for (i in seq_along(object@plates))
@@ -384,7 +384,7 @@ setMethod("metadata<-", c(OPMS, "missing", "data.frame"), function(object,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "missing", WMD), function(object, key, value) {
+setMethod("metadata<-", c(WMDS, "missing", WMD), function(object, key, value) {
   for (i in seq_along(object@plates))
     metadata(object@plates[[i]]) <- value@metadata
   object
@@ -392,7 +392,7 @@ setMethod("metadata<-", c(OPMS, "missing", WMD), function(object, key, value) {
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "missing", OPMS), function(object, key,
+setMethod("metadata<-", c(WMDS, "missing", WMDS), function(object, key,
     value) {
   LL(object, .wanted = length(value))
   for (i in seq_along(object@plates))
@@ -404,7 +404,7 @@ setMethod("metadata<-", c(OPMS, "missing", OPMS), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "character", OPMS), function(object, key,
+setMethod("metadata<-", c(WMDS, "character", WMDS), function(object, key,
     value) {
   LL(object, .wanted = length(value))
   for (i in seq_along(object@plates))
@@ -414,7 +414,7 @@ setMethod("metadata<-", c(OPMS, "character", OPMS), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "character", "data.frame"), function(object,
+setMethod("metadata<-", c(WMDS, "character", "data.frame"), function(object,
     key, value) {
   LL(object, .wanted = nrow(value))
   if (any(found <- key %in% colnames(value))) {
@@ -431,7 +431,7 @@ setMethod("metadata<-", c(OPMS, "character", "data.frame"), function(object,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "ANY", "data.frame"), function(object, key,
+setMethod("metadata<-", c(WMDS, "ANY", "data.frame"), function(object, key,
     value) {
   LL(object, .wanted = nrow(value))
   for (i in seq_along(object@plates))
@@ -441,7 +441,7 @@ setMethod("metadata<-", c(OPMS, "ANY", "data.frame"), function(object, key,
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "ANY", WMD), function(object, key, value) {
+setMethod("metadata<-", c(WMDS, "ANY", WMD), function(object, key, value) {
   for (i in seq_along(object@plates))
     metadata(object@plates[[i]], key) <- value@metadata
   object
@@ -449,7 +449,7 @@ setMethod("metadata<-", c(OPMS, "ANY", WMD), function(object, key, value) {
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "ANY", OPMS), function(object, key, value) {
+setMethod("metadata<-", c(WMDS, "ANY", WMDS), function(object, key, value) {
   LL(object, .wanted = length(value))
   for (i in seq_along(object@plates))
     metadata(object@plates[[i]], key) <- value@plates[[i]]@metadata
@@ -458,7 +458,7 @@ setMethod("metadata<-", c(OPMS, "ANY", OPMS), function(object, key, value) {
 
 #' @name metadata.set
 #'
-setMethod("metadata<-", c(OPMS, "ANY", "ANY"), function(object, key, value) {
+setMethod("metadata<-", c(WMDS, "ANY", "ANY"), function(object, key, value) {
   for (i in seq_along(object@plates))
     metadata(object@plates[[i]], key) <- value
   object
@@ -520,8 +520,9 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #' and return the objects otherwise unchanged, or invoke \code{edit} from the
 #' \pkg{utils} package for editing the metadata by hand.
 #'
-#' @param object \code{\link{OPM}} (\code{\link{WMD}}), \code{\link{OPMS}} or
-#'   \code{\link{MOPMX}} object. For \code{map_values}, a list.
+#' @param object \code{\link{OPM}} (\code{\link{WMD}}), \code{\link{OPMS}}
+#'   (\code{\link{WMDS}}) or \code{\link{MOPMX}} object. For \code{map_values},
+#'   a list.
 #'
 #' @param name Like \code{object}, but for the \code{edit} method.
 #'
@@ -579,15 +580,15 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #' @param coerce Character vector or \code{TRUE}. See the description of
 #'   \code{map_values} in the \pkg{pkgutils} package for details.
 #' @param ... Optional arguments passed to \code{mapping} if it is a function,
-#'   and from the \code{\link{OPMS}} method to the \code{\link{WMD}} method, or
+#'   and from the \code{\link{WMDS}} method to the \code{\link{WMD}} method, or
 #'   from \code{include_metadata} to \code{\link{to_metadata}}, or as additional
 #'   arguments to \code{edit} from the \pkg{utils} package.
 #' @export
-#' @return Novel \code{\link{WMD}} or \code{\link{OPMS}} object with modified
+#' @return Novel \code{\link{WMD}} or \code{\link{WMDS}} object with modified
 #'   metadata.
 #' @details
-#' The \code{\link{OPMS}} method applies the inclusion and mapping routines to
-#' all plates in turn and returns an \code{\link{OPMS}} object with accordingly
+#' The \code{\link{WMDS}} method applies the inclusion and mapping routines to
+#' all plates in turn and returns an \code{\link{WMDS}} object with accordingly
 #' modified metadata.
 #'
 #' Calling \code{edit} will only work if \code{\link{to_metadata}} yields a data
@@ -650,7 +651,7 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #' (x <- metadata(map_metadata(vaas_1)))
 #' stopifnot(identical(x, metadata(vaas_1))) # nothing to modify in that case
 #'
-#' # OPMS method
+#' # WMDS method
 #'
 #' # using a function
 #' copy <- map_metadata(vaas_4, identity)
@@ -819,14 +820,14 @@ setMethod("map_metadata", c(WMD, "missing"), function(object, mapping,
   object
 }, sealed = SEALED)
 
-setMethod("map_metadata", c(OPMS, "missing"), function(object, mapping,
+setMethod("map_metadata", c(WMDS, "missing"), function(object, mapping,
     values = TRUE, classes = "factor") {
   object@plates <- lapply(X = object@plates, FUN = map_metadata,
     values = values, classes = classes)
   object
 }, sealed = SEALED)
 
-setMethod("map_metadata", c(OPMS, "ANY"), function(object, mapping, ...) {
+setMethod("map_metadata", c(WMDS, "ANY"), function(object, mapping, ...) {
   object@plates <- lapply(X = object@plates, FUN = map_metadata,
     mapping = mapping, ...)
   object
@@ -894,7 +895,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #' \sQuote{character} entries from the meta-information stored together with the
 #' measurements. Optionally coerce data of other types.
 #'
-#' @param object \code{\link{WMD}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#' @param object \code{\link{WMD}}, \code{\link{WMDS}} or \code{\link{MOPMX}}
 #'   object.
 #' @param key \code{NULL}, vector, factor or formula. \itemize{
 #'   \item If \code{NULL} or otherwise empty, return all metadata.
@@ -920,7 +921,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #'   also be collected (and coerced to \sQuote{character}), or \code{TRUE}. In
 #'   that case, a mapping template for the classes themselves is returned. See
 #'   the \code{coerce} argument of \code{map_values} for details.
-#' @param ... Optional argument passed from the \code{\link{OPMS}} to the
+#' @param ... Optional argument passed from the \code{\link{WMDS}} to the
 #'   \code{\link{WMD}} method.
 #'
 #' @return \code{metadata} generates a list (empty if metadata were not set or
@@ -931,7 +932,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #'   character vector itself. (This might be convenient regarding its use with
 #'   \code{\link{map_metadata}}.)
 #' @details The result of \code{metadata_chars} can be used to create a mapping
-#'   for \code{\link{map_metadata}}. The \code{\link{OPMS}} method just applies
+#'   for \code{\link{map_metadata}}. The \code{\link{WMDS}} method just applies
 #'   the \code{\link{WMD}} method to all contained plates in turn.
 #'
 #' @export
@@ -947,8 +948,8 @@ setMethod("edit", OPMX, function(name, ...) {
 #'   idea to select metadata entries using numeric (positional) or logical keys.
 #'   The problem is that, in contrast to, e.g., data frames, their is no
 #'   guarantee that metadata entries with the same name occur in the same
-#'   position, even if they belong to \code{\link{OPM}} objects within a single
-#'   \code{\link{OPMS}} object.
+#'   position, even if they belong to \code{\link{WMD}} objects within a single
+#'   \code{\link{WMDS}} object.
 #'
 #'   Formulae passed as \code{key} argument are treated by ignoring the left
 #'   side (if any) and converting the right side to a list or other vector. Code
@@ -966,7 +967,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #'
 #' @examples
 #'
-#' # 'OPM' methods
+#' # 'WMD' methods
 #'
 #' (x <- metadata(vaas_1, "Strain"))
 #' stopifnot(x == "DSM30083T")
@@ -979,7 +980,7 @@ setMethod("edit", OPMX, function(name, ...) {
 #' stopifnot(names(x) == x) # mapping metadata values to themselves
 #' # See map_metadata() for a potential usage of the metadata_chars() result
 #'
-#' # 'OPMS' methods
+#' # 'WMDS' methods
 #'
 #' (x <- metadata(vaas_4, "Strain"))
 #' stopifnot(x == c("DSM18039", "DSM30083T", "DSM1707", "429SC1"))
@@ -1013,6 +1014,10 @@ setMethod("metadata", WMD, function(object, key = NULL, exact = TRUE,
     fetch_fun(key)
 }, sealed = SEALED)
 
+setMethod("metadata", WMDS, function(object, ...) {
+    simplify_conditionally(lapply(X = object@plates, FUN = metadata, ...))
+  }, sealed = SEALED)
+
 #= metadata_chars metadata
 
 #' @rdname metadata
@@ -1029,7 +1034,7 @@ setMethod("metadata_chars", WMD, function(object, values = TRUE,
     map_names(object@metadata)
 }, sealed = SEALED)
 
-setMethod("metadata_chars", OPMS, function(object, ...) {
+setMethod("metadata_chars", WMDS, function(object, ...) {
   map_values(unlist(lapply(object@plates, FUN = metadata_chars, ...)))
 }, sealed = SEALED)
 
