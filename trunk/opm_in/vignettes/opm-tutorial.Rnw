@@ -472,7 +472,7 @@ The query functions \code{has\_aggr} and \code{has\_disc} are available for chec
 See their help pages (e.g., \code{?has\_aggr}) and Section~\ref{application} for further details.
 Another container class, \proglang{MOPMX}, offers looser collections of objects.
 \proglang{MOPMX} objects are lists restricted to objects of the previously listed classes as elements, which may or may not have the same plate type.
-The non-virtual classes in the upper part of the figure are either well-known in \proglang{R} (e.g., matrices) or not directly manipulated by the user (\proglang{CMAT}).
+The non-virtual auxiliary classes shown in the figure are either well-known in \proglang{R} (e.g., matrices) or not directly manipulated by the user (\proglang{CMAT}).
 The \proglang{OPM\_DB} class and its child classes are internally used by \pkg{opm} for interactions with \acs{RDBMS}.
 }
 \end{figure}
