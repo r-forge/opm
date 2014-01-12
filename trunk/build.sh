@@ -1558,8 +1558,8 @@ case $RUNNING_MODE in
   ;;
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
-      remove_dirs_carefully pkgutils opm opmdata &&
-      remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc
+      remove_dirs_carefully pkgutils opm opmdata opmlipids &&
+      remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmlipids_doc
     exit $?
   ;;
   example )
@@ -1596,6 +1596,7 @@ case $RUNNING_MODE in
 	  forget  Remove all .RData, .Rhistory and *.Rout files found.
 	  full    Full build of the opm package.
 	  help    Print this message.
+	  lnorm   Normal build of the opmlipids package.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  plex    Open the PDF files with plots produced from the examples, if any.
 	  pdf     Reduce size of PDF files either in ./graphics or given as arguments.
@@ -1640,6 +1641,11 @@ case $RUNNING_MODE in
 ____EOF
     exit 1
   ;;
+  lnorm )
+    PKG_DIR=opmlipids_in
+    RUNNING_MODE=${RUNNING_MODE#l}
+    CHECK_R_TESTS=
+  ;;
   pdf )
     [ $# -eq 0 ] && set -- `find graphics -type f -iname '*.pdf'`
     reduce_pdf_size "$@"
@@ -1655,7 +1661,7 @@ ____EOF
     exit $?
   ;;
   rnw )
-    run_Stangle opm_in opmdata_in pkgutils_in
+    run_Stangle opm_in opmdata_in pkgutils_in opmlipids_in
     exit $?
   ;;
   rout )
@@ -1689,7 +1695,7 @@ ____EOF
     exit $?
   ;;
   time )
-    show_example_timings opm opmdata pkgutils
+    show_example_timings opm opmdata pkgutils opmlipids
     exit $?
   ;;
   todo )
@@ -1764,8 +1770,9 @@ delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --no-internal --modify --preprocess --S4methods --junk "$delete_pat" \
-  --mark-duplicates --good 00Index,well-map.R,substrate-info.R,plate-map.R \
-  --whitelist "$WHITELIST_MANUAL" --quality ebook "$PKG_DIR"
+  --mark-duplicates --whitelist "$WHITELIST_MANUAL" --quality ebook \
+  --good 00Index,well-map.R,substrate-info.R,plate-map.R,fatty-acid-map.R \
+  "$PKG_DIR"
 
 
 OUT_DIR=${PKG_DIR%_in}

@@ -1,0 +1,3450 @@
+---
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.762
+    - 7.674
+    - 9.248
+    - 9.715
+    - 10.559
+    - 10.938
+    - 12.685
+    - 14.057
+    - 14.455
+    Response:
+    - 321700000.0
+    - 1817.0
+    - 1287.0
+    - 2239.0
+    - 1217.0
+    - 90335.0
+    - 373.0
+    - 105232.0
+    - 1560.0
+    Ar/Ht:
+    - 0.037
+    - 0.040
+    - 0.060
+    - 0.510
+    - 0.043
+    - 0.045
+    - 0.057
+    - 0.049
+    - 0.051
+    RFact:
+    - .na.real
+    - 0.991
+    - 0.968
+    - .na.real
+    - 0.953
+    - 0.949
+    - 0.936
+    - 0.929
+    - 0.927
+    ECL:
+    - 6.987
+    - 14.000
+    - 15.000
+    - 15.276
+    - 15.775
+    - 16.000
+    - 17.001
+    - 17.775
+    - 18.000
+    Peak Name:
+    - SOLVENT PEAK
+    - '14:0'
+    - '15:0'
+    - ''
+    - 16:1 w9c
+    - '16:0'
+    - '17:0'
+    - 18:1 w9c
+    - '18:0'
+    Percent:
+    - .na.real
+    - 0.95
+    - 0.66
+    - .na.real
+    - 0.61
+    - 45.25
+    - 0.18
+    - 51.58
+    - 0.76
+    Comment1:
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - '> max ar/ht'
+    - ECL deviates  0.001
+    - ECL deviates  0.000
+    - ECL deviates  0.001
+    - ECL deviates  0.006
+    - ECL deviates  0.000
+    Comment2:
+    - ''
+    - Reference  0.001
+    - Reference  0.001
+    - ''
+    - ''
+    - Reference  0.000
+    - Reference  0.000
+    - ''
+    - Reference -0.003
+    VALUE:
+    - .na.real
+    - 0.95
+    - 0.66
+    - .na.real
+    - 0.61
+    - 45.25
+    - 0.18
+    - 51.58
+    - 0.76
+    _ROWNAMES:
+    - '1'
+    - C14:0
+    - C15:0
+    - '4'
+    - C16:1 cis7
+    - C16:0
+    - C17:0
+    - C18:1 cis9
+    - C18:0
+  metadata:
+    Volume: DATA7
+    File: E013053.47A
+    Samp Ctr: '5'
+    ID Number: '1103'
+    Type: Samp
+    Bottle: '8'
+    Method: TSBA40
+    Created: 12:00:00 AM
+    Modified: 1/8/2002 11:26:39 AM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS,24H)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.001'
+    Number Reference Peaks: '5'
+    Total Response: '204058'
+    Total Named: '201820'
+    Percent Named: '98.90'
+    Total Amount: '189462'
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      - ''
+      - ''
+      Sim Index:
+      - 0.655
+      - 0.599
+      - 0.459
+      - 0.397
+      Entry Name:
+      - Corynebacterium-glutamicum (Brevibacterium divaricatum=synonm
+      - Corynebacterium-striatum*
+      - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
+      - Corynebacterium-afermentans-afermentans (48h)**
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.762
+    - 7.674
+    - 9.254
+    - 9.418
+    - 10.557
+    - 10.939
+    - 12.421
+    - 12.692
+    - 14.056
+    - 14.457
+    Response:
+    - 321100000.0
+    - 1501.0
+    - 1384.0
+    - 1735.0
+    - 1170.0
+    - 87092.0
+    - 5448.0
+    - 2587.0
+    - 103934.0
+    - 1471.0
+    Ar/Ht:
+    - 0.037
+    - 0.040
+    - 0.051
+    - 0.155
+    - 0.043
+    - 0.046
+    - 0.195
+    - 0.114
+    - 0.049
+    - 0.051
+    RFact:
+    - .na.real
+    - 0.991
+    - 0.968
+    - .na.real
+    - 0.953
+    - 0.949
+    - .na.real
+    - 0.936
+    - 0.929
+    - 0.927
+    ECL:
+    - 6.994
+    - 13.998
+    - 15.003
+    - 15.100
+    - 15.774
+    - 16.000
+    - 16.848
+    - 17.004
+    - 17.773
+    - 17.999
+    Peak Name:
+    - SOLVENT PEAK
+    - '14:0'
+    - '15:0'
+    - ''
+    - 16:1 w9c
+    - '16:0'
+    - ''
+    - '17:0'
+    - 18:1 w9c
+    - '18:0'
+    Percent:
+    - .na.real
+    - 0.81
+    - 0.73
+    - .na.real
+    - 0.6
+    - 44.8
+    - .na.real
+    - .na.real
+    - 52.32
+    - 0.74
+    Comment1:
+    - < min rt
+    - ECL deviates -0.002
+    - ECL deviates  0.003
+    - '> max ar/ht'
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - '> max ar/ht'
+    - '> max ar/ht'
+    - ECL deviates  0.004
+    - ECL deviates -0.001
+    Comment2:
+    - ''
+    - Reference  0.001
+    - Reference  0.004
+    - ''
+    - ''
+    - Reference  0.000
+    - ''
+    - ''
+    - ''
+    - Reference -0.002
+    VALUE:
+    - .na.real
+    - 0.81
+    - 0.73
+    - .na.real
+    - 0.6
+    - 44.8
+    - .na.real
+    - .na.real
+    - 52.32
+    - 0.74
+    _ROWNAMES:
+    - '1'
+    - C14:0
+    - C15:0
+    - '4'
+    - C16:1 cis7
+    - C16:0
+    - '7'
+    - '8'
+    - C18:1 cis9
+    - C18:0
+  metadata:
+    Volume: DATA7
+    File: E013053.47A
+    Samp Ctr: '6'
+    ID Number: '1104'
+    Type: Samp
+    Bottle: '9'
+    Method: TSBA40
+    Created: 12:00:00 AM
+    Modified: 1/8/2002 11:30:04 AM
+    Sample ID: CNBT-GLUTA-20300(ndK,FS,24H)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '4'
+    Total Response: '206321'
+    Total Named: '196551'
+    Percent Named: '95.26'
+    Total Amount: '186903'
+    Profile Comment: Review report comments.
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      - ''
+      - ''
+      Sim Index:
+      - 0.694
+      - 0.540
+      - 0.498
+      - 0.411
+      Entry Name:
+      - Corynebacterium-glutamicum (Brevibacterium divaricatum=synonm
+      - Corynebacterium-striatum*
+      - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
+      - Corynebacterium-afermentans-afermentans (48h)**
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.84
+    - 1.96
+    - 5.049
+    - 7.62
+    - 9.189
+    - 10.49
+    - 10.872
+    - 13.896
+    - 13.988
+    - 14.141
+    - 14.396
+    - 14.739
+    - .na.real
+    Response:
+    - 357000000.0
+    - 1027.0
+    - 310.0
+    - 2203.0
+    - 3358.0
+    - 653.0
+    - 70728.0
+    - 1420.0
+    - 76463.0
+    - 1168.0
+    - 4634.0
+    - 747.0
+    - 1420.0
+    Ar/Ht:
+    - 0.027
+    - 0.024
+    - 0.032
+    - 0.039
+    - 0.08
+    - 0.04
+    - 0.042
+    - 0.038
+    - 0.048
+    - 0.059
+    - 0.046
+    - 0.043
+    - .na.real
+    RFact:
+    - .na.real
+    - .na.real
+    - 1.077
+    - 0.998
+    - 0.969
+    - 0.95
+    - 0.945
+    - 0.913
+    - 0.912
+    - 0.911
+    - 0.909
+    - .na.real
+    - .na.real
+    ECL:
+    - 7.013
+    - 7.243
+    - 12.0
+    - 13.999
+    - 15.001
+    - 15.773
+    - 15.999
+    - 17.718
+    - 17.77
+    - 17.857
+    - 18.0
+    - 18.195
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - ''
+    - '12:0'
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - Sum In Feature 5
+    - 18:1 w9c
+    - 18:1 w6c
+    - '18:0'
+    - ''
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - .na.real
+    - 0.22
+    - 1.47
+    - 2.17
+    - 0.41
+    - 44.68
+    - 0.87
+    - 46.64
+    - 0.71
+    - 2.82
+    - .na.real
+    - 0.87
+    Comment1:
+    - < min rt
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates -0.001
+    - ECL deviates  0.001
+    - ECL deviates -0.001
+    - ECL deviates -0.001
+    - ECL deviates -0.002
+    - ECL deviates  0.001
+    - ECL deviates -0.001
+    - ECL deviates  0.000
+    - ''
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - ''
+    - Reference -0.001
+    - Reference -0.001
+    - Reference  0.000
+    - ''
+    - Reference -0.003
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - ''
+    - Reference -0.004
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - .na.real
+    - 0.22
+    - 1.47
+    - 2.17
+    - 0.41
+    - 44.68
+    - 0.87
+    - 46.64
+    - 0.71
+    - 2.82
+    - .na.real
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - C12:0
+    - C14:0
+    - C15:0
+    - C16:1 cis7
+    - C16:0
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:1 cis12
+    - C18:0
+    - '12'
+    - '13'
+  metadata:
+    Volume: DATA7
+    File: E053243.43A
+    Samp Ctr: '3'
+    ID Number: '12931'
+    Type: Samp
+    Bottle: '9'
+    Method: TSBA40
+    Created: 3/24/2005 9:01:54 AM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.001'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '5'
+    Total Response: '161684'
+    Total Named: '160937'
+    Percent Named: '99.54'
+    Total Amount: '149563'
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      Sim Index:
+      - 0.692
+      - 0.401
+      Entry Name:
+      - Corynebacterium-striatum*
+      - Gordona-sputi** (Rhodococcus)
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.84
+    - 1.96
+    - 6.153
+    - 7.619
+    - 8.811
+    - 9.117
+    - 10.12
+    - 10.49
+    - 10.873
+    - 12.205
+    - 12.328
+    - 12.58
+    - 13.27
+    - 13.403
+    - 13.651
+    - 13.897
+    - 13.987
+    - 14.395
+    - .na.real
+    Response:
+    - 355500000.0
+    - 1061.0
+    - 690.0
+    - 2282.0
+    - 1017.0
+    - 37007.0
+    - 3090.0
+    - 670.0
+    - 56238.0
+    - 9157.0
+    - 1106.0
+    - 13544.0
+    - 1229.0
+    - 617.0
+    - 1979.0
+    - 1172.0
+    - 57970.0
+    - 4098.0
+    - 1172.0
+    Ar/Ht:
+    - 0.027
+    - 0.025
+    - 0.044
+    - 0.042
+    - 0.053
+    - 0.047
+    - 0.046
+    - 0.04
+    - 0.042
+    - 0.055
+    - 0.043
+    - 0.051
+    - 0.047
+    - 0.045
+    - 0.05
+    - 0.037
+    - 0.048
+    - 0.045
+    - .na.real
+    RFact:
+    - .na.real
+    - .na.real
+    - 1.036
+    - 0.998
+    - .na.real
+    - 0.97
+    - 0.955
+    - 0.95
+    - 0.945
+    - 0.929
+    - .na.real
+    - .na.real
+    - .na.real
+    - .na.real
+    - 0.915
+    - 0.913
+    - 0.912
+    - 0.909
+    - .na.real
+    ECL:
+    - 7.019
+    - 7.249
+    - 12.94
+    - 13.999
+    - 14.761
+    - 14.956
+    - 15.554
+    - 15.774
+    - 16.001
+    - 16.763
+    - 16.833
+    - 16.977
+    - 17.366
+    - 17.441
+    - 17.581
+    - 17.719
+    - 17.77
+    - 17.999
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - ''
+    - 13:1 AT 12-13
+    - '14:0'
+    - ''
+    - unknown 14.959
+    - 16:0 N alcohol
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w9c
+    - ''
+    - ''
+    - ''
+    - ''
+    - 18:3 w6c (6,9,12)
+    - Sum In Feature 5
+    - 18:1 w9c
+    - '18:0'
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - .na.real
+    - 0.44
+    - 1.39
+    - .na.real
+    - 21.93
+    - 1.8
+    - 0.39
+    - 32.48
+    - 5.2
+    - .na.real
+    - .na.real
+    - .na.real
+    - .na.real
+    - 1.11
+    - 0.65
+    - 32.33
+    - 2.28
+    - 0.65
+    Comment1:
+    - < min rt
+    - < min rt
+    - ECL deviates  0.004
+    - ECL deviates -0.001
+    - ''
+    - ECL deviates -0.003
+    - ECL deviates  0.004
+    - ECL deviates  0.000
+    - ECL deviates  0.001
+    - ECL deviates -0.009
+    - ''
+    - ''
+    - ''
+    - ''
+    - ECL deviates  0.004
+    - ECL deviates -0.001
+    - ECL deviates  0.001
+    - ECL deviates -0.001
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - ''
+    - ''
+    - Reference -0.002
+    - ''
+    - ''
+    - ''
+    - ''
+    - Reference -0.002
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - Reference -0.005
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - .na.real
+    - 0.44
+    - 1.39
+    - .na.real
+    - 21.93
+    - 1.8
+    - 0.39
+    - 32.48
+    - 5.2
+    - .na.real
+    - .na.real
+    - .na.real
+    - .na.real
+    - 1.11
+    - 0.65
+    - 32.33
+    - 2.28
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - C13:1
+    - C14:0
+    - '5'
+    - unknown 14.959
+    - C16:0 alcohol
+    - C16:1 cis7
+    - C16:0
+    - C17:1 cis8
+    - '11'
+    - '12'
+    - '13'
+    - '14'
+    - C18:3 cis6,9,12
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:0
+    - '19'
+  metadata:
+    Volume: DATA7
+    File: E053243.43A
+    Samp Ctr: '4'
+    ID Number: '12932'
+    Type: Samp
+    Bottle: '10'
+    Method: TSBA40
+    Created: 3/24/2005 9:26:25 AM
+    Sample ID: CNBT-GLUTA-20300(ndK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.004'
+    Reference ECL Shift: '0.003'
+    Number Reference Peaks: '3'
+    Total Response: '191866'
+    Total Named: '174354'
+    Percent Named: '90.87'
+    Total Amount: '163605'
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.08
+      Entry Name: Corynebacterium-pseudodiphtheriticum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.839
+    - 1.959
+    - 5.045
+    - 7.617
+    - 9.2
+    - 9.265
+    - 10.485
+    - 10.869
+    - 12.272
+    - 12.635
+    - 13.891
+    - 13.984
+    - 14.138
+    - 14.39
+    - 14.734
+    - .na.real
+    Response:
+    - 358400000.0
+    - 1072.0
+    - 266.0
+    - 2244.0
+    - 8939.0
+    - 18309.0
+    - 596.0
+    - 72214.0
+    - 6586.0
+    - 11523.0
+    - 1332.0
+    - 77050.0
+    - 397.0
+    - 4710.0
+    - 816.0
+    - 1332.0
+    Ar/Ht:
+    - 0.027
+    - 0.024
+    - 0.027
+    - 0.04
+    - 0.064
+    - 0.114
+    - 0.04
+    - 0.042
+    - 0.104
+    - 0.095
+    - 0.044
+    - 0.047
+    - 0.032
+    - 0.047
+    - 0.053
+    - .na.real
+    RFact:
+    - .na.real
+    - .na.real
+    - 1.077
+    - 0.998
+    - 0.969
+    - .na.real
+    - 0.95
+    - 0.945
+    - 0.929
+    - 0.925
+    - 0.913
+    - 0.912
+    - 0.911
+    - 0.909
+    - .na.real
+    - .na.real
+    ECL:
+    - 7.016
+    - 7.247
+    - 12.001
+    - 13.996
+    - 15.005
+    - 15.043
+    - 15.767
+    - 15.995
+    - 16.798
+    - 17.006
+    - 17.716
+    - 17.768
+    - 17.855
+    - 17.997
+    - 18.193
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - ''
+    - '12:0'
+    - '14:0'
+    - '15:0'
+    - ''
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w8c
+    - '17:0'
+    - Sum In Feature 5
+    - 18:1 w9c
+    - 18:1 w6c
+    - '18:0'
+    - ''
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - .na.real
+    - 0.17
+    - 1.34
+    - 5.19
+    - .na.real
+    - 0.34
+    - 40.91
+    - .na.real
+    - 6.39
+    - 0.73
+    - 42.14
+    - 0.22
+    - 2.57
+    - .na.real
+    - 0.73
+    Comment1:
+    - < min rt
+    - < min rt
+    - ECL deviates  0.001
+    - ECL deviates -0.004
+    - ECL deviates  0.005
+    - '> max ar/ht'
+    - ECL deviates -0.007
+    - ECL deviates -0.005
+    - '> max ar/ht'
+    - ECL deviates  0.006
+    - ECL deviates -0.004
+    - ECL deviates -0.001
+    - ECL deviates -0.003
+    - ECL deviates -0.003
+    - ''
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - ''
+    - Reference -0.005
+    - Reference -0.003
+    - Reference  0.006
+    - ''
+    - ''
+    - Reference -0.004
+    - ''
+    - Reference  0.005
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - ''
+    - Reference -0.008
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - .na.real
+    - 0.17
+    - 1.34
+    - 5.19
+    - .na.real
+    - 0.34
+    - 40.91
+    - .na.real
+    - 6.39
+    - 0.73
+    - 42.14
+    - 0.22
+    - 2.57
+    - .na.real
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - C12:0
+    - C14:0
+    - C15:0
+    - '6'
+    - C16:1 cis7
+    - C16:0
+    - '9'
+    - C17:0
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:1 cis12
+    - C18:0
+    - '15'
+    - '16'
+  metadata:
+    Volume: DATA7
+    File: E053243.43A
+    Samp Ctr: '5'
+    ID Number: '12938'
+    Type: Stat
+    Bottle: '16'
+    Method: TSBA40
+    Created: 3/24/2005 11:29:18 AM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS+BLUT,2d,37C,Na2SO4
+    ECL Deviation: '0.004'
+    Reference ECL Shift: '0.005'
+    Number Reference Peaks: '6'
+    Total Response: '204982'
+    Total Named: '179271'
+    Percent Named: '87.46'
+    Total Amount: '172915'
+    Profile Comment: Review report comments.
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      Sim Index:
+      - 0.223
+      - 0.134
+      Entry Name:
+      - Brevibacterium-stationis* (unlike other brevibacteria)
+      - Corynebacterium-striatum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.839
+    - 1.958
+    - 5.043
+    - 7.617
+    - 9.169
+    - 10.486
+    - 10.868
+    - 12.234
+    - 12.607
+    - 13.893
+    - 13.983
+    - 14.395
+    - .na.real
+    Response:
+    - 357900000.0
+    - 1097.0
+    - 216.0
+    - 2167.0
+    - 34631.0
+    - 710.0
+    - 60008.0
+    - 9339.0
+    - 14112.0
+    - 1279.0
+    - 63880.0
+    - 4797.0
+    - 1279.0
+    Ar/Ht:
+    - 0.027
+    - 0.026
+    - 0.028
+    - 0.039
+    - 0.094
+    - 0.043
+    - 0.044
+    - 0.089
+    - 0.08
+    - 0.041
+    - 0.047
+    - 0.047
+    - .na.real
+    RFact:
+    - .na.real
+    - .na.real
+    - 1.077
+    - 0.998
+    - 0.969
+    - 0.95
+    - 0.945
+    - 0.929
+    - 0.925
+    - 0.913
+    - 0.912
+    - 0.909
+    - .na.real
+    ECL:
+    - 7.02
+    - 7.25
+    - 11.999
+    - 14.005
+    - 14.995
+    - 15.777
+    - 16.003
+    - 16.784
+    - 16.996
+    - 17.72
+    - 17.77
+    - 18.002
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - ''
+    - '12:0'
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w8c
+    - '17:0'
+    - Sum In Feature 5
+    - 18:1 w9c
+    - '18:0'
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - .na.real
+    - 0.13
+    - 1.21
+    - 18.75
+    - 0.38
+    - 31.7
+    - 4.85
+    - 7.3
+    - 0.65
+    - 32.59
+    - 2.44
+    - 0.65
+    Comment1:
+    - < min rt
+    - < min rt
+    - ECL deviates -0.001
+    - ECL deviates  0.005
+    - ECL deviates -0.005
+    - ECL deviates  0.003
+    - ECL deviates  0.003
+    - ECL deviates -0.008
+    - ECL deviates -0.004
+    - ECL deviates  0.000
+    - ECL deviates  0.001
+    - ECL deviates  0.002
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - ''
+    - Reference -0.008
+    - Reference -0.003
+    - Reference -0.013
+    - ''
+    - Reference -0.005
+    - ''
+    - Reference -0.011
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - Reference -0.005
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - .na.real
+    - 0.13
+    - 1.21
+    - 18.75
+    - 0.38
+    - 31.7
+    - 4.85
+    - 7.3
+    - 0.65
+    - 32.59
+    - 2.44
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - C12:0
+    - C14:0
+    - C15:0
+    - C16:1 cis7
+    - C16:0
+    - C17:1 cis9
+    - C17:0
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:0
+    - '13'
+  metadata:
+    Volume: DATA7
+    File: E053243.43A
+    Samp Ctr: '6'
+    ID Number: '12939'
+    Type: Stat
+    Bottle: '17'
+    Method: TSBA40
+    Created: 3/24/2005 11:53:51 AM
+    Sample ID: CNBT-GLUTA-20300(ndK,FS+BLUT,2d,37C,Na2SO4
+    ECL Deviation: '0.004'
+    Reference ECL Shift: '0.008'
+    Number Reference Peaks: '6'
+    Total Response: '191138'
+    Total Named: '191138'
+    Percent Named: '100.00'
+    Total Amount: '178851'
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.047
+      Entry Name: Corynebacterium-callunae-GC subgroup A
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.838
+    - 5.038
+    - 7.606
+    - 9.119
+    - 10.473
+    - 10.858
+    - 12.197
+    - 12.325
+    - 12.575
+    - 13.883
+    - 13.974
+    - 14.125
+    - 14.381
+    - 14.724
+    - 15.22
+    - 15.351
+    - .na.real
+    Response:
+    - 358300000.0
+    - 399.0
+    - 3298.0
+    - 42408.0
+    - 945.0
+    - 96731.0
+    - 11552.0
+    - 1750.0
+    - 17393.0
+    - 1885.0
+    - 100721.0
+    - 1354.0
+    - 5722.0
+    - 891.0
+    - 488.0
+    - 621.0
+    - 1885.0
+    Ar/Ht:
+    - 0.027
+    - 0.032
+    - 0.041
+    - 0.06
+    - 0.039
+    - 0.043
+    - 0.06
+    - 0.057
+    - 0.053
+    - 0.044
+    - 0.048
+    - 0.053
+    - 0.044
+    - 0.04
+    - 0.047
+    - 0.043
+    - .na.real
+    RFact:
+    - .na.real
+    - 1.069
+    - 0.999
+    - 0.974
+    - 0.956
+    - 0.952
+    - 0.937
+    - .na.real
+    - .na.real
+    - 0.922
+    - 0.921
+    - 0.92
+    - 0.917
+    - .na.real
+    - 0.911
+    - .na.real
+    - .na.real
+    ECL:
+    - 7.018
+    - 12.0
+    - 14.0
+    - 14.967
+    - 15.773
+    - 16.001
+    - 16.767
+    - 16.84
+    - 16.983
+    - 17.719
+    - 17.77
+    - 17.855
+    - 17.999
+    - 18.193
+    - 18.474
+    - 18.548
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - '12:0'
+    - '14:0'
+    - unknown 14.959
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w9c
+    - ''
+    - ''
+    - Sum In Feature 5
+    - 18:1 w9c
+    - 18:1 w6c
+    - '18:0'
+    - ''
+    - 19:1 ISO I
+    - ''
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - 0.17
+    - 1.32
+    - 16.51
+    - 0.36
+    - 36.78
+    - 4.33
+    - .na.real
+    - .na.real
+    - 0.69
+    - 37.07
+    - 0.5
+    - 2.1
+    - .na.real
+    - 0.18
+    - .na.real
+    - 0.69
+    Comment1:
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - ECL deviates  0.008
+    - ECL deviates -0.001
+    - ECL deviates  0.001
+    - ECL deviates -0.005
+    - ''
+    - ''
+    - ECL deviates -0.001
+    - ECL deviates  0.001
+    - ECL deviates -0.003
+    - ECL deviates -0.001
+    - ''
+    - ECL deviates  0.001
+    - ''
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - Reference -0.003
+    - Reference -0.003
+    - ''
+    - ''
+    - Reference -0.002
+    - ''
+    - ''
+    - ''
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - ''
+    - Reference -0.003
+    - ''
+    - ''
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - 0.17
+    - 1.32
+    - 16.51
+    - 0.36
+    - 36.78
+    - 4.33
+    - .na.real
+    - .na.real
+    - 0.69
+    - 37.07
+    - 0.5
+    - 2.1
+    - .na.real
+    - 0.18
+    - .na.real
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - C12:0
+    - C14:0
+    - unknown 14.959
+    - C16:1 cis7
+    - C16:0
+    - C17:1 cis8
+    - '8'
+    - '9'
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:1 cis12
+    - C18:0
+    - '14'
+    - i-C19:1
+    - '16'
+    - '17'
+  metadata:
+    Volume: DATA7
+    File: E054223.22A
+    Samp Ctr: '3'
+    ID Number: '13077'
+    Type: Samp
+    Bottle: '15'
+    Method: TSBA40
+    Created: 4/22/2005 10:59:50 AM
+    Modified: 4/25/2005 12:15:22 PM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS+BLUT,2d,37C,Wdh)
+    ECL Deviation: '0.003'
+    Reference ECL Shift: '0.003'
+    Number Reference Peaks: '4'
+    Total Response: '286158'
+    Total Named: '265503'
+    Percent Named: '92.78'
+    Total Amount: '250246'
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.19
+      Entry Name: Corynebacterium-pseudodiphtheriticum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.838
+    - 3.388
+    - 5.04
+    - 6.942
+    - 7.607
+    - 9.115
+    - 10.475
+    - 10.859
+    - 12.199
+    - 12.324
+    - 12.574
+    - 13.879
+    - 13.974
+    - 14.128
+    - 14.381
+    - 14.721
+    - 15.215
+    - 15.351
+    - .na.real
+    Response:
+    - 358700000.0
+    - 223.0
+    - 326.0
+    - 502.0
+    - 3355.0
+    - 42070.0
+    - 862.0
+    - 89908.0
+    - 10957.0
+    - 1521.0
+    - 16422.0
+    - 1619.0
+    - 93737.0
+    - 1196.0
+    - 5018.0
+    - 820.0
+    - 607.0
+    - 639.0
+    - 1619.0
+    Ar/Ht:
+    - 0.027
+    - 0.032
+    - 0.025
+    - 0.03
+    - 0.042
+    - 0.058
+    - 0.042
+    - 0.043
+    - 0.059
+    - 0.05
+    - 0.056
+    - 0.042
+    - 0.048
+    - 0.055
+    - 0.047
+    - 0.044
+    - 0.043
+    - 0.042
+    - .na.real
+    RFact:
+    - .na.real
+    - 1.169
+    - 1.069
+    - .na.real
+    - 0.999
+    - 0.974
+    - 0.956
+    - 0.952
+    - 0.937
+    - .na.real
+    - .na.real
+    - 0.922
+    - 0.921
+    - 0.92
+    - 0.917
+    - .na.real
+    - 0.911
+    - .na.real
+    - .na.real
+    ECL:
+    - 7.011
+    - 10.0
+    - 11.999
+    - 13.522
+    - 13.999
+    - 14.964
+    - 15.774
+    - 16.002
+    - 16.768
+    - 16.839
+    - 16.982
+    - 17.717
+    - 17.77
+    - 17.857
+    - 17.999
+    - 18.192
+    - 18.472
+    - 18.548
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - '10:0'
+    - '12:0'
+    - ''
+    - '14:0'
+    - unknown 14.959
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w9c
+    - ''
+    - ''
+    - Sum In Feature 5
+    - 18:1 w9c
+    - 18:1 w6c
+    - '18:0'
+    - ''
+    - 19:1 ISO I
+    - ''
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - 0.11
+    - 0.15
+    - .na.real
+    - 1.42
+    - 17.39
+    - 0.35
+    - 36.3
+    - 4.36
+    - .na.real
+    - .na.real
+    - 0.63
+    - 36.63
+    - 0.47
+    - 1.95
+    - .na.real
+    - 0.23
+    - .na.real
+    - 0.63
+    Comment1:
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates -0.001
+    - ''
+    - ECL deviates -0.001
+    - ECL deviates  0.005
+    - ECL deviates  0.000
+    - ECL deviates  0.002
+    - ECL deviates -0.004
+    - ''
+    - ''
+    - ECL deviates -0.003
+    - ECL deviates  0.001
+    - ECL deviates -0.001
+    - ECL deviates -0.001
+    - ''
+    - ECL deviates -0.001
+    - ''
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - Reference  0.004
+    - Reference  0.000
+    - ''
+    - Reference -0.002
+    - ''
+    - ''
+    - Reference -0.001
+    - ''
+    - ''
+    - ''
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - ''
+    - Reference -0.004
+    - ''
+    - ''
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - 0.11
+    - 0.15
+    - .na.real
+    - 1.42
+    - 17.39
+    - 0.35
+    - 36.3
+    - 4.36
+    - .na.real
+    - .na.real
+    - 0.63
+    - 36.63
+    - 0.47
+    - 1.95
+    - .na.real
+    - 0.23
+    - .na.real
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - C10:0
+    - C12:0
+    - '4'
+    - C14:0
+    - unknown 14.959
+    - C16:1 cis7
+    - C16:0
+    - C17:1 cis8
+    - '10'
+    - '11'
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:1 cis12
+    - C18:0
+    - '16'
+    - i-C19:1
+    - '18'
+    - '19'
+  metadata:
+    Volume: DATA7
+    File: E054223.22A
+    Samp Ctr: '4'
+    ID Number: '13078'
+    Type: Samp
+    Bottle: '16'
+    Method: TSBA40
+    Created: 4/22/2005 11:24:22 AM
+    Modified: 4/25/2005 12:15:33 PM
+    Sample ID: CNBT-GLUTA-20300(ndK,FS+BLUT,2d,37C,Wdh)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.003'
+    Number Reference Peaks: '5'
+    Total Response: '269782'
+    Total Named: '249877'
+    Percent Named: '92.62'
+    Total Amount: '235666'
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.17
+      Entry Name: Corynebacterium-pseudodiphtheriticum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.618
+    - 7.298
+    - 8.854
+    - 10.147
+    - 10.520
+    - 13.624
+    - 14.026
+    - 14.723
+    Response:
+    - 365400000.0
+    - 1632.0
+    - 2277.0
+    - 464.0
+    - 59685.0
+    - 62856.0
+    - 2412.0
+    - 456.0
+    Ar/Ht:
+    - 0.025
+    - 0.034
+    - 0.054
+    - 0.035
+    - 0.039
+    - 0.043
+    - 0.043
+    - 0.048
+    RFact:
+    - .na.real
+    - 1.003
+    - 0.977
+    - 0.96
+    - 0.955
+    - 0.924
+    - 0.921
+    - 0.915
+    ECL:
+    - 7.017
+    - 13.998
+    - 15.003
+    - 15.776
+    - 16.000
+    - 17.772
+    - 17.999
+    - 18.396
+    Peak Name:
+    - SOLVENT PEAK
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - 18:1 w9c
+    - '18:0'
+    - TBSA 10Me18:0
+    Percent:
+    - .na.real
+    - 1.34
+    - 1.82
+    - 0.37
+    - 46.71
+    - 47.6
+    - 1.82
+    - 0.34
+    Comment1:
+    - < min rt
+    - ECL deviates -0.002
+    - ECL deviates  0.003
+    - ECL deviates  0.002
+    - ECL deviates  0.000
+    - ECL deviates  0.003
+    - ECL deviates -0.001
+    - ECL deviates  0.004
+    Comment2:
+    - ''
+    - Reference -0.001
+    - Reference  0.003
+    - ''
+    - Reference -0.001
+    - ''
+    - Reference -0.003
+    - ''
+    VALUE:
+    - .na.real
+    - 1.34
+    - 1.82
+    - 0.37
+    - 46.71
+    - 47.6
+    - 1.82
+    - 0.34
+    _ROWNAMES:
+    - '1'
+    - C14:0
+    - C15:0
+    - C16:1 cis7
+    - C16:0
+    - C18:1 cis9
+    - C18:0
+    - C18:0 10-methyl
+  metadata:
+    Volume: DATA7
+    File: E066013.55A
+    Samp Ctr: '3'
+    ID Number: '15032'
+    Type: Samp
+    Bottle: '15'
+    Method: TSBA40
+    Created: 6/1/2006 12:10:39 PM
+    Modified: 6/28/2006 12:49:50 PM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.003'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '4'
+    Total Response: '129781'
+    Total Named: '129781'
+    Percent Named: '100.00'
+    Total Amount: '122048'
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      Sim Index:
+      - 0.765
+      - 0.396
+      Entry Name:
+      - Corynebacterium-striatum*
+      - Gordona-sputi** (Rhodococcus)
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.582
+    - 1.615
+    - 4.755
+    - 7.289
+    - 8.835
+    - 10.137
+    - 10.509
+    - 12.243
+    - 13.523
+    - 13.612
+    - 14.013
+    - .na.real
+    Response:
+    - 97088.0
+    - 370100000.0
+    - 242.0
+    - 1754.0
+    - 8662.0
+    - 410.0
+    - 66873.0
+    - 3827.0
+    - 548.0
+    - 69996.0
+    - 2922.0
+    - 548.0
+    Ar/Ht:
+    - 0.015
+    - 0.027
+    - 0.025
+    - 0.035
+    - 0.103
+    - 0.029
+    - 0.041
+    - 0.08
+    - 0.034
+    - 0.044
+    - 0.04
+    - .na.real
+    RFact:
+    - .na.real
+    - .na.real
+    - 1.059
+    - 0.999
+    - 0.976
+    - 0.961
+    - 0.957
+    - 0.94
+    - 0.93
+    - 0.93
+    - 0.927
+    - .na.real
+    ECL:
+    - 6.949
+    - 7.015
+    - 12.0
+    - 14.0
+    - 14.999
+    - 15.778
+    - 16.001
+    - 16.999
+    - 17.723
+    - 17.774
+    - 18.001
+    - .na.real
+    Peak Name:
+    - ''
+    - SOLVENT PEAK
+    - '12:0'
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - '17:0'
+    - Sum In Feature 5
+    - 18:1 w9c
+    - '18:0'
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - .na.real
+    - 0.19
+    - 1.27
+    - .na.real
+    - 0.29
+    - 46.27
+    - 2.6
+    - 0.37
+    - 47.06
+    - 1.96
+    - 0.37
+    Comment1:
+    - < min rt
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - '> max ar/ht'
+    - ECL deviates  0.004
+    - ECL deviates  0.001
+    - ECL deviates -0.001
+    - ECL deviates  0.003
+    - ECL deviates  0.005
+    - ECL deviates  0.001
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - ''
+    - Reference  0.000
+    - Reference -0.001
+    - ''
+    - ''
+    - Reference -0.001
+    - Reference -0.004
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - Reference -0.003
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - .na.real
+    - 0.19
+    - 1.27
+    - .na.real
+    - 0.29
+    - 46.27
+    - 2.6
+    - 0.37
+    - 47.06
+    - 1.96
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - C12:0
+    - C14:0
+    - '5'
+    - C16:1 cis7
+    - C16:0
+    - C17:0
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:0
+    - '12'
+  metadata:
+    Volume: DATA7
+    File: E066213.80A
+    Samp Ctr: '3'
+    ID Number: '15089'
+    Type: Samp
+    Bottle: '18'
+    Method: TSBA40
+    Created: 6/21/2006 1:36:55 PM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '5'
+    Total Response: '155234'
+    Total Named: '146572'
+    Percent Named: '94.42'
+    Total Amount: '146724'
+    Profile Comment: Review report comments.
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.818
+      Entry Name: Corynebacterium-striatum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.616
+    - 4.755
+    - 7.288
+    - 8.836
+    - 10.133
+    - 10.511
+    - 12.246
+    - 13.525
+    - 13.611
+    - 14.013
+    - 14.706
+    - .na.real
+    Response:
+    - 369200000.0
+    - 200.0
+    - 1735.0
+    - 5503.0
+    - 519.0
+    - 65361.0
+    - 2725.0
+    - 552.0
+    - 68255.0
+    - 2945.0
+    - 527.0
+    - 552.0
+    Ar/Ht:
+    - 0.024
+    - 0.027
+    - 0.033
+    - 0.092
+    - 0.04
+    - 0.041
+    - 0.075
+    - 0.036
+    - 0.045
+    - 0.043
+    - 0.04
+    - .na.real
+    RFact:
+    - .na.real
+    - 1.059
+    - 0.999
+    - 0.976
+    - 0.961
+    - 0.957
+    - 0.94
+    - 0.93
+    - 0.93
+    - 0.927
+    - 0.922
+    - .na.real
+    ECL:
+    - 7.017
+    - 12.0
+    - 14.0
+    - 14.999
+    - 15.776
+    - 16.001
+    - 17.0
+    - 17.723
+    - 17.773
+    - 18.0
+    - 18.394
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - '12:0'
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - '17:0'
+    - Sum In Feature 5
+    - 18:1 w9c
+    - '18:0'
+    - TBSA 10Me18:0
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - 0.15
+    - 1.24
+    - 3.83
+    - 0.36
+    - 44.64
+    - 1.83
+    - 0.37
+    - 45.29
+    - 1.95
+    - 0.35
+    - 0.37
+    Comment1:
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - ECL deviates -0.001
+    - ECL deviates  0.002
+    - ECL deviates  0.001
+    - ECL deviates  0.000
+    - ECL deviates  0.003
+    - ECL deviates  0.004
+    - ECL deviates  0.000
+    - ECL deviates  0.002
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - Reference -0.001
+    - Reference -0.001
+    - Reference -0.002
+    - ''
+    - Reference  0.000
+    - Reference -0.002
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - Reference -0.003
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - 0.15
+    - 1.24
+    - 3.83
+    - 0.36
+    - 44.64
+    - 1.83
+    - 0.37
+    - 45.29
+    - 1.95
+    - 0.35
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - C12:0
+    - C14:0
+    - C15:0
+    - C16:1 cis7
+    - C16:0
+    - C17:0
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:0
+    - C18:0 10-methyl
+    - '12'
+  metadata:
+    Volume: DATA7
+    File: E066213.80A
+    Samp Ctr: '4'
+    ID Number: '15090'
+    Type: Samp
+    Bottle: '19'
+    Method: TSBA40
+    Created: 6/21/2006 2:01:28 PM
+    Sample ID: CNBT-GLUTA-20300(ndK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '6'
+    Total Response: '148323'
+    Total Named: '148323'
+    Percent Named: '100.00'
+    Total Amount: '140091'
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      Sim Index:
+      - 0.464
+      - 0.285
+      Entry Name:
+      - Corynebacterium-striatum*
+      - Gordona-sputi** (Rhodococcus)
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.624
+    - 4.744
+    - 7.265
+    - 8.808
+    - 10.099
+    - 10.476
+    - 11.861
+    - 12.212
+    - 13.484
+    - 13.571
+    - 13.972
+    - 14.662
+    - .na.real
+    Response:
+    - 365400000.0
+    - 227.0
+    - 1626.0
+    - 24667.0
+    - 460.0
+    - 57378.0
+    - 5750.0
+    - 9022.0
+    - 659.0
+    - 59953.0
+    - 2724.0
+    - 537.0
+    - 659.0
+    Ar/Ht:
+    - 0.025
+    - 0.031
+    - 0.034
+    - 0.136
+    - 0.034
+    - 0.039
+    - 0.091
+    - 0.086
+    - 0.041
+    - 0.043
+    - 0.042
+    - 0.04
+    - .na.real
+    RFact:
+    - .na.real
+    - 1.053
+    - 0.995
+    - 0.973
+    - 0.958
+    - 0.954
+    - 0.943
+    - 0.94
+    - 0.932
+    - 0.931
+    - 0.929
+    - 0.926
+    - .na.real
+    ECL:
+    - 7.017
+    - 12.0
+    - 13.999
+    - 15.0
+    - 15.774
+    - 16.0
+    - 16.799
+    - 17.001
+    - 17.722
+    - 17.772
+    - 17.999
+    - 18.392
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - '12:0'
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w8c
+    - '17:0'
+    - Sum In Feature 5
+    - 18:1 w9c
+    - '18:0'
+    - TBSA 10Me18:0
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - 0.18
+    - 1.24
+    - .na.real
+    - 0.34
+    - 41.98
+    - 4.16
+    - 6.5
+    - 0.47
+    - 42.81
+    - 1.94
+    - 0.38
+    - 0.47
+    Comment1:
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates -0.001
+    - '> max ar/ht'
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - ECL deviates  0.007
+    - ECL deviates  0.001
+    - ECL deviates  0.002
+    - ECL deviates  0.003
+    - ECL deviates -0.001
+    - ECL deviates  0.000
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - Reference  0.000
+    - Reference -0.002
+    - ''
+    - ''
+    - Reference -0.001
+    - ''
+    - Reference  0.000
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - Reference -0.003
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - 0.18
+    - 1.24
+    - .na.real
+    - 0.34
+    - 41.98
+    - 4.16
+    - 6.5
+    - 0.47
+    - 42.81
+    - 1.94
+    - 0.38
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - C12:0
+    - C14:0
+    - '4'
+    - C16:1 cis7
+    - C16:0
+    - C17:1 cis9
+    - C17:0
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:0
+    - C18:0 10-methyl
+    - '13'
+  metadata:
+    Volume: DATA7
+    File: E088144.11A
+    Samp Ctr: '22'
+    ID Number: '19291'
+    Type: Samp
+    Bottle: '27'
+    Method: TSBA40
+    Created: 8/14/2008 6:44:36 PM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '5'
+    Total Response: '163006'
+    Total Named: '138338'
+    Percent Named: '84.87'
+    Total Amount: '154419'
+    Profile Comment: Percent named is less than 85.00.
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.579
+      Entry Name: Corynebacterium-striatum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.590
+    - 1.624
+    - 7.262
+    - 8.802
+    - 10.098
+    - 10.473
+    - 11.836
+    - 12.211
+    - 13.568
+    - 13.971
+    - 14.658
+    Response:
+    - 91426.0
+    - 361200000.0
+    - 1191.0
+    - 19916.0
+    - 289.0
+    - 43367.0
+    - 4366.0
+    - 7159.0
+    - 46181.0
+    - 2048.0
+    - 404.0
+    Ar/Ht:
+    - 0.015
+    - 0.028
+    - 0.037
+    - 0.117
+    - 0.028
+    - 0.038
+    - 0.078
+    - 0.076
+    - 0.044
+    - 0.041
+    - 0.039
+    RFact:
+    - .na.real
+    - .na.real
+    - 0.995
+    - 0.973
+    - 0.958
+    - 0.954
+    - 0.943
+    - 0.94
+    - 0.931
+    - 0.929
+    - 0.926
+    ECL:
+    - 6.952
+    - 7.019
+    - 13.999
+    - 14.999
+    - 15.776
+    - 16.000
+    - 16.786
+    - 17.002
+    - 17.770
+    - 17.998
+    - 18.390
+    Peak Name:
+    - ''
+    - SOLVENT PEAK
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w8c
+    - '17:0'
+    - 18:1 w9c
+    - '18:0'
+    - TBSA 10Me18:0
+    Percent:
+    - .na.real
+    - .na.real
+    - 1.2
+    - .na.real
+    - 0.28
+    - 41.81
+    - 4.16
+    - 6.8
+    - 43.46
+    - 1.92
+    - 0.38
+    Comment1:
+    - < min rt
+    - < min rt
+    - ECL deviates -0.001
+    - '> max ar/ht'
+    - ECL deviates  0.002
+    - ECL deviates  0.000
+    - ECL deviates -0.006
+    - ECL deviates  0.002
+    - ECL deviates  0.001
+    - ECL deviates -0.002
+    - ECL deviates -0.002
+    Comment2:
+    - ''
+    - ''
+    - Reference -0.004
+    - ''
+    - ''
+    - Reference -0.003
+    - ''
+    - Reference -0.001
+    - ''
+    - Reference -0.004
+    - ''
+    VALUE:
+    - .na.real
+    - .na.real
+    - 1.2
+    - .na.real
+    - 0.28
+    - 41.81
+    - 4.16
+    - 6.8
+    - 43.46
+    - 1.92
+    - 0.38
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - C14:0
+    - '4'
+    - C16:1 cis7
+    - C16:0
+    - C17:1 cis9
+    - C17:0
+    - C18:1 cis9
+    - C18:0
+    - C18:0 10-methyl
+  metadata:
+    Volume: DATA7
+    File: E088144.11A
+    Samp Ctr: '23'
+    ID Number: '19292'
+    Type: Samp
+    Bottle: '28'
+    Method: TSBA40
+    Created: 8/14/2008 7:10:23 PM
+    Sample ID: CNBT-GLUTA-20300(ndK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.003'
+    Number Reference Peaks: '4'
+    Total Response: '124922'
+    Total Named: '105006'
+    Percent Named: '84.06'
+    Total Amount: '118345'
+    Profile Comment: Percent named is less than 85.00.
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.566
+      Entry Name: Corynebacterium-striatum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.625
+    - 3.101
+    - 7.182
+    - 8.718
+    - 9.992
+    - 10.367
+    - 11.765
+    - 12.133
+    - 13.364
+    - 13.45
+    - 13.849
+    - 14.54
+    - .na.real
+    Response:
+    - 376400000.0
+    - 153.0
+    - 1559.0
+    - 4308.0
+    - 427.0
+    - 70563.0
+    - 9735.0
+    - 13872.0
+    - 842.0
+    - 75857.0
+    - 3612.0
+    - 938.0
+    - 842.0
+    Ar/Ht:
+    - 0.025
+    - 0.022
+    - 0.034
+    - 0.056
+    - 0.03
+    - 0.04
+    - 0.146
+    - 0.149
+    - 0.038
+    - 0.043
+    - 0.041
+    - 0.04
+    - .na.real
+    RFact:
+    - .na.real
+    - 1.151
+    - 0.993
+    - 0.966
+    - 0.949
+    - 0.945
+    - 0.931
+    - .na.real
+    - 0.92
+    - 0.92
+    - 0.918
+    - 0.916
+    - .na.real
+    ECL:
+    - 7.017
+    - 10.0
+    - 13.998
+    - 15.003
+    - 15.772
+    - 15.999
+    - 16.81
+    - 17.023
+    - 17.724
+    - 17.773
+    - 18.0
+    - 18.396
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - '10:0'
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w7c
+    - ''
+    - Sum In Feature 5
+    - 18:1 w9c
+    - '18:0'
+    - TBSA 10Me18:0
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - 0.12
+    - 1.05
+    - 2.82
+    - 0.27
+    - 45.14
+    - .na.real
+    - .na.real
+    - 0.52
+    - 47.25
+    - 2.25
+    - 0.58
+    - 0.52
+    Comment1:
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates -0.002
+    - ECL deviates  0.003
+    - ECL deviates -0.002
+    - ECL deviates -0.001
+    - '> max ar/ht'
+    - '> max ar/ht'
+    - ECL deviates -0.003
+    - ECL deviates  0.004
+    - ECL deviates  0.000
+    - ECL deviates  0.004
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - Reference  0.001
+    - Reference -0.001
+    - Reference  0.003
+    - ''
+    - Reference -0.002
+    - ''
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    - ''
+    - Reference -0.004
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - 0.12
+    - 1.05
+    - 2.82
+    - 0.27
+    - 45.14
+    - .na.real
+    - .na.real
+    - 0.52
+    - 47.25
+    - 2.25
+    - 0.58
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - C10:0
+    - C14:0
+    - C15:0
+    - C16:1 cis7
+    - C16:0
+    - '7'
+    - '8'
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:0
+    - C18:0 10-methyl
+    - '13'
+  metadata:
+    Volume: DATA7
+    File: E105204.07A
+    Samp Ctr: '4'
+    ID Number: '22655'
+    Type: Samp
+    Bottle: '23'
+    Method: TSBA40
+    Created: 5/20/2010 4:30:24 PM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.003'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '5'
+    Total Response: '181864'
+    Total Named: '158257'
+    Percent Named: '87.02'
+    Total Amount: '156750'
+    Profile Comment: Review report comments.
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      Sim Index:
+      - 0.616
+      - 0.363
+      Entry Name:
+      - Corynebacterium-striatum*
+      - Gordona-sputi** (Rhodococcus)
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.624
+    - 3.1
+    - 4.689
+    - 7.18
+    - 8.719
+    - 9.994
+    - 10.368
+    - 11.74
+    - 12.102
+    - 13.361
+    - 13.449
+    - 13.851
+    - 14.533
+    - .na.real
+    Response:
+    - 367700000.0
+    - 140.0
+    - 211.0
+    - 1832.0
+    - 36429.0
+    - 488.0
+    - 78433.0
+    - 10606.0
+    - 14521.0
+    - 874.0
+    - 83292.0
+    - 3621.0
+    - 890.0
+    - 874.0
+    Ar/Ht:
+    - 0.025
+    - 0.021
+    - 0.023
+    - 0.035
+    - 0.171
+    - 0.036
+    - 0.039
+    - 0.111
+    - 0.096
+    - 0.036
+    - 0.044
+    - 0.043
+    - 0.044
+    - .na.real
+    RFact:
+    - .na.real
+    - 1.151
+    - 1.063
+    - 0.993
+    - 0.966
+    - 0.949
+    - 0.945
+    - 0.931
+    - 0.929
+    - 0.92
+    - 0.92
+    - 0.918
+    - 0.916
+    - .na.real
+    ECL:
+    - 7.021
+    - 10.0
+    - 12.001
+    - 13.998
+    - 15.004
+    - 15.773
+    - 15.999
+    - 16.794
+    - 17.004
+    - 17.719
+    - 17.769
+    - 17.998
+    - 18.388
+    - .na.real
+    Peak Name:
+    - SOLVENT PEAK
+    - '10:0'
+    - '12:0'
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w8c
+    - '17:0'
+    - Sum In Feature 5
+    - 18:1 w9c
+    - '18:0'
+    - TBSA 10Me18:0
+    - Summed Feature 5
+    Percent:
+    - .na.real
+    - 0.09
+    - 0.13
+    - 1.06
+    - .na.real
+    - 0.27
+    - 43.12
+    - .na.real
+    - 7.85
+    - 0.47
+    - 44.6
+    - 1.93
+    - 0.47
+    - 0.47
+    Comment1:
+    - < min rt
+    - ECL deviates  0.000
+    - ECL deviates  0.001
+    - ECL deviates -0.002
+    - '> max ar/ht'
+    - ECL deviates -0.001
+    - ECL deviates -0.001
+    - '> max ar/ht'
+    - ECL deviates  0.004
+    - ECL deviates -0.001
+    - ECL deviates  0.000
+    - ECL deviates -0.002
+    - ECL deviates -0.004
+    - 18:2 w6,9c/18:0 ANTE
+    Comment2:
+    - ''
+    - Reference -0.002
+    - Reference  0.000
+    - Reference -0.003
+    - ''
+    - ''
+    - Reference -0.002
+    - ''
+    - Reference  0.004
+    - 18:2 w6,9c/18:0 ANTE
+    - ''
+    - Reference -0.003
+    - ''
+    - 18:0 ANTE/18:2 w6,9c
+    VALUE:
+    - .na.real
+    - 0.09
+    - 0.13
+    - 1.06
+    - .na.real
+    - 0.27
+    - 43.12
+    - .na.real
+    - 7.85
+    - 0.47
+    - 44.6
+    - 1.93
+    - 0.47
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - C10:0
+    - C12:0
+    - C14:0
+    - '5'
+    - C16:1 cis7
+    - C16:0
+    - '8'
+    - C17:0
+    - C18:2 cis9,12/ai-C18:0
+    - C18:1 cis9
+    - C18:0
+    - C18:0 10-methyl
+    - '14'
+  metadata:
+    Volume: DATA7
+    File: E105204.07A
+    Samp Ctr: '5'
+    ID Number: '22656'
+    Type: Samp
+    Bottle: '24'
+    Method: TSBA40
+    Created: 5/20/2010 4:55:52 PM
+    Sample ID: CNBT-GLUTA-20300(ndK,FS+BLUT,2d,37C)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '6'
+    Total Response: '231339'
+    Total Named: '184303'
+    Percent Named: '79.67'
+    Total Amount: '216898'
+    Profile Comment: Percent named is less than 85.00.
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      Sim Index:
+      - 0.386
+      - 0.203
+      Entry Name:
+      - Corynebacterium-striatum*
+      - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.624
+    - 7.180
+    - 8.718
+    - 9.992
+    - 10.368
+    - 11.728
+    - 12.095
+    - 13.450
+    - 13.852
+    - 14.544
+    Response:
+    - 364400000.0
+    - 634.0
+    - 14856.0
+    - 595.0
+    - 49983.0
+    - 14424.0
+    - 5114.0
+    - 67312.0
+    - 1092.0
+    - 532.0
+    Ar/Ht:
+    - 0.025
+    - 0.034
+    - 0.111
+    - 0.034
+    - 0.038
+    - 0.076
+    - 0.074
+    - 0.043
+    - 0.041
+    - 0.038
+    RFact:
+    - .na.real
+    - 0.993
+    - 0.966
+    - 0.949
+    - 0.945
+    - 0.931
+    - 0.929
+    - 0.92
+    - 0.918
+    - 0.916
+    ECL:
+    - 7.020
+    - 14.000
+    - 15.004
+    - 15.773
+    - 16.000
+    - 16.788
+    - 17.001
+    - 17.771
+    - 17.999
+    - 18.394
+    Peak Name:
+    - SOLVENT PEAK
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w8c
+    - '17:0'
+    - 18:1 w9c
+    - '18:0'
+    - TBSA 10Me18:0
+    Percent:
+    - .na.real
+    - 0.48
+    - .na.real
+    - 0.43
+    - 36.32
+    - 10.33
+    - 3.65
+    - 47.63
+    - 0.77
+    - 0.37
+    Comment1:
+    - < min rt
+    - ECL deviates  0.000
+    - '> max ar/ht'
+    - ECL deviates -0.001
+    - ECL deviates  0.000
+    - ECL deviates -0.004
+    - ECL deviates  0.001
+    - ECL deviates  0.002
+    - ECL deviates -0.001
+    - ECL deviates  0.002
+    Comment2:
+    - ''
+    - Reference -0.003
+    - ''
+    - ''
+    - Reference -0.001
+    - ''
+    - Reference -0.001
+    - ''
+    - Reference -0.002
+    - ''
+    VALUE:
+    - .na.real
+    - 0.48
+    - .na.real
+    - 0.43
+    - 36.32
+    - 10.33
+    - 3.65
+    - 47.63
+    - 0.77
+    - 0.37
+    _ROWNAMES:
+    - '1'
+    - C14:0
+    - '3'
+    - C16:1 cis7
+    - C16:0
+    - C17:1 cis9
+    - C17:0
+    - C18:1 cis9
+    - C18:0
+    - C18:0 10-methyl
+  metadata:
+    Volume: DATA7
+    File: E105204.07A
+    Samp Ctr: '6'
+    ID Number: '22657'
+    Type: Samp
+    Bottle: '25'
+    Method: TSBA40
+    Created: 5/20/2010 5:21:26 PM
+    Sample ID: CNBT-GLUTA-20300(vdK,FS,2d,28C)
+    ECL Deviation: '0.002'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '4'
+    Total Response: '154540'
+    Total Named: '139685'
+    Percent Named: '90.39'
+    Total Amount: '144365'
+    Profile Comment: Review report comments.
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.679
+      Entry Name: Corynebacterium-striatum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.624
+    - 7.181
+    - 8.724
+    - 9.996
+    - 10.369
+    - 11.743
+    - 12.103
+    - 13.450
+    - 13.849
+    - 14.539
+    Response:
+    - 371200000.0
+    - 919.0
+    - 19071.0
+    - 813.0
+    - 67974.0
+    - 18274.0
+    - 6315.0
+    - 90620.0
+    - 1256.0
+    - 902.0
+    Ar/Ht:
+    - 0.025
+    - 0.037
+    - 0.149
+    - 0.037
+    - 0.040
+    - 0.104
+    - 0.082
+    - 0.041
+    - 0.046
+    - 0.042
+    RFact:
+    - .na.real
+    - 0.993
+    - 0.966
+    - 0.949
+    - 0.945
+    - 0.931
+    - 0.929
+    - 0.92
+    - 0.918
+    - 0.916
+    ECL:
+    - 7.019
+    - 13.999
+    - 15.007
+    - 15.774
+    - 16.000
+    - 16.796
+    - 17.005
+    - 17.770
+    - 17.997
+    - 18.390
+    Peak Name:
+    - SOLVENT PEAK
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - 17:1 w8c
+    - '17:0'
+    - 18:1 w9c
+    - '18:0'
+    - TBSA 10Me18:0
+    Percent:
+    - .na.real
+    - 0.58
+    - .na.real
+    - 0.49
+    - 40.87
+    - .na.real
+    - 3.73
+    - 53.06
+    - 0.73
+    - 0.53
+    Comment1:
+    - < min rt
+    - ECL deviates -0.001
+    - '> max ar/ht'
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - '> max ar/ht'
+    - ECL deviates  0.005
+    - ECL deviates  0.001
+    - ECL deviates -0.003
+    - ECL deviates -0.002
+    Comment2:
+    - ''
+    - Reference -0.002
+    - ''
+    - ''
+    - Reference -0.001
+    - ''
+    - Reference  0.004
+    - ''
+    - Reference -0.003
+    - ''
+    VALUE:
+    - .na.real
+    - 0.58
+    - .na.real
+    - 0.49
+    - 40.87
+    - .na.real
+    - 3.73
+    - 53.06
+    - 0.73
+    - 0.53
+    _ROWNAMES:
+    - '1'
+    - C14:0
+    - '3'
+    - C16:1 cis7
+    - C16:0
+    - '6'
+    - C17:0
+    - C18:1 cis9
+    - C18:0
+    - C18:0 10-methyl
+  metadata:
+    Volume: DATA7
+    File: E105204.07A
+    Samp Ctr: '7'
+    ID Number: '22658'
+    Type: Samp
+    Bottle: '26'
+    Method: TSBA40
+    Created: 5/20/2010 5:47:05 PM
+    Sample ID: CNBT-GLUTA-20300(ndK,FS,2d,28C)
+    ECL Deviation: '0.003'
+    Reference ECL Shift: '0.003'
+    Number Reference Peaks: '4'
+    Total Response: '206143'
+    Total Named: '168798'
+    Percent Named: '81.88'
+    Total Amount: '192557'
+    Profile Comment: Percent named is less than 85.00.
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      Sim Index:
+      - 0.827
+      - 0.640
+      Entry Name:
+      - Corynebacterium-glutamicum (Brevibacterium divaricatum=synonm
+      - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 0.000
+    - 1.755
+    - 1.995
+    - 4.824
+    - 7.222
+    - 8.763
+    - 10.052
+    - 10.430
+    - 12.165
+    - 13.525
+    - 13.929
+    - 18.429
+    Response:
+    - 525000000.0
+    - 792.0
+    - 976.0
+    - 3016.0
+    - 2336.0
+    - 2560.0
+    - 1888.0
+    - 105304.0
+    - 968.0
+    - 134656.0
+    - 1848.0
+    - 1144.0
+    Ar/Ht:
+    - 0.033
+    - 0.021
+    - 0.024
+    - 0.035
+    - 0.039
+    - 0.054
+    - 0.046
+    - 0.043
+    - 0.056
+    - 0.047
+    - 0.054
+    - 0.060
+    RFact:
+    - .na.real
+    - .na.real
+    - .na.real
+    - 1.052
+    - 0.918
+    - 0.9
+    - 0.899
+    - 0.9
+    - 0.907
+    - 0.907
+    - 0.906
+    - .na.real
+    ECL:
+    - 3.734
+    - 7.266
+    - 7.749
+    - 12.096
+    - 14.000
+    - 15.000
+    - 15.773
+    - 16.000
+    - 17.000
+    - 17.771
+    - 18.000
+    - 20.576
+    Peak Name:
+    - SOLVENT PEAK
+    - ''
+    - ''
+    - 11:0 ISO 3OH
+    - '14:0'
+    - '15:0'
+    - 16:1 w9c
+    - '16:0'
+    - '17:0'
+    - 18:1 w9c
+    - '18:0'
+    - ''
+    Percent:
+    - .na.real
+    - .na.real
+    - .na.real
+    - 1.39
+    - 0.94
+    - 1.01
+    - 0.74
+    - 41.42
+    - 0.38
+    - 53.39
+    - 0.73
+    - .na.real
+    Comment1:
+    - < min rt
+    - < min rt
+    - < min rt
+    - ECL deviates  0.007
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - ECL deviates -0.001
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - ECL deviates  0.002
+    - ECL deviates  0.000
+    - '> max rt'
+    Comment2:
+    - ''
+    - ''
+    - ''
+    - ''
+    - Reference  0.002
+    - Reference  0.002
+    - ''
+    - Reference  0.003
+    - Reference  0.002
+    - ''
+    - Reference  0.000
+    - ''
+    VALUE:
+    - .na.real
+    - .na.real
+    - .na.real
+    - 1.39
+    - 0.94
+    - 1.01
+    - 0.74
+    - 41.42
+    - 0.38
+    - 53.39
+    - 0.73
+    - .na.real
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - '3'
+    - i-C11:0 3OH
+    - C14:0
+    - C15:0
+    - C16:1 cis7
+    - C16:0
+    - C17:0
+    - C18:1 cis9
+    - C18:0
+    - '12'
+  metadata:
+    Volume: DATA7
+    File: F90326.405
+    Samp Ctr: '11'
+    ID Number: '5806'
+    Type: Samp
+    Bottle: '15'
+    Method: AEROBE
+    Calc. Method: TSBA40
+    Created: 3/26/1990 5:09:51 PM
+    Modified: 3/16/2000 4:23:37 PM
+    Sample ID: CNBT-GLUTA-DSM20300
+    ECL Deviation: '0.003'
+    Reference ECL Shift: '0.002'
+    Number Reference Peaks: '5'
+    Total Response: '252576'
+    Total Named: '252576'
+    Percent Named: '100.00'
+    Total Amount: '228836'
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      - ''
+      Sim Index:
+      - 0.799
+      - 0.632
+      - 0.453
+      Entry Name:
+      - Corynebacterium-glutamicum (Brevibacterium divaricatum=synonm
+      - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
+      - Corynebacterium-afermentans-afermentans (48h)**
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.669
+    - 2.985
+    - 7.003
+    - 10.137
+    - 13.184
+    Response:
+    - 326700000.0
+    - 864.0
+    - 856.0
+    - 24976.0
+    - 23352.0
+    Ar/Ht:
+    - 0.030
+    - 0.035
+    - 0.039
+    - 0.042
+    - 0.049
+    RFact:
+    - .na.real
+    - .na.real
+    - 0.974
+    - 0.941
+    - 0.936
+    ECL:
+    - 7.043
+    - 9.831
+    - 14.000
+    - 16.000
+    - 17.766
+    Peak Name:
+    - SOLVENT PEAK
+    - ''
+    - '14:0'
+    - '16:0'
+    - 18:1 w9c
+    Percent:
+    - .na.real
+    - .na.real
+    - 1.8
+    - 50.89
+    - 47.3
+    Comment1:
+    - < min rt
+    - ''
+    - ECL deviates  0.000
+    - ECL deviates  0.000
+    - ECL deviates -0.003
+    Comment2:
+    - ''
+    - ''
+    - Reference -0.008
+    - Reference -0.007
+    - ''
+    VALUE:
+    - .na.real
+    - .na.real
+    - 1.8
+    - 50.89
+    - 47.3
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - C14:0
+    - C16:0
+    - C18:1 cis9
+  metadata:
+    Volume: DATA7
+    File: F96402.383
+    Samp Ctr: '2'
+    ID Number: '19231'
+    Type: Samp
+    Bottle: '52'
+    Method: AEROBE
+    Calc. Method: TSBA40
+    Created: 4/2/1996 12:20:43 PM
+    Sample ID: CNBT-GLUTA-20300(20300,FS4,37C)
+    ECL Deviation: '0.001'
+    Reference ECL Shift: '0.007'
+    Number Reference Peaks: '2'
+    Total Response: '50048'
+    Total Named: '49184'
+    Percent Named: '98.27'
+    Total Amount: '46185'
+    Matches:
+      Library: TSBA40 4.10
+      Sim Index: 0.717
+      Entry Name: Corynebacterium-striatum*
+- plate_type: MIDI
+  measurements:
+    RT:
+    - 1.669
+    - 2.985
+    - 7.004
+    - 9.759
+    - 10.136
+    - 13.183
+    Response:
+    - 325900000.0
+    - 504.0
+    - 832.0
+    - 976.0
+    - 30448.0
+    - 36560.0
+    Ar/Ht:
+    - 0.030
+    - 0.029
+    - 0.035
+    - 0.058
+    - 0.042
+    - 0.050
+    RFact:
+    - .na.real
+    - .na.real
+    - 0.974
+    - 0.943
+    - 0.941
+    - 0.936
+    ECL:
+    - 7.043
+    - 9.831
+    - 14.000
+    - 15.769
+    - 16.000
+    - 17.766
+    Peak Name:
+    - SOLVENT PEAK
+    - ''
+    - '14:0'
+    - 16:1 w9c
+    - '16:0'
+    - 18:1 w9c
+    Percent:
+    - .na.real
+    - .na.real
+    - 1.25
+    - 1.43
+    - 44.36
+    - 52.96
+    Comment1:
+    - < min rt
+    - ''
+    - ECL deviates  0.000
+    - ECL deviates -0.005
+    - ECL deviates  0.000
+    - ECL deviates -0.003
+    Comment2:
+    - ''
+    - ''
+    - Reference -0.007
+    - ''
+    - Reference -0.007
+    - ''
+    VALUE:
+    - .na.real
+    - .na.real
+    - 1.25
+    - 1.43
+    - 44.36
+    - 52.96
+    _ROWNAMES:
+    - '1'
+    - '2'
+    - C14:0
+    - C16:1 cis7
+    - C16:0
+    - C18:1 cis9
+  metadata:
+    Volume: DATA7
+    File: F96402.383
+    Samp Ctr: '3'
+    ID Number: '19232'
+    Type: Samp
+    Bottle: '53'
+    Method: AEROBE
+    Calc. Method: TSBA40
+    Created: 4/2/1996 12:51:26 PM
+    Sample ID: CNBT-GLUTA-20300(20300,FS4,28C,SI)
+    ECL Deviation: '0.003'
+    Reference ECL Shift: '0.007'
+    Number Reference Peaks: '2'
+    Total Response: '69320'
+    Total Named: '68816'
+    Percent Named: '99.27'
+    Total Amount: '64589'
+    Matches:
+      Library:
+      - TSBA40 4.10
+      - ''
+      - ''
+      - ''
+      Sim Index:
+      - 0.744
+      - 0.561
+      - 0.485
+      - 0.383
+      Entry Name:
+      - Corynebacterium-glutamicum (Brevibacterium divaricatum=synonm
+      - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
+      - Corynebacterium-striatum*
+      - Corynebacterium-afermentans-afermentans (48h)**
+
+
