@@ -57,13 +57,19 @@
 #' can be coerced to a list.
 #'
 #' @name WMD
-#' @docType class
-#' @export
 #' @aliases WMD-class
+#' @docType class
+#' @exportClass WMD
 #' @seealso methods::Methods base::matrix base::array base::expression
 #'   stats::formula
 #' @family classes
 #' @keywords methods classes
+#' @examples
+#' showClass("WMD")
+#' showClass("WMDS")
+#' showClass("OPMX")
+#' showClass("FOE")
+#' showClass("YAML_VIA_LIST")
 #'
 setClass(WMD,
   slots = c(metadata = "list"),
@@ -75,7 +81,7 @@ setClass(WMD,
 #' @name WMDS
 #' @aliases WMDS-class
 #' @docType class
-#' @export
+#' @exportClass WMDS
 #'
 setClass(WMDS,
   slots = c(plates = "list"),
@@ -87,7 +93,7 @@ setClass(WMDS,
 #' @name FOE
 #' @aliases FOE-class
 #' @docType class
-#' @export
+#' @exportClass FOE
 #'
 NULL
 
@@ -189,6 +195,13 @@ setClassUnion(FOE, c("formula", "expression"))
 #' and then further manipulated; see the examples below.
 #'
 #' @examples
+#'
+#' ## overview on the classes
+#' showClass("OPM")
+#' showClass("OPMA")
+#' showClass("OPMD")
+#' showClass("OPMS")
+#' showClass("MOPMX")
 #'
 #' ## OPMX conversions with as()
 #' showMethods("coerce", classes = c("OPM", "OPMA", "OPMD"))
@@ -312,7 +325,7 @@ setClass(MOPMX,
 #' @name OPMX
 #' @aliases OPMX-class
 #' @docType class
-#' @export
+#' @exportClass OPMX
 #'
 NULL
 
@@ -325,7 +338,7 @@ setClassUnion(OPMX, c(OPM, OPMS))
 #' @name YAML_VIA_LIST
 #' @aliases YAML_VIA_LIST-class
 #' @docType class
-#' @export
+#' @exportClass YAML_VIA_LIST
 #'
 NULL
 
@@ -883,6 +896,11 @@ setAs(from = "matrix", to = CMAT, function(from) {
 #' @examples
 #'
 #' library(pkgutils)
+#'
+#' ## overview on the classes
+#' showClass("OPM_DB")
+#' showClass("OPMA_DB")
+#' showClass("OPMD_DB")
 #'
 #' ## show all conversions with as()
 #' showMethods("coerce", classes = c("OPM_DB", "OPMA_DB", "OPMD_DB"))

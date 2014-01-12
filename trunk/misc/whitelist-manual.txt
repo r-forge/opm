@@ -2,6 +2,7 @@ Achromobacter
 Acidovorax
 BIOLOG
 Calinski
+Corynebacterium
 Discretisation
 Discretise
 Dunnett
@@ -37,6 +38,7 @@ discretisation
 discretise
 discretised
 discretising
+efficiens
 encoding
 encodings
 et

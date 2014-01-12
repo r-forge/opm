@@ -297,10 +297,9 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'
 #' @param include If a character scalar, used as regular expression or wildcard
 #'   (see the \code{wildcard} argument) for selecting from the input files. If
-#'   \code{NULL}, ignored. If a list, used as arguments of
-#'   \code{\link{file_pattern}} and its result used as regular expression. Note
-#'   that selection is done \strong{after} expanding the directory names to
-#'   file names.
+#'   \code{NULL}, ignored. If a list, used as arguments of \code{file_pattern}
+#'   and its result used as regular expression. Note that selection is done
+#'   \strong{after} expanding the directory names to file names.
 #' @param exclude Like \code{include}, but for excluding matching input files.
 #'   Note that exclusion is done \strong{after} applying \code{include}.
 #'
@@ -325,7 +324,7 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'
 #' @param fun Collecting function. Should use the file name as first argument.
 #' @param fun.args Optional list of arguments to \code{fun} or \code{io.fun}.
-#' @param ... Optional further arguments passed to \code{\link{explode_dir}}.
+#' @param ... Optional further arguments passed to \code{explode_dir}.
 #' @param proc Integer scalar. The number of processes to spawn. Cannot be set
 #'   to more than 1 core if running under Windows. See the \code{cores}
 #'   argument of \code{\link{do_aggr}} for details.
@@ -339,8 +338,8 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' @param outdir Character vector. Directories in which to place the output
 #'   files. If \code{NULL} or only containing empty strings, the directory of
 #'   each input file is used.
-#' @param in.ext Character scalar. Passed through \code{\link{file_pattern}},
-#'   then used for the replacement of old file extensions with new ones.
+#' @param in.ext Character scalar. Passed through \code{file_pattern}, then used
+#'   for the replacement of old file extensions with new ones.
 #'
 #' @param type Character scalar indicating the file types to be matched by
 #'   extension. For historical reasons, \kbd{both} means either \acronym{CSV} or
