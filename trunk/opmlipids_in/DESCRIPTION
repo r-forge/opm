@@ -17,5 +17,5 @@ MailingList:
         http://lists.r-forge.r-project.org/mailman/listinfo/opm-support
 LazyData: yes
 Collate: 'imports.R' 'fatty-acid-map.R' 'constants.R' 'auxiliary.R'
-        'classes.R' 'io.R' 'naming.R' 'data.R'
+        'classes.R' 'getter.R' 'io.R' 'naming.R' 'data.R'
 LazyDataCompression: gzip

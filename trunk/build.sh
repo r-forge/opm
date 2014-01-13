@@ -605,7 +605,11 @@ compare_files_of()
         reyaml "$other_file" | diff "$tmpfile" - || :
       ;;
       * )
-        diff "$failed_file" "$other_file" || :
+        if [ "${4:-}" ]; then
+          diff -w "$failed_file" "$other_file" || :
+        else
+          diff "$failed_file" "$other_file" || :
+        fi
       ;;
     esac
     echo
@@ -630,10 +634,11 @@ run_external_tests()
   local testdir=$EXTERNAL_TEST_DIR
   local version=opm_in/DESCRIPTION
   local extension
+  local ignore_ws=
 
   local opt
   OPTIND=1
-  while getopts c:d:fhlp:s:v: opt; do
+  while getopts c:d:fhlp:s:v:w: opt; do
     case $opt in
       c ) output_mode=compare_failed; extension=$OPTARG;;
       d ) testdir=$OPTARG;;
@@ -643,6 +648,7 @@ run_external_tests()
       p ) np=$(($OPTARG + 0));;
       s ) run_opm=$OPTARG;;
       v ) version=$OPTARG;;
+      w ) output_mode=compare_failed; extension=$OPTARG; ignore_ws=yes;;
       * ) return 1;;
     esac
   done
@@ -665,6 +671,7 @@ run_external_tests()
 	  -p x  Use x processors (cores) for running the tests.
 	  -s x  Use x as 'run_opm.R' script for running the tests.
 	  -v x  Insert opm version x (x can also be an R package DESCRIPTION file).
+	  -w x  Like -c, but ignore all whitespace when comparing files.
 
 	The default is to read the version to use during the tests from the opm
 	DESCRIPTION file from the opm code directory within the working directory.
@@ -689,7 +696,8 @@ ____EOF
 
   case $output_mode in
     compare_failed )
-      compare_files_of "$failedfile_dir" "$testfile_dir" "$extension"
+      compare_files_of "$failedfile_dir" "$testfile_dir" "$extension" \
+        "$ignore_ws"
       exit $?
     ;;
     show_failed )

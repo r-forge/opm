@@ -7,35 +7,13 @@
 #
 
 
-#' Convert to \acronym{FAME} or \acronym{FAMES}
+#' Helper methods for indexing etc.
 #'
-#' Convert either \code{\link{FAME}} or \code{\link{FAMES}} objects (\code{NULL}
-#' if necessary).
+#' Close gaps in indexes by reming all \code{NULL} elements, with a warning.
 #'
-#' @param x Any \R object.
-#' @return \code{\link{FAME}} or \code{\link{FAMES}} object or \code{NULL},
-#'   depending on the input size.
+#' @param x Vector-like \R object.
+#' @return \code{x}, its size reduced accordingly.
 #' @keywords internal
-#'
-fames <- function(x) UseMethod("fames")
-
-#' @rdname fames
-#' @method fames midi_entries
-#' @export
-#'
-fames.midi_entries <- function(x) {
-  case(length(x), NULL, as(x[[1]], FAME), as(x, FAMES))
-}
-
-#' @rdname fames
-#' @method fames midi_entry
-#' @export
-#'
-fames.midi_entry <- function(x) {
-  as(x, FAME)
-}
-
-#' @rdname fames
 #'
 close_index_gaps <- function(x) {
   if (any(bad <- vapply(x, is.null, NA))) {
