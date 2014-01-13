@@ -124,8 +124,8 @@ setMethod("fame_problems", "character", function(object) {
 }, sealed = SEALED)
 
 setMethod("fame_problems", "list", function(object) {
-  if (length(object) < 2L)
-    return("less than two plates contained")
+#   if (length(object) < 2L)
+#     return("less than two plates contained")
   if (!all(vapply(object, is, NA, FAME)))
     return("not all elements inherit from the 'FAME' class")
   x <- duplicated.default(vapply(object, slot, "", "plate_type"))
@@ -170,6 +170,9 @@ setAs("midi_entries", FAMES, function(from) {
 })
 
 
+################################################################################
+
+
 setAs(FAME, "list", function(from) {
   to_list <- function(x) {
     x[, ROWNAMES] <- rownames(x)
@@ -201,6 +204,9 @@ setAs(FAMES, "list", function(from) {
 setAs("list", FAMES, function(from) {
   new(FAMES, plates = lapply(from, as, "FAME"))
 })
+
+
+################################################################################
 
 
 setAs(FAME, "numeric", function(from) {

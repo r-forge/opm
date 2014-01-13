@@ -6,8 +6,7 @@
 #' Input \acronym{FAME} or \acronym{FAMES} objects from files
 #'
 #' Read data from \acronym{RTF} files output by the \acronym{MIDI} system and
-#' convert them to \code{\link{FAME}} or \code{\link{FAMES}} objects
-#' (\code{NULL} if necessary).
+#' convert them to \code{\link{FAMES}} object.
 #'
 #' @param names Character vector with names of files and/or directories. Passed
 #'   to \code{explode_dir} from the \pkg{opm} package.
@@ -18,9 +17,9 @@
 #'   are for the fine-tuning of file selection and removal options.
 #' @param demo Logical scalar indicating whether the final selection of files
 #'   should not be tried to input but only their file names shown.
-#' @return \code{\link{FAME}} or \code{\link{FAMES}} object or \code{NULL},
-#'   depending on the input size (number of input \acronym{MIDI} entries: a
-#'   single one, several ones, or none).
+#' @return \code{\link{FAMES}} object, its length depending on the input size
+#'   (number of input \acronym{MIDI} entries: a single one, several ones, or
+#'   none).
 #' @details The input of \acronym{RTF} files is \strong{not} guaranteed to work
 #'   if these files have been opened with some word processing software and
 #'   saved again after exporting them from the \acronym{MIDI} system.
@@ -37,7 +36,7 @@ read_rtf <- function(names, include = "*.rtf", ..., demo = FALSE) {
     message(paste0(names, collapse = "\n"))
     return(invisible(names))
   }
-  fames(fatty_acids(files = names))
+  as(fatty_acids(files = names), FAMES)
 }
 
 

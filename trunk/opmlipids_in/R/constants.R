@@ -7,19 +7,36 @@
 SEALED <- FALSE #|| SEALED <- TRUE
 
 
-VALUE_COL <- "VALUE"
-
+################################################################################
+#
+# Class names
+#
 
 FAME <- "FAME"
-
 
 FAMES <- "FAMES"
 
 
+################################################################################
+
+
+# Special column within the measurements.
+#
+VALUE_COL <- "VALUE"
+
+# For YAML input/output.
+#
 ROWNAMES <- "_ROWNAMES"
 
+# For duplicate row names.
+#
+APPENDIX <- " #"
 
+
+################################################################################
+
+
+# Used when checking whether MID results add up to 100%.
+#
 TOLERANCE <- 0.1
 
-
-APPENDIX <- " #"

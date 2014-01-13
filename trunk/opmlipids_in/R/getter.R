@@ -90,6 +90,7 @@ setMethod("plates", FAMES, function(object) {
 #' Select a subset of the entries of a \code{\link{FAMES}} object.
 #'
 #' @rdname bracket
+#' @aliases double.bracket
 #' @exportMethod "["
 #' @export
 #'
@@ -98,6 +99,7 @@ setMethod("plates", FAMES, function(object) {
 #'   indexing goes beyond the range of \code{x}.
 #' @param j Missing.
 #' @param drop Missing.
+#' @param exact Missing.
 #' @return \code{\link{FAME}} or \code{\link{FAMES}} object or \code{NULL}.
 #' @seealso base::`[` base::`[[`
 #' @keywords manip
@@ -106,22 +108,40 @@ setMethod("plates", FAMES, function(object) {
 #' x <- DSM_44549[3:4]
 #' length(x)
 #' stopifnot(is(x, "FAMES"), length(x) == 2)
+#'
+#' x <- DSM_44549[-3:-4]
+#' length(x)
+#' stopifnot(is(x, "FAMES"), length(x) == length(DSM_44549) - 2)
+#'
 #' x <- DSM_44549[5]
 #' length(x)
-#' stopifnot(is(x, "FAME"), length(x) == 1)
-#' x <- DSM_44549[10] # beyond the range
+#' stopifnot(is(x, "FAMES"), length(x) == 1)
+#'
+#' x <- DSM_44549[[5]] # reduction to FAME object
 #' length(x)
-#' stopifnot(is.null(x))
+#' stopifnot(is(x, "FAME"), length(x) == 1)
+#'
+#' x <- DSM_44549[10] # beyond the range, yields empty object
+#' length(x)
+#' stopifnot(is(x, "FAMES"), length(x) == 0)
+#'
+#' (x <- try(DSM_44549[[10]], TRUE)) # beyond the range, doesn't work
+#' stopifnot(inherits(x, "try-error"))
 #'
 setMethod("[", c(FAMES, "missing", "missing", "missing"), function(x, i, j,
     drop) {
   x
 }, sealed = SEALED)
 
-setMethod("[", c(FAMES, "ANY", "missing", "missing"), function(x, i, j,
-    drop) {
+setMethod("[", c(FAMES, "ANY", "missing", "missing"), function(x, i, j, drop) {
   x@plates <- close_index_gaps(x@plates[i])
-  case(length(x@plates), NULL, x@plates[[1L]], x)
+  x
+}, sealed = SEALED)
+
+#= double.bracket bracket
+
+setMethod("[[", c(FAMES, "ANY", "missing"), function(x, i, exact) {
+  x@plates[[i]]
 }, sealed = SEALED)
 
 
