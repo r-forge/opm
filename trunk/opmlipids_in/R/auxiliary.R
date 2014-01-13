@@ -35,6 +35,16 @@ fames.midi_entry <- function(x) {
   as(x, FAME)
 }
 
+#' @rdname fames
+#'
+close_index_gaps <- function(x) {
+  if (any(bad <- vapply(x, is.null, NA))) {
+    warning("closing gaps in indexes")
+    return(x[!bad])
+  }
+  x
+}
+
 
 ################################################################################
 
