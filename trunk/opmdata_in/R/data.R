@@ -154,8 +154,8 @@ NULL
 
 #' Example data set from Wittmann et al. (2014)
 #'
-#' This \code{OPMS} object contains all measurements from the study by Wittmann
-#' \emph{et al.} (2014). Metadata have been added to fully describe the
+#' This \code{OPMS} object contains the measurements used in the study by
+#' Wittmann \emph{et al.} (2014). Metadata have been added to fully describe the
 #' conducted OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} phenotype
 #' microarray (\acronym{PM}) experiments. The plate type is \sQuote{Generation
 #' III}, but the running mode was as for the usual \acronym{PM} plates.
@@ -163,10 +163,9 @@ NULL
 #' @docType data
 #' @keywords datasets
 #' @name wittmann_et_al
-#' @format \code{OPMS} object with the dimensions 121 x 382 x 96, i.e. 121
-#'   plates with 384 time points and 96 wells per plate. (115 plates have 384
-#'   time points; five plates have 382 time points and one plate has 383 time
-#'   points).
+#' @format \code{OPMS} object with the dimensions 41 x 382 x 96, i.e. 41 plates
+#'   with about 382 time points and 96 wells per plate. (38 plates have 384 time
+#'   points; three plates have 382 time points).
 #' @details All plates also contain aggregated values generated \emph{via}
 #'   \code{do_aggr} using the \code{"opm-fast"} method without bootstrapping.
 #'
@@ -206,12 +205,13 @@ NULL
 #' plate_type(wittmann_et_al) # should indicate generation-III plates
 #' (d <- dim(wittmann_et_al))
 #' (ha <- has_aggr(wittmann_et_al))
-#' stopifnot(d == c(121, 382, 96), ha)
+#' stopifnot(d == c(41, 382, 96), ha)
 #'
 #' ## Brief overview of the metadata
 #' head(to_metadata(wittmann_et_al))
 #'
 NULL
+
 
 ################################################################################
 

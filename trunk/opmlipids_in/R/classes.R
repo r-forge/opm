@@ -12,36 +12,32 @@
 #' \acronym{FAME} is an acronym for \sQuote{Fatty Acids with Metadata} (even
 #' though \sQuote{Fatty Acid Methyl Ester} would also fit). It holds fatty-acid
 #' (or some similar kind of) numeric measurements as well as an additional
-#' arbitrary amount of arbitrarily organised metadata. Objects of this class are
-#' usually created by inputting files, not with a call to \code{new} or
-#' \code{as}, even though this is possible (see below).
-#'
-#' \acronym{FAME} inherits from \code{WMD} from the \pkg{opm} package and,
-#' hence, has all its methods.
-#'
-#' Regarding the coercion of this class to other classes (see the \code{as}
-#' method from the \pkg{methods} package), consider the following:
-#' \itemize{
-#'   \item The coercion of this class to a list (and vice versa) is only for
-#'   expert users and relies on a mapping between slot names and keys in the
-#'   list, i.e. the list must be appropriately named. For instance, this is the
-#'   mechanism when reading from and writing to \acronym{YAML}, see
-#'   \code{to_yaml} from the \pkg{opm} package.
-#'   \item Coercions to other data frames and matrices are possible but more
-#'   dedicated methods such as \code{\link{extract}} might be way more
-#'   appropriate for converting \acronym{FAME} objects.
-#' }
+#' arbitrary amount of arbitrarily organised metadata.
 #'
 #' \acronym{FAMES} is the class for holding multiple \acronym{FAME} objects. The
-#' name \acronym{FAMES} is just the plural of \acronym{FAME}. Regarding creation
-#' and coercion, see the remarks to the \acronym{FAME} class.
+#' name \acronym{FAMES} is just the plural of \acronym{FAME}. As a rule,
+#' \acronym{FAMES} has the same methods as the \acronym{FAME} class, but adapted
+#' to a collection of more than one \acronym{FAME} object.
 #'
-#' \acronym{FAMES} inherits from \code{\link{WMDS}} and, hence, has all its
-#' methods. (As a rule, \acronym{FAMES} has the same methods as the
-#' \acronym{FAME} class, but adapted to a collection of more than one
-#' \acronym{FAME} object.)
+#' Objects of these two classes are usually created by inputting files, not with
+#' a call to \code{new} or \code{as}, even though this is possible (see below).
+#'
+#' \acronym{FAME} inherits from \code{WMD} from the \pkg{opm} package and,
+#' hence, has all its methods. \acronym{FAMES} inherits from \code{WMDS} and,
+#' hence, has all its methods.
+#'
+#' The coercion of the  two classes to a list (and vice versa) is only for
+#' expert users and relies on a mapping between slot names and keys in the list,
+#' i.e. the list must be appropriately named. For instance, this is the
+#' mechanism when reading from and writing to \acronym{YAML}, see \code{to_yaml}
+#' from the \pkg{opm} package (both classes inherit from \code{YAML_VIA_LIST}
+#' and have its \code{to_yaml} method).
 #'
 #' @examples
+#'
+#' ## overview on the classes
+#' showClass("FAME")
+#' showClass("FAMES")
 #'
 #' ## conversions with as()
 #' showMethods("coerce", classes = "FAME")
@@ -65,7 +61,7 @@ setClass(FAME,
     else
       TRUE
   },
-  sealed = TRUE
+  sealed = SEALED
 )
 
 #' @docType class
@@ -75,40 +71,40 @@ setClass(FAME,
 #' @aliases FAMES-class
 #'
 setClass(FAMES,
-  contains = c("WMD", "YAML_VIA_LIST"),
+  contains = c("WMDS", "YAML_VIA_LIST"),
   validity = function(object) {
     if (length(errs <- fame_problems(object@plates)))
       errs
     else
       TRUE
-  }
+  },
+  sealed = SEALED
 )
 
 
-#setIs(FAME, "YAML_VIA_LIST")
-
-#setIs(FAMES, "YAML_VIA_LIST")
-
-# if (SEALED) { # must do this after calling setIs()
-#   sealClass("FAME")
-#   sealClass("FAMES")
-# }
-
-
 ################################################################################
+#
+# The definitions of initialize() must be located after the class definitions
+# to avoid a warning during the Roxygen2 runs.
+#
 
 
-#' Check \acronym{FAME} or \acronym{FAMES} object
+#' Check or initialise \acronym{FAME} or \acronym{FAMES} object
 #'
 #' Called when constructing an object of one of these classes.
 #'
 #' @param object Object potentially suitable for one of the slots of these
 #'   classes
-#' @return Character vector with description of problems, empty if there are
-#'   none.
+#' @param .Object \code{\link{FAME}} or \code{\link{FAME}} object.
+#' @param ... Additional arguments.
+#' @return Character vector with description of problems (empty if there are
+#'   none) or \code{\link{FAME}} or \code{\link{FAME}} object.
 #' @keywords internal
+#' @rdname initialize
 #'
 setGeneric("fame_problems", function(object) standardGeneric("fame_problems"))
+
+#= fame_problems initialize
 
 setMethod("fame_problems", "data.frame", function(object) {
   errs <- NULL
@@ -129,30 +125,15 @@ setMethod("fame_problems", "character", function(object) {
 
 setMethod("fame_problems", "list", function(object) {
   if (length(object) < 2L)
-    return("less than two plates")
+    return("less than two plates contained")
+  if (!all(vapply(object, is, NA, FAME)))
+    return("not all elements inherit from the 'FAME' class")
   x <- duplicated.default(vapply(object, slot, "", "plate_type"))
   if (!all(x[-1L]))
     return("non-uniform plate types")
   NULL
 }, sealed = SEALED)
 
-
-################################################################################
-#
-# The definitions of initialize() must be located after the class definitions
-# to avoid a warning during the Roxygen2 runs.
-#
-
-
-#' Initialize
-#'
-#' Initialize methods for some classes.
-#'
-#' @param .Object \code{\link{FAME}} object.
-#' @param ... Additional arguments.
-#' @return \code{\link{FAME}} object.
-#' @keywords internal
-#'
 setMethod("initialize", FAME, function(.Object, ...) {
   .Object <- callNextMethod()
   .Object@plate_type <- make.names(.Object@plate_type)

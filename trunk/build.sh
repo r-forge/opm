@@ -31,6 +31,7 @@
 # changed only if great care is taken.
 #
 EXTERNAL_TEST_DIR=external_tests
+OPMLIPIDS_TEST_DIR=external_opmlipids_tests
 
 
 # The folder in which a variety of 'miscellaneous' files are placed. Some of
@@ -625,18 +626,20 @@ run_external_tests()
   local help_msg=
   local np=4 # using more cores yielded only little speedup
   local run_opm=
+  local testmode=opm
   local testdir=$EXTERNAL_TEST_DIR
   local version=opm_in/DESCRIPTION
   local extension
 
   local opt
   OPTIND=1
-  while getopts c:d:fhp:s:v: opt; do
+  while getopts c:d:fhlp:s:v: opt; do
     case $opt in
       c ) output_mode=compare_failed; extension=$OPTARG;;
       d ) testdir=$OPTARG;;
       f ) output_mode=show_failed;;
       h ) help_msg=yes;;
+      l ) testmode=lipids; testdir=$OPMLIPIDS_TEST_DIR;;
       p ) np=$(($OPTARG + 0));;
       s ) run_opm=$OPTARG;;
       v ) version=$OPTARG;;
@@ -658,6 +661,7 @@ run_external_tests()
 	  -d x  Use x as test directory (must contain subdirectory 'tests').
 	  -f    Do not run tests; list all failed files (if any).
 	  -h    Print this message.
+	  -l    Test opmlipids instead of opm.
 	  -p x  Use x processors (cores) for running the tests.
 	  -s x  Use x as 'run_opm.R' script for running the tests.
 	  -v x  Insert opm version x (x can also be an R package DESCRIPTION file).
@@ -701,7 +705,13 @@ ____EOF
     ;;
   esac
 
-  [ "$run_opm" ] || run_opm=`find_R_script run_opm.R opm || :`
+  if ! [ "$run_opm" ]; then
+    case $testmode in
+      opm ) run_opm=`find_R_script run_opm.R opm || :`;;
+      lipids ) run_opm=`find_R_script run_opmlipids.R opmlipids || :`;;
+      * ) echo "unknown test mode '$testmode', exiting now"; return 1;;
+    esac
+  fi
   if [ -s "$run_opm" ]; then
     echo "Using script '$run_opm' (`stat -c %y "$run_opm"`)..." >&2
     echo "NOTE: Make sure this is the opm version you want to test!" >&2
@@ -726,84 +736,109 @@ ____EOF
   local tmpdir=`mktemp --tmpdir -d`
   local tmpfile=`mktemp --tmpdir`
 
-  # Update the version to let the YAML, JSON and CSV tests pass the test
-  # irrespective of the actual version. This must later on be reversed, see
-  # below.
-  #
-  change_yaml_version "$version" "$testfile_dir"/*.yml
-  change_json_version "$version" "$testfile_dir"/*.json
-  change_csv_version "$version" "$testfile_dir"/*.tab
+  case $testmode in
+  
+  opm )
 
-  # Fix the version in the YAML, JSON and CSV files to avoid SVN updates. Do
-  # this in the quarantined files, too, if any, to avoid annoying reports when
-  # manually calling diff.
-  #
-  trap '
-    change_yaml_version 0.0.0 "$testfile_dir"/*.yml
-    change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
-    change_json_version 0.0.0 "$testfile_dir"/*.json
-    change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
-    change_csv_version 0.0.0 "$testfile_dir"/*.tab
-    change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
-  ' 0
+    # Update the version to let the YAML, JSON and CSV tests pass the test
+    # irrespective of the actual version. This must later on be reversed, see
+    # below.
+    #
+    change_yaml_version "$version" "$testfile_dir"/*.yml
+    change_json_version "$version" "$testfile_dir"/*.json
+    change_csv_version "$version" "$testfile_dir"/*.tab
 
-  echo "Testing plot mode..."
-  do_test -i csv -d "$testfile_dir" \
-    -w "$testfile_dir/%s.ps" -l "$tmpfile" \
-    -f "$tmpdir/%s.ps" -q "$failedfile_dir" \
-    Rscript --vanilla "$run_opm" -p "$np" -r xyplot -d "$tmpdir" -i '*.csv' \
-    -k 'TIME:Setup Time,ID' >> "$outfile" &&
-      cat "$tmpfile" >> "$errfile"
+    # Fix the version in the YAML, JSON and CSV files to avoid SVN updates. Do
+    # this in the quarantined files, too, if any, to avoid annoying reports when
+    # manually calling diff.
+    #
+    trap '
+      change_yaml_version 0.0.0 "$testfile_dir"/*.yml
+      change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
+      change_json_version 0.0.0 "$testfile_dir"/*.json
+      change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
+      change_csv_version 0.0.0 "$testfile_dir"/*.tab
+      change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
+    ' 0
 
-  echo "Testing split mode..."
-  # This test only guarantees that if there is nothing to split the original
-  # file results.
-  do_test -i csv -d "$testfile_dir" \
-    -w "$testfile_dir"/%s.csv -l "$tmpfile" \
-    -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
-    Rscript --vanilla "$run_opm" -p "$np" -s , -r split -d "$tmpdir" \
-    -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-      cat "$tmpfile" >> "$errfile"
+    echo "Testing plot mode..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/%s.ps" -l "$tmpfile" \
+      -f "$tmpdir/%s.ps" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -r xyplot -d "$tmpdir" -i '*.csv' \
+      -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
 
-  echo "Testing template-collection mode with machine ID and normalization..."
-  do_test -i csv -d "$testfile_dir" \
-    -w "$testfile_dir/md.template" -l "$tmpfile" \
-    -f "$tmpdir/md.template" -q "$failedfile_dir" \
-    Rscript --vanilla "$run_opm" -p "$np" -r template \
-    -m "$tmpdir/md.template" -i '*.csv' -y 5 -v >> "$outfile" &&
-      cat "$tmpfile" >> "$errfile"
+    echo "Testing split mode..."
+    # This test only guarantees that if there is nothing to split the original
+    # file results.
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir"/%s.csv -l "$tmpfile" \
+      -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -s , -r split -d "$tmpdir" \
+      -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
 
-  echo "Testing template-collection mode with other field separator..."
-  do_test -i csv -d "$testfile_dir" \
-    -w "$testfile_dir/md.template2" -l "$tmpfile" \
-    -f "$tmpdir/md.template2" -q "$failedfile_dir" \
-    Rscript --vanilla "$run_opm" -p "$np" -m "$tmpdir/md.template2" \
-    -r template -s , -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-      cat "$tmpfile" >> "$errfile"
+    echo "Testing template-collection mode with machine ID and normalization..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/md.template" -l "$tmpfile" \
+      -f "$tmpdir/md.template" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -r template \
+      -m "$tmpdir/md.template" -i '*.csv' -y 5 -v >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
 
-  echo "Testing YAML mode..."
-  do_test -i csv -d "$testfile_dir" \
-    -w "$testfile_dir/%s.yml" -l "$tmpfile" \
-    -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
-    Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r yaml \
-    -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-      cat "$tmpfile" >> "$errfile"
+    echo "Testing template-collection mode with other field separator..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/md.template2" -l "$tmpfile" \
+      -f "$tmpdir/md.template2" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -m "$tmpdir/md.template2" \
+      -r template -s , -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
 
-  echo "Testing JSON mode..."
-  do_test -i csv -d "$testfile_dir" \
-    -w "$testfile_dir/%s.json" -l "$tmpfile" \
-    -f "$tmpdir/%s.json" -q "$failedfile_dir" \
-    Rscript --vanilla "$run_opm" -z -p "$np" -a smooth -b 0 -r json \
-    -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-      cat "$tmpfile" >> "$errfile"
+    echo "Testing YAML mode..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/%s.yml" -l "$tmpfile" \
+      -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r yaml \
+      -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
 
-  echo "Testing CSV mode..."
-  do_test -i csv -d "$testfile_dir" \
-    -w "$testfile_dir/%s.tab" -l "$tmpfile" \
-    -f "$tmpdir/%s.tab" -q "$failedfile_dir" \
-    Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r csv -d "$tmpdir" \
-    -u ';' -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-      cat "$tmpfile" >> "$errfile"
+    echo "Testing JSON mode..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/%s.json" -l "$tmpfile" \
+      -f "$tmpdir/%s.json" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -z -p "$np" -a smooth -b 0 -r json \
+      -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+    echo "Testing CSV mode..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/%s.tab" -l "$tmpfile" \
+      -f "$tmpdir/%s.tab" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r csv \
+      -d "$tmpdir" -u ';' -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+        
+  ;;
+
+  lipids )
+  
+    echo "Testing YAML mode..."
+    do_test -i rtf -d "$testfile_dir" \
+      -w "$testfile_dir/%s.yml" -l "$tmpfile" \
+      -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -o yaml \
+      -d "$tmpdir" >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+  ;;
+
+  * )
+    echo "unknown test mode '$testmode', exiting now"
+    return 1
+  ;;
+
+  esac
 
   rm -rf "$tmpdir" "$tmpfile"
 
@@ -1597,6 +1632,7 @@ case $RUNNING_MODE in
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  lnorm   Normal build of the opmlipids package.
+	  ltest   Test the 'run_opmlipids.R' script. Call '$0 test -h' for details.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  plex    Open the PDF files with plots produced from the examples, if any.
 	  pdf     Reduce size of PDF files either in ./graphics or given as arguments.
@@ -1645,6 +1681,10 @@ ____EOF
     PKG_DIR=opmlipids_in
     RUNNING_MODE=${RUNNING_MODE#l}
     CHECK_R_TESTS=
+  ;;
+  ltest )
+    run_external_tests -l "$@"
+    exit $?
   ;;
   pdf )
     [ $# -eq 0 ] && set -- `find graphics -type f -iname '*.pdf'`
