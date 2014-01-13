@@ -203,5 +203,26 @@ setAs("list", FAMES, function(from) {
 })
 
 
+setAs(FAME, "numeric", function(from) {
+  x <- from@measurements[, VALUE_COL]
+  names(x) <- rownames(from@measurements)
+  x[!is.na(x)]
+})
+
+setAs(FAME, "matrix", function(from) {
+  x <- from@measurements[, VALUE_COL, drop = FALSE]
+  t(as.matrix(x[!is.na(x[, VALUE_COL]), , drop = FALSE]))
+})
+
+setAs(FAMES, "matrix", function(from) {
+  sortable <- function(x) sprintf(sprintf("V%%0%ii", nchar(x)), seq_len(x))
+  x <- mapply(`rownames<-`, lapply(from@plates, as, "matrix"),
+    sortable(length(from)), SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  x <- collect(x, "datasets")
+  x[is.na(x)] <- 0
+  x
+})
+
+
 ################################################################################
 
