@@ -9,7 +9,7 @@
 NULL
 
 
-#' @importFrom pkgutils L LL case sections must
+#' @importFrom pkgutils L LL case sections must collect
 #'
 NULL
 
