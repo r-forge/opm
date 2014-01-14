@@ -5,8 +5,8 @@
 
 #' Classes of the \pkg{opmlipids} package
 #'
-#' Classes whose members can directly be generated and manipulated by an
-#' \pkg{opmlipids} user.
+#' Classes whose members can be generated and manipulated by an \pkg{opmlipids}
+#' user.
 #'
 #' @details
 #' \acronym{FAME} is an acronym for \sQuote{Fatty Acids with Metadata} (even
@@ -14,10 +14,11 @@
 #' (or some similar kind of) numeric measurements as well as an additional
 #' arbitrary amount of arbitrarily organised metadata.
 #'
-#' \acronym{FAMES} is the class for holding multiple \acronym{FAME} objects. The
-#' name \acronym{FAMES} is just the plural of \acronym{FAME}. As a rule,
-#' \acronym{FAMES} has the same methods as the \acronym{FAME} class, but adapted
-#' to a collection of more than one \acronym{FAME} object.
+#' \acronym{FAMES} is the class for holding multiple \acronym{FAME} objects that
+#' have the \strong{same} \code{\link{plate_type}}. The name \acronym{FAMES} is
+#' just the plural of \acronym{FAME}. As a rule, \acronym{FAMES} has the same
+#' methods as the \acronym{FAME} class, but adapted to a collection of more than
+#' one \acronym{FAME} object.
 #'
 #' Objects of these two classes are usually created by inputting files, not with
 #' a call to \code{new} or \code{as}, even though this is possible (see below).
@@ -120,12 +121,10 @@ setMethod("fame_problems", "character", function(object) {
   if (length(object) == 1L)
     NULL
   else
-    sprintf("object has wrong length (%i)", length(object))
+    sprintf("plate-type entry has wrong length (%i)", length(object))
 }, sealed = SEALED)
 
 setMethod("fame_problems", "list", function(object) {
-#   if (length(object) < 2L)
-#     return("less than two plates contained")
   if (!all(vapply(object, is, NA, FAME)))
     return("not all elements inherit from the 'FAME' class")
   x <- duplicated.default(vapply(object, slot, "", "plate_type"))

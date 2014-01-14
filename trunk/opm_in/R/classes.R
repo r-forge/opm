@@ -105,9 +105,8 @@ setClassUnion(FOE, c("formula", "expression"))
 
 #' Real classes of the \pkg{opm} package
 #'
-#' Classes whose members can directly be generated and manipulated by an
-#' \pkg{opm} user: \acronym{OPM}, \acronym{OPMA}, \acronym{OPMD} and
-#' \acronym{OPMS}.
+#' Classes whose members can be generated and manipulated by an \pkg{opm} user:
+#' \acronym{OPM}, \acronym{OPMA}, \acronym{OPMD} and \acronym{OPMS}.
 #'
 #' @details
 #' \acronym{OPM} is an acronym for
