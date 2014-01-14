@@ -464,7 +464,7 @@ setMethod("minmax", OPMS, function(x, ..., na.rm = FALSE) {
 ################################################################################
 
 
-## NOTE: 'dim' and 'length' are primitive and needs no setGeneric().
+## NOTE: 'dim' and 'length' are primitive and need no setGeneric().
 
 #' Get dimensions
 #'
@@ -527,11 +527,11 @@ setMethod("dim", OPMS, function(x) {
 
 #= length dim
 
-setMethod("length", OPM, function(x) {
+setMethod("length", WMD, function(x) {
   1L
 }, sealed = SEALED)
 
-setMethod("length", OPMS, function(x) {
+setMethod("length", WMDS, function(x) {
   length(x@plates)
 }, sealed = SEALED)
 
@@ -542,11 +542,11 @@ setMethod("length", OPMS, function(x) {
 #'
 setGeneric("seq")
 
-setMethod("seq", OPM, function(...) {
+setMethod("seq", WMD, function(...) {
   stop("one cannot loop over an object of class ", class(..1))
 }, sealed = SEALED)
 
-setMethod("seq", OPMS, function(...) {
+setMethod("seq", WMDS, function(...) {
   seq_along(..1@plates)
 }, sealed = SEALED)
 

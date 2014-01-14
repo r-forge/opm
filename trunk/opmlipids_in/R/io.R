@@ -3,7 +3,7 @@
 ################################################################################
 
 
-#' Input \acronym{FAME} or \acronym{FAMES} objects from files
+#' Input \acronym{FAMES} objects from files
 #'
 #' Read data from \acronym{RTF} files output by the \acronym{MIDI} system and
 #' convert them to \code{\link{FAMES}} object.
@@ -22,17 +22,32 @@
 #'   none).
 #' @details The input of \acronym{RTF} files is \strong{not} guaranteed to work
 #'   if these files have been opened with some word processing software and
-#'   saved again after exporting them from the \acronym{MIDI} system.
+#'   saved again after exporting them from the \acronym{MIDI} system. It makes
+#'   even less sense to attempt to read other kinds of \acronym{RTF} files with
+#'   this function.
 #' @family io-functions
 #' @keywords IO
+#' @seealso opm::explode_dir
 #' @export
 #' @examples
 #' ## show the files that would be read from the working directory
 #' read_rtf(getwd(), demo = TRUE)
 #'
+#' (x <- read_rtf(character())) # no files/dirs => empty object
+#' stopifnot(is(x, "FAMES"), length(x) == 0)
+#'
+#' ## read one of the example input files that come with the package
+#' (files <- pkgutils::pkg_files("opmlipids", "testdata"))
+#' if (length(files)) {
+#'   (x <- read_rtf(files[1], include = NULL)) # pattern not necessary here
+#'   stopifnot(is(x, "FAMES"), plate_type(x) == "MIDI", length(x) == 2)
+#' } else {
+#'   warning("'opmlipids' example input files not found")
+#' }
+#'
 read_rtf <- function(names, include = "*.rtf", ..., demo = FALSE) {
   names <- explode_dir(names = names, include = include, ...)
-  if (L(demo)) {
+  if (demo) {
     message(paste0(names, collapse = "\n"))
     return(invisible(names))
   }
@@ -153,14 +168,12 @@ fatty_acids.connection <- function(x, ...) {
 #' @export
 #'
 fatty_acids.NULL <- function(x, ..., files) {
-  if (missing(files) || !length(files))
-    stop("either 'x' or a non-empty 'files' argument must be provided")
+  if (missing(files))
+    stop("either an 'x' or a 'files' argument must be provided")
   x <- lapply(files, readLines, warn = FALSE)
   x <- lapply(X = x, FUN = fatty_acids.character, ...)
-  if (length(x) > 1L)
-    do.call(merge.midi_entries, x)
-  else
-    x[[1L]]
+  case(length(x), structure(list(), class = "midi_entries"), x[[1L]],
+    do.call(merge.midi_entries, x))
 }
 
 #' @rdname fatty_acids
@@ -290,6 +303,5 @@ fatty_acids.flat_RTF <- function(x, level = 4L, ...) {
 
 
 ################################################################################
-
 
 

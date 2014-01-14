@@ -15,8 +15,16 @@ options(warn = 1L)
 
 
 rtf2yaml <- function(infile, outfile) {
-  write(to_yaml(read_rtf(infile)), outfile)
+  write(to_yaml(read_rtf(infile, include = NULL)), outfile)
 }
+
+
+rtf2csv <- function(infile, outfile) {
+  x <- read_rtf(infile, include = NULL)
+  x <- extract(x[!x %q% c(Type = "Calib")], "Sample ID", dataframe = TRUE)
+  write.table(x, file = outfile, sep = "\t", row.names = FALSE)
+}
+
 
 
 ################################################################################
@@ -76,16 +84,13 @@ for (pkg in c("opmlipids", "pkgutils", "yaml"))
 case(opt$output,
 
   csv = {
-    stop("CSV is currently unspoorted")
-    data <- opm::batch_collect(names = infiles, fun = read_rtf,
-      use.names = FALSE, include = "*.rtf", wildcard = TRUE, simplify = FALSE,
-      demo = FALSE)
-    if (!opt$keep)
-      data <- lapply(data, subset)
-    data <- case(length(data), stop("no input files found"),
-      data[[1L]], do.call(merge, data))
-    data <- as.data.frame(data)
-    write.table(data, file = "", sep = "\t", row.names = FALSE)
+  yaml = opm::batch_process(names = infiles, out.ext = "csv", in.ext = "any",
+    io.fun = rtf2csv, wildcard = TRUE, outdir = opt$dir,
+      compressed = TRUE, literally = FALSE, overwrite = if (opt$newer)
+      "older"
+    else
+      "yes",
+    verbose = !opt$quiet, include = "*.rtf", demo = FALSE)
   },
 
   yml =,
@@ -102,3 +107,4 @@ case(opt$output,
 
 
 ################################################################################
+

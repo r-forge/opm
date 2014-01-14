@@ -18,7 +18,7 @@
 #' @param ... Optional arguments to be included in the output.
 #' @export
 #' @return For the \code{\link{OPM}} method, a named list of the class
-#'   \code{OPM_Summary}, returned invisibly. The \sQuote{metadata} entry is
+#'   \code{OPM_Summary}, returned invisibly. The \sQuote{Metadata} entry is
 #'   the number of non-list elements in \code{\link{metadata}}. For the
 #'   \code{\link{OPMS}} method, a list of such lists (one per plate), also
 #'   returned invisibly, with the class set to \code{OPMS_Summary} and some
@@ -43,7 +43,6 @@
 #' vaas_4 # calls show()
 #'
 setGeneric("summary")
-
 
 setMethod("summary", OPM, function(object, ...) {
   result <- list(
@@ -96,15 +95,17 @@ setMethod("summary", MOPMX, function(object, ...) {
 
 setMethod("show", OPMX, function(object) {
   print(summary(object))
+  invisible(NULL)
 }, sealed = SEALED)
 
 setMethod("show", MOPMX, function(object) {
   print(summary(object))
+  invisible(NULL)
 }, sealed = SEALED)
 
 setMethod("show", CMAT, function(object) {
   if (typeof(object) == "list") {
-    object[] <- lapply(object, paste, collapse = "/")
+    object[] <- lapply(object, paste0, collapse = "/")
     storage.mode(object) <- "character"
   }
   callNextMethod()

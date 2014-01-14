@@ -839,6 +839,14 @@ ____EOF
       -d "$tmpdir" >> "$outfile" &&
         cat "$tmpfile" >> "$errfile"
 
+    echo "Testing CSV mode..."
+    do_test -i rtf -d "$testfile_dir" \
+      -w "$testfile_dir/%s.csv" -l "$tmpfile" \
+      -f "$tmpdir/%s.csv" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -o csv \
+      -d "$tmpdir" >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
   ;;
 
   * )
@@ -1205,13 +1213,15 @@ test_demos()
   local wdir=`pwd`
   local tmpdir=`mktemp -d --tmpdir`
   cd "$tmpdir"
-  local csv_file
-  for csv_file in "$wdir"/external_tests/tests/*.csv; do
-    case $csv_file in
-      *Multiline* ) continue;;
-    esac
-    ln -s "$csv_file" "${csv_file##*/}"
-  done
+  if [ "$1" = opm_in ]; then
+    local csv_file
+    for csv_file in "$wdir"/external_tests/tests/*.csv; do
+      case $csv_file in
+        *Multiline* ) continue;;
+      esac
+      ln -s "$csv_file" "${csv_file##*/}"
+    done
+  fi
   local rscript
   local errs=0
   for rscript in "$wdir"/"$1"/demo/*.R; do
@@ -1588,7 +1598,7 @@ case $RUNNING_MODE in
     exit $?
   ;;
   demo )
-    test_demos opm_in
+    test_demos opmlipids_in && test_demos opm_in
     exit $?
   ;;
   dfull|dnorm )

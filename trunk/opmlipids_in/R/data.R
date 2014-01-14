@@ -17,9 +17,10 @@
 #' @references
 #' \url{http://www.dsmz.de/catalogues/details/culture/DSM-44549.html}
 #' @keywords datasets
-#' @seealso base::readLines
+#' @seealso \link{read_rtf}
 #' @examples
 #' data(DSM_44549)
+#' DSM_44549 # prints a summary
 #' stopifnot(is(DSM_44549, "FAMES"))
 #'
 NULL

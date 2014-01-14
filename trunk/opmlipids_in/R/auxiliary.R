@@ -9,10 +9,12 @@
 
 #' Helper methods for indexing etc.
 #'
-#' Close gaps in indexes by reming all \code{NULL} elements, with a warning.
+#' Close gaps in indexes by removing all \code{NULL} elements, with a warning.
+#' Alternatively, check whether elements of a list can be combined into a
+#' \code{\link{FAMES}} object, or combine them.
 #'
 #' @param x Vector-like \R object.
-#' @return \code{x}, its size reduced accordingly.
+#' @return \code{x}, its size reduced accordingly, or logical scalar.
 #' @keywords internal
 #'
 close_index_gaps <- function(x) {
@@ -21,6 +23,24 @@ close_index_gaps <- function(x) {
     return(x[!bad])
   }
   x
+}
+
+#' @rdname close_index_gaps
+#'
+joinable <- function(x) {
+  if (!all(vapply(x, is, NA, "FAME") | vapply(x, is, NA, "FAMES")))
+    return(FALSE)
+  pt <- vapply(x, plate_type, "")
+  all(duplicated.default(pt[!is.na(pt)])[-1L])
+}
+
+#' @rdname close_index_gaps
+#'
+join_if_possible <- function(x) {
+  if (joinable(x))
+    new(FAMES, plates = unlist(lapply(x, plates), FALSE, FALSE))
+  else
+    x
 }
 
 
