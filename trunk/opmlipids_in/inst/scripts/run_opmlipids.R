@@ -20,8 +20,7 @@ rtf2yaml <- function(infile, outfile) {
 
 
 rtf2csv <- function(infile, outfile) {
-  x <- read_rtf(infile, include = NULL)
-  x <- extract(x[!x %q% c(Type = "Calib")], "Sample ID", dataframe = TRUE)
+  x <- extract(read_rtf(infile, include = NULL), "Sample ID", dataframe = TRUE)
   write.table(x, file = outfile, sep = "\t", row.names = FALSE)
 }
 
@@ -80,30 +79,25 @@ for (pkg in c("opmlipids", "pkgutils", "yaml"))
 
 ################################################################################
 
-
 case(opt$output,
-
   csv = {
-  yaml = opm::batch_process(names = infiles, out.ext = "csv", in.ext = "any",
-    io.fun = rtf2csv, wildcard = TRUE, outdir = opt$dir,
-      compressed = TRUE, literally = FALSE, overwrite = if (opt$newer)
-      "older"
-    else
-      "yes",
-    verbose = !opt$quiet, include = "*.rtf", demo = FALSE)
+    opt$out.ext <- "csv"
+    opt$io.fun <- rtf2csv
   },
-
   yml =,
-
-  yaml = opm::batch_process(names = infiles, out.ext = "yml", in.ext = "any",
-    io.fun = rtf2yaml, wildcard = TRUE, outdir = opt$dir,
-      compressed = TRUE, literally = FALSE, overwrite = if (opt$newer)
-      "older"
-    else
-      "yes",
-    verbose = !opt$quiet, include = "*.rtf", demo = FALSE)
-
+  yaml = {
+    opt$out.ext <- "yml"
+    opt$io.fun <- rtf2yaml
+  }
 )
+
+opm::batch_process(names = infiles, out.ext = opt$out.ext, in.ext = "any",
+  io.fun = opt$ io.fun, wildcard = TRUE, outdir = opt$dir,
+    compressed = TRUE, literally = FALSE, overwrite = if (opt$newer)
+    "older"
+  else
+    "yes",
+  verbose = !opt$quiet, include = "*.rtf", demo = FALSE)
 
 
 ################################################################################
