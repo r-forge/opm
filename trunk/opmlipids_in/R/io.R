@@ -170,7 +170,10 @@ fatty_acids.connection <- function(x, ...) {
 fatty_acids.NULL <- function(x, ..., files) {
   if (missing(files))
     stop("either an 'x' or a 'files' argument must be provided")
+  if (!length(files))
+    return(structure(list(), class = "midi_entries"))
   x <- lapply(files, readLines, warn = FALSE)
+  x <- mapply(`attr<-`, x, ".file", files, SIMPLIFY = FALSE, USE.NAMES = FALSE)
   x <- lapply(X = x, FUN = fatty_acids.character, ...)
   case(length(x), structure(list(), class = "midi_entries"), x[[1L]],
     do.call(merge.midi_entries, x))
@@ -211,7 +214,8 @@ fatty_acids.flat_RTF <- function(x, level = 4L, ...) {
   #
   simplify_nontable_paragraph <- function(x) {
     x <- paste0(x[!macro(x)], collapse = "\n")
-    x <- trim_whitespace(unlist(strsplit(x, split = " {5,}|\n", FALSE, TRUE)))
+    x <- strsplit(x, " {5,}|\n", FALSE, TRUE)
+    x <- trim_whitespace(unlist(x, FALSE, FALSE))
     if (!length(x <- x[nzchar(x)]))
       return(character())
     x <- strsplit(x, "\\s*:\\s*", FALSE, TRUE)
@@ -252,14 +256,13 @@ fatty_acids.flat_RTF <- function(x, level = 4L, ...) {
     x <- as.data.frame(x[-1L, , drop = FALSE], stringsAsFactors = FALSE)
     names(x) <- headers
     rownames(x) <- NULL
-    sim.headers <- c("Library", "Sim Index", "Entry Name")
     num.headers <- c("RT", "Response", "Ar/Ht", "RFact", "ECL", "Percent")
     name.headers <- c("Peak Name", "Comment1", "Comment2")
-    if (setequal(headers, sim.headers)) {
-      x$`Sim Index` <- must(as.numeric(x$`Sim Index`))
+    if (setequal(headers, c("Library", "Sim Index", "Entry Name"))) {
+      x[, "Sim Index"] <- must(as.numeric(x[, "Sim Index"]))
       attr(x, "kind") <- "Matches"
     } else if (setequal(headers, c(num.headers, name.headers))) {
-      for (name in num.headers)
+      for (name in c(num.headers))
         x[, name] <- must(as.numeric(x[, name]))
       attr(x, "kind") <- "Measurements"
     } else
@@ -270,7 +273,7 @@ fatty_acids.flat_RTF <- function(x, level = 4L, ...) {
   # Interpret elements of x, which is a list of simplified RTF paragraphs,
   # depending on whether or not the element is a matrix.
   #
-  interpret_paragraphs <- function(x) {
+  interpret_paragraphs <- function(x, filename) {
     tables <- lapply(x[is.mat <- vapply(x, is.matrix, NA)], parse_table)
     x <- unlist(lapply(x[!is.mat], as.list), recursive = FALSE)
     for (table in tables) {
@@ -279,12 +282,15 @@ fatty_acids.flat_RTF <- function(x, level = 4L, ...) {
         stop(kind, " entry already present")
       x[[kind]] <- structure(.Data = table, kind = NULL)
     }
+    attr(x, ".file") <- filename
     class(x) <- c("midi_entry", oldClass(x))
     x
   }
 
   if (length(level <- as.integer(level)) != 1L || level < 0L)
     stop("'level' must be a non-negative integer scalar")
+  if (is.null(filename <- attr(x, ".file")))
+    warning("attribute '.file' is missing")
   x <- cut(x, breaks = "page")
   if (level < 1L)
     return(x)
@@ -295,7 +301,7 @@ fatty_acids.flat_RTF <- function(x, level = 4L, ...) {
   x <- x[vapply(x, length, 0L) > 0L]
   if (level < 3L)
     return(x)
-  x <- lapply(x, interpret_paragraphs)
+  x <- lapply(x, interpret_paragraphs, filename)
   if (level < 4L)
     return(x)
   fatty_acids(x)

@@ -1606,13 +1606,19 @@ case $RUNNING_MODE in
     RUNNING_MODE=${RUNNING_MODE#d}
     CHECK_R_TESTS=
   ;;
+  d2norm )
+    PKG_DIR=opmdata2_in
+    RUNNING_MODE=${RUNNING_MODE#d}
+    CHECK_R_TESTS=
+  ;;
   docu )
     :
   ;;
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
-      remove_dirs_carefully pkgutils opm opmdata opmlipids &&
-      remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmlipids_doc
+      remove_dirs_carefully pkgutils opm opmdata opmdata2 opmlipids &&
+      remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmdata2_doc \
+        opmlipids_doc
     exit $?
   ;;
   example )
@@ -1643,6 +1649,7 @@ case $RUNNING_MODE in
 	  demo    Test the demo code that comes with opm.
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
+	  d2norm  Full build of the opmdata2 package.
 	  docu    Show the 'docu.R' script to use if it can be found, then exit.
 	  erase   Remove directories left over by R CMD check and 'docu.R', if any.
 	  example Extract R code from the examples within specified Rd files.
@@ -1719,7 +1726,7 @@ ____EOF
     exit $?
   ;;
   rnw )
-    run_Stangle opm_in opmdata_in pkgutils_in opmlipids_in
+    run_Stangle opm_in opmdata_in opmdata2_in pkgutils_in opmlipids_in
     exit $?
   ;;
   rout )
@@ -1753,7 +1760,7 @@ ____EOF
     exit $?
   ;;
   time )
-    show_example_timings opm opmdata pkgutils opmlipids
+    show_example_timings opm opmdata opmdata2 pkgutils opmlipids
     exit $?
   ;;
   todo )

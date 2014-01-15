@@ -32,6 +32,10 @@ ROWNAMES <- "_ROWNAMES"
 #
 APPENDIX <- " #"
 
+# Name of input-file entry in the metadata.
+#
+OLIF <- "OLIF"
+
 
 ################################################################################
 
