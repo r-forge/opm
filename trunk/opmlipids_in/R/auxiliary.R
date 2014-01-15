@@ -70,9 +70,12 @@ parse_rtf <- function(x) UseMethod("parse_rtf")
 #' @method parse_rtf character
 #'
 parse_rtf.character <- function(x) {
+  if (is.null(fromfile <- attr(x, ".file")))
+    warning("attribute '.file' is missing")
   x <- gsub("(\\\\[a-z]+)-?\\d+", "\\1", x, FALSE, TRUE)
-  x <- parseLatex(gsub("%", "\\%", x, fixed = TRUE))
+  x <- parseLatex(gsub("%", "\\%", x, FALSE, FALSE, TRUE))
   class(x) <- c("RTF", oldClass(x))
+  attr(x, ".file") <- fromfile
   x
 }
 
@@ -123,7 +126,8 @@ cut.flat_RTF <- function(x, breaks, ...) {
     stop("'breaks' must not be empty")
   breaks <- sections(x %in% to_macro(breaks) & macro(x), include = FALSE)
   mapply(structure, .Data = split(x, breaks), macro = split(macro(x), breaks),
-    MoreArgs = list(class = oldClass(x)), SIMPLIFY = FALSE, USE.NAMES = FALSE)
+    MoreArgs = list(class = oldClass(x), .file = attr(x, ".file")),
+    SIMPLIFY = FALSE, USE.NAMES = FALSE)
 }
 
 #' @rdname cut
@@ -131,13 +135,14 @@ cut.flat_RTF <- function(x, breaks, ...) {
 #' @export
 #'
 flatten.RTF <- function(object, ...) {
+  file <- attr(object, ".file")
   tags <- rapply(object, attr, which = "latex_tag")
   object <- unlist(object)
   if (length(tags) != length(object))
     stop("malformatted RTF object: not as many tags as elements")
   if (length(bad <- setdiff(tags, c("MACRO", "TEXT"))))
     stop("malformatted RTF object: unknown tag ", bad[1L])
-  structure(object, macro = tags == "MACRO", class = "flat_RTF")
+  structure(object, macro = tags == "MACRO", class = "flat_RTF", .file = file)
 }
 
 #' @rdname cut

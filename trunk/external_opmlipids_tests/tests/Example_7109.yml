@@ -210,6 +210,7 @@
       Library: TSBA40 4.10
       Sim Index: 0.078
       Entry Name: Arcanobacterium-haemolyticum*
+    OLIF: external_opmlipids_tests/tests/Example_7109.rtf
 - plate_type: MIDI
   measurements:
     RT:
@@ -375,5 +376,6 @@
       - Arcanobacterium-haemolyticum*
       - Actinomadura-yumaensis* (72h)
       - Corynebacterium-diphtheriae*
+    OLIF: external_opmlipids_tests/tests/Example_7109.rtf
 
 

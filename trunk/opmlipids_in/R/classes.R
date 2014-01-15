@@ -160,8 +160,8 @@ setAs("midi_entry", FAME, function(from) {
   pos <- match("Measurements", names(from), 0L)
   if (!pos) # just to provide a more meaningful error message
     stop("object of class 'midi_entry' lacks 'Measurements' element")
-  new(FAME, measurements = from[[pos]], plate_type = "MIDI",
-    metadata = unclass(from[-pos]))
+  new(FAME, measurements = from[[pos]], metadata = c(from[-pos],
+    structure(list(attr(from, ".file")), names = OLIF)), plate_type = "MIDI")
 })
 
 setAs("midi_entries", FAMES, function(from) {
