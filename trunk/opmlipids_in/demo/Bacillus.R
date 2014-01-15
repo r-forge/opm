@@ -14,10 +14,11 @@ x <- read_rtf(files[grepl("Sikorski", basename(files))], include = NULL)
 print(summary(x))
 
 
-# remove the calibration plates
-x <- x[!x %q% c(Type = "Calib")]
-print(summary(x))
-
 # plot with asqr-transformation
 heat_map(x, "Sample ID", asqr = NA)
+
+# remove the calibration plates, if any, and plot again
+if (any(is.calib <- x %q% c(Type = "Calib")))
+  heat_map(x[!is.calib], "Sample ID", asqr = NA)
+
 
