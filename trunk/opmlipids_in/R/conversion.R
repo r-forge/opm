@@ -3,11 +3,13 @@
 ################################################################################
 
 
-#' Extract values and metadata
+#' Extract values and metadata or export phylogenetic data
 #'
-#' Extract selected values into common matrix or data frame, optionally
-#' including selected metadata entries for use as additional columns in a data
-#' frame or (after joining) as character vector with labels.
+#' Extract selected values into common matrix or data frame with or without
+#' metadata, or generate a file format suitable for exporting phylogenetic data.
+#' This function can also produce \acronym{HTML} tables and text paragraphs
+#' suitable for displaying fatty-acid data in taxonomic journals such as
+#' \acronym{IJSEM}.
 #'
 #' @param object \code{\link{FAMES}} object.
 #' @param as.labels List, character vector or formula indicating the metadata to
@@ -40,33 +42,34 @@
 #'   \code{\link{OPM}} object. For the data-frame method of \code{extract}, a
 #'   character scalar defining the action to conduct if \code{as.groups}
 #'   contains duplicates.
-#'
 #' @param exact Logical scalar. Passed to \code{\link{metadata}}.
 #' @param strict Logical scalar. Also passed to \code{\link{metadata}}.
+#' @param join Logical scalar or factor. Passed to the matrix method of
+#'   \code{phylo_data}. See the \pkg{opm} package for details and the examples
+#'   below.
+#' @param format Character scalar also passed to that methods. Determines the
+#'   output format. For continuous data such as proportion measurements only
+#'   \kbd{html} and \kbd{hennig} are suitable.
+#' @param html.args List determining details of the \acronym{HTML} output. See
+#'   \code{html_args} in the \pkg{opm} package. Slight modifications of the
+#'   settings are done internally.
+#' @param ... Optional arguments passed to the matrix method of
+#'   \code{phylo_data}.
 #'
 #' @export
-#' @return Numeric matrix or data frame.
-#'
-#' @details \code{extract_columns} is not normally directly called by an
-#'   \pkg{opm} user because \code{extract} is available, which uses this
-#'   function, but can be used for testing the applied metadata selections
-#'   beforehand.
-#'
-#'   The \code{extract_columns} data-frame method is partially trivial (extract
-#'   the selected columns and join them to form a character vector or new
-#'   data-frame columns), partially more useful (extract columns with data of a
-#'   specified class).
+#' @aliases phylo_data
+#' @return Numeric matrix or data frame (\code{extract}) or character vector
+#'   (\code{phylo_data}).
 #'
 #' @family conversion-functions
-#' @author Markus Goeker
 #' @seealso
 #'   base::data.frame base::as.data.frame base::as.matrix base::cbind
-#' @keywords manip dplot htest
+#' @keywords manip character cluster IO
 #' @examples
 #'
 #' ## introduce useful metadata entries
 #' x <- DSM_44549
-#' metadata(x) <- Strain ~ sub("[(].+", "", `Sample ID`)
+#' metadata(x) <- Strain ~ sub("C-", "-", sub("[(].+", "", `Sample ID`))
 #' metadata(x) <- Time ~ tolower(substr(sub("[^(]+[(]", "", `Sample ID`), 1, 3))
 #' metadata(x) <- Cultivation ~ sub("[)]", "", sub("[^,]+,", "", `Sample ID`))
 #'
@@ -84,6 +87,12 @@
 #' stopifnot(!c("Cultivation", opm::param_names("split.at")) %in% names(y))
 #' # i.e. the selected metadata are not inserted as columns but elsewhere
 #' # see opm for details
+#'
+#' ## create HTML
+#' write(y <- phylo_data(x, "Cultivation", format = "html",
+#'   html.args = html_args(organisms.start = "Cultivation",
+#'     legend.sep.2 = "; ", css.file = opm_files("css")[1])), file = "")
+#' stopifnot(is.character(y), "<html>" %in% y)
 #'
 setGeneric("extract", function(object, ...) standardGeneric("extract"))
 
@@ -136,6 +145,30 @@ setMethod("extract", FAMES, function(object, as.labels, dataframe = FALSE,
 
   result
 
+}, sealed = SEALED)
+
+#= phylo_data extract
+
+setMethod("phylo_data", FAMES, function(object, as.labels, sep = " ",
+    exact = TRUE, strict = TRUE, join = TRUE, format = "html",
+    html.args = html_args(), ...) {
+  prepare_fs <- function(x) {
+    x <- safe_labels(x, "html")
+    gsub("(?<=\\bC)(\\d+:\\d+)\\b", "<sub>\\1</sub>", x, FALSE, TRUE)
+  }
+  object <- extract(object = object, as.labels = as.labels, dataframe = FALSE,
+    as.groups = NULL, sep = sep, dups = if (is.logical(join) && join)
+      "ignore"
+    else
+      "warn", exact = exact, strict = strict)
+  if ("html" %in% format) {
+    if (!is.list(html.args))
+      html.args <- as.list(html.args)
+    html.args$greek.letters <- html.args$no.html <- FALSE
+    colnames(object) <- prepare_fs(colnames(object))
+  }
+  phylo_data(object = object, join = join, format = format,
+    html.args = html.args, ...)
 }, sealed = SEALED)
 
 

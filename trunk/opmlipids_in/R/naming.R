@@ -11,7 +11,8 @@
 #'
 #' @param x \code{\link{FAMES}} object.
 #' @param as.groups Key used for querying the metadata.
-#' @param cutoff Numeric scalar determining the minimum frequency to report.
+#' @param cutoff Numeric scalar determining the frequency below which to ignore
+#'   measurements in output.
 #' @return Character vector with one element per group as defined by
 #'   \code{as.groups}.
 #' @export
@@ -21,12 +22,33 @@
 #' @examples
 #' # TODO
 #'
-setMethod("listing", FAMES, function(x, as.groups, cutoff = -Inf) {
-  x <- as(x, "matrix")
+setMethod("listing", FAMES, function(x, as.groups, cutoff = -Inf, html = FALSE,
+    digits = 1L) {
+  to_text <- function(x, cutoff, fmt) {
+    result <- colMeans(x)
+    result <- result[ok <- result > cutoff]
+    if (nrow(x) > 1L) {
+      sdev <- apply(x[, ok, drop = FALSE], 2L, sd)
+      result <- structure(sprintf(fmt[2L], result, sdev), names = names(result))
+    } else {
+      result <- structure(sprintf(fmt[1L], result), names = names(result))
+    }
+    result
+  }
   if (!length(as.groups))
     as.groups <- TRUE
-  as.groups <- as.factor(extract_columns(object, as.groups, TRUE))
-  stop("not yet finished")
+  grps <- as.factor(extract_columns(x, as.groups, TRUE))
+  x <- as(x, "matrix")
+  grps <- split.default(seq_len(nrow(x)), grps)
+  ## TODO: add HTML-formatting of column names if 'html' is TRUE
+  fmt <- c(sprintf("%%.%if", digits), "")
+  fmt[2L] <- paste(fmt[1L], if (html)
+      "&plusmn;"
+    else
+      "+/-", fmt[1L])
+  sapply(grps, function(i) to_text(x[i, , drop = FALSE], cutoff, fmt),
+    simplify = FALSE)
+  #stop("not yet finished")
 }, sealed = SEALED)
 
 
