@@ -4,6 +4,35 @@
 ################################################################################
 
 
+#' Listing of measurements
+#'
+#' Create a textual listing of the measurements suitable for, e.g., reports in
+#' taxonomic journals such as \acronym{IJSEM}.
+#'
+#' @param x \code{\link{FAMES}} object.
+#' @param as.groups Key used for querying the metadata.
+#' @param cutoff Numeric scalar determining the minimum frequency to report.
+#' @return Character vector with one element per group as defined by
+#'   \code{as.groups}.
+#' @export
+#' @keywords attribute character
+#' @family naming-functions
+#' @details TODO
+#' @examples
+#' # TODO
+#'
+setMethod("listing", FAMES, function(x, as.groups, cutoff = -Inf) {
+  x <- as(x, "matrix")
+  if (!length(as.groups))
+    as.groups <- TRUE
+  as.groups <- as.factor(extract_columns(object, as.groups, TRUE))
+  stop("not yet finished")
+}, sealed = SEALED)
+
+
+################################################################################
+
+
 #' Normalize fatty-acid names
 #'
 #' Convert names of fatty acids from the \acronym{MIDI} system to a standardized

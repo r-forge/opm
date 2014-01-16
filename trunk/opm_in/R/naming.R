@@ -1015,10 +1015,11 @@ to_sentence.logical <- function(x, html, ...) {
 #'
 #' @param x \code{\link{OPMD}}, \code{\link{OPMS}} or \code{well_coords_map}
 #'   object.
-#' @param as.groups Vector or \code{NULL}. If non-empty, passed as eponymous
-#'   argument to \code{\link{extract}}. Thus \code{TRUE} and \code{FALSE} can be
-#'   used, creating either a single group or one per plate. The extracted
-#'   metadata define groups for which the discretised data are aggregated.
+#' @param as.groups Key suitable for querying the metadata, or \code{NULL}. If
+#'   non-empty, passed as eponymous argument to \code{\link{extract}}. Thus
+#'   \code{TRUE} and \code{FALSE} can be used, creating either a single group or
+#'   one per plate. The extracted metadata define groups for which the
+#'   discretised data are aggregated.
 #'
 #'   If \code{x} is an \code{\link{OPMD}} object and \code{as.groups} is not
 #'   empty, it is used to create the row name of the single row of the resulting
@@ -1038,10 +1039,13 @@ to_sentence.logical <- function(x, html, ...) {
 #'
 #' @return The \code{wells} methods return a named character vector or a named
 #'   matrix of the S3 class \code{well_coords_map}, depending on \code{simplify}
-#'   and \code{plate}. The return value of the \code{listing} methods for
-#'   \code{\link{OPMX}} objects is a character vector or matrix with additional
-#'   class attribute \code{OPMD_Listing} or \code{OPMS_Listing}. The
-#'   \code{well_coords_map} method creates a nested list of the class
+#'   and \code{plate}.
+#'
+#'   The return value of the \code{listing} methods for \code{\link{OPMX}}
+#'   objects is a character vector or matrix with additional class attribute
+#'   \code{OPMD_Listing} or \code{OPMS_Listing}.
+#'
+#'   The \code{well_coords_map} method creates a nested list of the class
 #'   \code{well_coords_listing} which can be used in conjunction with
 #'   \code{\link{to_yaml}} or \code{saveRDS} for externally storing well maps.
 #'   See the examples for details.
