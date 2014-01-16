@@ -95,25 +95,11 @@ setMethod("extract", FAMES, function(object, as.labels, dataframe = FALSE,
       exact = exact, strict = strict)
   }
   create_groups <- function(x, join) {
-    numeric_groups <- function(how) {
-      if (L(how))
-        rep.int(1L, length(object))
-      else
-        seq_len(length(object))
-    }
-    if (join) {
-      result <- if (is.logical(x))
-        numeric_groups(x)
-      else
-        do_extract(x, TRUE, "ignore")
-      result <- as.factor(result)
-    } else if (is.logical(x)) {
-      result <- as.data.frame(numeric_groups(x))
-      rownames(result) <- opm_opt("group.name")
-    } else {
-      result <- do_extract(x, FALSE, "ignore")
-    }
-    result
+    result <- do_extract(x, join, "ignore")
+    if (join)
+      as.factor(result)
+    else
+      result
   }
 
   result <- as(object, "matrix")

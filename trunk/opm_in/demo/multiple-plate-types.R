@@ -39,10 +39,10 @@ organism <- "Strain Number"
 
 #' ## Data input
 
-#' We assume that only the CSV files within the working directory should be input
-#' and that the data read should be grouped by plate type. This code fails if
-#' unreadable CSV files are there (the 'include' and/or 'exclude' argument would
-#' be needed).
+#' We assume that only the CSV files within the working directory should be
+#' input and that the data read should be grouped by plate type. This code fails
+#' if unreadable CSV files are there (the 'include' and/or 'exclude' argument
+#' would be needed).
 #'
 x <- read_opm(getwd(), convert = "grp", include = list("csv"))
 
