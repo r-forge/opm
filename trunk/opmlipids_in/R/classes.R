@@ -214,13 +214,8 @@ setAs(FAME, "numeric", function(from) {
   x[!is.na(x)]
 })
 
-# setAs(FAME, "matrix", function(from) {
-#   x <- from@measurements[, VALUE_COL, drop = FALSE]
-#   t(as.matrix(x[!is.na(x[, VALUE_COL]), , drop = FALSE]))
-# })
-
 setAs(FAMES, "matrix", function(from) {
-  x <- collect(lapply(from@plates, as, "numeric"), "values")
+  x <- pkgutils::collect(lapply(from@plates, as, "numeric"), "values")
   x[is.na(x)] <- 0
   x
 })
