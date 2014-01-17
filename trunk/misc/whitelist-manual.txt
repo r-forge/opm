@@ -1,6 +1,7 @@
 Achromobacter
 Acidovorax
 BIOLOG
+CSV
 Calinski
 Corynebacterium
 Discretisation
@@ -14,6 +15,7 @@ Metadata
 MicroStation
 OmniLog
 Original
+PDF
 Prepend
 Prepended
 Preprocess

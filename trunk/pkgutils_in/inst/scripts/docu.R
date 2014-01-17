@@ -134,6 +134,16 @@ news_filter <- function(ifile, encoding = "unknown") {
 }
 
 
+demo_filter <- function(ifile, encoding = "unknown") {
+  x <- readLines(ifile, encoding = encoding, warn = FALSE)
+  x[!grepl("^\\s*#", x, FALSE, TRUE)] <- ""
+  x <- gsub("`[^`]+`", "CODE", x, FALSE, TRUE)
+  x <- gsub("\\*{2}(?!\\s)[^*]+\\*{2}", "STRONG", x, FALSE, TRUE)
+  x <- gsub("\\*(?!\\s)[^*]+\\*", "EMPHASIS", x, FALSE, TRUE)
+  x
+}
+
+
 ################################################################################
 
 

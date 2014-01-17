@@ -2,7 +2,7 @@
 
 #' # Analyse a Bacillus fatty-acid data set provided together with the package
 #'
-#' Author: Markus Goeker
+#' Author: *Markus Goeker*
 
 library(opmlipids)
 
@@ -18,7 +18,7 @@ x <- read_rtf(files[grepl("Sikorski", basename(files))], include = NULL)
 print(summary(x))
 
 
-#' # Plot with asqr-transformation
+#' # Plot with transformation
 
 heat_map(x, "Sample ID", asqr = NA)
 
