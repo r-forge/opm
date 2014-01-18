@@ -13,7 +13,7 @@
 # given, the working directory is checked for subdirectories that contain a
 # DESCRIPTION file, and it is then attempted to document those, if any.
 #
-# (C) 2012/2013 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
+# (C) 2012-2014 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
 #
 # This program is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
@@ -525,6 +525,11 @@ for (i in seq_along(package.dirs)) {
     for (f in ff[file.exists(ff)])
       show_spellcheck_result(aspell(f, dictionaries = opt$whitelist,
         control = "-d en_GB", filter = news_filter))
+    message("Checking spelling in demo R files (if any) of", msg)
+    ff <- list.files(file.path(out.dir, "demo"), full.names = TRUE)
+    for (f in grep("\\.R$", ff, TRUE, TRUE, TRUE))
+      show_spellcheck_result(aspell(f, dictionaries = opt$whitelist,
+        control = "-d en_GB", filter = demo_filter))
   }
 
   if (opt$install && (opt$unsafe || !check.err)) {

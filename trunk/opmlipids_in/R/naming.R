@@ -13,42 +13,53 @@
 #' @param as.groups Key used for querying the metadata.
 #' @param cutoff Numeric scalar determining the frequency below which to ignore
 #'   measurements in output.
+#' @param html Logical scalar indicating whether \acronym{HTML} shall be
+#'   produced.
+#' @param digits Numeric scalar indicating the number of decimal places in the
+#'   output.
 #' @return Character vector with one element per group as defined by
-#'   \code{as.groups}.
+#'   \code{as.groups}; an object of the class \code{FAMES_Listing}.
 #' @export
 #' @keywords attribute character
 #' @family naming-functions
-#' @details TODO
 #' @examples
-#' # TODO
+#' ## TODO
 #'
-setMethod("listing", FAMES, function(x, as.groups, cutoff = -Inf, html = FALSE,
+setMethod("listing", FAMES, function(x, as.groups, cutoff = 0, html = FALSE,
     digits = 1L) {
   to_text <- function(x, cutoff, fmt) {
     result <- colMeans(x)
     result <- result[ok <- result > cutoff]
+    result <- result[ord <- order(result, decreasing = TRUE)]
     if (nrow(x) > 1L) {
-      sdev <- apply(x[, ok, drop = FALSE], 2L, sd)
+      sdev <- apply(x[, ok, drop = FALSE], 2L, sd)[ord]
       result <- structure(sprintf(fmt[2L], result, sdev), names = names(result))
     } else {
       result <- structure(sprintf(fmt[1L], result), names = names(result))
     }
-    result
+    listing(result, style = "sentence", prepend = "%s (%s %%)")
   }
+  #LL(html, cutoff, digits)
   if (!length(as.groups))
     as.groups <- TRUE
-  grps <- as.factor(extract_columns(x, as.groups, TRUE))
+  grps <- as.factor(extract_columns(x, as.groups, TRUE, dups = "ignore"))
   x <- as(x, "matrix")
+  if (html)
+    colnames(x) <- fs_to_html(colnames(x))
   grps <- split.default(seq_len(nrow(x)), grps)
-  ## TODO: add HTML-formatting of column names if 'html' is TRUE
   fmt <- c(sprintf("%%.%if", digits), "")
   fmt[2L] <- paste(fmt[1L], if (html)
       "&plusmn;"
     else
       "+/-", fmt[1L])
-  sapply(grps, function(i) to_text(x[i, , drop = FALSE], cutoff, fmt),
-    simplify = FALSE)
-  #stop("not yet finished")
+  x <- vapply(grps, function(i) to_text(x[i, , drop = FALSE], cutoff, fmt), "")
+  fmt <- if (missing(cutoff) || identical(cutoff, -Inf))
+      "The fatty acids of %s were %s."
+    else
+      "The major fatty acids of %s were %s."
+  x <- structure(sprintf(fmt, names(x), x), names = names(x))
+  structure(x, class = c("FAMES_Listing", "OPMD_Listing"), html = html,
+    cutoff = cutoff)
 }, sealed = SEALED)
 
 
@@ -110,8 +121,14 @@ norm_fa.matrix <- function(x, ...) {
   x
 }
 
+#' @rdname norm_fa
+#'
+fs_to_html <- function(x) {
+  x <- safe_labels(x, "html")
+  gsub("(?<=\\bC)(\\d+:\\d+)\\b", "<sub>\\1</sub>", x, FALSE, TRUE)
+}
+
 
 ################################################################################
-
 
 

@@ -53,6 +53,7 @@
 #' @param html.args List determining details of the \acronym{HTML} output. See
 #'   \code{html_args} in the \pkg{opm} package. Slight modifications of the
 #'   settings are done internally.
+#' @param run.tidy Logical scalar passed to the parent method.
 #' @param ... Optional arguments passed to the matrix method of
 #'   \code{phylo_data}.
 #'
@@ -152,10 +153,6 @@ setMethod("extract", FAMES, function(object, as.labels, dataframe = FALSE,
 setMethod("phylo_data", FAMES, function(object, as.labels, sep = " ",
     exact = TRUE, strict = TRUE, join = TRUE, format = "html",
     html.args = html_args(), ...) {
-  prepare_fs <- function(x) {
-    x <- safe_labels(x, "html")
-    gsub("(?<=\\bC)(\\d+:\\d+)\\b", "<sub>\\1</sub>", x, FALSE, TRUE)
-  }
   object <- extract(object = object, as.labels = as.labels, dataframe = FALSE,
     as.groups = NULL, sep = sep, dups = if (is.logical(join) && join)
       "ignore"
@@ -165,10 +162,23 @@ setMethod("phylo_data", FAMES, function(object, as.labels, sep = " ",
     if (!is.list(html.args))
       html.args <- as.list(html.args)
     html.args$greek.letters <- html.args$no.html <- FALSE
-    colnames(object) <- prepare_fs(colnames(object))
+    colnames(object) <- fs_to_html(colnames(object))
   }
   phylo_data(object = object, join = join, format = format,
     html.args = html.args, ...)
+}, sealed = SEALED)
+
+setOldClass("FAMES_Listing")
+
+setMethod("phylo_data", "FAMES_Listing", function(object,
+    html.args = html_args(), run.tidy = FALSE) {
+  if (!attr(object, "html"))
+    return(paste(object, collapse = " "))
+  if (!is.list(html.args))
+    html.args <- as.list(html.args)
+  html.args$greek.letters <- html.args$no.html <- FALSE
+  class(object) <- oldClass(object)[-1L]
+  phylo_data(object = object, html.args = html.args, run.tidy = run.tidy)
 }, sealed = SEALED)
 
 
