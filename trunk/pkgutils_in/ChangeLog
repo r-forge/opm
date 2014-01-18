@@ -2,6 +2,8 @@
 
 - new filter option for check_R_code()
 
+- the 'docu.R' script now also checks the spelling within the demos, if any
+
 2014-01-10 (6th release on CRAN)
 
 - fixed minor bug in the 'repair_docu.rb' script that affected aliases to
