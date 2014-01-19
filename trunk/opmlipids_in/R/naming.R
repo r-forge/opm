@@ -4,6 +4,9 @@
 ################################################################################
 
 
+setOldClass(c("FAMES_Listing", "OPMD_Listing"))
+
+
 #' Listing of measurements
 #'
 #' Create a textual listing of the measurements suitable for, e.g., reports in

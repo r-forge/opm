@@ -103,8 +103,6 @@ NULL
 #' @details How to convert and analyse this data set is explained in the
 #'   vignette on working with growth curves in \pkg{opm}.
 #'
-#' @references Sandford, S. A. 1995. Apples and Oranges -- A Comparison.
-#'   \emph{Annals of Improbable Research} \strong{1} (3).
 #' @references  Vaas, L. A. I., Marheine, M., Sikorski, J., Goeker, M.,
 #'   Schumacher, H.-M. 2013 Impacts of pr-10a overexpression at the molecular
 #'   and the phenotypic level. \emph{International Journal of Molecular
@@ -114,7 +112,9 @@ NULL
 #'   2010 Over-expression of PR-10a leads to increased salt and osmotic
 #'   tolerance in potato cell cultures. \emph{Journal of Biotechnology}
 #'   \strong{150}: 277--287.
-
+#' @references Sandford, S. A. 1995. Apples and Oranges -- A Comparison.
+#'   \emph{Annals of Improbable Research} \strong{1} (3).
+#'
 #' @examples \dontrun{
 #'
 #' # Calling this yielded a variable 'potato' containing the data. The opm
