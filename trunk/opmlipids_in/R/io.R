@@ -118,10 +118,12 @@ fatty_acids.list <- function(x, ...) {
   as_fatty_acids <- function(x) {
     augment_table <- function(x) {
       pos <- grepl("^Summed\\s+Feature\\s+\\d+$", x[, "Peak Name"], TRUE, TRUE)
-      x[, VALUE_COL] <- ifelse(pos, NA_real_, x[, "Percent"])
-      pos <- !is.na(x[, VALUE_COL])
+      value.col <- get_for("MIDI", "value.col")
+      x[, value.col] <- ifelse(pos, NA_real_, x[, "Percent"])
+      pos <- !is.na(x[, value.col])
       if (any(pos)) { # completely empty tables are allowed at this step
-        if (!isTRUE(all.equal(100, sum(x[pos, VALUE_COL]), TOLERANCE)))
+        tolerance <- get_for("MIDI", "tolerance")
+        if (!isTRUE(all.equal(100, sum(x[pos, value.col]), tolerance)))
           stop("relative frequencies do not sum up to 100%")
         rn <- ifelse(grepl("^Sum\\s*In\\s*Feature\\s*\\d+$", x[, "Peak Name"],
           TRUE, TRUE), x[, "Comment2"], x[, "Peak Name"])
