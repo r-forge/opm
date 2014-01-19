@@ -55,8 +55,8 @@ setClass(FAME,
   slots = c(plate_type = "character", measurements = "data.frame"),
   contains = c("WMD", "YAML_VIA_LIST"),
   validity = function(object) {
-    errs <- c(fame_problems(object@measurements),
-      fame_problems(object@plate_type))
+    errs <- c(fame_problems(object@plate_type),
+      fame_problems(object@measurements, object@plate_type[1L]))
     if (length(errs))
       errs
     else
@@ -103,13 +103,18 @@ setClass(FAMES,
 #' @keywords internal
 #' @rdname initialize
 #'
-setGeneric("fame_problems", function(object) standardGeneric("fame_problems"))
+setGeneric("fame_problems",
+  function(object, ...) standardGeneric("fame_problems"))
 
 #= fame_problems initialize
 
-setMethod("fame_problems", "data.frame", function(object) {
+setMethod("fame_problems", "data.frame", function(object, plate.type) {
+  if (is.na(plate.type))
+    return("plate type is missing")
   errs <- NULL
-  pos <- match(VALUE_COL, colnames(object), 0L)
+  value.col <- tryCatch(get_for(make.names(plate.type), "value.col"),
+    error = function(e) NA_character_)
+  pos <- match(value.col, colnames(object), 0L)
   if (!pos)
     errs <- c(errs, "value column missing")
   else if (!is.numeric(object[, pos]))
@@ -160,8 +165,11 @@ setAs("midi_entry", FAME, function(from) {
   pos <- match("Measurements", names(from), 0L)
   if (!pos) # just to provide a more meaningful error message
     stop("object of class 'midi_entry' lacks 'Measurements' element")
-  new(FAME, measurements = from[[pos]], metadata = c(from[-pos],
-    structure(list(attr(from, ".file")), names = OLIF)), plate_type = "MIDI")
+  if (is.null(olif <- attr(from, ".file")))
+    stop("object of class 'midi_entry' lacks '.file' attribute")
+  olif <- structure(list(olif), names = get_for("MIDI", "file.entry"))
+  new(FAME, measurements = from[[pos]], metadata = c(from[-pos], olif),
+    plate_type = "MIDI")
 })
 
 setAs("midi_entries", FAMES, function(from) {
@@ -173,26 +181,27 @@ setAs("midi_entries", FAMES, function(from) {
 
 
 setAs(FAME, "list", function(from) {
-  to_list <- function(x) {
-    x[, ROWNAMES] <- rownames(x)
+  to_list <- function(x, pt) {
+    x[, get_for(pt, "row.names")] <- rownames(x)
     as.list(x)
   }
   sn <- slotNames(from)
-  result <- structure(vector("list", length(sn)), names = sn)
+  x <- structure(vector("list", length(sn)), names = sn)
   for (i in seq_along(sn))
-    result[[i]] <- slot(from, sn[[i]])
-  result[["measurements"]] <- to_list(result[["measurements"]])
-  result
+    x[[i]] <- slot(from, sn[[i]])
+  x[["measurements"]] <- to_list(x[["measurements"]], x[["plate_type"]])
+  x
 })
 
 setAs("list", FAME, function(from) {
-  from_list <- function(x) {
+  from_list <- function(x, pt) {
     x <- as.data.frame(x, stringsAsFactors = FALSE, optional = TRUE)
-    rownames(x) <- x[, ROWNAMES]
-    x[, ROWNAMES] <- NULL
+    rownames(x) <- x[, rn <- get_for(pt, "row.names")]
+    x[, rn] <- NULL
     x
   }
-  from[["measurements"]] <- from_list(from[["measurements"]])
+  from[["measurements"]] <- from_list(from[["measurements"]],
+    from[["plate_type"]])
   do.call(new, c(list(Class = FAME), from))
 })
 
@@ -209,14 +218,14 @@ setAs("list", FAMES, function(from) {
 
 
 setAs(FAME, "numeric", function(from) {
-  x <- from@measurements[, VALUE_COL]
+  x <- from@measurements[, get_for(from@plate_type, "value.col")]
   names(x) <- rownames(from@measurements)
   x[!is.na(x)]
 })
 
 setAs(FAMES, "matrix", function(from) {
   x <- pkgutils::collect(lapply(from@plates, as, "numeric"), "values")
-  x[is.na(x)] <- 0
+  x[is.na(x)] <- get_for(plate_type(from), "na.yields")
   x
 })
 

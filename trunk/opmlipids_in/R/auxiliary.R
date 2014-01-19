@@ -7,6 +7,20 @@
 #
 
 
+#' Get stored plate-type settings
+#'
+#' Get the settings that have been stored for a plate type.
+#'
+#' @param plate.type Character scalar.
+#' @param what Character scalar. The key whose value is of interest.
+#' @return The value associated with this key and plate type.
+#' @keywords internal
+#'
+get_for <- function(plate.type, what) {
+  get(what, get(plate.type, PLATE_TYPE_SETTINGS))
+}
+
+
 #' Helper methods for indexing etc.
 #'
 #' Close gaps in indexes by removing all \code{NULL} elements, with a warning.
