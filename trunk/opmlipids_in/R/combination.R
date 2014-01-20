@@ -108,26 +108,20 @@ setMethod("[[<-", c(FAMES, "ANY", "missing", FAME), function(x, i, j, value) {
 #' # ...it would be easier to use 'DSM_44549[2:4]', of course
 #'
 #' (x <- c(DSM_44549, letters)) # cannot deeply be combined
-#' stopifnot(is.list(x), length(x) == 2)
+#' stopifnot(is.list(x), length(x) == 27)
 #' (x <- c(DSM_44549, letters, recursive = TRUE))
 #' stopifnot(is.list(x), length(x) == 27)
 #'
 setMethod("c", FAME, function(x, ..., recursive = FALSE) {
   if (missing(..1))
     return(x)
-  join_if_possible(if (recursive)
-      unlist(list(x, ...))
-    else
-      list(x, ...))
+  join_if_possible(callNextMethod(NULL, x, ..., recursive = recursive))
 }, sealed = SEALED)
 
 setMethod("c", FAMES, function(x, ..., recursive = FALSE) {
   if (missing(..1))
     return(x)
-  join_if_possible(if (recursive)
-      unlist(list(x, ...))
-    else
-      list(x, ...))
+  join_if_possible(callNextMethod(NULL, x, ..., recursive = recursive))
 }, sealed = SEALED)
 
 

@@ -1311,11 +1311,15 @@ In addition to conducting queries with alternatives, using lists as queries woul
 Within formulae, nested keys should be separated by the \code{\$} operator.
 
 The results of these infix operators are reported as logical vector with one value per plate; the usual \proglang{R} functions such as \code{all}, \code{any} or \code{which} could be applied to work on these vectors.
-They could also be used directly as the first argument of the bracket operator for \proglang{OPMS} objects to create subsets:
+They could also be used directly as the first argument of the bracket operator for \proglang{OPMS} objects to create subsets.
+Indeed, for one of these operators, \code{\%q\%}, it is even possible to omit it because the bracket-operator method for \proglang{OPMS} objects passes suitable arguments automatically through \code{\%q\%}.
 
 <<label=query-metadata-and-select, results=hide>>=
 vaas.e.coli.1 <- vaas_et_al[c(Experiment = "First replicate",
-  Species = "Escherichia coli") %q% vaas_et_al]
+  Species = "Escherichia coli")]
+## this is the short notation for:
+#vaas.e.coli.1 <- vaas_et_al[c(Experiment = "First replicate",
+#  Species = "Escherichia coli") %q% vaas_et_al]
 summary(vaas.e.coli.1)
 rm(vaas.e.coli.1) # tidy up
 @

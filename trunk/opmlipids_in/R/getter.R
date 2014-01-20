@@ -115,6 +115,17 @@ setMethod("[", c(FAMES, "missing", "missing", "missing"), function(x, i, j,
 }, sealed = SEALED)
 
 setMethod("[", c(FAMES, "ANY", "missing", "missing"), function(x, i, j, drop) {
+  x[i %q% x]
+}, sealed = SEALED)
+
+setMethod("[", c(FAMES, "logical", "missing", "missing"), function(x, i, j,
+    drop) {
+  x@plates <- close_index_gaps(x@plates[i])
+  x
+}, sealed = SEALED)
+
+setMethod("[", c(FAMES, "numeric", "missing", "missing"), function(x, i, j,
+    drop) {
   x@plates <- close_index_gaps(x@plates[i])
   x
 }, sealed = SEALED)
