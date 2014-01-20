@@ -24,7 +24,21 @@ heat_map(x, "Sample ID", asqr = NA)
 
 #' # Remove the calibration plates, if any, and plot again
 
-if (any(is.calib <- x %q% c(Type = "Calib")))
-  heat_map(x[!is.calib], "Sample ID", asqr = NA)
+if (any(is.calib <- x %q% c(Type = "Calib"))) {
+  x <- x[!is.calib]
+  heat_map(x, "Sample ID", asqr = NA)
+}
 
+
+metadata(x) <- Strain ~ sub("^([^-]+-)+", "", `Sample ID`)
+
+
+#' # Create and plot principal coordinates
+
+xpr <- prcomp(extract(x, "Strain"))
+biplot(xpr)
+
+#' Remove deviating measurement.
+xpr <- prcomp(extract(x[~ Strain != "SAGRA1"], "Strain"))
+biplot(xpr)
 

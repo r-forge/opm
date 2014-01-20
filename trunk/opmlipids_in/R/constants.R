@@ -23,7 +23,7 @@ FAMES <- "FAMES"
 DEFAULT_PLATE_TYPE_SETTINGS <- list(
   na.yields = 0, # replacement of NA values resulting when creating matrix
   file.entry = "OLIF", # name of input-file entry in the metadata
-  char.group = "fatty acid",
+  char.group = "Fatty acids",
   tolerance = 0.1, # used when checking whether MIDI results add up to 100%
   value.col = "VALUE", # special column within the measurements
   row.names = "_ROWNAMES" # for YAML input/output

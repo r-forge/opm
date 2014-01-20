@@ -66,6 +66,7 @@ superset
 taxon
 tuberosum
 unary
+urealyticum
 versa
 whitespace
 wildcard

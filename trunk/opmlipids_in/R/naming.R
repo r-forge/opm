@@ -4,9 +4,6 @@
 ################################################################################
 
 
-setOldClass(c("FAMES_Listing", "OPMD_Listing"))
-
-
 #' Listing of measurements
 #'
 #' Create a textual listing of the measurements suitable for, e.g., reports in
@@ -20,16 +17,48 @@ setOldClass(c("FAMES_Listing", "OPMD_Listing"))
 #'   produced.
 #' @param digits Numeric scalar indicating the number of decimal places in the
 #'   output.
-#' @return Character vector with one element per group as defined by
-#'   \code{as.groups}; an object of the class \code{FAMES_Listing}.
+#' @return Character matrix with one row per group as defined by
+#'   \code{as.groups}, one column, and additional attributes. The class is
+#'   \code{FAMES_Listing}, which inherits from \code{OPMS_Listing} from the
+#'   \pkg{opm} package.
 #' @export
 #' @keywords attribute character
 #' @family naming-functions
 #' @examples
-#' ## TODO
+#' x <- c(DSM_44549, DSM_7109)
+#' metadata(x) <- Strain ~ sub("C-", "-", sub("[(].+", "", `Sample ID`))
+#' (y <- listing(x, "Strain"))
+#' stopifnot(inherits(y, "FAMES_Listing"))
+#' (z <- listing(x, "Strain", cutoff = 5)) # report only on frequent ones
+#' stopifnot(nchar(z) < nchar(y))
+#' (z <- listing(x, "Strain", html = TRUE))
+#' stopifnot(nchar(z) > nchar(y))
+#' write(phylo_data(z), file = "") # create complete HTML document
 #'
 setMethod("listing", FAMES, function(x, as.groups, cutoff = 0, html = FALSE,
     digits = 1L) {
+
+  format_for_single_fa <- function(digits, html) {
+    fmt <- sprintf("%%.%if", digits)
+    c(fmt, paste(fmt, if (html)
+        "&plusmn;"
+      else
+        "+/-", fmt))
+  }
+
+  format_for_all_fa <- function(char.group, digits, html, cutoff) {
+    if (identical(cutoff, -Inf)) {
+      fmt <- tolower(char.group)
+    } else {
+      fmt <- sprintf("principal %%s (%%s %%.%if %%%%%%%%)", digits)
+      fmt <- sprintf(fmt, tolower(char.group), if (html)
+          "&gt;"
+        else
+          ">", cutoff)
+    }
+    paste("The", fmt, "of %s were %s.")
+  }
+
   to_text <- function(x, cutoff, fmt) {
     result <- colMeans(x)
     result <- result[ok <- result > cutoff]
@@ -42,26 +71,25 @@ setMethod("listing", FAMES, function(x, as.groups, cutoff = 0, html = FALSE,
     }
     listing(result, style = "sentence", prepend = "%s (%s %%)")
   }
-  #LL(html, cutoff, digits)
+
+  LL(html, cutoff, digits)
   if (!length(as.groups))
     as.groups <- TRUE
   grps <- as.factor(extract_columns(x, as.groups, TRUE, dups = "ignore"))
+  char.group <- get_for(plate_type(x), "char.group")
   x <- as(x, "matrix")
   if (html)
     colnames(x) <- fs_to_html(colnames(x))
   grps <- split.default(seq_len(nrow(x)), grps)
-  fmt <- c(sprintf("%%.%if", digits), "")
-  fmt[2L] <- paste(fmt[1L], if (html)
-      "&plusmn;"
-    else
-      "+/-", fmt[1L])
+  fmt <- format_for_single_fa(digits, html)
   x <- vapply(grps, function(i) to_text(x[i, , drop = FALSE], cutoff, fmt), "")
-  fmt <- if (missing(cutoff) || identical(cutoff, -Inf))
-      "The fatty acids of %s were %s."
+  fmt <- format_for_all_fa(char.group, digits, html, if (missing(cutoff))
+      -Inf
     else
-      "The major fatty acids of %s were %s."
+      cutoff)
   x <- structure(sprintf(fmt, names(x), x), names = names(x))
-  structure(x, class = c("FAMES_Listing", "OPMD_Listing"), html = html,
+  x <- matrix(x, length(x), 1L, FALSE, list(names(x), char.group))
+  structure(x, class = c("FAMES_Listing", "OPMS_Listing"), html = html,
     cutoff = cutoff)
 }, sealed = SEALED)
 
@@ -128,10 +156,9 @@ norm_fa.matrix <- function(x, ...) {
 #'
 fs_to_html <- function(x) {
   x <- safe_labels(x, "html")
-  gsub("(?<=\\bC)(\\d+:\\d+)\\b", "<sub>\\1</sub>", x, FALSE, TRUE)
+  gsub("(?<=\\bC)(\\d+:\\d+\\b[^/]*)", "<sub>\\1</sub>", x, FALSE, TRUE)
 }
 
 
 ################################################################################
-
 
