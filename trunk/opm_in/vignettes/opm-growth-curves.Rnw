@@ -347,8 +347,13 @@ head(tecan)
 
 %% END FROZEN SECTION
 
-This file was output by a \rcsmark{[Lea, please enter the name]} instrument as distributed by the TECAN corporation.
-After recording the data, the \rcsmark{[Lea, please enter the name]} software provided by TECAN generated such as file \textit{via} \rcsmark{[Lea, please enter the procedure]}.
+This file was output by an Infinite\textregistered \ 200 PRO 
+%\rcsmark{[Lea, please enter the name]} 
+instrument as distributed by the TECAN corporation.
+After recording the data, the Magellan\textsuperscript{TM}
+%\rcsmark{[Lea, please enter the name]} 
+software provided by TECAN generated such as file \textit{via} the ``save as excel'' or the ``save as .asc'' option in the ``edit'' menu.
+%\rcsmark{[Lea, please enter the procedure]}.
 
 The resulting format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}:
 
@@ -359,12 +364,14 @@ tecan
 @
 
 Note that we have to refer to the previously registered plate type, ``growth''.
-The \code{position} argument is important for identifying each plate if several plates of this plate type are to be dealt with.
+If several plates of this plate type are to be dealt with, the \code{position} argument is important for identifying each plate.
 The format of the \code{position} entry can, in principle, be arbitrarily selected by the user, but the shown format is the recommended one, i.e. an integer followed by a single letter.
 The optional \code{interval} argument provides the time interval between two consecutive measurements.
 Ideally, it is provided in hours.
-Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
+Time series with irregular intervals can be entered with the same argument (by directly providing each time point). 
+Please, see also the manual for further details on the usage of this argument.
 \rcscom{[Lea, please check whether this is the correct interval argument for these data.]}
+%
 
 The generated \proglang{OPM} object can now be split according to the repetition structure of the wells, and metadata can be added that describe each resulting plate:
 \rcscom{[Lea, please enter the correct strain designations in the code snippet for assigning metadata.]}
@@ -385,14 +392,14 @@ For instance, the expected maximum for \ac{PM} data can seldom be used for delim
 
 <<label=potato-growth-dummy, eval=FALSE>>=
 xy_plot(potato.fm, theor.max = FALSE, rcr = 1, include = "Genotype",
-  main = list(in.parens = FALSE), ylab = "Mass [g]", neg.ctrl = FALSE)
+  main = list(in.parens = FALSE), ylab = "Fresh cell mass [mg]", neg.ctrl = FALSE)
 @
 
 \begin{figure}
 \centering
 <<label=potato-growth-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
 xy_plot(potato.fm, theor.max = FALSE, rcr = 1, include = "Genotype",
-  main = list(in.parens = FALSE), ylab = "Mass [g]", neg.ctrl = FALSE)
+  main = list(in.parens = FALSE), ylab = "Fresh cell mass [mg]", neg.ctrl = FALSE)
 @
 \caption{
 \label{fig:potato_xy_plot}
@@ -406,18 +413,18 @@ It also indicates that the stresses impair growth but that the genetically modif
 The result is shown in Figure~\ref{fig:potato_xy_plot}.
 The TECAN data (which contain a negative control) can be visualised in the same way as the potato data, yielding Figure~\ref{fig:growth_xy_plot}.
 Note the \code{rm.num} argument, which causes the removal of the numbering from the end of the full well names (which is not needed any more after applying the \code{split} function as described in Section~\ref{tecan-input}):
-\rcsmark{[Lea, please enter an appropriate y-axis description for the E. coli plot.]}
+%\rcsmark{[Lea, please enter an appropriate y-axis description for the E. coli plot.]}
 
 <<label=xy-plot-coli-dummy, eval=FALSE, echo=TRUE>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
-  main = list(in.parens = FALSE), ylab = "Value", rm.num = TRUE)
+  main = list(in.parens = FALSE), ylab = "OD at 590nm", rm.num = TRUE)
 @
 
 \begin{figure}
 \centering
 <<label=xy-plot-coli-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
-  main = list(in.parens = FALSE), ylab = "Value", rm.num = TRUE)
+  main = list(in.parens = FALSE), ylab = "OD at 590nm", rm.num = TRUE)
 @
 \caption{
 \label{fig:growth_xy_plot}
