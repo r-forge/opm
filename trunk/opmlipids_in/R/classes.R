@@ -27,12 +27,16 @@
 #' hence, has all its methods. \acronym{FAMES} inherits from \code{WMDS} and,
 #' hence, has all its methods.
 #'
-#' The coercion of the  two classes to a list (and vice versa) is only for
-#' expert users and relies on a mapping between slot names and keys in the list,
-#' i.e. the list must be appropriately named. For instance, this is the
-#' mechanism when reading from and writing to \acronym{YAML}, see \code{to_yaml}
-#' from the \pkg{opm} package (both classes inherit from \code{YAML_VIA_LIST}
-#' and have its \code{to_yaml} method).
+#' The coercion of the two classes to a list (and vice versa) is only for expert
+#' users and relies on a mapping between slot names and keys in the list, i.e.
+#' the list must be appropriately named. For instance, this is the mechanism
+#' when reading from and writing to \acronym{YAML}, see \code{to_yaml} from the
+#' \pkg{opm} package (both classes inherit from \code{YAML_VIA_LIST} and have
+#' its \code{to_yaml} method).
+#'
+#' The behaviour of \acronym{FAMES} objects with a certain
+#' \code{\link{plate_type}} can be specified in detail by the user, see
+#' \code{\link{oli_opt}}.
 #'
 #' @examples
 #'
