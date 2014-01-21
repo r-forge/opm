@@ -40,12 +40,15 @@
 #'   \sQuote{a} and \sQuote{e} within substrate names should be converted to the
 #'   corresponding Greek letters. This is done after the cleaning step, if any.
 #' @param css.file Character vector indicating the name of one to several
-#'   \acronym{CSS} files to link. Empty strings and empty vectors are ignored.
-#'   It is no error if the file does not exist, but the page will then probably
-#'   not be displayed as intended.
+#'   \acronym{CSS} files to link or embed. Empty strings and empty vectors are
+#'   ignored. If \code{embed.css} is \code{FALSE} it is no error if the file
+#'   does not exist, but the page will then probably not be displayed as
+#'   intended.
 #'
-#'   Under Windows it is recommended to convert a file name \code{f} beforehand
-#'   using \code{normalizePath(f, winslash = "/")}.
+#'   Under Windows it is recommended to convert a file name \code{f} using
+#'   \code{normalizePath(f, winslash = "/")} before linking it.
+#' @param embed.css Logical scalar indicating whether or not \acronym{CSS} files
+#'   shall be embedded, not linked.
 #' @param ... Optional other arguments available for inserting user-defined
 #'   \acronym{HTML} content. Currently the following ones (in their order of
 #'   insertion) are not ignored, and can even be provided several times:
@@ -117,7 +120,8 @@ html_args <- function(
     states.start = "Symbols: ", legend.dot = TRUE,
     legend.sep.1 = ", ", legend.sep.2 = "; ",
     table.summary = "character matrix", no.html = TRUE,
-    greek.letters = TRUE, css.file = opm_opt("css.file"), ...) {
+    greek.letters = TRUE, css.file = opm_opt("css.file"),
+    embed.css = FALSE, ...) {
   args <- as.list(match.call())[-1L]
   defaults <- formals()[setdiff(names(formals()), c(names(args), "..."))]
   lapply(c(defaults, args), eval)
@@ -533,7 +537,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
       HTML_DOCTYPE,
       "<html>",
       html_head(title, html.args$css.file,
-        html.args[names(html.args) == "meta"]),
+        html.args[names(html.args) == "meta"], html.args$embed.css),
       "<body>",
       headline(html.args[names(html.args) == "headline"], title),
       user_sections(html.args[names(html.args) == "prepend"]),
@@ -939,7 +943,7 @@ setMethod("phylo_data", "OPMD_Listing", function(object,
     paste0(opm_string(version = TRUE), collapse = " version "))
   attr(head, opm_string()) <- TRUE
   head <- html_head(head, html.args$css.file,
-    html.args[names(html.args) == "meta"])
+    html.args[names(html.args) == "meta"], html.args$embed.css)
   x <- c(HTML_DOCTYPE, "<html>", head, "<body>", unname(object),
     "</body>", "</html>")
   if (L(run.tidy))
@@ -963,7 +967,7 @@ setMethod("phylo_data", "OPMS_Listing", function(object,
     paste0(opm_string(version = TRUE), collapse = " version "))
   attr(head, opm_string()) <- TRUE
   head <- html_head(head, html.args$css.file,
-    html.args[names(html.args) == "meta"])
+    html.args[names(html.args) == "meta"], html.args$embed.css)
   x <- apply(object, 1L, paste, collapse = "\n")
   x <- as.vector(rbind(prepare_headlines(names(x)), x))
   x <- c(HTML_DOCTYPE, "<html>", head, "<body>", x, "</body>", "</html>")

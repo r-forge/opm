@@ -983,8 +983,10 @@ add_in_parens <- function(str.1, str.2, max = 1000L, append = ".",
 #'   document. Must contain an attribute called as returned by
 #'   \code{\link{opm_string}}.
 #' @param css Character vector containing the names of \acronym{CSS} files to
-#'   link.
+#'   link or embed.
 #' @param meta Character vector defining additional meta tags.
+#' @param emebed Logical scalar indicating whether \acronym{CSS} shall be
+#'   embedded (not linked).
 #' @param ... Optional arguments (for \code{single_tag}, named arguments with
 #'   \acronym{HTML} tga attributes).
 #' @return Character scalar or vector.
@@ -1028,10 +1030,12 @@ single_tag <- function(x, ...) {
 #' @rdname list2html
 #' @keywords internal
 #'
-html_head <- function(title, css, meta) {
+html_head <- function(title, css, meta, embed) {
+
   html_comment <- function(x) {
     safe_labels(x, "html", comment = TRUE, enclose = FALSE)
   }
+
   if (length(title)) {
     from.opm <- attr(title, opm_string())
     # Tidy accepts only a single title entry
@@ -1040,21 +1044,31 @@ html_head <- function(title, css, meta) {
       title <- c(html_comment("user-defined title"), title)
   } else
     title <- NULL
-  if (length(css <- css[nzchar(css)])) {
-    is.abs.path <- grepl("^(/|[a-zA-Z]:)", css, FALSE, TRUE)
-    css[is.abs.path] <- sprintf("file://%s", css[is.abs.path])
-    css <- vapply(css, function(y) {
-      single_tag("link", rel = "stylesheet", type = "text/css", href = y)
-    }, "")
-    css <- c(html_comment("user-defined CSS file(s)"), unname(css))
-  } else
+
+  if (length(css <- css[nzchar(css)]))
+    if (embed) {
+      x <- lapply(css, readLines, warn = FALSE)
+      css <- html_comment(paste("CSS from user-defined file", css))
+      css <- unlist(mapply(c, css, x, MoreArgs = list(""), SIMPLIFY = FALSE,
+        USE.NAMES = FALSE), FALSE, FALSE)
+    } else {
+      is.abs.path <- grepl("^(/|[a-zA-Z]:)", css, FALSE, TRUE)
+      css[is.abs.path] <- sprintf("file://%s", css[is.abs.path])
+      css <- vapply(css, function(y) {
+        single_tag("link", rel = "stylesheet", type = "text/css", href = y)
+      }, "")
+      css <- c(html_comment("user-defined CSS file(s)"), unname(css))
+    }
+  else
     css <- NULL
+
   generator <- single_tag("meta", name = "generator",
     content = paste0(opm_string(version = TRUE), collapse = " version "))
+
   # see http://www.w3.org/TR/NOTE-datetime
-  # but %s appears to be affected by a bug in R 2.15.2
   time <- format(Sys.time(), "%Y-%M-%dT%H:%M:%S%z")
   time <- single_tag("meta", name = "date", content = time)
+
   if (length(meta)) {
     meta <- vapply(meta, function(y) {
       if (is.null(names(y)))
@@ -1064,6 +1078,7 @@ html_head <- function(title, css, meta) {
     meta <- c(html_comment("user-defined metadata"), unname(meta))
   } else
     meta <- NULL
+
   c("<head>", title, generator, time, meta, css, "</head>")
 }
 
