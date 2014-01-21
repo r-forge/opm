@@ -55,6 +55,10 @@ setOldClass("RODBC")
 #'   plates from \code{vaas_4} have already been inserted. If errors occur, it
 #'   is up to the user to clean up the data base (as far as necessary).
 #'
+#'   Note that the deletion mechanism is based on \code{ON DELETE CASCADE}. To
+#'   enable this in \code{SQLite}, \code{PRAGMA foreign_keys = ON;} has to be
+#'   called each time a database is opened.
+#'
 #' @return
 #'   \code{opm_dbget} returns an \code{\link{OPMX}} object or \code{NULL}.
 #'
@@ -295,10 +299,13 @@ setMethod("opm_dbcheck", "ANY", function(conn, metadata = NULL,
       metadata(x) <- metadata
     else
       stop("'metadata' must be empty or a data frame")
-  result <- c(insert = NA, receive = NA, clear = NA, compare = NA)
+  result <- c(last1 = NA, insert = NA, receive = NA, clear = NA, compare = NA,
+    last2 = NA, samelast = NA)
   storage.mode(result) <- "character"
   step <- 0L
   tryCatch({
+    last1 <- opm_dbnext(2L, conn)
+    result[[step <- step + 1L]] <- "ok"
     ids <- opm_dbput(x, conn)
     result[[step <- step + 1L]] <- "ok"
     y <- opm_dbget(ids, conn)
@@ -308,6 +315,10 @@ setMethod("opm_dbcheck", "ANY", function(conn, metadata = NULL,
     cmp <- sapply(seq_along(x), function(i) slots_equal(y[i], x[i]))
     if (!is.logical(cmp))
       stop(paste0(cmp, collapse = " / "))
+    result[[step <- step + 1L]] <- "ok"
+    last2 <- opm_dbnext(2L, conn)
+    result[[step <- step + 1L]] <- "ok"
+    stopifnot(last1 == last2)
     result[[step <- step + 1L]] <- "ok"
   }, error = function(e) result[[step + 1L]] <<- conditionMessage(e))
   result

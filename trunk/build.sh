@@ -1494,33 +1494,6 @@ ____EOF
 ################################################################################
 
 
-## Run code from the 'staticdocs' package to create HTML documentation. Does not
-## yield fully convincing results yet but 'staticdocs' is work in progress.
-##
-#run_staticdocs()
-#{
-#  local pkg
-#  local outdir
-#  for pkg; do
-#    if [ ! -d "$pkg" ]; then
-#      echo "WARNING: directory '$pkg' does not exist -- skipped" >&2
-#      continue
-#    fi
-#    outdir=${pkg#/}_html
-#    mkdir -pv "$outdir"
-#    [ -d "$pkg/demo" ] && rm -rv "$pkg/demo"
-#    mkdir -pv "$pkg/inst/staticdocs"
-#    R --vanilla --interactive <<-____EOF
-#	staticdocs::build_package("$pkg", "$outdir")
-#	quit("no")
-#____EOF
-#  done
-#}
-
-
-################################################################################
-
-
 # Reduce the Rnw files to stubs. Needed if the original Rnw files cannot be
 # copied in the pkg directory (because they should only be checked locally).
 #
@@ -1667,7 +1640,8 @@ case $RUNNING_MODE in
 	  rout    Show results of the examples, if any, for given function names.
 	  space   Remove trailing whitespace from all R and Rnw code files found.
 	  spell   Check spelling in the vignette files (see below for the Rd files).
-	  sql     SQL-based tests. Call '$0 sql -h' for a description.
+	  sql1    SQL-based tests. Call '$0 sql -h' for a description.
+	  sql2    Like sql1, but not only the SQL code, also the associated R code.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
 	  time    Show the timings of the last examples, if any, in order.
@@ -1733,10 +1707,6 @@ ____EOF
     show_example_results "$@"
     exit $?
   ;;
-#  sta )
-#    run_staticdocs opm opmdata pkgutils
-#    exit $?
-#  ;;
   space )
     remove_trailing_whitespace
     exit $?
@@ -1746,7 +1716,12 @@ ____EOF
     spellcheck_vignettes opm_in
     exit $?
   ;;
-  sql )
+  sql1 )
+    set -- "$@" -- `find opm_in -type f -iname '*.sql' -exec ls \{\} +`
+    test_sql "$@"
+    exit $?
+  ;;
+  sql2 )
     set -- "$@" -- `find opm_in -type f -iname '*.sql' -exec ls \{\} +`
     test_sql "$@" && test_sql_demos
     exit $?
