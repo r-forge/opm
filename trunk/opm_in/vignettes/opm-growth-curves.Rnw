@@ -347,11 +347,11 @@ head(tecan)
 
 %% END FROZEN SECTION
 
-This file was output by an Infinite\textregistered \ 200 PRO 
-%\rcsmark{[Lea, please enter the name]} 
+This file was output by an Infinite\textregistered \ 200 PRO
+%\rcsmark{[Lea, please enter the name]}
 instrument as distributed by the TECAN corporation.
 After recording the data, the Magellan\textsuperscript{TM}
-%\rcsmark{[Lea, please enter the name]} 
+%\rcsmark{[Lea, please enter the name]}
 software provided by TECAN generated such as file \textit{via} the ``save as excel'' or the ``save as .asc'' option in the ``edit'' menu.
 %\rcsmark{[Lea, please enter the procedure]}.
 
@@ -368,7 +368,7 @@ If several plates of this plate type are to be dealt with, the \code{position} a
 The format of the \code{position} entry can, in principle, be arbitrarily selected by the user, but the shown format is the recommended one, i.e. an integer followed by a single letter.
 The optional \code{interval} argument provides the time interval between two consecutive measurements.
 Ideally, it is provided in hours.
-Time series with irregular intervals can be entered with the same argument (by directly providing each time point). 
+Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
 Please, see also the manual for further details on the usage of this argument.
 \rcscom{[Lea, please check whether this is the correct interval argument for these data.]}
 %
