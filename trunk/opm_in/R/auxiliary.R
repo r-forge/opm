@@ -1049,8 +1049,9 @@ html_head <- function(title, css, meta, embed) {
     if (embed) {
       x <- lapply(css, readLines, warn = FALSE)
       css <- html_comment(paste("CSS from user-defined file", css))
-      css <- unlist(mapply(c, css, x, MoreArgs = list(""), SIMPLIFY = FALSE,
-        USE.NAMES = FALSE), FALSE, FALSE)
+      css <- mapply(c, css, single_tag("style", type = "text/css"), x,
+        MoreArgs = list("</style>", ""), SIMPLIFY = FALSE, USE.NAMES = FALSE)
+      css <- unlist(css, FALSE, FALSE)
     } else {
       is.abs.path <- grepl("^(/|[a-zA-Z]:)", css, FALSE, TRUE)
       css[is.abs.path] <- sprintf("file://%s", css[is.abs.path])

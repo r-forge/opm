@@ -2249,7 +2249,7 @@ See \code{?do\_disc}.
 \subsubsection[Discretisation and export of tables]{Discretisation and export of tables}\label{application discrete-table}
 
 The \ac{HTML} created by \pkg{opm} deliberately contains no formatting instructions.
-Rather, it is possible (and recommended) to link it to a \ac{CSS} file.
+Rather, it is possible (and recommended) to link it to a \ac{CSS} file or embed such a file.
 \ac{CSS} is a style-sheet language used for defining the formatting of a document written in a markup language such as \ac{HTML}.
 
 As the generated \ac{HTML} is richly annotated with ``class'' attributes, which not only provide information on the structure of the file but also on the depicted data, very specific formatting can be obtained just by modifying one to several associated \ac{CSS} files.
@@ -2268,19 +2268,23 @@ vaas.html <- phylo_data(vaas.repl, format = "html",
 
 A practical problem is that the resulting \ac{HTML} file is linked to its \ac{CSS} file with a fixed path.
 The formatting would thus get lost once the \ac{HTML} file was copied to another system, without a warning.
-So users might want to copy the predefined \ac{CSS} file to the working directory and set it as default:
+So users might want to copy the predefined \ac{CSS} file to the working directory and set it as default, or embed the \ac{CSS} file directly into \ac{HTML}:
 
 <<label=wd-css-file, results=hide>>=
-file.copy(opm_files("css")[[1]], "opm_styles.css", overwrite = TRUE)
-opm_opt(css.file = "opm_styles.css")
+vaas.html <- phylo_data(vaas.repl, format = "html",
+  html.args = html_args(embed.css = TRUE),
+  as.labels = list("Species", "Strain"), outfile = "vaas.html")
+## the alternative: copying the file into the working directory
+# file.copy(opm_files("css")[[1]], "opm_styles.css", overwrite = TRUE)
+# opm_opt(css.file = "opm_styles.css")
 @
 
-The generated \ac{HTML} would subsequently be linked to this file, and the two files could be distributed together.
+The generated \ac{HTML} would subsequently be linked to this file, and the two files could be distributed together, or the \ac{CSS} from the file would directly be embedded in the \ac{HTML}.
 The same mechanism works for text generation using \code{listing} (see \ref{application discrete-text}).
 In addition to the default \ac{CSS} file, a complete list of the settings that can be modified with this function is available \textit{via} \code{?opm\_opt}.
 
 Users who want to define their own \ac{CSS} files can start with modifying the file shipped with \pkg{opm}.
-Microsoft Windows users should consider that the path to the file must be provided in \proglang{UNIX} style, as obtained, e.g., using \code{normalizePath(x, winslash = "/")} if \code{x} is the path to the file.
+Microsoft Windows users should consider that the path to the linked file must be provided in \proglang{UNIX} style, as obtained, e.g., using \code{normalizePath(x, winslash = "/")} if \code{x} is the path to the file.
 This is according to World Wide Web standards and not determined by \pkg{opm}.
 
 By default columns with measurement repetitions as specified using \code{as.labels} are joined together.
