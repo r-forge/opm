@@ -400,7 +400,7 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #'   \code{what}. If \kbd{datasets} are chosen, it usually has only an
 #'   effect if all elements of \code{x} are atomic.
 #' @param dataframe Logical scalar indicating whether a data frame should be
-#'   produced instead of a matrix
+#'   produced instead of a matrix.
 #' @param optional See \code{as.data.frame} from the \pkg{base} package.
 #' @param stringsAsFactors See \code{as.data.frame} from the \pkg{base} package.
 #' @param ... Optional arguments passed to and from other methods (if requested
