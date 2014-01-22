@@ -12,7 +12,8 @@
 #' Return the measurements, optionally only from selected wells and with or
 #' without the time points, or only the time points.
 #'
-#' @param object \code{\link{OPM}} or \code{\link{OPMS}} object.
+#' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
 #' @param i Optional character or numeric vector with name(s) or position(s) of
 #'   well(s). Wells are originally named \sQuote{A01} to \sQuote{H12} but might
 #'   have been subset beforehand. \code{i} can also be a formula, allowing for
@@ -773,7 +774,8 @@ setMethod("position", OPM, function(object) {
 #' This always returns \code{FALSE} for the \code{\link{OPM}} class, but not
 #' necessarily for its child classes.
 #'
-#' @param object \code{\link{OPM}} or \code{\link{OPMS}} object.
+#' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
 #' @param ... Optional arguments passed between the methods.
 #' @return Logical vector, one element per plate.
 #' @export
@@ -813,7 +815,8 @@ setMethod("has_disc", OPM, function(object) {
 #' Get the aggregated kinetic data or the aggregation settings used. (See
 #' \code{\link{do_aggr}} for generating aggregated data.)
 #'
-#' @param object \code{\link{OPMA}} or \code{\link{OPMS}} object.
+#' @param object \code{\link{OPMA}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
 #' @param subset Character vector. If not \code{NULL}, restrict to this or these
 #'   parameter(s). See \code{\link{param_names}} for the possible values.
 #' @param ci Logical scalar. Include the estimates of confidence intervals
@@ -994,7 +997,8 @@ setMethod("aggr_settings", MOPMX, function(object, join = NULL) {
 #' Get the discretised kinetic data or the discretisation settings used. (See
 #' \code{\link{do_disc}} for generating discretised data.)
 #'
-#' @param object \code{\link{OPMD}} or \code{\link{OPMS}} object.
+#' @param object \code{\link{OPMD}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
 #' @param full Logical scalar passed to \code{\link{wells}}. This and the
 #'   following arguments affect the names of the resulting vector.
 #' @param in.parens Logical scalar also passed to that function.
@@ -1534,10 +1538,10 @@ lapply(c(
 #' @param x Character vector, factor, list, formula, expression or
 #'   \code{\link{WMD}} object used as query. See \sQuote{Details}. \code{x} and
 #'   \code{table} can swap their places.
-#' @param table \code{\link{WMD}} or \code{\link{OPMS}} object. \code{x} and
+#' @param table \code{\link{WMD}} or \code{\link{WMDS}} object. \code{x} and
 #'   \code{table} can swap their places.
 #' @return Logical vector of the length of the \code{\link{WMD}} or
-#'   \code{\link{OPMS}} object.
+#'   \code{\link{WMDS}} object.
 #' @exportMethod "%k%"
 #' @export
 #~ @family getter-functions
@@ -1732,10 +1736,10 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #' @param x Character vector, factor, list, formula, expression or
 #'   \code{\link{WMD}} object used as query. See \sQuote{Details}. \code{x} and
 #'   \code{table} can swap their places.
-#' @param table \code{\link{WMD}} or \code{\link{OPMS}} object. \code{x} and
+#' @param table \code{\link{WMD}} or \code{\link{WMDS}} object. \code{x} and
 #'   \code{table} can swap their places.
 #' @return Logical vector of the length of the \code{\link{WMD}} or
-#'   \code{\link{OPMS}} object.
+#'   \code{\link{WMDS}} object.
 #'
 #' @details The behaviour of these methods depends on the object used as query.
 #'   \code{infix.largeq} is usually stricter than \code{infix.q}, sometimes
@@ -1768,7 +1772,7 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #'   in the context of the metadata of \code{table} and returns the result. For
 #'   the \code{\link{WMD}} method, it is up to the user to ensure that the
 #'   result is a logical scalar, but the method would succeed anyway. The
-#'   \code{\link{OPMS}} method yields an error unless each plate yields a
+#'   \code{\link{WMDS}} method yields an error unless each plate yields a
 #'   logical scalar. Symbols that are not found within the metadata are looked
 #'   up in the enclosing environment (\code{infix.q}) or only in the base
 #'   environment (\code{infix.largeq}). The former approach is less strict.

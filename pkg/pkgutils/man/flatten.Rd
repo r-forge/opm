@@ -63,7 +63,7 @@
   \code{x} are atomic.}
 
   \item{dataframe}{Logical scalar indicating whether a data
-  frame should be produced instead of a matrix}
+  frame should be produced instead of a matrix.}
 
   \item{optional}{See \code{as.data.frame} from the
   \pkg{base} package.}

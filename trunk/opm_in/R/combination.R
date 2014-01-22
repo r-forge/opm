@@ -274,16 +274,18 @@ setMethod("$<-", c(MOPMX, "NULL"), function(x, name, value) {
 #'
 #' Combine a \code{\link{OPM}} or \code{\link{OPMS}} object with other objects.
 #'
-#' @param x \code{\link{OPMX}} object.
+#' @param x \code{\link{OPMX}} or \code{\link{MOPMX}} object.
 #' @param ... Other \R objects.
 #' @param recursive Logical scalar. See \code{c} from the \pkg{base} package.
 #' @param e1 \code{\link{OPM}} or \code{\link{OPMS}} object.
 #' @param e2 \code{\link{OPM}} or \code{\link{OPMS}} object, or list.
 #' @export
 #' @return
-#'   \code{c} creates an \code{\link{OPMS}} object if possible, otherwise a
-#'   list, or an \code{\link{OPM}} object (if \code{\dots} is not given and
-#'   \code{x} is such an object).
+#'   The \code{\link{OPMX}} method of \code{c} creates an \code{\link{OPMS}}
+#'   object if possible, otherwise a list, or an \code{\link{OPM}} object (if
+#'   \code{\dots} is not given and \code{x} is such an object). Similarly, the
+#'   \code{\link{MOPMX}} method of \code{c} creates a \code{\link{MOPMX}} object
+#'   is possible and a list otherwise.
 #'
 #'   If successful, \code{+} yields an \code{\link{OPMS}} object that contains
 #'   the plates from both \code{e1} and \code{e2}, but it raises an error if the

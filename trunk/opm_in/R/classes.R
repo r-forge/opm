@@ -39,6 +39,8 @@
 #' shares many methods with \acronym{WMD} but they often return a collection
 #' of the return values of the according \acronym{WMD} method.
 #'
+#' \acronym{WMDX} is the class union of \acronym{WMD} and \acronym{WMDS}.
+#'
 #' \acronym{FOE} is an acronym for \sQuote{formula or expression}.
 #' This is a virtual class facilitating the implementation of functionality
 #' for both formulae and expressions. Methods defined for objects from the
@@ -88,6 +90,18 @@ setClass(WMDS,
   contains = "VIRTUAL",
   sealed = SEALED
 )
+
+
+#' @rdname WMD
+#' @name WMDX
+#' @aliases WMDX-class
+#' @docType class
+#' @exportClass WMDX
+#'
+NULL
+
+setClassUnion(WMDX, c(WMD, WMDS))
+
 
 #' @rdname WMD
 #' @name FOE

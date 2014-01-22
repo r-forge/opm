@@ -813,8 +813,21 @@ read_opm <- function(names, convert = c("try", "no", "yes", "sep", "grp"),
     stop("'gen.iii' must either be logical or character scalar")
   )
   case(length(result),
-    switch(convert, no = result, NULL),
-    switch(convert, no = result, result[[1L]]),
+    case(convert,
+      no =,
+      grp = new(MOPMX),
+      sep = list(),
+      yes =,
+      try = NULL
+    ),
+    case(convert,
+      no = new(MOPMX, result),
+      grp = new(MOPMX, structure(result, names = plate_type(result[[1L]]))),
+      sep = structure(list(new(MOPMX, result)),
+        names = plate_type(result[[1L]])),
+      yes =,
+      try = result[[1L]]
+    ),
     case(convert,
       no = new(MOPMX, result),
       yes = new(OPMS, plates = result),
@@ -916,9 +929,8 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
 #' create a data frame holding potential \code{\link{OPM}} or \code{\link{OPMS}}
 #' object metadata.
 #'
-#' @param object Character vector or \code{\link{OPM}} or \code{\link{OPMS}}
-#'   object. The \code{\link{OPM}} and \code{\link{OPMS}} methods collect a
-#'   data frame from their input object.
+#' @param object Character vector or \code{\link{OPM}}, \code{\link{OPMS}}
+#'   or \code{\link{MOPMX}} object.
 #'
 #'   If a character vector is provided to \code{\link{collect_template}}, it
 #'   acts like the \code{names} argument of \code{\link{read_opm}}. That is, if
@@ -926,7 +938,9 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
 #'   and \acronym{YAML} files it contains (unless restrictions with patterns are
 #'   made). One can also provide file names, or a mixture of file and directory
 #'   names. Regarding the supported input file formats, see
-#'   \code{\link{read_single_opm}}.
+#'   \code{\link{read_single_opm}}. The \code{\link{OPM}}, \code{\link{OPMS}}
+#'   and \code{\link{MOPMX}} methods collect a data frame from their input
+#'   object.
 #'
 #'   \code{to_metadata} needs the name of an input file (unnamed character
 #'   scalar), or any object convertible to a data frame. Might also be
