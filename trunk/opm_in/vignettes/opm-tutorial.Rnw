@@ -224,8 +224,6 @@ This is the tutorial of \pkg{opm} in the version of \today{}.
 % Remember: repetition causes a huge maintenance problem.
 
 Readers who want to jump right into examples for applying \pkg{opm} to their data will find an overview of what the package can do for them in Figure~\ref{fig:work_flow}.
-Neither basic R syntax nor details of data structures (except a few examples) will be discussed in this tutorial.
-For those request, we refer to the manuals given on the R homepage \url{http://cran.r-project.org/manuals.html}.
 Next, Figure~\ref{fig:overview} should be looked at, as it lists the names of the functions that can be used in each step of the possible \pkg{opm} work flows.
 Examples for each step would then be found in the according subsections of Section~\ref{application}.
 An overview of these sections is provided in Section~\ref{methods overview}.
@@ -243,6 +241,9 @@ All web resources regarding \pkg{opm} are linked on its main website \url{http:/
 Note that details on how substrate information can be processed by \pkg{opm} are found in a separate vignette, ``Working with substrate information in \pkg{opm}'', which is also available together with the package.
 How to process growth-curve data and user-defined \ac{PM} plates is described in the vignette ``Analysing growth curves and other user-defined data in \pkg{opm}'' that comes with the package, too.
 Finally, do not overlook that there is an \pkg{opm} manual that describes all functions and arguments in much greater detail than possible in any if the vignettes.
+
+Neither basic \proglang{R} syntax nor details of basic data structures (except for a few examples) will be discussed in this tutorial.
+To this end, we refer to the manuals given on the \proglang{R} homepage (\url{http://cran.r-project.org/manuals.html}).
 
 
 \subsection[Scientific introduction]{Scientific introduction}\label{scientific introduction}

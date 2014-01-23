@@ -348,7 +348,7 @@ head(tecan)
 %% END FROZEN SECTION
 
 This file was output by an Infinite\textregistered \ F200 PRO instrument as distributed by the TECAN corporation.
-After data recording, the Magellan\textsuperscript{TM} software generates such as file \textit{via} the ``save as excel'' or the ``save as \code{.asc}'' option in the ``edit'' menu.
+After data recording, the Magellan\textsuperscript{TM} software generates such as file \textit{via} the ``save as \code{.asc}'' option in the ``edit'' menu.
 
 The resulting format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}:
 
@@ -387,15 +387,15 @@ For instance, the expected maximum for \ac{PM} data can seldom be used for delim
 
 <<label=potato-growth-dummy, eval=FALSE>>=
 xy_plot(potato.fm, theor.max = FALSE, rcr = 1, include = "Genotype",
-  main = list(in.parens = FALSE), ylab = "Fresh cell mass [mg]", 
+  main = list(in.parens = FALSE), ylab = "Fresh cell mass [mg]",
   neg.ctrl = FALSE)
 @
 
 \begin{figure}
 \centering
 <<label=potato-growth-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
-xy_plot(potato.fm, theor.max = FALSE, rcr = 1, 
-  include = "Genotype", main = list(in.parens = FALSE), 
+xy_plot(potato.fm, theor.max = FALSE, rcr = 1,
+  include = "Genotype", main = list(in.parens = FALSE),
   ylab = "Fresh cell mass [mg]", neg.ctrl = FALSE)
 @
 \caption{
