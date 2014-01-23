@@ -224,6 +224,8 @@ This is the tutorial of \pkg{opm} in the version of \today{}.
 % Remember: repetition causes a huge maintenance problem.
 
 Readers who want to jump right into examples for applying \pkg{opm} to their data will find an overview of what the package can do for them in Figure~\ref{fig:work_flow}.
+Neither basic R syntax nor details of data structures (except a few examples) will be discussed in this tutorial.
+For those request, we refer to the manuals given on the R homepage \url{http://cran.r-project.org/manuals.html}.
 Next, Figure~\ref{fig:overview} should be looked at, as it lists the names of the functions that can be used in each step of the possible \pkg{opm} work flows.
 Examples for each step would then be found in the according subsections of Section~\ref{application}.
 An overview of these sections is provided in Section~\ref{methods overview}.

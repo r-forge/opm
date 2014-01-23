@@ -29,6 +29,7 @@ Trehalose
 Tryptophan
 Tukey
 aeruginosa
+asc
 bioinformaticians
 bioinformatics
 catabolism
