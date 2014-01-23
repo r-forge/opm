@@ -97,9 +97,9 @@ NULL
 #'     are five replicates per combination of \sQuote{Genotype} and
 #'     \sQuote{Treatment}.}
 #'   \item{Time}{Integer vector containing the measurement times in days.}
-#'   \item{FM}{Integer vector containing the fresh-mass measurements in 
+#'   \item{FM}{Integer vector containing the fresh-mass measurements in
 #'   milligramme.}
-#'   \item{DM}{Integer vector containing the dry-mass measurements in 
+#'   \item{DM}{Integer vector containing the dry-mass measurements in
 #'   milligramme.}
 #' }
 #' @details How to convert and analyse this data set is explained in the
