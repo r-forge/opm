@@ -345,8 +345,6 @@ tecan <- read.table(tecan.file)
 head(tecan)
 @
 
-%% END FROZEN SECTION
-
 This file was output by an Infinite\textregistered \ F200 PRO instrument as distributed by the TECAN corporation.
 After data recording, the Magellan\textsuperscript{TM} software generates such as file \textit{via} the ``save as \code{.asc}'' option in the ``edit'' menu.
 
@@ -365,16 +363,14 @@ The optional \code{interval} argument provides the time interval between two con
 In the given example one measurement per hour was recorded, thus the default fits perfectly when assigning increasing integers starting at 0.
 If \code{interval} is stated explicitly, ideally, it is provided in hours.
 Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
-Please, see also the manual for further details on the usage of this argument.
+See the manual for further details on the usage of this argument.
 
 The generated \proglang{OPM} object can now be split according to the repetition structure of the wells, and metadata can be added that describe each resulting plate:
-
-%\rcscom{[Lea, please enter the correct strain designations in the code snippet for assigning metadata.]}
 
 <<label=split-tecan>>=
 tecan <- split(tecan)
 metadata(tecan) <- data.frame(Replicate = c(1, 2, 1, 2),
-  Strain = rep(c("DSM30083_T", "DSM18039_K12"), each = 2),
+  Strain = rep(c("DSM30083", "DSM18039"), each = 2),
   stringsAsFactors = FALSE)
 dim(tecan)
 @
@@ -410,7 +406,6 @@ It also indicates that the stresses impair growth but that the genetically modif
 The result is shown in Figure~\ref{fig:potato_xy_plot}.
 The TECAN data (which contain a negative control) can be visualised in the same way as the potato data, yielding Figure~\ref{fig:growth_xy_plot}.
 Note the \code{rm.num} argument, which causes the removal of the numbering from the end of the full well names (which is not needed any more after applying the \code{split} function as described in Section~\ref{tecan-input}):
-%\rcsmark{[Lea, please enter an appropriate y-axis description for the E. coli plot.]}
 
 <<label=xy-plot-coli-dummy, eval=FALSE, echo=TRUE>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
@@ -430,6 +425,9 @@ See the main tutorial for details on this kind of plotting.
 The plot indicates that one of the strains outgrows the other unless high concentrations of Glucose are applied.
 }
 \end{figure}
+
+
+%% END FROZEN SECTION
 
 
 \section{Estimating parameters from growth curves}\label{estimation}
