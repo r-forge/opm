@@ -369,12 +369,12 @@ Please, see also the manual for further details on the usage of this argument.
 
 The generated \proglang{OPM} object can now be split according to the repetition structure of the wells, and metadata can be added that describe each resulting plate:
 
-\rcscom{[Lea, please enter the correct strain designations in the code snippet for assigning metadata.]}
+%\rcscom{[Lea, please enter the correct strain designations in the code snippet for assigning metadata.]}
 
 <<label=split-tecan>>=
 tecan <- split(tecan)
 metadata(tecan) <- data.frame(Replicate = c(1, 2, 1, 2),
-  Strain = rep(c("Strain 1", "Strain 2"), each = 2),
+  Strain = rep(c("DSM30083_T", "DSM18039_K12"), each = 2),
   stringsAsFactors = FALSE)
 dim(tecan)
 @
@@ -414,14 +414,14 @@ Note the \code{rm.num} argument, which causes the removal of the numbering from 
 
 <<label=xy-plot-coli-dummy, eval=FALSE, echo=TRUE>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
-  main = list(in.parens = FALSE), ylab = "OD at 590nm", rm.num = TRUE)
+  main = list(in.parens = FALSE), ylab = "OD at 690nm", rm.num = TRUE)
 @
 
 \begin{figure}
 \centering
 <<label=xy-plot-coli-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
-  main = list(in.parens = FALSE), ylab = "OD at 590nm", rm.num = TRUE)
+  main = list(in.parens = FALSE), ylab = "OD at 690nm", rm.num = TRUE)
 @
 \caption{
 \label{fig:growth_xy_plot}
