@@ -1,4 +1,5 @@
-#' # Comparison of organisms: Does phenotypic similarity matches phylogenetic similarity? 
+#' # Comparison of organisms: Does phenotypic similarity matches phylogenetic 
+#' similarity? 
 #' 
 #' Assume you have run Phenotype MicroArray experiments for several organismns, 
 #' e.g. bacterial strains. Assume further that you have numerous metadata for 
@@ -9,7 +10,8 @@
 #' phylogenetic clusters (see the respective publication). For each of the 
 #' strains the geographic and ecological origin is known.
 #' 
-#' ### In this example we compare phenotypic similarity to phylogenetic similarity using
+#' ### In this example we compare phenotypic similarity to phylogenetic 
+#' similarity using
 #' #### * graphical approaches such as heat maps
 #' #### * bootstrapping to asses significance of phenotypic clusters
 #' #### * multiple comparison of overall AUC values across phylogenetic clades
@@ -25,10 +27,11 @@ library(opmdata)
 data(wittmann_et_al)
 
 #' For demonstration purposes, some plates are removed from the data set
-#' * see [subset()](http://www.goeker.org/opm/opm_doc/manual/subset.html) for details
+#' * see [subset()](http://www.goeker.org/opm/opm_doc/manual/subset.html) for 
+#' details
 
 wittmann_small <- subset(wittmann_et_al, 
-                         query = list(MLSTcluster = c("Ax1", "Ax2", "Ax4", "Ax6")))
+                    query = list(MLSTcluster = c("Ax1", "Ax2", "Ax4", "Ax6")))
 
 #' Check the dimensions of the data set:
 #' * see [dim()](http://www.goeker.org/opm/opm_doc/manual/dim.html) for details
@@ -39,19 +42,20 @@ dim(wittmann_small)
 #' * The row dendrogram will be coloured by the metadata informations on
 #' phylogenetic clusters "Ax1", "Ax2", "Ax4" and "Ax6"
 #' * The curve parameter "Area under the Curve" (AUC) will be used
-#' * see [heat_map()](http://www.goeker.org/opm/opm_doc/manual/heat_map.html) for details
+#' * see [heat_map()](http://www.goeker.org/opm/opm_doc/manual/heat_map.html) 
+#' for details
 #' 
 #+  fig.width = 15, fig.height = 8
 
 heat_map(wittmann_small,
-         as.labels = list("strain", "replicate", "MLSTcluster"),   # labels of the rows
-         as.groups = "MLSTcluster",                                # colors the rowside dendrogram
-         cexRow = 1.5,                                             # set the size of the row labels
-         use.fun = "gplots",                                       # heatmap function from gplots package
-         main = "Heatmap on AUC data",
-         subset = "AUC",    
-         xlab = "Well substrates on GenIII Biolog plate",
-         ylab = "strains, replicates, and their MLST cluster affiliation")
+        as.labels = list("strain", "replicate", "MLSTcluster"),
+        as.groups = "MLSTcluster",
+        cexRow = 1.5,
+        use.fun = "gplots",
+        main = "Heatmap on AUC data",
+        subset = "AUC",
+        xlab = "Well substrates on GenIII Biolog plate",
+        ylab = "strains, replicates, and their MLST cluster affiliation")
 
 #' ### Result:
 #' * Obviously the four phylogenetic clades "Ax1", "Ax2", "Ax4" and "Ax6",
@@ -63,11 +67,13 @@ heat_map(wittmann_small,
 #' 
 #' ### Are these phenotyic similarity clusters statistically robust?
 #' * We use the R package `pvclust` to test this (see the demo [pvclust()]
-#' (http://www.goeker.org/opm/opm_doc/demo/cluster-with-pvalues.html) for details).
+#' (http://www.goeker.org/opm/opm_doc/demo/cluster-with-pvalues.html) for 
+#' details).
 
 x <- t(extract(wittmann_small, list("strain", "replicate", "MLSTcluster")))
 library(pvclust)
-x.pvc <- pvclust(x, method.dist = "euclidean", method.hclust = "ward", nboot = 100)
+x.pvc <- pvclust(x, method.dist = "euclidean", method.hclust = "ward", 
+                nboot = 100)
 
 #+  fig.width = 15, fig.height = 7
 
@@ -80,14 +86,16 @@ pvrect(x.pvc, pv = "bp")
 #' * only the two replicates of strain CCUG 48135 yield significantly high
 #' bootstrap support
 #' 
-#' ### Is there any significant difference in overall AUC values across strains of the phylogenetic clades?
-#' * we apply the `multcomp` algorithm for multiple comparisons of groups using a
-#' Tukey-type contrast matrix 
+#' ### Is there any significant difference in overall AUC values across strains
+#' of the phylogenetic clades?
+#' * we apply the `multcomp` algorithm for multiple comparisons of groups using 
+#' a Tukey-type contrast matrix 
 #' * we compare AUC values across the phylogenetic clades which are identified
 #' by the metadata entry `MLSTcluster`
 #' * see the [tutorial]
 #' (http://cran.r-project.org/web/packages/opm/vignettes/opm-tutorial.pdf) or
-#' [opm_mcp()](http://www.goeker.org/opm/opm_doc/manual/opm_mcp.html)) for details.
+#' [opm_mcp()](http://www.goeker.org/opm/opm_doc/manual/opm_mcp.html)) for 
+#' details.
 
 test <- opm_mcp(wittmann_small, model = ~ MLSTcluster, m.type = "aov",
                         linfct = c(Tukey = 1))
