@@ -1,17 +1,17 @@
 #' # How can we identify substrates that yield a positive reaction?
-#' 
-#' A Phenotype MicroArray plate consists of 96 wells with up to 96 different
-#' substrates including positive and negative control. 
+#'
+#' A Phenotype Microarray plate consists of 96 wells with up to 96 different
+#' substrates including positive and negative control.
 #' The physiological reactions towards these 96 substrates may be negative,
 #' weak, or positive.
-#' 
-#' This example demonstrates how to identify substrates that yield a positive 
-#' reaction in the bacterial strain *Escherichia coli* DSM18039.
-#' 
+#'
+#' This example demonstrates how to identify substrates that yield a positive
+#' reaction in the bacterial strain *Escherichia coli* `DSM` 18039.
+#'
 #' Author: *Johannes Sikorski* and *Markus Goeker*
-#' 
-#' 
-#' 
+#'
+#'
+#'
 #' ### Load R packages and data
 
 library(opm)
@@ -22,7 +22,7 @@ data(vaas_et_al)
 #' For more details, see the respective
 #' [publication](http://dx.doi.org/10.1371%2Fjournal.pone.0034846) for details.
 
-#' ### Extract the plates data of strain *Escherichia coli* DSM18039
+#' ### Extract the plates data of strain *Escherichia coli* `DSM` 18039
 
 DSM18039 <- vaas_et_al[c(Species = "Escherichia coli", Strain = "DSM18039",
                         Experiment = "First replicate") %q% vaas_et_al]
@@ -31,21 +31,21 @@ DSM18039 <- vaas_et_al[c(Species = "Escherichia coli", Strain = "DSM18039",
 
 dim(DSM18039)
 
-#' ### Discretize the maximum height `(A)` values into positive, weak, and 
+#' ### Discretise the maximum height `(A)` values into positive, weak, and
 #' negative reactions
-#' 
-#' * The R package `opm` uses k-means partitioning to classify values into 
-#' positive, weak, and negative reactions (see 
-#' [kmeans()](http://www.goeker.org/opm/opm_doc/manual/kmeans.html) for 
+#'
+#' * The R package `opm` uses k-means partitioning to classify values into
+#' positive, weak, and negative reactions (see
+#' [kmeans()](http://www.goeker.org/opm/opm_doc/manual/kmeans.html) for
 #' details).
-#' * Discretize the A values by using 
+#' * Discretise the A values by using
 #' [do_disc()](http://www.goeker.org/opm/opm_doc/manual/do_disc.html).
 
 DSM18039 <- do_disc(DSM18039)
 
-#' ### Which wells contain substrates that yield positive reactions in all 
+#' ### Which wells contain substrates that yield positive reactions in all
 #' plates?
-#' * see [wells()](http://www.goeker.org/opm/opm_doc/manual/wells.html) for 
+#' * see [wells()](http://www.goeker.org/opm/opm_doc/manual/wells.html) for
 #' details.
 
 wells(subset(DSM18039, positive = "all"))
@@ -53,23 +53,23 @@ wells(subset(DSM18039, positive = "all"))
 #' ### Textual listing of substrates that yield positive reactions
 #' * Only substrates that yield positive reactions are listed. The output of
 #' weak or negative reactions is suppressed.
-#' * see [wells()](http://www.goeker.org/opm/opm_doc/manual/wells.html) for 
+#' * see [wells()](http://www.goeker.org/opm/opm_doc/manual/wells.html) for
 #' details.
 
 listing(subset(DSM18039, positive = "all"), ~ Strain)
 
 #' # Synopsis
-#' * The R package `opm` contains functionality to discretize any of the four
-#' aggregated parameters either using k-means partioning or user-defined 
+#' * The R package `opm` contains functionality to discretise any of the four
+#' aggregated parameters either using k-means partitioning or user-defined
 #' threshold values.
-#' * The results can be retrieved in various forms, such as names of wells 
+#' * The results can be retrieved in various forms, such as names of wells
 #' or names of substrates
 #' * Additionally the results can be exported for phylogenetic analysis
-#' * The results can be directly used for graphical display of either 
+#' * The results can be directly used for graphical display of either
 #' raw measurements or aggregated data, for example:
-#' 
-#' ### XY plot of substrates that yield positive reactions
-#' * The color coding is according to the 10 different replicates.
+#'
+#' ### X-Y plot of substrates that yield positive reactions
+#' * The colour coding is according to the 10 different replicates.
 #+ Figure1, fig.width = 12, fig.height = 12
 
 xy_plot(subset(DSM18039, positive = "all"), include = list("Plate number"),

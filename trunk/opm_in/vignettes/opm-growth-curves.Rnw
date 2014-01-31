@@ -410,7 +410,7 @@ Potato cell line growth measurements, recorded as fresh mass (left) and dry mass
 See the main tutorial for details on this kind of plotting.
 Considering the fresh weight, the plot indicates that the wild type grows better than the genetically modified cell lines under non-stress (control) conditions.
 It also indicates that the stresses impair growth but that the genetically modified cells grow better then the wild type under moderate stress conditions.
-In terms of dry mass the wild type is 
+%In terms of dry mass the wild type is
 }
 \end{figure}
 
@@ -445,9 +445,8 @@ The plot indicates that one of the strains outgrows the other unless high concen
 
 \section{Estimating parameters from growth curves}\label{estimation}
 
-The next step is the estimation of curve parameters.
-Using \code{do_aggr} is the fast and easiest option. 
-See Section~\ref*{tutorial-methods aggregating} in the main tutorial for details of aggregation methods.
+The next step is the estimation of curve parameters using \code{do_aggr}.
+See Section~\ref*{tutorial-methods aggregating} in the main tutorial for details on aggregation methods.
 For keeping this vignette comprehensive, only the subset containing the dry mass data will be analysed.
 
 <<label=agg-opm-fast, echo=TRUE>>=
