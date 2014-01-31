@@ -482,7 +482,7 @@ plot_param_diff <- function(...) {
 \begin{figure}
 \centering
 <<label=plot-opm-spline, echo=TRUE, fig=TRUE>>=
-par(mfrow=c(4,2))
+par(mfrow = c(4, 2))
 plot_param_diff(Sm = sm.tecan, Tp = tp.tecan, P = p.tecan)
 @
 \caption{
