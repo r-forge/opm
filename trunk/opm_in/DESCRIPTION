@@ -10,7 +10,7 @@ Imports: methods, lattice, parallel, boot, hwriter, plotrix,
         Ckmeans.1d.dp, pkgutils (>= 0.6.0), yaml (>= 2.1.7), splines,
         mgcv, grofit (>= 1.1), rjson (>= 0.2.12), nlme, DBI
 Suggests: optparse, gplots, opmdata (>= 0.4.0), testthat, multcomp,
-        KEGGREST, pathview, mboostDevel
+        KEGGREST, pathview, mboostDevel, gridExtra
 Description: Tools for analysing OmniLog(R) and MicroStation(TM)
         phenotype microarray (PM) data as produced by the devices
         distributed by BIOLOG Inc. as well as similar kinds of data
