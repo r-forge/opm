@@ -1,25 +1,25 @@
-#' # Comparison of organisms: Does phenotypic similarity matches phylogenetic 
-#' similarity? 
-#' 
-#' Assume you have run Phenotype MicroArray experiments for several organismns, 
-#' e.g. bacterial strains. Assume further that you have numerous metadata for 
+#' # Comparison of organisms: Does phenotypic similarity match phylogenetic
+#' similarity?
+#'
+#' Assume you have run Phenotype Microarray experiments for several organisms,
+#' e.g. bacterial strains. Assume further that you have numerous metadata for
 #' these strains, for example their genetic similarity and their geographical
 #' and ecological origins.
-#' 
-#' The data set `wittmann_et_al` contains bacterial strains from different 
-#' phylogenetic clusters (see the respective publication). For each of the 
+#'
+#' The data set `wittmann_et_al` contains bacterial strains from different
+#' phylogenetic clusters (see the respective publication). For each of the
 #' strains the geographic and ecological origin is known.
-#' 
-#' ### In this example we compare phenotypic similarity to phylogenetic 
+#'
+#' ### In this example we compare phenotypic similarity to phylogenetic
 #' similarity using
 #' #### * graphical approaches such as heat maps
 #' #### * bootstrapping to asses significance of phenotypic clusters
-#' #### * multiple comparison of overall AUC values across phylogenetic clades
-#' 
-#' 
+#' #### * multiple comparison of overall `AUC` values across phylogenetic clades
+#'
+#'
 #' Author: *Johannes Sikorski* and *Markus Goeker*
-#' 
-#' 
+#'
+#'
 #' ### Load R packages and data
 
 library(opm)
@@ -27,10 +27,10 @@ library(opmdata)
 data(wittmann_et_al)
 
 #' For demonstration purposes, some plates are removed from the data set
-#' * see [subset()](http://www.goeker.org/opm/opm_doc/manual/subset.html) for 
+#' * see [subset()](http://www.goeker.org/opm/opm_doc/manual/subset.html) for
 #' details
 
-wittmann_small <- subset(wittmann_et_al, 
+wittmann_small <- subset(wittmann_et_al,
                     query = list(MLSTcluster = c("Ax1", "Ax2", "Ax4", "Ax6")))
 
 #' Check the dimensions of the data set:
@@ -39,12 +39,12 @@ wittmann_small <- subset(wittmann_et_al,
 dim(wittmann_small)
 
 #' ### Display phenotypic similarity of strains using a heat map approach
-#' * The row dendrogram will be coloured by the metadata informations on
+#' * The row dendrogram will be coloured by the metadata information on
 #' phylogenetic clusters "Ax1", "Ax2", "Ax4" and "Ax6"
-#' * The curve parameter "Area under the Curve" (AUC) will be used
-#' * see [heat_map()](http://www.goeker.org/opm/opm_doc/manual/heat_map.html) 
+#' * The curve parameter "Area under the Curve" (`AUC`) will be used
+#' * see [heat_map()](http://www.goeker.org/opm/opm_doc/manual/heat_map.html)
 #' for details
-#' 
+#'
 #+  fig.width = 15, fig.height = 8
 
 heat_map(wittmann_small,
@@ -52,27 +52,27 @@ heat_map(wittmann_small,
         as.groups = "MLSTcluster",
         cexRow = 1.5,
         use.fun = "gplots",
-        main = "Heatmap on AUC data",
+        main = "Heatmap on `AUC` data",
         subset = "AUC",
-        xlab = "Well substrates on GenIII Biolog plate",
+        xlab = "Well substrates on Generation-III Biolog plate",
         ylab = "strains, replicates, and their MLST cluster affiliation")
 
 #' ### Result:
 #' * Obviously the four phylogenetic clades "Ax1", "Ax2", "Ax4" and "Ax6",
-#' indicated by the four different colours on the row dendrogram, fit to 
+#' indicated by the four different colours on the row dendrogram, fit to
 #' the phenotypic similarity clustering
-#' * Only one strain from clade "Ax2" (strain CCUG 47074, 2nd replicate) 
+#' * Only one strain from clade "Ax2" (strain `CCUG` 47074, second replicate)
 #' falls into the phenotypic similarity cluster of clade "Ax4"
 #' * Similarly, a clade "Ax4" strain clusters phenotypically with "Ax2" strains.
-#' 
-#' ### Are these phenotyic similarity clusters statistically robust?
-#' * We use the R package `pvclust` to test this (see the demo [pvclust()]
-#' (http://www.goeker.org/opm/opm_doc/demo/cluster-with-pvalues.html) for 
+#'
+#' ### Are these phenotypic similarity clusters statistically robust?
+#' * We use the R package **pvclust** to test this (see the according [demo]
+#' (http://www.goeker.org/opm/opm_doc/demo/cluster-with-pvalues.html) for
 #' details).
 
 x <- t(extract(wittmann_small, list("strain", "replicate", "MLSTcluster")))
 library(pvclust)
-x.pvc <- pvclust(x, method.dist = "euclidean", method.hclust = "ward", 
+x.pvc <- pvclust(x, method.dist = "euclidean", method.hclust = "ward",
                 nboot = 100)
 
 #+  fig.width = 15, fig.height = 7
@@ -81,20 +81,20 @@ plot(x.pvc, hang = -1)
 pvrect(x.pvc, pv = "bp")
 
 #' ### Result:
-#' * Note that there is no bootstrap support for the phenotypic similarity 
+#' * Note that there is no bootstrap support for the phenotypic similarity
 #' cluster observed.
-#' * only the two replicates of strain CCUG 48135 yield significantly high
+#' * only the two replicates of strain `CCUG` 48135 yield significantly high
 #' bootstrap support
-#' 
-#' ### Is there any significant difference in overall AUC values across strains
-#' of the phylogenetic clades?
-#' * we apply the `multcomp` algorithm for multiple comparisons of groups using 
-#' a Tukey-type contrast matrix 
-#' * we compare AUC values across the phylogenetic clades which are identified
+#'
+#' ### Is there any significant difference in overall `AUC` values across
+#' strains of the phylogenetic clades?
+#' * we apply the `multcomp` algorithm for multiple comparisons of groups using
+#' a Tukey-type contrast matrix
+#' * we compare `AUC` values across the phylogenetic clades which are identified
 #' by the metadata entry `MLSTcluster`
 #' * see the [tutorial]
 #' (http://cran.r-project.org/web/packages/opm/vignettes/opm-tutorial.pdf) or
-#' [opm_mcp()](http://www.goeker.org/opm/opm_doc/manual/opm_mcp.html)) for 
+#' [opm_mcp()](http://www.goeker.org/opm/opm_doc/manual/opm_mcp.html)) for
 #' details.
 
 test <- opm_mcp(wittmann_small, model = ~ MLSTcluster, m.type = "aov",
@@ -111,18 +111,18 @@ mcp.summary$model$call <- NULL # avoid some unnecessary output
 mcp.summary
 
 #' ### Result:
-#' * There is no statistically significant difference across all AUC values 
-#' between the strains of the different phylogenetic clades "Ax1", "Ax2", "Ax4" 
+#' * There is no statistically significant difference across all `AUC` values
+#' between the strains of the different phylogenetic clades "Ax1", "Ax2", "Ax4"
 #' and "Ax6"
 #' * Though there is no statistical support, the graphical analysis using the
-#' heat map approach suggest a correlation between phylogenetic similarity and 
+#' heat map approach suggest a correlation between phylogenetic similarity and
 #' phenotypic similarity
-#' 
+#'
 #' # Synopsis
 #' * a graphical approach such as a heat map can be used to test for differences
 #' between phenotypic similarity and similarity at any other organismal traits,
 #' as long as these are coded in the metadata
-#' * the statistical robustness can be tested using two different bootstrap 
+#' * the statistical robustness can be tested using two different bootstrap
 #' procedures
 #' * the overall difference between multiple groups (as coded in the metadata)
 #' can be tested statistically
