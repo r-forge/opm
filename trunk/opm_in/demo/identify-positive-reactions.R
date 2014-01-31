@@ -25,31 +25,36 @@ data(vaas_et_al)
 #' ### Extract the plates data of strain *Escherichia coli* DSM18039
 
 DSM18039 <- vaas_et_al[c(Species = "Escherichia coli", Strain = "DSM18039",
-                         Experiment = "First replicate") %q% vaas_et_al]
+                        Experiment = "First replicate") %q% vaas_et_al]
 
 #' `DSM18039` consists of 10 plates:
 
 dim(DSM18039)
 
-#' ### Discretize the maximum height `(A)` values into positive, weak, and negative reactions
+#' ### Discretize the maximum height `(A)` values into positive, weak, and 
+#' negative reactions
 #' 
 #' * The R package `opm` uses k-means partitioning to classify values into 
 #' positive, weak, and negative reactions (see 
-#' [kmeans()](http://www.goeker.org/opm/opm_doc/manual/kmeans.html) for details).
+#' [kmeans()](http://www.goeker.org/opm/opm_doc/manual/kmeans.html) for 
+#' details).
 #' * Discretize the A values by using 
 #' [do_disc()](http://www.goeker.org/opm/opm_doc/manual/do_disc.html).
 
 DSM18039 <- do_disc(DSM18039)
 
-#' ### Which wells contain substrates that yield positive reactions in all plates?
-#' * see [wells()](http://www.goeker.org/opm/opm_doc/manual/wells.html) for details.
+#' ### Which wells contain substrates that yield positive reactions in all 
+#' plates?
+#' * see [wells()](http://www.goeker.org/opm/opm_doc/manual/wells.html) for 
+#' details.
 
 wells(subset(DSM18039, positive = "all"))
 
 #' ### Textual listing of substrates that yield positive reactions
 #' * Only substrates that yield positive reactions are listed. The output of
 #' weak or negative reactions is suppressed.
-#' * see [wells()](http://www.goeker.org/opm/opm_doc/manual/wells.html) for details.
+#' * see [wells()](http://www.goeker.org/opm/opm_doc/manual/wells.html) for 
+#' details.
 
 listing(subset(DSM18039, positive = "all"), ~ Strain)
 
