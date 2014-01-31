@@ -6,3 +6,6 @@ SQLite-IO    Database I/O using RSQLite
 cluster-with-pvalues    Use opm and pvclust to calculate clusterings with branch support values
 custom-PCA    Use opm and BiodiversityR/vegan to draw PCA biplots of Phenotype MicroArray data
 multiple-plate-types    Apply opm to all CSV files in the working directory to generate HTML, YAML and PDF output
+identify-positive-reactions    Identify positive reactions and distinguish them from weak or negative reactions
+distinguish-curve-topologies    Identify signficant differences in the curve topology of single curves by bootstrap estimates
+compare-phenotype-genotype-similarity    Compare phenotypic clustering of organisms to their genotypic (phylogenetic) similarity
