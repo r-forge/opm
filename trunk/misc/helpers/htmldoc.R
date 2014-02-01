@@ -7,6 +7,14 @@ library(methods)
 ################################################################################
 
 
+split_opt <- function(x, sep = ",") {
+  if (is.character(x))
+    unlist(strsplit(x, sep, TRUE), FALSE, FALSE)
+  else
+    x
+}
+
+
 # list2html <- function(x, ordered = FALSE, deep = FALSE, collapse = " ") {
 #   tag <- function(name, data) hwriter::hmakeTag(name, data, newline = TRUE)
 #   if (is.list(x)) {
@@ -59,7 +67,7 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
   store_demos <- function(pkg, outdir, mdir, installed, url) {
     demo2html <- function(x, mdir, url) {
       result2table <- function(x) {
-        x <- as.data.frame(x[, c("Item", "Title")])
+        x <- as.data.frame(x[, c("Item", "Title"), drop = FALSE])
         for (fmt in c("html", "md", "Rmd", "R")) {
           txt <- paste(x[, "Item"], fmt, sep = ".")
           x[, fmt] <- hwriter::hmakeTag("a", txt, href = txt)
@@ -72,7 +80,8 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
         opm:::HTML_DOCTYPE,
         '<html>',
         opm:::html_head(title = structure(sprintf("%s: %s", pkg, x$title),
-          opm = FALSE), css = sprintf("../%s/R.css", mdir), meta = NULL),
+          opm = FALSE), css = sprintf("../%s/R.css", mdir), meta = NULL,
+          embed = FALSE),
         '<body>',
         hwriter::hmakeTag("h1", paste(x$title, opm:::single_tag("img",
           alt = "[R logo]", src = paste0(url, "/doc/html/logo.jpg"),
@@ -181,7 +190,7 @@ option.parser <- optparse::OptionParser(option_list = list(
 
 opt <- optparse::parse_args(option.parser, positional_arguments = TRUE)
 pkgs <- opt$args
-opt <- opt$options
+opt <- lapply(opt$options, split_opt)
 
 
 ################################################################################
@@ -199,7 +208,11 @@ if (opt$help || !length(pkgs)) {
 ################################################################################
 
 
-for (pkg in pkgs)
-  package2htmldoc(pkg = pkg, alt = opt$alternative, mdir = opt$mdir,
-    outdir = opt$outdir)
+# this introduces a cyclic linking
+if (!length(opt$alternative))
+  opt$alternative <- c(pkgs[-1L], pkgs[1L])
+
+
+invisible(mapply(package2htmldoc, pkg = pkgs, alt = opt$alternative,
+  mdir = opt$mdir, outdir = opt$outdir))
 

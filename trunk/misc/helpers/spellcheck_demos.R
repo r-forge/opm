@@ -6,7 +6,7 @@ spellcheck_demos <- function(dir = getwd()) {
     x <- readLines(file)
     saveRDS(x[nzchar(x)], file <- tempfile(fileext = ".rds"))
     file
-  }  
+  }
   demo_filter <- function(ifile, encoding = "unknown") {
     x <- readLines(ifile, encoding = encoding, warn = FALSE)
     x[!grepl("^\\s*#", x, FALSE, TRUE)] <- ""
