@@ -38,6 +38,37 @@ split_opt <- function(x, sep = ",") {
 ################################################################################
 
 
+insert_href <- function(x, parent) {
+  insert_into_body <- function(x, parent) {
+    insert <- function(x, m, parent) {
+      create_link <- function(x, parent) {
+        files <- file.path(parent, sprintf("%s.html", x))
+        links <- sprintf("<a href=\"%s\">%s</a>", files, x)
+        ifelse(file.exists(files), links, x)
+      }
+      if (!any(m > 0L))
+        return(x)
+      before <- c(1L, m[-length(m)] + attr(m, "match.length")[-length(m)])
+      before <- substring(x, before, m - 1L)
+      last <- m[length(m)] + attr(m, "match.length")[length(m)]
+      last <- substr(x, last, nchar(x))
+      links <- substring(x, m, m + attr(m, "match.length") - 1L)
+      links <- create_link(links, parent)
+      paste0(paste0(before, links, collapse = ""), last)
+    }
+    m <- gregexpr("\\b[\\w.]+(?=\\()", x, FALSE, TRUE)
+    mapply(insert, x, m, MoreArgs = list(parent = parent), USE.NAMES = FALSE)
+  }
+  x <- pkgutils::sections(x, "^\\s*<body>\\s*$", ignore.case = TRUE)
+  if (length(x) != 2L)
+    stop("expected two sections: one before, one including HTML body")
+  c(x[[1L]], insert_into_body(x[[2L]], parent))
+}
+
+
+################################################################################
+
+
 package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
     installed = TRUE, url = "http://stat.ethz.ch/R-manual/R-devel",
     alt = pkg) {
@@ -112,6 +143,14 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
     TRUE
   }
 
+  insert_links_into_demos <- function(outdir, mdir) {
+    current.dir <- getwd()
+    on.exit(setwd(current.dir))
+    setwd(file.path(outdir, "demo"))
+    files <- list.files(pattern = "\\.html$", ignore.case = TRUE)
+    pkgutils::map_files(files, insert_href, parent = file.path("..", mdir))
+  }
+
   store_vignettes <- function(pkg, outdir, mdir, installed, url) {
     fix_hrefs <- function(x, mdir) {
       mdir <- sprintf("../%s/", mdir)
@@ -143,6 +182,7 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
     current.dir <- getwd()
     on.exit(setwd(current.dir))
     setwd(outdir)
+    # for some reason the evil knitr modifies the 'outdir' variable!
     knitr::knit_rd(pkg)
     alt <- if (length(alt) && nzchar(alt))
         sub(pkg, alt, dirname(outdir), FALSE, FALSE, TRUE)
@@ -152,16 +192,20 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
   }
 
   alt <- basename(alt)
-  outdir <- sprintf(outdir, pkg <- basename(pkg))
+  backup <- outdir <- sprintf(outdir, pkg <- basename(pkg))
   dir.create(outdir, FALSE, TRUE)
   store_description(pkg, outdir, installed)
   if (!store_news(pkg, outdir, installed))
     message("no news found")
   if (!store_vignettes(pkg, outdir, mdir, installed, url))
     message("no vignettes found")
-  if (!store_demos(pkg, outdir, mdir, installed, url))
+  have.demos <- store_demos(pkg, outdir, mdir, installed, url)
+  if (!have.demos)
     message("no demos found")
   store_manual(pkg, outdir, mdir, url, alt)
+  # the knitr call in store_manual() modifies 'outdir', hence 'backup' is used
+  if (have.demos)
+    insert_links_into_demos(backup, mdir)
 }
 
 
