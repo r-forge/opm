@@ -252,13 +252,9 @@ Note the prefix ``CUSTOM:'', which is used to distinguish user-defined plate typ
 The object resulting from \code{listing} can be output with \code{to_yaml} or \code{saveRDS} for externally storing plate types in files.
 Indeed, please keep in mind that the definition of plate types is only available in the current \proglang{R} session.
 The definitions will be lost once the session is terminated.
-
-%% END FROZEN SECTION
-
-%Saving and/or loading of a session can be managed by the functionality provided by \pkg{session} \citep{warnes2012}.
-%TODO Lea: It is a good idea that you searched for and found this package. But whether this approach really would rescue the user-entered plate types must be carefully tested. Otherwise it should not be recommended here.
-
-%% BEGIN FROZEN SECTION
+This can be circumvented by placing code for loading \pkg{opm} and for registering the plates of interest in an ``.Rprofile'' file or in the ``Rprofile.site'' file.
+See the \proglang{R} documentation on how such files are used.
+Of course, registering of plates can always be done within the \proglang{R} file that makes use of these plates, too.
 
 With the resulting \code{potato.dm} and \code{potato.fm} objects the user can now follow the \pkg{opm} work flow for processing \ac{PM} data.
 Please continue in Section~\ref{visualisation} and the following sections for plotting and statistical analysis of the estimated curve parameters.

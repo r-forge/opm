@@ -45,7 +45,7 @@ wittmann_small <- subset(wittmann_et_al,
 dim(wittmann_small)
 to_metadata(wittmann_small[, , ])
 
-#' ### Plot the raw kinetic values for well G07 (D-Malic Acid) from the
+#' ### Plot the raw kinetic values for well `G07 (D-Malic Acid)` from the
 #' Generation-III plates
 #' * see [xy_plot()](http://www.goeker.org/opm/opm_doc/manual/xy_plot.html) for
 #' details
