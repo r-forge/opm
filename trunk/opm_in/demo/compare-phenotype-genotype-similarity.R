@@ -17,7 +17,7 @@
 #' #### * multiple comparison of overall `AUC` values across phylogenetic clades
 #'
 #'
-#' Author: *Johannes Sikorski* and *Markus Goeker*
+#' Author: *Johannes Sikorski*
 #'
 #'
 #' ### Load R packages and data
@@ -63,7 +63,8 @@ heat_map(wittmann_small,
 #' the phenotypic similarity clustering
 #' * Only one strain from clade "Ax2" (strain `CCUG` 47074, second replicate)
 #' falls into the phenotypic similarity cluster of clade "Ax4"
-#' * Similarly, a clade "Ax4" strain clusters phenotypically with "Ax2" strains.
+#' * Similarly, a clade "Ax4" strain clusters with "Ax2" strains with respect
+#'   to the phenotype
 #'
 #' ### Are these phenotypic similarity clusters statistically robust?
 #' * We use the R package **pvclust** to test this (see the according [demo]
@@ -120,8 +121,8 @@ mcp.summary
 #'
 #' # Synopsis
 #' * a graphical approach such as a heat map can be used to test for differences
-#' between phenotypic similarity and similarity at any other organismal traits,
-#' as long as these are coded in the metadata
+#' between a certain phenotypic similarity and s similarity regarding any other
+#' set of traits, as long as these are coded in the metadata
 #' * the statistical robustness can be tested using two different bootstrap
 #' procedures
 #' * the overall difference between multiple groups (as coded in the metadata)
