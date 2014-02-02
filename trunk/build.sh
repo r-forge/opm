@@ -1477,7 +1477,8 @@ spellcheck_vignettes()
 	ctrl <- c(ctrl, "bibliography", "code", "citep", "citet", "pkg", "proglang",
 	  "German", "Plainauthor", "Plainkeywords", "Plaintitle", "Sexpr", "Surname")
 	ctrl <- c("DefineVerbatimEnvironment oppp", "acrodef op", "subsection o",
-	  "subsubsection o", "pdfbookmark opp", "item o", sprintf("%s op", ctrl))
+	  "subsubsection o", "pdfbookmark opp", "item o", "externaldocument p",
+	  sprintf("%s op", ctrl))
 	ctrl <- c("-t", "-d en_GB", sprintf("--add-tex-command=\"%s\"", ctrl))
 	x <- aspell(Sys.glob(file.path("$pkg", "vignettes", "*.Rnw")),
 	  filter = "Sweave", dictionaries = tmpfile, control = ctrl)
