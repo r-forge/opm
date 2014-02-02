@@ -413,7 +413,7 @@ grid.arrange(plot.fm, plot.dm, ncol = 2)
 \caption{
 \label{fig:potato_xy_plot}
 Potato cell line growth measurements, recorded as fresh mass (left) and dry mass (right), visualised using the \code{xy\_plot} method.
-See Section~\ref*{tutorial-methods plotting} in the main tutorial for details on this kind of plotting.
+See Section~\ref*{tutorial-methods plotting} and Section~\ref*{tutorial-application plotting} in the main tutorial for details on this kind of plotting.
 Considering the fresh weight, the plot indicates that the wild type grows better than the genetically modified cell lines under non-stress (control) conditions.
 It also indicates that the stresses impair growth but that the genetically modified cells grow better then the wild type under moderate stress conditions.
 The results for the dry mass are similar except for the behaviour under Sorbitol stress.
@@ -440,7 +440,7 @@ xy_plot(tecan, theor.max = FALSE, include = "Strain",
 \caption{
 \label{fig:growth_xy_plot}
 Growth of two \textit{E. coli} strains on Glucose, visualised using the \code{xy\_plot} method.
-See Section~\ref*{tutorial-methods plotting} in the main tutorial for details on this kind of plotting.
+See Section~\ref*{tutorial-methods plotting} and Section~\ref*{tutorial-application plotting} in the main tutorial for details on this kind of plotting.
 The plot indicates that one of the strains outgrows the other unless high concentrations of Glucose are applied.
 }
 \end{figure}
@@ -449,7 +449,7 @@ The plot indicates that one of the strains outgrows the other unless high concen
 \section{Estimating parameters from growth curves}\label{estimation}
 
 The next step is the estimation of curve parameters using \code{do_aggr}.
-See Section~\ref*{tutorial-methods aggregating} in the main tutorial for details on aggregation methods.
+See Section~\ref*{tutorial-methods aggregating} and Section~\ref*{tutorial-application aggregating} in the main tutorial for details on aggregation methods.
 The main difference with respect to user-entered growth-curve data is that these may contain much fewer time points than \ac{PM} measurements.
 So the question arises which spline estimation is optimal for such measurements, because all spline-fitting procedures have been optimised for estimating parameters from \ac{PM} data.
 The following (informal) comparison, however, shows little differences between the methods.
@@ -519,51 +519,31 @@ potato.dm <- do_aggr(potato.dm, method = "splines", boot = 0,
   options = set_spline_options(type = "smooth.spline"))
 @
 
-
-%% END FROZEN SECTION
-
-
-% remaining code
-%
-%x <- ci_plot(sp.agg.sm.d, as.labels = list("Genotype"),
-%  subset = "AUC", x = "bottomright", legend.field = NULL)
-% here: extend the ci-plot with the other two datasets
-%
-%#pdf("heatmapDM.pdf")
-%par(mfrow=c(1,3))
-%heat_map(sp.agg.sm.d, as.labels = "Genotype", as.groups = "Genotype")
-%heat_map(sp.agg.tp.d, as.labels = "Genotype", as.groups = "Genotype")
-%heat_map(sp.agg.p.d, as.labels = "Genotype", as.groups = "Genotype")
-%#dev.off()
-%
-
-% here starts the E. coli part
-
-%x <- ci_plot(tp.tecan, as.labels = list("Strain"),
-%  subset = "AUC", x = "bottomright", legend.field = NULL)
-%
-%x <- ci_plot(sm.tecan, as.labels = list("Strain"),
-%  subset = "AUC", x = "bottomright", legend.field = NULL)
-%
-%x <- ci_plot(p.tecan, as.labels = list("Strain"),
-%  subset = "AUC", x = "bottomright", legend.field = NULL)
-%
-%
-%#pdf("heatmapDM.pdf")
-%par(mfrow=c(1,3))
-%heat_map(sp.agg.sm.d, as.labels = "Genotype", as.groups = "Genotype")
-%heat_map(sp.agg.tp.d, as.labels = "Genotype", as.groups = "Genotype")
-%heat_map(sp.agg.p.d, as.labels = "Genotype", as.groups = "Genotype")
-%#dev.off()
+Plots based on the estimated curve parameter could now be generated, such as heat maps or confidence-interval plots.
+As there is no difference to plotting \ac{PM} data, we refer to Section~\ref*{tutorial-methods plotting-aggregated} and Section~\ref*{tutorial-application plotting-aggregated} in the main tutorial for details.
 
 
 \section{Statistical analysis of growth curves}\label{statistics}
 
 
+In the following we will use \code{opm\_mcp} to assess whether the conclusions from the graphical analysis (Figure~\ref{fig:growth_xy_plot} and Figure~\ref{fig:potato_xy_plot}) can be confirmed for the example data.
+The \code{opm\_mcp} method is extensively documented in Section~\ref*{tutorial-methods group-means} and particularly Section~\ref*{tutorial-application group-means} of the main tutorial, hence we here restrict ourselves to just the necessary function calls.
+
+
+%% END FROZEN SECTION
+
+
 \rcscom{
 TODO: Lea, please conduct selected analyses that make sense for these data.
-For instance, the interpretations given in the figure captions should be assessed using \code{opm\_mcp}.
-For issues not specific to growth data refer to the main tutorial.
+The interpretations given in the figure captions should be assessed using \code{opm\_mcp}.
+Restrict yourself to the fresh mass and the TECAN data and to one call to \code{opm\_mcp}, and one plot of the resulting \code{glht} object, per data set.
+Provide some brief explanations on the function arguments specific to these two data sets.
+Omit all issues not specific to growth data.
+A final sentence should relate the \code{opm\_mcp} results to the statements in the figure captions, i.e. the following two:
+``It also indicates that the stresses impair growth but that the genetically modified cells grow better then the wild type under moderate stress conditions.''
+and
+``The plot indicates that one of the strains outgrows the other unless high concentrations of Glucose are applied.''
+Omit anything else.
 }
 
 
