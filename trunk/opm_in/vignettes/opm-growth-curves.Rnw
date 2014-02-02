@@ -21,6 +21,10 @@
 % Acronyms
 %
 \usepackage{acronym}
+\acrodef{lambda}[$\lambda$]{lag phase}
+\acrodef{mu}[$\mu$]{respiration rate}
+\acrodef{A}{maximum curve height}
+\acrodef{AUC}{Area Under the Curve}
 \acrodef{CSV}{Comma-Separated Values}
 \acrodef{DM}{Dry Mass}
 \acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
@@ -212,7 +216,8 @@ head(potato.fm)
 
 Thus the dimensions of the data dwindled to \Sexpr{nrow(potato.fm)} rows in \Sexpr{ncol(potato.fm)} columns.
 Now the data are in the right arrangement for the next step, the conversion into \proglang{OPMX} or \proglang{MOPMX} objects.
-(When entering data manually, users who directly choose the ``wide'' format can, of course, skip the conversion with \code{reshape}.)
+When entering data manually, users who directly choose a format analogous to the ``wide'' format can, of course, skip the conversion with \code{reshape}.
+Thus directly using the ``horizontal'' input format of \code{opmx} is \textit{recommended} for manually entering data.
 
 The main function for converting user-defined data frames to \proglang{OPMX} or \proglang{MOPMX} objects is \code{opmx}, which can directly be applied to the objects created in the last step.
 This works because the ``horizontal'' input format of \code{opmx} corresponds to the ``wide'' format of \code{reshape}.
@@ -252,7 +257,7 @@ Note the prefix ``CUSTOM:'', which is used to distinguish user-defined plate typ
 The object resulting from \code{listing} can be output with \code{to_yaml} or \code{saveRDS} for externally storing plate types in files.
 Indeed, please keep in mind that the definition of plate types is only available in the current \proglang{R} session.
 The definitions will be lost once the session is terminated.
-This can be circumvented by placing code for loading \pkg{opm} and for registering the plates of interest in an ``.Rprofile'' file or in the ``Rprofile.site'' file.
+This can be circumvented by placing code for loading \pkg{opm} and for registering the plates of interest in an \code{.Rprofile} file or in the global \code{Rprofile.site} file.
 See the \proglang{R} documentation on how such files are used.
 Of course, registering of plates can always be done within the \proglang{R} file that makes use of these plates, too.
 
@@ -277,7 +282,7 @@ The function \code{register_plate} is useful for both customised \ac{PM} plates 
 
 For small data sets it might be feasible to type the substrate allocation manually into a character vector, as done in the following.
 The short name of the plate type will be ``growth'', as simply given by the named function argument.
-Here two argument of the same name are passed to the function for registering the full name and the well mapping in a single call:
+Here two arguments of the same name are passed to the function for registering the full name and the well mapping in a single call:
 
 <<label=register_plate, results=hide>>=
 register_plate(
@@ -303,7 +308,7 @@ listing(wells(plate = "custom:growth"))
 However, manually entering the well mapping is error prone and not efficient when dealing with data sets containing more than a few wells.
 Alternatively, a user-designed plate can also be registered with a plate map given as matrix.
 The matrix then directly represents the allocation of the used substrates on the plate.
-Because of the repetitions in the substrate names (note the numbering, which is necessary here to generate unique substrate names, and later on important to split the plate), the texts can also be generated with fewer code:
+Because of the repetitions in the substrate names (note the numbering, which is necessary here to generate unique substrate names, and later on important to split the plate), the texts can also be generated with less code:
 
 <<label=register-plate-via-matrix, results=hide>>=
 # create constant part of the substrate names
@@ -381,16 +386,21 @@ Visualising raw measurements of growth curves with the methods intended for \ac{
 For instance, the expected maximum for \ac{PM} data can seldom be used for delimiting the y axes, and the data are not measured in OmniLog\textregistered \ units, and a negative control might not be present:
 
 <<label=potato-growth-dummy, eval=FALSE>>=
-xy_plot(potato.fm, theor.max = FALSE, rcr = 1, include = "Genotype",
-  main = list(in.parens = FALSE), ylab = "Fresh cell mass [mg]",
-  neg.ctrl = FALSE)
+library(gridExtra)
+plot.fm <- xy_plot(potato.fm, theor.max = FALSE, rcr = 1,
+  include = "Genotype", main = list(in.parens = FALSE),
+  ylab = "Fresh cell mass [mg]", neg.ctrl = FALSE)
+plot.dm <- xy_plot(potato.dm, theor.max = FALSE, rcr = 1,
+  include = "Genotype", main = list(in.parens = FALSE),
+  ylab = "Dry mass [mg]", neg.ctrl = FALSE)
+grid.arrange(plot.fm, plot.dm, ncol = 2)
 @
 
 \begin{figure}
 \centering
 \scalebox{1.2}{
 <<label=potato-growth-figure, fig=TRUE, echo=FALSE, width=14, height=8>>=
-require(gridExtra)
+library(gridExtra)
 plot.fm <- xy_plot(potato.fm, theor.max = FALSE, rcr = 1,
   include = "Genotype", main = list(in.parens = FALSE),
   ylab = "Fresh cell mass [mg]", neg.ctrl = FALSE)
@@ -403,10 +413,10 @@ grid.arrange(plot.fm, plot.dm, ncol = 2)
 \caption{
 \label{fig:potato_xy_plot}
 Potato cell line growth measurements, recorded as fresh mass (left) and dry mass (right), visualised using the \code{xy\_plot} method.
-See the main tutorial for details on this kind of plotting.
+See Section~\ref*{tutorial-methods plotting} in the main tutorial for details on this kind of plotting.
 Considering the fresh weight, the plot indicates that the wild type grows better than the genetically modified cell lines under non-stress (control) conditions.
 It also indicates that the stresses impair growth but that the genetically modified cells grow better then the wild type under moderate stress conditions.
-%In terms of dry mass the wild type is
+The results for the dry mass are similar except for the behaviour under Sorbitol stress.
 }
 \end{figure}
 
@@ -430,62 +440,89 @@ xy_plot(tecan, theor.max = FALSE, include = "Strain",
 \caption{
 \label{fig:growth_xy_plot}
 Growth of two \textit{E. coli} strains on Glucose, visualised using the \code{xy\_plot} method.
-See the main tutorial for details on this kind of plotting.
+See Section~\ref*{tutorial-methods plotting} in the main tutorial for details on this kind of plotting.
 The plot indicates that one of the strains outgrows the other unless high concentrations of Glucose are applied.
 }
 \end{figure}
-
-
-%% END FROZEN SECTION
 
 
 \section{Estimating parameters from growth curves}\label{estimation}
 
 The next step is the estimation of curve parameters using \code{do_aggr}.
 See Section~\ref*{tutorial-methods aggregating} in the main tutorial for details on aggregation methods.
-For keeping this vignette comprehensive, only the subset containing the dry mass data will be analysed.
+The main difference with respect to user-entered growth-curve data is that these may contain much fewer time points than \ac{PM} measurements.
+So the question arises which spline estimation is optimal for such measurements, because all spline-fitting procedures have been optimised for estimating parameters from \ac{PM} data.
+The following (informal) comparison, however, shows little differences between the methods.
+We first define a helper function for plotting parameters obtained with distinct approaches:
 
-<<label=agg-opm-fast, echo=TRUE>>=
-potato.agg.dm <- do_aggr(potato.dm, method = "opm-fast", boot = 0,
-  options = list(as.pe = "pe"))
-@
-
-However, the probably more precise option is to use a spline estimation.
-
-<<label=agg-opm-spline, echo=TRUE>>=
-sm <-set_spline_options(type = "smooth.spline")
-tp <-set_spline_options(type = "smooth.spline")
-p <-set_spline_options(type = "smooth.spline")
-
-sm.tecan <- do_aggr(tecan, method = "splines", options = sm)
-tp.tecan <- do_aggr(tecan, method = "splines", options = tp)
-p.tecan <- do_aggr(tecan, method = "splines", options = p)
-
+<<label=spline-helper-function, echo=TRUE>>=
 plot_param_diff <- function(...) {
   x <- list(...)
   if (is.null(names(x)))
     names(x) <- seq_along(x)
   for (param in param_names()) {
     y <- lapply(lapply(x, aggregated, param, ci = FALSE), unlist)
-    for (name in names(y)[-1L])
-      plot(y[[1L]], y[[name]], xlab = names(y)[1L], ylab = name, main = param)
+    for (name in names(y)[-1]) {
+      plot(y[[1]], y[[name]], xlab = names(y)[1], ylab = name,
+        main = param, pch = 19, col = "darkgrey")
+      abline(line(y[[1]], y[[name]]), lty = "dashed")
+    }
   }
   invisible(NULL)
 }
 @
 
+In the next step, the distinct spline-fitting approaches have to be applied.
+
+<<label=agg-opm-spline, echo=TRUE>>=
+sm.tecan <- do_aggr(tecan, method = "splines", boot = 0,
+  options = set_spline_options(type = "smooth.spline"))
+tp.tecan <- do_aggr(tecan, method = "splines", boot = 0,
+  options = set_spline_options(type = "tp.spline"))
+p.tecan <- do_aggr(tecan, method = "splines", boot = 0,
+  options = set_spline_options(type = "p.spline"))
+@
+
+After these preparations the methods can be visually compared as follows.
+
+<<label=plot-opm-spline-dummy, eval=FALSE, echo=TRUE>>=
+par(mfrow = c(2, 4))
+plot_param_diff(Sm = sm.tecan, Tp = tp.tecan, P = p.tecan)
+par(old.par)
+@
+
 \begin{figure}
 \centering
-<<label=plot-opm-spline, echo=TRUE, fig=TRUE>>=
-par(mfrow = c(4, 2))
+<<label=plot-opm-spline, echo=FALSE, fig=TRUE>>=
+old.par <- par(mfrow = c(2, 4))
 plot_param_diff(Sm = sm.tecan, Tp = tp.tecan, P = p.tecan)
+par(old.par)
 @
 \caption{
 \label{fig:correlation}
-some caption
+Correlation of curve parameters estimated using different spline-fitting options.
+There are obviously quite high correlations for all parameters, hence spline fitting appears to be robust even when dealing with comparatively few data points.
+Negative \ac{lambda} values can occur in the case of negative reactions.
 }
 \end{figure}
-\rcscom{TODO: Lea, please write a better caption about the correlation of curve parameters estimated using different spline-options}
+
+Apparently the distinct spline-fitting methods yield approximately the same estimates for all parameters.
+Thus even in the case of comparatively few data points it seems that spline fitting as implemented in \pkg{opm} can robustly be applied.
+For the forthcoming analyses we restrict ourselves to the results obtained with smoothing splines.
+
+<<label=select-splines, echo=TRUE>>=
+tecan <- sm.tecan
+rm(tp.tecan, p.tecan)
+potato.fm <- do_aggr(potato.fm, method = "splines", boot = 0,
+  options = set_spline_options(type = "smooth.spline"))
+potato.dm <- do_aggr(potato.dm, method = "splines", boot = 0,
+  options = set_spline_options(type = "smooth.spline"))
+@
+
+
+%% END FROZEN SECTION
+
+
 % remaining code
 %
 %x <- ci_plot(sp.agg.sm.d, as.labels = list("Genotype"),
@@ -501,40 +538,7 @@ some caption
 %
 
 % here starts the E. coli part
-\rcscom{
-TODO: Lea, write for coli-data: show spline-method-testing and select
-}
-%
-%# tecan-daten
-%tecan.agg <- do_aggr(tecan, method = "opm-fast", boot = 0,
-%  options = list(as.pe = "pe"))
-%
-%
-%##
-%# do_aggr
-%sm <-set_spline_options(type = "smooth.spline")
-%tp <-set_spline_options(type = "smooth.spline")
-%p <-set_spline_options(type = "smooth.spline")
-%
-%sm.tecan <- do_aggr(tecan, method = "splines", options = sm)
-%tp.tecan <- do_aggr(tecan, method = "splines", options = tp)
-%p.tecan <- do_aggr(tecan, method = "splines", options = p)
-%
-%plot_param_diff <- function(...) {
-%  x <- list(...)
-%  if (is.null(names(x)))
-%    names(x) <- seq_along(x)
-%  for (param in param_names()) {
-%    y <- lapply(lapply(x, aggregated, param, ci = FALSE), unlist)
-%    for (name in names(y)[-1L])
-%      plot(y[[1L]], y[[name]], xlab = names(y)[1L], ylab = name, main = param)
-%  }
-%  invisible(NULL)
-%}
-%
-%par(mfrow=c(4,2))
-%plot_param_diff(Sm = sm.tecan, Tp = tp.tecan, P = p.tecan)
-%
+
 %x <- ci_plot(tp.tecan, as.labels = list("Strain"),
 %  subset = "AUC", x = "bottomright", legend.field = NULL)
 %
@@ -551,13 +555,6 @@ TODO: Lea, write for coli-data: show spline-method-testing and select
 %heat_map(sp.agg.tp.d, as.labels = "Genotype", as.groups = "Genotype")
 %heat_map(sp.agg.p.d, as.labels = "Genotype", as.groups = "Genotype")
 %#dev.off()
-
-
-
-\rcscom{
-TODO: Lea, please make recommendations regarding the spline method to be used with these data.
-For issues not specific to growth data refer to the main tutorial.
-}
 
 
 \section{Statistical analysis of growth curves}\label{statistics}
