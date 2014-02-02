@@ -38,13 +38,29 @@ split_opt <- function(x, sep = ",") {
 ################################################################################
 
 
-insert_href <- function(x, parent) {
-  insert_into_body <- function(x, parent) {
-    insert <- function(x, m, parent) {
-      create_link <- function(x, parent) {
-        files <- file.path(parent, sprintf("%s.html", x))
+# Given a vector _x_ containing all lines of an HTML file, insert links to
+# the corresponding HTML page from the manual located under _parent_, where
+# necessary mapping to another help topic for the package _pkg_. If there is
+# no such HTML manual file, set no link but print an according message.
+#
+insert_href <- function(x, parent, pkg) {
+
+  insert_into_body <- function(x, parent, pkg) {
+
+    insert <- function(x, m, parent, pkg) {
+      get_aliased <- function(x, pkg) {
+        y <- lapply(x, function(name) do.call(help, list(name, pkg)))
+        ok <- vapply(y, length, 0L) == 1L
+        y[!ok] <- x[!ok]
+        basename(unlist(y, FALSE, FALSE))
+      }
+      create_link <- function(x, parent, pkg) {
+        y <- get_aliased(x, pkg)
+        files <- file.path(parent, sprintf("%s.html", y))
         links <- sprintf("<a href=\"%s\">%s</a>", files, x)
-        ifelse(file.exists(files), links, x)
+        if (any(orphan <- !file.exists(files)))
+          message("missing files(s) for: ", paste0(x[orphan], collapse = " "))
+        ifelse(orphan, x, links)
       }
       if (!any(m > 0L))
         return(x)
@@ -53,22 +69,31 @@ insert_href <- function(x, parent) {
       last <- m[length(m)] + attr(m, "match.length")[length(m)]
       last <- substr(x, last, nchar(x))
       links <- substring(x, m, m + attr(m, "match.length") - 1L)
-      links <- create_link(links, parent)
+      links <- create_link(links, parent, pkg)
       paste0(paste0(before, links, collapse = ""), last)
     }
+
     m <- gregexpr("\\b[\\w.]+(?=\\()", x, FALSE, TRUE)
-    mapply(insert, x, m, MoreArgs = list(parent = parent), USE.NAMES = FALSE)
+    mapply(insert, x, m, MoreArgs = list(parent = parent, pkg = pkg),
+      USE.NAMES = FALSE)
   }
+
   x <- pkgutils::sections(x, "^\\s*<body>\\s*$", ignore.case = TRUE)
   if (length(x) != 2L)
     stop("expected two sections: one before, one including HTML body")
-  c(x[[1L]], insert_into_body(x[[2L]], parent))
+  c(x[[1L]], insert_into_body(x[[2L]], parent, pkg))
 }
 
 
 ################################################################################
 
 
+# Use knitr and some other packages for creating HTML documentation for the
+# _installed_ package _pkg_. Place stuff into directory _outdir_. Use _mdir_
+# within _outdir_ for storing the HTML manual pages. Use _url_ for linking to
+# general R logos. Set leftwards links to package _alt_ (for which a similar
+# HTML documentation is expected).
+#
 package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
     installed = TRUE, url = "http://stat.ethz.ch/R-manual/R-devel",
     alt = pkg) {
@@ -143,12 +168,13 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
     TRUE
   }
 
-  insert_links_into_demos <- function(outdir, mdir) {
+  insert_links_into_demos <- function(outdir, mdir, pkg) {
     current.dir <- getwd()
     on.exit(setwd(current.dir))
     setwd(file.path(outdir, "demo"))
     files <- list.files(pattern = "\\.html$", ignore.case = TRUE)
-    pkgutils::map_files(files, insert_href, parent = file.path("..", mdir))
+    pkgutils::map_files(files, insert_href, parent = file.path("..", mdir),
+      pkg = pkg)
   }
 
   store_vignettes <- function(pkg, outdir, mdir, installed, url) {
@@ -205,7 +231,7 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
   store_manual(pkg, outdir, mdir, url, alt)
   # the knitr call in store_manual() modifies 'outdir', hence 'backup' is used
   if (have.demos)
-    insert_links_into_demos(backup, mdir)
+    insert_links_into_demos(backup, mdir, pkg)
 }
 
 
