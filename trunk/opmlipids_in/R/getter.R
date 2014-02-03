@@ -77,7 +77,13 @@ setMethod("measurements", FAMES, function(object) {
 #'
 #' @param x \code{\link{FAMES}} object.
 #' @param i Vector used for indexing, or missing. A warning is issued if
-#'   indexing goes beyond the range of \code{x}.
+#'   indexing goes beyond the range of \code{x}. Can also be an expression,
+#'   which is then passed to \code{infix.q} as described in the \pkg{opm}
+#'   manual, or a formula, which is be default also passed to this infix
+#'   operator. But another infix operator can be selected using the left side
+#'   of the formula. For instance, \code{x[k ~ Strain]} would select
+#'   \code{infix.k} operator for querying an object \code{x} for the presence
+#'   of a metadata key \sQuote{Strain}. See the \pkg{opm} manual for details.
 #' @param j Missing.
 #' @param drop Missing.
 #' @param exact Missing.
@@ -112,6 +118,15 @@ setMethod("measurements", FAMES, function(object) {
 setMethod("[", c(FAMES, "missing", "missing", "missing"), function(x, i, j,
     drop) {
   x
+}, sealed = SEALED)
+
+setMethod("[", c(FAMES, "formula", "missing", "missing"), function(x, i, j,
+    drop) {
+  i <- if (length(i) > 2L)
+      do.call(sprintf("%%%s%%", all.vars(i[[2L]])), list(x, i))
+    else
+      i %q% x
+  x[i]
 }, sealed = SEALED)
 
 setMethod("[", c(FAMES, "ANY", "missing", "missing"), function(x, i, j, drop) {

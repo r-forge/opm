@@ -181,7 +181,9 @@ setMethod("hours", OPM, function(object,
 #'   \code{\link{OPMS}} method, the indexes of one to several plates. A warning
 #'   is issued if indexing goes beyond the range. If \code{i} is neither a
 #'   numeric nor a logical vector, the \code{\link{OPMS}} method passes it
-#'   through \code{\link{infix.q}} to yield a logical vector for indexing.
+#'   through \code{\link{infix.q}} to yield a logical vector for indexing. If
+#'   \code{i} is a formula, its left side can be used to choose another infix
+#'   operator as \code{\link{infix.q}}.
 #' @param j Vector or missing. \itemize{
 #'   \item For the \code{\link{OPM}} and \code{\link{OPMA}} method, the indexes
 #'   or names of one to several wells. Can also be a formula, which allows for
@@ -271,6 +273,8 @@ setMethod("hours", OPM, function(object,
 #' # we can select the same objects with a formula (which is passed through
 #' # the infix-q operator)
 #' stopifnot(identical(vaas_4[~ Species == "Escherichia coli"], x))
+#' # we can select another infix operator with the left side of the formula
+#' stopifnot(identical(vaas_4[k ~ Species], vaas_4))
 #'
 #' # If only a single plate is selected, this is reduced to OPM(A)
 #' x <- vaas_4[3]
@@ -343,7 +347,10 @@ setMethod("[", c(OPMS, "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
     y <- x@plates
   else {
     if (!is.logical(i) && !is.numeric(i))
-      i <- i %q% x
+      if (inherits(i, "formula") && length(i) > 2L)
+        i <- do.call(sprintf("%%%s%%", all.vars(i[[2L]])), list(x, i))
+      else
+        i <- i %q% x
     y <- close_index_gaps(x@plates[i])
     if (!length(y))
       return(NULL)
