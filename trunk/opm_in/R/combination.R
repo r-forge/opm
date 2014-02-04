@@ -71,7 +71,10 @@ to_opm_list.list <- function(object, precomputed = TRUE, skip = FALSE,
   else
     c(convert_recursively(object), recursive = TRUE)
   if (group)
-    result <- split(result, vapply(result, plate_type, ""))
+    result <- if (is.null(result))
+        list()
+      else
+        result <- split.default(result, vapply(result, plate_type, ""))
   result
 }
 
@@ -418,16 +421,18 @@ setMethod("+", c(OPMS, "list"), function(e1, e2) {
 #'   default: all plates are tried to be forced into a single \code{\link{OPMS}}
 #'   object. If a character scalar, the name of the plate type to be extracted.
 #' @export
-#' @return \code{\link{OPMS}} object, or list of such objects (and/or
-#'   \code{\link{OPM}} objects), or \code{\link{OPM}} object, or \code{NULL}.
+#' @return \code{\link{OPMS}} object, or list (\code{\link{MOPMX}} object) of
+#'   such objects (and/or \code{\link{OPM}} objects), or \code{\link{OPM}}
+#'   object, or \code{NULL}.
 #' @family combination-functions
 #' @keywords manip
 #' @details While otherwise rather flexible, this function will fail to return
-#'   an \code{\link{OPMS}} object if the plate types do not match (simply
-#'   because such \code{\link{OPMS}} objects are disallowed) and \code{group} is
-#'   set to \code{FALSE}. But if \code{group} is set to \code{TRUE}, a list, not
-#'   a single \code{\link{OPMS}} object will be returned; and if \code{group} is
-#'   of mode \sQuote{character}, this extracts the plate type(s) of interest.
+#'   an \code{\link{OPMS}} object if \code{group} is set to \code{FALSE} and the
+#'   plate types do not match (simply because such \code{\link{OPMS}} objects
+#'   are disallowed). But if \code{group} is set to \code{TRUE}, a list
+#'   (\code{\link{MOPMX}} object), not a single \code{\link{OPMS}} object will
+#'   be returned; and if \code{group} is of mode \sQuote{character}, this
+#'   extracts the plate type(s) of interest.
 #'
 #'   Note that \code{\link{read_opm}} already has plate-type selection options.
 #' @examples
@@ -437,6 +442,8 @@ setMethod("+", c(OPMS, "list"), function(e1, e2) {
 #'
 #' (x <- opms()) # 0 objects
 #' stopifnot(is.null(x))
+#' (x <- opms(group = TRUE)) # 0 also objects
+#' stopifnot(is(x, "MOPMX"), length(x) == 0)
 #'
 #' dim(x <- opms(vaas_1)) # 1 object
 #' stopifnot(identical(x, vaas_1))

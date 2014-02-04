@@ -597,7 +597,8 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #' though this is not enforced by the implementation of the \code{\link{OPMX}}
 #' classes. Entries missing in some elements of \code{name} should not present a
 #' problem, however. Values that remained \code{NA} would  be removed before
-#' returning the result.
+#' returning the result. The \code{\link{MOPMX}} method works by calling each
+#' element in turn (allowing for independent editing).
 #'
 #' @family metadata-functions
 #' @seealso utils::edit
@@ -878,6 +879,12 @@ setGeneric("edit")
 setMethod("edit", WMDX, function(name, ...) {
   metadata(name) <- edit(to_metadata(name), ...)
   map_metadata(name)
+}, sealed = SEALED)
+
+setMethod("edit", MOPMX, function(name, ...) {
+  for (i in seq_along(name))
+    name[[i]] <- edit(name[[i]], ...)
+  name
 }, sealed = SEALED)
 
 

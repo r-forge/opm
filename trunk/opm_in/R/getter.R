@@ -1326,6 +1326,11 @@ setMethod("thin_out", OPMS, function(object, ...) {
   new(OPMS, plates = lapply(X = object@plates, FUN = thin_out, ...))
 }, sealed = SEALED)
 
+setMethod("thin_out", MOPMX, function(object, ...) {
+  object@.Data <- lapply(X = object@.Data, FUN = thin_out, ...)
+  object
+}, sealed = SEALED)
+
 
 ################################################################################
 

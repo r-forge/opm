@@ -148,8 +148,7 @@ setMethod("merge", c(OPM, "numeric"), function(x, y, sort.first = TRUE,
 
 setMethod("merge", c(OPM, OPM), function(x, y, sort.first = TRUE,
     parse = TRUE) {
-  x <- new(OPMS, plates = list(x, y))
-  merge(x = x, y = 0.25, sort.first = sort.first, parse = parse)
+  merge(new(OPMS, plates = list(x, y)), 0.25, sort.first, parse)
 }, sealed = SEALED)
 
 setMethod("merge", c(OPMS, "numeric"), function(x, y, sort.first = TRUE,
@@ -174,29 +173,34 @@ setMethod("merge", c(OPMS, "numeric"), function(x, y, sort.first = TRUE,
 
 setMethod("merge", c(OPMS, "missing"), function(x, y, sort.first = TRUE,
     parse = TRUE) {
-  merge(x, 0.25, sort.first = sort.first, parse = parse)
+  merge(x, 0.25, sort.first, parse)
+}, sealed = SEALED)
+
+setMethod("merge", c(CMAT, "logical"), function(x, y) {
+  y <- if (L(y))
+      as.factor(rownames(x))
+    else
+      as.factor(seq_len(nrow(x)))
+  merge(x, y)
 }, sealed = SEALED)
 
 setMethod("merge", c(CMAT, "ANY"), function(x, y) {
-  if (is.logical(y))
-    if (L(y))
-      groups <- as.factor(rownames(x))
-    else
-      groups <- as.factor(seq_len(nrow(x)))
-  else
-    groups <- as.factor(y)
-  if (length(groups) != nrow(x)) # this also covers NULL row names
-    stop("length of 'groups' not equal to number of rows")
-  if (any(is.na(groups)))
-    stop("'groups' must not contain NA values")
-  if (length(levels(groups)) == length(groups))
+  merge(x, as.factor(y))
+}, sealed = SEALED)
+
+setMethod("merge", c(CMAT, "factor"), function(x, y) {
+  if (length(y) != nrow(x)) # this also covers NULL row names
+    stop("length of 'y' not equal to number of rows")
+  if (any(is.na(y)))
+    stop("'y' must not contain NA values")
+  if (length(levels(y)) == length(y))
     return(x)
   cn <- colnames(x) # later put back, avoiding correction of duplicate names
-  x <- aggregate(as.data.frame(x, stringsAsFactors = FALSE), by = list(groups),
+  x <- aggregate(as.data.frame(x, stringsAsFactors = FALSE), by = list(y),
     FUN = c, recursive = TRUE, simplify = FALSE)
   x <- as.matrix(x[, -1L, drop = FALSE])
   x[] <- lapply(x, sort.int, na.last = TRUE)
-  rownames(x) <- levels(groups)
+  rownames(x) <- levels(y)
   colnames(x) <- cn
   new(CMAT, x)
 }, sealed = SEALED)
@@ -344,6 +348,10 @@ setMethod("plates", WMD, function(object) {
 
 setMethod("plates", "list", function(object) {
   to_opm_list.list(object, TRUE, TRUE, FALSE)
+}, sealed = SEALED)
+
+setMethod("plates", MOPMX, function(object) {
+  unlist(lapply(object@.Data, plates), FALSE)
 }, sealed = SEALED)
 
 ## maybe the following method could make sense, too
@@ -606,6 +614,14 @@ setMethod("unique", c(OPMS, "ANY"), function(x, incomparables, ...) {
   x[!duplicated(x = x, incomparables = incomparables, ...)]
 }, sealed = SEALED)
 
+setMethod("unique", c(MOPMX, "missing"), function(x, incomparables, ...) {
+  unique(x = x, incomparables = FALSE, ...)
+}, sealed = SEALED)
+
+setMethod("unique", c(MOPMX, "ANY"), function(x, incomparables, ...) {
+  x[!duplicated(x = x, incomparables = incomparables, ...)]
+}, sealed = SEALED)
+
 #= rev sort
 
 #' @rdname sort
@@ -798,11 +814,23 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   specified class).
 #'
 #'   Not all \code{\link{MOPMX}} objects are suitable for \code{extract}. The
-#'   call will be successful if only \code{\link{OPMS}} objects are contained
-#'   but might result in \code{NA} values within the resulting matrix (if
-#'   \code{dataframe} is \code{FALSE}) unless the set of row names created using
-#'   \code{as.labels} is equal between the distinct elements of \code{object}.
-#'   In the case of duplicates, the last one wins.
+#'   call will be successful if only \code{\link{OPMS}} objects are contained,
+#'   i.e. \code{\link{OPM}} objects are forbidden. But even if successful it
+#'   might result in \code{NA} values within the resulting matrix or data frame.
+#'   This may cause methods that call \code{extract} to fail. \code{NA} values
+#'   will not occur if the set of row names created using \code{as.labels} is
+#'   equal between the distinct elements of \code{object}. The also holds if
+#'   \code{dataframe} is \code{TRUE}, even though in that case row names are
+#'   only temporarily created.
+#'
+#'   Duplicate combinations of row and columns names currently cause the
+#'   \code{\link{MOPMX}} methods to skip all of them except the last one. This
+#'   should mainly effect substrates that occur in plates of distinct plate
+#'   types. Row names and names of substrate columns will be reordered (sorted).
+#'   The created \sQuote{row.groups} attribute, if any, will be adapted
+#'   accordingly. If \code{dataframe} is \code{TRUE}, the placement of the
+#'   columns created by \code{as.groups} will also be as usual, but duplicates,
+#'   if any, will be removed.
 #'
 #' @family conversion-functions
 #' @author Lea A.I. Vaas, Markus Goeker
@@ -919,13 +947,30 @@ setMethod("extract", MOPMX, function(object, as.labels,
     subset = opm_opt("curve.param"), ci = FALSE, trim = "full",
     dataframe = FALSE, as.groups = NULL, ...) {
 
-  convert_row_groups <- function(x) {
+  convert_row_groups <- function(x) { # for generated matrices only
     result <- unlist(lapply(x, rownames), FALSE, FALSE)
     result <- sort.int(unique.default(result))
     result <- structure(character(length(result)), names = result)
     for (mat in x) # last one wins, as in collect()
       result[rownames(mat)] <- as.character(attr(mat, "row.groups"))
     as.factor(unname(result))
+  }
+
+  protected <- function(x) x[seq_len(match(RESERVED_NAMES[["parameter"]], x))]
+
+  prepare_dataframe <- function(x, name.cols) {
+    if (length(name.cols))
+      rownames(x) <- make.unique(extract_columns(x, name.cols, direct = TRUE))
+    if (any(dup <- duplicated.default(colnames(x))))
+      x <- x[, !dup, drop = FALSE]
+    for (i in which(vapply(x, is.factor, NA)))
+      x[, i] <- as.character(x[, i])
+    x
+  }
+
+  group_columns <- function(x, other) { # for generated data frames only
+    x <- metadata_key(x)
+    setdiff(c(unlist(x, FALSE, FALSE), names(attr(x, "combine"))), other)
   }
 
   x <- lapply(X = object, FUN = extract, as.labels = as.labels,
@@ -938,7 +983,15 @@ setMethod("extract", MOPMX, function(object, as.labels,
       else
         NULL))
 
-  stop(NOT_YET)
+  pc <- protected(colnames(x[[1L]]))
+  grp.col <- group_columns(as.groups, pc)
+  x <- lapply(x, prepare_dataframe, pc[-length(pc)])
+  x <- collect(x, "datasets", dataframe = TRUE, stringsAsFactors = FALSE)
+  for (i in which(vapply(x, is.character, NA)))
+    x[, i] <- as.factor(x[, i])
+  x <- x[, c(pc, setdiff(colnames(x), c(pc, grp.col)), grp.col), drop = FALSE]
+  rownames(x) <- NULL
+  x
 
 }, sealed = SEALED)
 
@@ -1234,10 +1287,11 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #' measurements in a single column (suitable, e.g., for \pkg{lattice}).
 #'
 #' @param x Object of class \code{\link{OPM}}, its child classes, or
-#'   \code{\link{OPMS}}. If an \code{\link{OPMS}} object, its elements must
-#'   either all be \code{\link{OPM}} or all be \code{\link{OPMA}} or all be
-#'   \code{\link{OPMD}} objects. There are also methods for some of the objects
-#'   created by \code{\link{substrate_info}}.
+#'   \code{\link{OPMS}} or \code{\link{MOPMX}}. If an \code{\link{OPMS}} object,
+#'   for the \code{as.data.frame} method its elements must either all be
+#'   \code{\link{OPM}} or all be \code{\link{OPMA}} or all be \code{\link{OPMD}}
+#'   objects. There are also methods for some of the objects created by
+#'   \code{\link{substrate_info}}.
 #' @param row.names Optional vector for use as row names of the resulting data
 #'   frame. Here, it is not recommended to try to set row names explicitly.
 #' @param optional Logical scalar passed to the list and matrix methods of
@@ -1288,6 +1342,9 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #'   the exact spelling of its name also being available via
 #'   \code{\link{param_names}}. This column contains the position of each plate
 #'   within \code{object}.
+#'
+#'   The \code{\link{MOPMX}} method yields a further additional column for the
+#'   plate type.
 #'
 #' @details These \code{as.data.frame} methods for \code{\link{OPMX}} objects
 #'   are mainly intended to produce objects that can easily be written to
@@ -1512,12 +1569,13 @@ setMethod("flatten", OPM, function(object, include = NULL, fixed = NULL,
   colnames(result) <- RESERVED_NAMES[colnames(result)]
 
   if (length(fixed)) # Include fixed stuff
-    result <- cbind(as.data.frame(as.list(fixed), stringsAsFactors = factors),
-      result)
+    result <- cbind(as.data.frame(as.list(fixed), check.names = FALSE,
+      stringsAsFactors = factors), result)
 
   if (length(include)) # Pick metadata and include them in the data frame
     result <- cbind(as.data.frame(metadata(object, include,
-      exact = exact, strict = strict), stringsAsFactors = factors), result)
+      exact = exact, strict = strict), stringsAsFactors = factors,
+      check.names = FALSE), result)
 
   result
 
@@ -1530,6 +1588,25 @@ setMethod("flatten", OPMS, function(object, include = NULL, fixed = list(),
   nums <- lapply(nums, c, fixed, recursive = FALSE)
   do.call(rbind, mapply(flatten, object = object@plates, fixed = nums,
     MoreArgs = list(include = include, ...), SIMPLIFY = FALSE))
+}, sealed = SEALED)
+
+setMethod("flatten", MOPMX, function(object, include = NULL, fixed = list(),
+    factors = FALSE, ...) {
+  pt <- vapply(object@.Data, plate_type, "")
+  pt <- lapply(as.list(pt), `names<-`, value = CSV_NAMES[["PLATE_TYPE"]])
+  pt <- lapply(pt, c, fixed, recursive = FALSE)
+  x <- mapply(flatten, object = object@.Data, fixed = pt,
+    MoreArgs = list(include = include, factors = factors, ...),
+    SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  nr <- vapply(x, ncol, 0L)
+  if (any(bad <- nr < max(nr))) {
+    pn <- RESERVED_NAMES[["plate"]]
+    pn <- structure(list(paste(pn, 1L)), names = pn)
+    for (i in seq_along(which(bad)))
+      x[[i]] <- data.frame(x[[i]], pn, stringsAsFactors = factors,
+        check.names = FALSE)
+  }
+  do.call(rbind, x)
 }, sealed = SEALED)
 
 
