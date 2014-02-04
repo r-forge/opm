@@ -1445,7 +1445,8 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #' other database ID or convert substrate names.
 #'
 #' @param object Query character vector, factor or list, S3 object of class
-#'   \sQuote{substrate_match}, \code{\link{OPM}} or \code{\link{OPMS}} object.
+#'   \sQuote{substrate_match}, \code{\link{OPM}}, \code{\link{OPMS}} or
+#'   \code{\link{MOPMX}} object.
 #' @param what Character scalar indicating which kind of information to output.
 #'   \describe{
 #'     \item{all}{Create object of S3 class \sQuote{substrate_data} containing
@@ -1502,6 +1503,10 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #'   \acronym{URL}s, and as a side effect tabs in the default web browser might
 #'   have been opened. For suitable values of \code{what}, setting
 #'   \code{download} to \code{TRUE} yielded special objects as described above.
+#'
+#'   The \code{\link{MOPMX}} method yield a list with one element of one of the
+#'   kinds described above per element of \code{object}.
+#'
 #' @details The query names must be written exactly as used in the stored plate
 #'   annotations. To determine their spelling, use \code{\link{find_substrate}}.
 #'   Each spelling might include a concentration indicator, but the same
@@ -1864,6 +1869,22 @@ lapply(c(
   ), FUN = function(func_) {
   setMethod(func_, OPMS, function(object, ...) {
     func_(object@plates[[1L]], ...)
+  }, sealed = SEALED)
+})
+
+
+# MOPMX methods with function(object, ...) signature that should not be
+# simplified.
+#
+lapply(c(
+    #+
+    find_positions,
+    substrate_info,
+    wells
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, MOPMX, function(object, ...) {
+    apply(object@.Data, FUN = func_, ...)
   }, sealed = SEALED)
 })
 
