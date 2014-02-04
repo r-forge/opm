@@ -1156,10 +1156,12 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #' given data frame or \code{\link{OPMS}} object and pass the result to the
 #' matrix method.
 #'
-#' @param object Matrix, data frame or \code{\link{OPMS}} object. The matrix
-#'   method is mainly designed for curve-parameter matrices as created by
-#'   \code{\link{extract}} but can be used with any numeric matrix. If a data
-#'   frame, it must contain at least one column with numeric data.
+#' @param object Matrix, data frame or \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object. The matrix method is mainly designed for curve-parameter matrices
+#'   as created by \code{\link{extract}} but can be used with any numeric
+#'   matrix. If a data frame, it must contain at least one column with numeric
+#'   data. Not all \code{\link{MOPMX}} objects are suitable for this function;
+#'   see the remarks under \code{\link{extract}}.
 #'
 #' @param as.labels Character, numeric or logical vector indicating the
 #'   positions of the columns to be joined and used as row labels. If
@@ -1406,6 +1408,15 @@ setMethod("heat_map", "data.frame", function(object, as.labels,
 }, sealed = SEALED)
 
 setMethod("heat_map", OPMS, function(object, as.labels,
+    subset = opm_opt("curve.param"), as.groups = NULL, sep = " ",
+    extract.args = list(), ...) {
+  extract.args <- insert(as.list(extract.args), list(object = object,
+    as.labels = as.labels, as.groups = as.groups, subset = subset,
+    dataframe = FALSE, ci = FALSE, sep = sep), .force = TRUE)
+  invisible(heat_map(do.call(extract, extract.args), ...))
+}, sealed = SEALED)
+
+setMethod("heat_map", MOPMX, function(object, as.labels,
     subset = opm_opt("curve.param"), as.groups = NULL, sep = " ",
     extract.args = list(), ...) {
   extract.args <- insert(as.list(extract.args), list(object = object,

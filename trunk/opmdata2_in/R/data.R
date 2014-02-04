@@ -70,3 +70,54 @@ NULL
 #'
 NULL
 
+
+################################################################################
+
+
+#' Example data set from Buddruhs et al. (2013)
+#'
+#' This \code{OPMS} object contains all measurements from the study by Buddruhs
+#' \emph{et al.} (2013). Metadata have been added to briefly describe the
+#' conducted OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} phenotype
+#' microarray (\acronym{PM}) experiments. The plate types are \sQuote{PM01}
+#' and \sQuote{PM02}.
+#'
+#' @docType data
+#' @keywords datasets
+#' @name buddruhs_et_al
+#' @format \code{MOPMX} object containing two \code{OPMS} objects with the
+#'   dimensions 12 x 384 x 96, i.e. two sets of 12 plates with 384 time points
+#'   and 96 wells per plate. (The actual number of time points is between 282
+#'   and 384).
+#' @details All plates also contain aggregated and discretised values generated
+#'   \emph{via} \code{do_aggr} and \code{do_disc} from the \pkg{opm} package
+#'   under default values.
+#'
+#'   For a total of four strains from the species \emph{Phaeobacter
+#'   gallaeciensis} and \emph{Phaeobacter inhibens} and two plate types, three
+#'   measurements were conducted, yielding two sets of twelve plates.
+#'
+#'   The metadata entries are restricted to \sQuote{Species}, \sQuote{Strain}
+#'   and \sQuote{Replicate}.
+#'
+#' @references Buddruhs, N., Pradella, S., Goeker, M., Paeuker, O., Michael, V.,
+#'   Pukall, R,, Sproeer, C., Schumann, P., Petersen, J., Brinkhoff, T. 2013
+#'   Molecular and phenotypic analyses reveal the non-identity of the
+#'   \emph{Phaeobacter gallaeciensis} type strain deposits CIP 105210T and
+#'   DSM17395. \emph{International Journal of Systematic and Evolutionary
+#'   Microbiology} \strong{63}, 4340--4349
+#'   (\url{http://dx.doi.org/10.1099/ijs.0.053900-0}).
+#'
+#' @examples
+#' data(buddruhs_et_al)
+#'
+#' plate_type(buddruhs_et_al) # should indicate PM-1 and PM-2 plates
+#' (size <- length(buddruhs_et_al))
+#' (ha <- has_aggr(buddruhs_et_al))
+#' (hd <- has_disc(buddruhs_et_al))
+#' stopifnot(size == 2, ha, hd)
+#'
+#' heat_map(buddruhs_et_al, list("Strain", "Replicate"),
+#'   as.groups = "Species")
+#'
+NULL

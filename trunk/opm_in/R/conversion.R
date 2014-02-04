@@ -657,11 +657,12 @@ setMethod("rep", OPMS, function(x, ...) {
 #' selected metadata entries for use as additional columns in a data frame or
 #' (after joining) as character vector with labels.
 #'
-#' @param object \code{\link{OPMS}} object or data frame, for \code{extract}
-#'   with one column named as indicated by \code{split.at} (default given by
-#'   \code{\link{param_names}("split.at")}), columns with factor variables
-#'   before that column and columns with numeric vectors after that column.
-#'   For \code{extract_columns} optionally an \code{\link{OPM}} object.
+#' @param object \code{\link{OPMS}} object, \code{\link{MOPMX}} object or data
+#'   frame, for \code{extract} with one column named as indicated by
+#'   \code{split.at} (default given by \code{\link{param_names}("split.at")}),
+#'   columns with factor variables before that column and columns with numeric
+#'   vectors after that column. For \code{extract_columns} optionally an
+#'   \code{\link{OPM}} object.
 #' @param as.labels List, character vector or formula indicating the metadata to
 #'   be joined and used as row names (if \code{dataframe} is \code{FALSE}) or
 #'   additional columns (if otherwise). Ignored if \code{NULL}.
@@ -796,6 +797,13 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   data-frame columns), partially more useful (extract columns with data of a
 #'   specified class).
 #'
+#'   Not all \code{\link{MOPMX}} objects are suitable for \code{extract}. The
+#'   call will be successful if only \code{\link{OPMS}} objects are contained
+#'   but might result in \code{NA} values within the resulting matrix (if
+#'   \code{dataframe} is \code{FALSE}) unless the set of row names created using
+#'   \code{as.labels} is equal between the distinct elements of \code{object}.
+#'   In the case of duplicates, the last one wins.
+#'
 #' @family conversion-functions
 #' @author Lea A.I. Vaas, Markus Goeker
 #' @seealso \code{\link{aggregated}} for the extraction of aggregated values
@@ -906,6 +914,33 @@ setMethod("rep", OPMS, function(x, ...) {
 #' stopifnot(identical(attr(y, "row.groups"), x$c))
 #'
 setGeneric("extract", function(object, ...) standardGeneric("extract"))
+
+setMethod("extract", MOPMX, function(object, as.labels,
+    subset = opm_opt("curve.param"), ci = FALSE, trim = "full",
+    dataframe = FALSE, as.groups = NULL, ...) {
+
+  convert_row_groups <- function(x) {
+    result <- unlist(lapply(x, rownames), FALSE, FALSE)
+    result <- sort.int(unique.default(result))
+    result <- structure(character(length(result)), names = result)
+    for (mat in x) # last one wins, as in collect()
+      result[rownames(mat)] <- as.character(attr(mat, "row.groups"))
+    as.factor(unname(result))
+  }
+
+  x <- lapply(X = object, FUN = extract, as.labels = as.labels,
+    subset = subset, ci = ci, trim = trim, dataframe = dataframe,
+    as.groups = as.groups, ...)
+
+  if (!dataframe)
+    return(structure(collect(x, "datasets"), row.groups = if (length(as.groups))
+        convert_row_groups(x)
+      else
+        NULL))
+
+  stop(NOT_YET)
+
+}, sealed = SEALED)
 
 setMethod("extract", OPMS, function(object, as.labels,
     subset = opm_opt("curve.param"), ci = FALSE, trim = "full",

@@ -1,6 +1,7 @@
 Achromobacter
 Acidovorax
 BIOLOG
+Buddruhs
 CSV
 Calinski
 Corynebacterium
@@ -16,6 +17,7 @@ MicroStation
 OmniLog
 Original
 PDF
+Phaeobacter
 Prepend
 Prepended
 Preprocess
@@ -48,7 +50,9 @@ efficiens
 encoding
 encodings
 et
+gallaeciensis
 globbing
+inhibens
 inoculum
 logarithmised
 logfile
