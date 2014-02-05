@@ -123,7 +123,7 @@ setMethod("[", c(FAMES, "missing", "missing", "missing"), function(x, i, j,
 setMethod("[", c(FAMES, "formula", "missing", "missing"), function(x, i, j,
     drop) {
   i <- if (length(i) > 2L)
-      do.call(sprintf("%%%s%%", all.vars(i[[2L]])), list(x, i))
+      do.call(sprintf("%%%s%%", all.vars(i[[2L]])), list(i, x))
     else
       i %q% x
   x[i]

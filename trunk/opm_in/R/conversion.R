@@ -1286,14 +1286,14 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #' \code{flatten} converts into a \sQuote{flat} data frame, including all
 #' measurements in a single column (suitable, e.g., for \pkg{lattice}).
 #'
-#' @param x Object of class \code{\link{OPM}}, its child classes, or 
+#' @param x Object of class \code{\link{OPM}}, its child classes, or
 #'   \code{\link{OPMS}} or \code{\link{MOPMX}}. If an \code{\link{OPMS}} object,
-#'   for the \code{as.data.frame} method its elements must either all be 
+#'   for the \code{as.data.frame} method its elements must either all be
 #'   \code{\link{OPM}} or all be \code{\link{OPMA}} or all be \code{\link{OPMD}}
-#'   objects. If a \code{\link{MOPMX}} object, its elements must be conforming 
-#'   \code{\link{OPMS}} or either \code{\link{OPM}}, \code{\link{OPMA}} or 
+#'   objects. If a \code{\link{MOPMX}} object, its elements must be conforming
+#'   \code{\link{OPMS}} or either \code{\link{OPM}}, \code{\link{OPMA}} or
 #'   \code{\link{OPMS}}  objects.
-#'   
+#'
 #'   There are \code{as.data.frame} methods for some of the objects created by
 #'   \code{\link{substrate_info}}, too.
 #' @param row.names Optional vector for use as row names of the resulting data
@@ -1318,7 +1318,7 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #'   \code{\link{metadata}}. See there for details.
 #'
 #'   For \code{as.data.frame}, if empty or \code{FALSE}, ignored. If
-#'   \code{TRUE}, all metadata are including using \code{\link{to_metadata}}. If
+#'   \code{TRUE}, all metadata are included using \code{\link{to_metadata}}. If
 #'   otherwise and non-empty, metadata selected using
 #'   \code{\link{extract_columns}} are included.
 #' @param fixed \code{NULL} or list. If not \code{NULL}, include these items in

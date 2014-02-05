@@ -177,13 +177,21 @@ setMethod("hours", OPM, function(object,
 #'
 #' @param x \code{\link{OPM}}, \code{\link{OPMA}} or \code{\link{OPMS}} object.
 #' @param i Vector or missing. For the \code{\link{OPM}} and \code{\link{OPMA}}
-#'   method, the indexes of one to several time points. For the
-#'   \code{\link{OPMS}} method, the indexes of one to several plates. A warning
-#'   is issued if indexing goes beyond the range. If \code{i} is neither a
-#'   numeric nor a logical vector, the \code{\link{OPMS}} method passes it
+#'   method, the indexes of one to several time points.
+#'
+#'   For the \code{\link{OPMS}} method, the indexes of one to several plates. A
+#'   warning is issued if indexing goes beyond the range. If \code{i} is neither
+#'   a numeric nor a logical vector, the \code{\link{OPMS}} method passes it
 #'   through \code{\link{infix.q}} to yield a logical vector for indexing. If
 #'   \code{i} is a formula, its left side can be used to choose another infix
 #'   operator as \code{\link{infix.q}}.
+#'
+#'   For the \code{\link{MOPMX}} method, either missing or a vector or a formula
+#'   or expression. The latter work like for \code{\link{OPMS}} objects and
+#'   yield a list of logical vectors (one per element of \code{x}) Such a list
+#'   is then further used for selecting subset within the elements of \code{x}.
+#'   A list can also be provided directly.
+#'
 #' @param j Vector or missing. \itemize{
 #'   \item For the \code{\link{OPM}} and \code{\link{OPMA}} method, the indexes
 #'   or names of one to several wells. Can also be a formula, which allows for
@@ -306,6 +314,14 @@ setMethod("hours", OPM, function(object,
 #' }
 #' # see also oapply() for a more elegant approach
 #'
+#' ## MOPMX method
+#' (x <- new("MOPMX", list(vaas_1, vaas_4))) # create MOPMX object
+#' stopifnot(is(x, "MOPMX"), length(x) == 2)
+#' (y <- x[~ Species != "Escherichia coli"])
+#' stopifnot(is(y, "MOPMX"), length(y) == 1)
+#' (y <- x[list(1, 3:4)]) # only 2nd element reduced
+#' stopifnot(is(y, "MOPMX"), length(y) == 2, !identical(x, y))
+#'
 setMethod("[", c(OPM, "ANY", "ANY", "ANY"), function(x, i, j, ...,
     drop = FALSE) {
   mat <- x@measurements[, -1L, drop = FALSE]
@@ -343,12 +359,12 @@ setMethod("[", c(OPMS, "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
     drop = FALSE) {
   if (!missing(...))
     stop("incorrect number of dimensions")
-  if (missing(i) || identical(i, TRUE))
+  if (missing(i) || identical(i, TRUE)) {
     y <- x@plates
-  else {
+  } else {
     if (!is.logical(i) && !is.numeric(i))
-      if (inherits(i, "formula") && length(i) > 2L)
-        i <- do.call(sprintf("%%%s%%", all.vars(i[[2L]])), list(x, i))
+      if (inherits(i, "formula"))
+        i <- do.call(formula2infix(i), list(i, x))
       else
         i <- i %q% x
     y <- close_index_gaps(x@plates[i])
@@ -373,11 +389,25 @@ setMethod("[", c(OPMS, "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
   x
 }, sealed = SEALED)
 
+
+setMethod("[", c(MOPMX, "missing", "missing", "missing"), function(x, i, j,
+    drop) {
+  x
+}, sealed = SEALED)
+
+setMethod("[", c(MOPMX, "missing", "missing", "ANY"), function(x, i, j,
+    drop) {
+  if (drop)
+    x@.Data
+  else
+    x
+}, sealed = SEALED)
+
 setMethod("[", c(MOPMX, "character", "missing", "missing"), function(x, i, j,
     drop) {
   x@.Data <- close_index_gaps(x@.Data[match(i, names(x))])
   x
-})
+}, sealed = SEALED)
 
 setMethod("[", c(MOPMX, "character", "missing", "ANY"), function(x, i, j,
     drop) {
@@ -385,19 +415,67 @@ setMethod("[", c(MOPMX, "character", "missing", "ANY"), function(x, i, j,
     return(x@.Data[match(i, names(x))])
   x@.Data <- close_index_gaps(x@.Data[match(i, names(x))]) # keeps the class
   x
-})
+}, sealed = SEALED)
+
+setMethod("[", c(MOPMX, "expression", "missing", "missing"), function(x, i, j,
+    drop) {
+  x[i %q% x]
+}, sealed = SEALED)
+
+setMethod("[", c(MOPMX, "expression", "missing", "ANY"), function(x, i, j,
+    drop) {
+  x[i %q% x, drop = drop]
+}, sealed = SEALED)
+
+setMethod("[", c(MOPMX, "formula", "missing", "missing"), function(x, i, j,
+    drop) {
+  x[do.call(formula2infix(i), list(i, x))]
+}, sealed = SEALED)
+
+setMethod("[", c(MOPMX, "formula", "missing", "ANY"), function(x, i, j,
+    drop) {
+  x[do.call(formula2infix(i), list(i, x)), drop = drop]
+}, sealed = SEALED)
+
+setMethod("[", c(MOPMX, "list", "missing", "missing"), function(x, i, j,
+    drop) {
+  x@.Data <- close_index_gaps(mapply(function(x, i)
+    if (is(x, "OPM"))
+      if (i)
+        x
+      else
+        NULL
+    else
+      x[i], x = x@.Data, i = i, SIMPLIFY = FALSE, USE.NAMES = TRUE))
+  x
+}, sealed = SEALED)
+
+setMethod("[", c(MOPMX, "list", "missing", "ANY"), function(x, i, j, drop) {
+  x@.Data <- mapply(function(x, i)
+    if (is(x, "OPM"))
+      if (i)
+        x
+      else
+        NULL
+    else
+      x[i], x = x@.Data, i = i, SIMPLIFY = FALSE, USE.NAMES = TRUE)
+  if (drop)
+    return(x@.Data)
+  x@.Data <- close_index_gaps(x@.Data)
+  x
+}, sealed = SEALED)
 
 setMethod("[", c(MOPMX, "ANY", "missing", "missing"), function(x, i, j, drop) {
   x@.Data <- close_index_gaps(x@.Data[i])
   x
-})
+}, sealed = SEALED)
 
 setMethod("[", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, drop) {
   if (drop) # remove the class, return a list
     return(x@.Data[i])
   x@.Data <- close_index_gaps(x@.Data[i]) # keeps the class
   x
-})
+}, sealed = SEALED)
 
 
 ################################################################################
@@ -451,7 +529,7 @@ setMethod("max", OPM, function(x, ..., na.rm = FALSE) {
 }, sealed = SEALED)
 
 setMethod("max", OPMS, function(x, ..., na.rm = FALSE) {
-  max(vapply(x@plates, FUN = max, 1, ..., na.rm = na.rm),
+  max(vapply(X = x@plates, FUN = max, FUN.VALUE = 1, ..., na.rm = na.rm),
     na.rm = na.rm)
 }, sealed = SEALED)
 
@@ -463,12 +541,12 @@ setMethod("max", OPMS, function(x, ..., na.rm = FALSE) {
 setGeneric("minmax", function(x, ...) standardGeneric("minmax"))
 
 setMethod("minmax", OPM, function(x, ..., na.rm = FALSE) {
-  min(apply(x@measurements[, -1L, drop = FALSE][, ..., drop = FALSE], 2L,
-    FUN = max, na.rm = na.rm))
+  min(apply(x@measurements[, -1L, drop = FALSE][, ..., drop = FALSE],
+    2L, FUN = max, na.rm = na.rm))
 }, sealed = SEALED)
 
 setMethod("minmax", OPMS, function(x, ..., na.rm = FALSE) {
-  min(vapply(x@plates, FUN = minmax, 1, ..., na.rm = na.rm))
+  min(vapply(X = x@plates, FUN = minmax, FUN.VALUE = 1, ..., na.rm = na.rm))
 }, sealed = SEALED)
 
 
@@ -1550,10 +1628,11 @@ lapply(c(
 #' @param x Character vector, factor, list, formula, expression or
 #'   \code{\link{WMD}} object used as query. See \sQuote{Details}. \code{x} and
 #'   \code{table} can swap their places.
-#' @param table \code{\link{WMD}} or \code{\link{WMDS}} object. \code{x} and
-#'   \code{table} can swap their places.
+#' @param table \code{\link{WMD}}, \code{\link{WMDS}} or \code{\link{MOPMX}}
+#'   object. \code{x} and \code{table} can swap their places.
 #' @return Logical vector of the length of the \code{\link{WMD}} or
-#'   \code{\link{WMDS}} object.
+#'   \code{\link{WMDS}} object. For \code{\link{MOPMX}} objects, a list of such
+#'   vectors.
 #' @exportMethod "%k%"
 #' @export
 #~ @family getter-functions
@@ -1748,10 +1827,11 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #' @param x Character vector, factor, list, formula, expression or
 #'   \code{\link{WMD}} object used as query. See \sQuote{Details}. \code{x} and
 #'   \code{table} can swap their places.
-#' @param table \code{\link{WMD}} or \code{\link{WMDS}} object. \code{x} and
-#'   \code{table} can swap their places.
+#' @param table \code{\link{WMD}}, \code{\link{WMDS}} or \code{\link{MOPMX}}
+#'   object. \code{x} and \code{table} can swap their places.
 #' @return Logical vector of the length of the \code{\link{WMD}} or
-#'   \code{\link{WMDS}} object.
+#'   \code{\link{WMDS}} object. For \code{\link{MOPMX}} objects, a list of such
+#'   vectors.
 #'
 #' @details The behaviour of these methods depends on the object used as query.
 #'   \code{infix.largeq} is usually stricter than \code{infix.q}, sometimes
@@ -2072,3 +2152,35 @@ lapply(c(
 
 
 ################################################################################
+
+
+lapply(c(
+    #+
+    `%k%`,
+    `%K%`,
+    `%q%`,
+    `%Q%`
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, c(MOPMX, "ANY"), function(x, table) {
+    func_(table, x)
+  }, sealed = SEALED)
+})
+
+
+lapply(c(
+    #+
+    `%k%`,
+    `%K%`,
+    `%q%`,
+    `%Q%`
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, c("ANY", MOPMX), function(x, table) {
+    lapply(table@.Data, func_, x = x)
+  }, sealed = SEALED)
+})
+
+
+################################################################################
+

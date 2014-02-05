@@ -415,6 +415,7 @@ vector2row <- function(x) matrix(x, 1L, length(x), FALSE, list(NULL, names(x)))
 #' @param envir Passed to \code{eval}.
 #' @param fmt Character scalar. The format of the formula; omitting \sQuote{~}
 #'   yields an error.
+#' @param f Formula to be converted to an infix operator.
 #' @param ... Passed to \code{sprintf} after joining. It is an error to not
 #'   pass enough arguments.
 #' @param env Passed to \code{formula} as \sQuote{env} argument.
@@ -605,6 +606,16 @@ metadata_key.formula <- function(x, to.formula = FALSE, remove = NULL,
 create_formula <- function(fmt, ..., .env = parent.frame()) {
   x <- c(list(fmt = fmt), lapply(list(...), as.list))
   formula(do.call(sprintf, unlist(x, FALSE, FALSE)), .env)
+}
+
+#' @rdname metadata_key
+#' @keywords internal
+#'
+formula2infix <- function(f) {
+  if (length(f) > 2L)
+    sprintf("%%%s%%", all.vars(f[[2L]]))
+  else
+    "%q%"
 }
 
 
