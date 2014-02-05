@@ -1286,12 +1286,16 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #' \code{flatten} converts into a \sQuote{flat} data frame, including all
 #' measurements in a single column (suitable, e.g., for \pkg{lattice}).
 #'
-#' @param x Object of class \code{\link{OPM}}, its child classes, or
+#' @param x Object of class \code{\link{OPM}}, its child classes, or 
 #'   \code{\link{OPMS}} or \code{\link{MOPMX}}. If an \code{\link{OPMS}} object,
-#'   for the \code{as.data.frame} method its elements must either all be
+#'   for the \code{as.data.frame} method its elements must either all be 
 #'   \code{\link{OPM}} or all be \code{\link{OPMA}} or all be \code{\link{OPMD}}
-#'   objects. There are also methods for some of the objects created by
-#'   \code{\link{substrate_info}}.
+#'   objects. If a \code{\link{MOPMX}} object, its elements must be conforming 
+#'   \code{\link{OPMS}} or either \code{\link{OPM}}, \code{\link{OPMA}} or 
+#'   \code{\link{OPMS}}  objects.
+#'   
+#'   There are \code{as.data.frame} methods for some of the objects created by
+#'   \code{\link{substrate_info}}, too.
 #' @param row.names Optional vector for use as row names of the resulting data
 #'   frame. Here, it is not recommended to try to set row names explicitly.
 #' @param optional Logical scalar passed to the list and matrix methods of
@@ -1330,8 +1334,62 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #'   the \code{\link{OPMS}} to the \code{\link{OPM}} method, or to the list and
 #'   matrix methods of \code{as.data.frame}.
 #'
-#' @return These \code{as.data.frame} methods create a data frame with one row
+#' @return The \code{as.data.frame} methods create a data frame with one row
 #'   for each combination of well and plate.
+#'
+#'   The \code{flatten} methods create a data frame with one row for each
+#'   combination of time point, well and plate.
+#'
+#' @details The \code{as.data.frame} methods for \code{\link{OPMX}} objects
+#'   are mainly intended to produce objects that can easily be written to
+#'   \acronym{CSV} files, for instance using \code{write.table} from the
+#'   \pkg{utils} package. There are no \pkg{opm} methods other than
+#'   \code{\link{batch_opm}} (which can write such files) that make use of the
+#'   created kind of objects. In particular, they cannot be input again into
+#'   \pkg{opm}.
+#'
+#'   The following entries are contained in the generated data frame:
+#'   \itemize{
+#'
+#'   \item Optionally the \code{\link{csv_data}} entries that identify the
+#'   plate.
+#'
+#'   \item The names of the wells. Always included.
+#'
+#'   \item For \code{\link{OPMA}} objects (and \code{\link{OPMS}} objects that
+#'   contain them as well as \code{\link{MOPMX}} objects that contain such
+#'   \code{\link{OPMA}} or \code{\link{OPMS}} objects), always the aggregated
+#'   data (curve parameters), one column for each point estimate, upper and
+#'   lower confidence interval of each parameter.
+#'
+#'   \item For \code{\link{OPMA}} objects (and \code{\link{OPMS}} objects that
+#'   contain them as well as \code{\link{MOPMX}} objects that contain such
+#'   \code{\link{OPMA}} or \code{\link{OPMS}} objects), optionally the used
+#'   aggregation settings, one column per entry, except for the \sQuote{options}
+#'   entry (which is not a scalar). The column names are prefixed with
+#'   \code{"Aggr"} followed by \code{sep}. If \code{sep} is empty,
+#'   \code{\link{opm_opt}("comb.key.join")} is used.
+#'
+#'   \item For \code{\link{OPMD}} objects (and \code{\link{OPMS}} objects that
+#'   contain them as well as \code{\link{MOPMX}} objects that contain such
+#'   \code{\link{OPMD}} or \code{\link{OPMS}} objects), always one column with
+#'   the discretised data.
+#'
+#'   \item For \code{\link{OPMD}} objects (and \code{\link{OPMS}} objects that
+#'   contain them as well as \code{\link{MOPMX}} objects that contain such
+#'   \code{\link{OPMD}} or \code{\link{OPMS}} objects), optionally the used
+#'   discretisation settings, one column per entry, except for the
+#'   \sQuote{options} entry (which is not a scalar). The column names are
+#'   prefixed with \code{"Disc"} followed by \code{sep}. If \code{sep} is empty,
+#'   \code{\link{opm_opt}("comb.key.join")} is used.
+#'   }
+#'
+#'   The limits of using \acronym{CSV} as output format already show up in this
+#'   list, and in general we recommend to generate \acronym{YAML} or
+#'   \acronym{JSON} output instead.
+#'
+#'   For the \code{as.data.frame} methods of the other classes, see
+#'   \code{\link{substrate_info}}.
 #'
 #'   In the data frame returned by \code{flatten}, column names are unchecked
 #'   (not converted to variable names). The three last columns are coding for
@@ -1343,44 +1401,10 @@ setMethod("extract_columns", "data.frame", function(object, what,
 #'   \code{\link{param_names}}. This column contains the position of each plate
 #'   within \code{object}.
 #'
-#'   The \code{\link{MOPMX}} method yields a further additional column for the
-#'   plate type.
-#'
-#' @details These \code{as.data.frame} methods for \code{\link{OPMX}} objects
-#'   are mainly intended to produce objects that can easily be written to
-#'   \acronym{CSV} files, for instance using \code{write.table} from the
-#'   \pkg{utils} package. There are no \pkg{opm} methods other than
-#'   \code{\link{batch_opm}} (which can write such files) that make use of the
-#'   created kind of objects.
-#'
-#'   The following entries are contained in the generated data frame:
-#'   \itemize{
-#'   \item Optionally the \code{\link{csv_data}} entries that identify the
-#'   plate.
-#'   \item The names of the wells. Always included.
-#'   \item For \code{\link{OPMA}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), always the aggregated data (curve parameters), one column
-#'   for each point estimate, upper and lower confidence interval of each
-#'   parameter.
-#'   \item For \code{\link{OPMA}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), optionally the used aggregation settings, one column per
-#'   entry, except for the \sQuote{options} entry (which is not a scalar). The
-#'   column names are prefixed with \code{"Aggr"} followed by \code{sep}. If
-#'   \code{sep} is empty, \code{\link{opm_opt}("comb.key.join")} is used.
-#'   \item For \code{\link{OPMD}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), always one column with the discretised data.
-#'   \item For \code{\link{OPMD}} objects (and \code{\link{OPMS}} objects that
-#'   contain them), optionally the used discretisation settings, one column per
-#'   entry, except for the \sQuote{options} entry (which is not a scalar). The
-#'   column names are prefixed with \code{"Disc"} followed by \code{sep}. If
-#'   \code{sep} is empty, \code{\link{opm_opt}("comb.key.join")} is used.
-#'   }
-#'
-#'   The limits of using \acronym{CSV} as output format already show up in this
-#'   list, and in general we recommend to generate \acronym{YAML} or
-#'   \acronym{JSON} output instead.
-#'
-#'   For the methods of the other classes, see \code{\link{substrate_info}}.
+#'   The \code{\link{MOPMX}} method yields a another additional column for the
+#'   plate type. There is currently no safeguard against having several
+#'   \code{\link{OPMX}} objects of the same plate type within a
+#'   \code{\link{MOPMX}} object.
 #' @export
 #' @family conversion-functions
 #' @seealso utils::write.table stats::reshape pkgutils::flatten
@@ -1418,14 +1442,17 @@ setMethod("as.data.frame", OPM, function(x, row.names = NULL,
     stringsAsFactors = stringsAsFactors)
   colnames(result) <- RESERVED_NAMES[["well"]]
   if (L(csv.data))
-    result <- cbind(as.data.frame(as.list(x@csv_data[CSV_NAMES]), NULL,
-      optional, ..., stringsAsFactors = stringsAsFactors), result)
+    result <- data.frame(as.data.frame(as.list(x@csv_data[CSV_NAMES]), NULL,
+      optional, ..., stringsAsFactors = stringsAsFactors), result,
+      check.names = FALSE, stringsAsFactors = FALSE)
   if (is.logical(include)) {
     if (L(include))
-      result <- cbind(result, to_metadata(x, stringsAsFactors, optional))
+      result <- data.frame(result, to_metadata(x, stringsAsFactors, optional),
+        check.names = FALSE, stringsAsFactors = FALSE)
   } else if (length(include)) {
-    result <- cbind(result, extract_columns(object = x, what = include,
-      factors = stringsAsFactors))
+    result <- data.frame(result, extract_columns(object = x, what = include,
+      factors = stringsAsFactors), check.names = FALSE,
+      stringsAsFactors = FALSE)
   }
   rownames(result) <- row.names
   if (length(sep))
@@ -1440,18 +1467,21 @@ setMethod("as.data.frame", OPMA, function(x, row.names = NULL,
     stringsAsFactors = stringsAsFactors)
   if (length(sep))
     colnames(result) <- gsub("\\W+", sep, colnames(result), FALSE, TRUE)
-  result <- cbind(callNextMethod(x, row.names, optional, sep, csv.data,
-    settings, include, ..., stringsAsFactors = stringsAsFactors), result)
+  result <- data.frame(callNextMethod(x, row.names, optional, sep, csv.data,
+    settings, include, ..., stringsAsFactors = stringsAsFactors), result,
+    check.names = FALSE, stringsAsFactors = FALSE)
   if (L(settings)) {
     settings <- x@aggr_settings[c(SOFTWARE, VERSION, METHOD)]
     if (length(sep)) {
       names(settings) <- gsub("\\W+", sep, names(settings), FALSE, TRUE)
       names(settings) <- paste("Aggr", names(settings), sep = sep)
-    } else
+    } else {
       names(settings) <- paste("Aggr", names(settings),
         sep = get("comb.key.join", OPM_OPTIONS))
-    result <- cbind(result, as.data.frame(settings, NULL, optional, ...,
-      stringsAsFactors = stringsAsFactors))
+    }
+    result <- data.frame(result, as.data.frame(settings, NULL, optional, ...,
+      stringsAsFactors = stringsAsFactors), check.names = FALSE,
+      stringsAsFactors = FALSE)
   }
   result
 }, sealed = SEALED)
@@ -1470,8 +1500,9 @@ setMethod("as.data.frame", OPMD, function(x, row.names = NULL,
     } else
       names(settings) <- paste("Disc", names(settings),
         sep = get("comb.key.join", OPM_OPTIONS))
-    result <- cbind(result, as.data.frame(settings, NULL, optional, ...,
-      stringsAsFactors = stringsAsFactors))
+    result <- data.frame(result, as.data.frame(settings, NULL, optional, ...,
+      stringsAsFactors = stringsAsFactors), check.names = FALSE,
+      stringsAsFactors = FALSE)
   }
   result
 }, sealed = SEALED)
@@ -1482,6 +1513,18 @@ setMethod("as.data.frame", OPMS, function(x, row.names = NULL,
   if (!length(row.names))
     row.names <- vector("list", length(x@plates))
   do.call(rbind, mapply(as.data.frame, x = x@plates, row.names = row.names,
+    MoreArgs = list(optional = optional, sep = sep, csv.data = csv.data,
+      settings = settings, include = include, ...,
+      stringsAsFactors = stringsAsFactors),
+    SIMPLIFY = FALSE, USE.NAMES = FALSE))
+}, sealed = SEALED)
+
+setMethod("as.data.frame", MOPMX, function(x, row.names = NULL,
+    optional = FALSE, sep = "_", csv.data = TRUE, settings = TRUE,
+    include = FALSE, ..., stringsAsFactors = default.stringsAsFactors()) {
+  if (!length(row.names))
+    row.names <- vector("list", length(x@.Data))
+  do.call(rbind, mapply(as.data.frame, x = x@.Data, row.names = row.names,
     MoreArgs = list(optional = optional, sep = sep, csv.data = csv.data,
       settings = settings, include = include, ...,
       stringsAsFactors = stringsAsFactors),
@@ -1543,7 +1586,7 @@ setMethod("as.data.frame", "kegg_compound", function(x, row.names = NULL,
 #'
 setGeneric("flatten")
 
-setMethod("flatten", OPM, function(object, include = NULL, fixed = NULL,
+setMethod("flatten", OPM, function(object, include = NULL, fixed = list(),
     factors = TRUE, exact = TRUE, strict = TRUE, full = TRUE,
     numbers = FALSE, ...) {
 
@@ -1569,13 +1612,13 @@ setMethod("flatten", OPM, function(object, include = NULL, fixed = NULL,
   colnames(result) <- RESERVED_NAMES[colnames(result)]
 
   if (length(fixed)) # Include fixed stuff
-    result <- cbind(as.data.frame(as.list(fixed), check.names = FALSE,
-      stringsAsFactors = factors), result)
+    result <- data.frame(as.list(fixed), result, check.names = FALSE,
+      stringsAsFactors = factors)
 
   if (length(include)) # Pick metadata and include them in the data frame
-    result <- cbind(as.data.frame(metadata(object, include,
-      exact = exact, strict = strict), stringsAsFactors = factors,
-      check.names = FALSE), result)
+    result <- data.frame(metadata(object, include, exact = exact,
+      strict = strict), result, stringsAsFactors = factors,
+      check.names = FALSE)
 
   result
 
