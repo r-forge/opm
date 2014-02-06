@@ -679,15 +679,11 @@ setMethod("seq", WMDS, function(...) {
 #'   methods either a named character vector (if the selection yields a single
 #'   entry) or a character matrix with one row per plate. Missing entries in one
 #'   of the plates yield \code{NA} in the output.
-#' @details \code{filename}, \code{setup_time} and \code{position} are
-#'   \strong{deprecated} convenience functions for some of the more important
-#'   entries of \code{csv_data}.
-#'
-#'   It is easy to copy the \acronym{CSV} data to the \code{\link{metadata}};
-#'   see the examples section. Editing of the \acronym{CSV} data has
-#'   deliberately not been implemented into \pkg{opm}, but the
-#'   \code{\link{metadata}} can be modified using a plethora of methods, even
-#'   manually with \code{\link{edit}}.
+#' @details It is easy to copy the \acronym{CSV} data to the
+#'   \code{\link{metadata}}; see the examples section. Editing of the
+#'   \acronym{CSV} data has deliberately not been implemented into \pkg{opm},
+#'   but the \code{\link{metadata}} can be modified using a plethora of methods,
+#'   even manually with \code{\link{edit}}.
 #' @export
 #' @seealso base::strptime
 #' @family getter-functions
@@ -806,42 +802,6 @@ setMethod("csv_data", "MOPMX", function(object, ...) {
   for (i in seq_along(x)) # next step necessary to keep all rows
     rownames(x[[i]]) <- paste(i, seq_len(nrow(x[[i]])), sep = ".")
   collect(x, "datasets", 1L, TRUE) # TODO: the above should go into collect()
-}, sealed = SEALED)
-
-#= filename csv_data
-
-#' @rdname csv_data
-#' @export
-#'
-setGeneric("filename", function(object, ...) standardGeneric("filename"))
-
-setMethod("filename", OPM, function(object) {
-  warning("this function is deprecated -- use csv_data() instead")
-  csv_data(object, what = "filename")
-}, sealed = SEALED)
-
-#= setup_time csv_data
-
-#' @rdname csv_data
-#' @export
-#'
-setGeneric("setup_time", function(object, ...) standardGeneric("setup_time"))
-
-setMethod("setup_time", OPM, function(object) {
-  warning("this function is deprecated -- use csv_data() instead")
-  csv_data(object, what = "setup_time")
-}, sealed = SEALED)
-
-#= position csv_data
-
-#' @rdname csv_data
-#' @export
-#'
-setGeneric("position", function(object, ...) standardGeneric("position"))
-
-setMethod("position", OPM, function(object) {
-  warning("this function is deprecated -- use csv_data() instead")
-  csv_data(object, what = "position")
 }, sealed = SEALED)
 
 
@@ -1321,12 +1281,12 @@ setMethod("subset", OPMS, function(x, query, values = TRUE,
     positive = c("ignore", "any", "all"),
     negative = c("ignore", "any", "all"),
     use = c("i", "I", "k", "K", "n", "N", "p", "P", "q", "Q", "t", "T")) {
-  select_binary <- function(x, invert.1, combine, invert.2) {
+  select_binary <- function(x, invert.1, comb.fun, invert.2) {
     y <- discretized(x)
     if (invert.1)
       y <- !y
     y[is.na(y)] <- FALSE
-    y <- apply(y, 2L, combine)
+    y <- apply(y, 2L, comb.fun)
     if (invert.2)
       y <- !y
     x[, , y]
@@ -1426,8 +1386,8 @@ setMethod("thin_out", MOPMX, function(object, ...) {
 #' @param what Indicating which parts of \code{x} should be compared. If a
 #'   character scalar, the following entries are special: \describe{
 #'   \item{all}{Compares entire \code{OPM} objects.}
-#'   \item{csv}{Compares the \acronym{CSV} data entries \code{\link{setup_time}}
-#'   and \code{\link{position}}.}
+#'   \item{csv}{Compares the \acronym{CSV} data entries \code{setup_time} and
+#'   \code{position} (see \code{\link{csv_data}}).}
 #'   \item{metadata}{Compares the entire metadata content.}
 #'   }
 #'   If \code{what} does not match any of these, or is not a character scalar at
@@ -1575,9 +1535,6 @@ lapply(c(
     has_disc,
     hours,
     measurements,
-    filename, # deprecated
-    position, # deprecated
-    setup_time, # deprecated
     well
     #-
   ), FUN = function(func_) {

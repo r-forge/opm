@@ -890,6 +890,10 @@ show_example_warnings()
       {
         sub(/\r$/, "") # repair Windows/DOS line breaks
       }
+      $1 == "Warning:" {
+        print
+        next
+      }
       $1 == "Warning" {
         cnt++
         text = $0

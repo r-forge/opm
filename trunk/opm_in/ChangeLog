@@ -14,6 +14,9 @@
   single-plate input
 - list method of contains() moved to pkgutils
 - all map_names() and map_values() methods moved to pkgutils
+- removed deprecated functions filename(), position() and setup_time()
+- removed deprecated 'what' argument of phylo_data()
+- removed deprecated 'examples' argument of opm_files() 
 - new vignette on analysing growth-curve (and user-defined PM) data
 - new register_plate() and opmx() methods for managing user-defined data
 - new methods opm_dbput(), opm_dbget(), opm_dbnext(), opm_dbfind(),

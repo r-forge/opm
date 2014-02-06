@@ -205,7 +205,7 @@ simplify_conditionally <- function(x) {
 #'
 close_index_gaps <- function(x) {
   if (any(bad <- vapply(x, is.null, NA))) {
-    warning("closing gaps in indexes")
+    warning("closing gaps in indexes", call. = FALSE)
     return(x[!bad])
   }
   x
@@ -1413,14 +1413,14 @@ insert.list <- function(object, other, ..., .force = FALSE, .strict = FALSE) {
 #'     \item{threshold}{Numeric scalar indicating the default threshold used by
 #'       \code{\link{annotated}}.}
 #'     \item{time.zone}{Character scalar indicating the time zone to be used
-#'       when parsing \code{\link{setup_time}} entries. This is relevant for
+#'       when parsing \code{setup_time} entries. This is relevant for
 #'       \code{\link{merge}}, which by default attempts to sort by parsed setup
 #'       times}
 #'     \item{time.fmt}{Character vector indicating the time formats used for
-#'       parsing the \code{\link{setup_time}} entries (in the given order). Also
-#'       relevant for \code{\link{merge}} by default. It is advisable to put
-#'       the more specific formats to the front because otherwise information
-#'       such as an \sQuote{AM} or \sQuote{PM} indication might be lost. A wrong
+#'       parsing the \code{setup_time} entries (in the given order). Also
+#'       relevant for \code{\link{merge}} by default. It is advisable to put the
+#'       more specific formats to the front because otherwise information such
+#'       as an \sQuote{AM} or \sQuote{PM} indication might be lost. A wrong
 #'       format might well match a given entry, causing \pkg{opm} to
 #'       misinterpret the time or even the date.}
 #'   }

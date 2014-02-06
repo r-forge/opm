@@ -22,7 +22,6 @@
 #'     \item{demo}{Example \R code using the \pkg{opm} package that neither
 #'       fitted into these help pages nor into the vignette. Can directly be
 #'       loaded via \code{demo}; see \code{demo(package = "opm")}.}
-#'     \item{examples}{\strong{Deprecated} synonym of \sQuote{demo}.}
 #'     \item{growth}{Growth-measurement example files.}
 #'     \item{multiple}{Not directly readable (i.e., multiple-plate) test files.}
 #'     \item{omnilog}{Directly readable (i.e., single-plate) test files from
@@ -109,15 +108,10 @@
 #' stopifnot(is.character(x), length(x) > 0L, identical(x, rev(y)))
 #'
 opm_files <- function(what = c("scripts", "testdata", "auxiliary", "demo",
-    "examples", "doc", "css", "sql", "omnilog", "single", "multiple",
-    "growth")) {
+    "doc", "css", "sql", "omnilog", "single", "multiple", "growth")) {
   switch(what <- match.arg(what),
     css = grep("\\.css$", pkg_files(opm_string(), "auxiliary"),
       TRUE, TRUE, TRUE),
-    examples = {
-      warning("'examples' is deprecated, use 'demo'")
-      pkg_files(opm_string(), "demo")
-    },
     growth = grep("\\.asc(\\.[^.]+)?$",
       pkg_files(opm_string(), "testdata"), TRUE, TRUE, TRUE),
     multiple = grep("Multiple\\.csv(\\.[^.]+)?$",

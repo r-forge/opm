@@ -449,11 +449,12 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #'   vector of length one, \code{by} is passed as \sQuote{what} argument to
 #'   \code{\link{csv_data}}. If longer, passed step-by-step to
 #'   \code{\link{csv_data}} as \code{keys} argument.
-#' @param parse Logical scalar. Convert the \code{\link{setup_time}} via
+#' @param parse Logical scalar. Convert the \code{setup_time} via
 #'   \code{strptime} before ordering? Has only an effect if \code{by} is
 #'   \sQuote{setup_time}. It is an error if the time format is not recognised.
 #'   See \code{\link{opm_opt}}, arguments \code{time.fmt} and \code{time.zone},
-#'   for modifying the parsing of setup-time entries.
+#'   for modifying the parsing of setup-time entries, and \code{\link{csv_data}}
+#'   for this kind of entries.
 #' @param exact Logical scalar. Passed to \code{\link{metadata}}. Affects only
 #'   metadata querying, not directly the sorting.
 #' @param strict Logical scalar. Is it an error if metadata keys are not found?
