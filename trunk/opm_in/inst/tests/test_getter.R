@@ -186,21 +186,14 @@ test_that("filename of example object can be explicitely queried", {
   expect_equal(csv_data(OPM.1, what = "filename"), INFILES[1L])
 })
 
-## filename
-## UNTESTED
 
-
-## setup_time
+## csv_data
 test_that("setup times can be explicitely queried", {
   expect_equal(csv_data(OPM.1, what = "setup_time"), "8/30/2010 11:28:54 AM")
   st.got <- csv_data(OPMS.INPUT, what = "setup_time")
   expect_is(st.got, "character")
   expect_equal(length(st.got), length(OPMS.INPUT))
 })
-
-
-## setup_time
-## UNTESTED
 
 
 ## csv_data
@@ -210,10 +203,6 @@ test_that("plate positions can be explicitely queried", {
   expect_is(p.got, "character")
   expect_equal(length(p.got), length(OPMS.INPUT))
 })
-
-
-## position
-## UNTESTED
 
 
 ## has_aggr

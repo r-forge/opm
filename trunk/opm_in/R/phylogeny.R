@@ -241,7 +241,7 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
       datatype <- sprintf("&[%s]", datatype)
       comments <- safe_labels(comments, "hennig", comment = TRUE)
       if (dims[1L] < 4L)
-        warning("TNT will not accept less than 4 organisms")
+        warning("TNT will not accept less than 4 organisms", call. = FALSE)
       dims <- paste0(rev(dims), collapse = " ")
       c(nstates, "xread", comments, dims, datatype)
     }
@@ -667,8 +667,6 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #'
 #' @param as.labels Vector of data-frame indexes or \code{\link{OPMS}} metadata
 #'   entries. See \code{\link{extract}}.
-#' @param what Character scalar. See \code{\link{extract}}. Deprecated; use
-#'   \code{subset} instead.
 #' @param sep Character scalar. See \code{\link{extract}}.
 #'
 #' @param subset Character scalar. For the \code{\link{OPMS}} method, passed to
@@ -907,9 +905,7 @@ setMethod("phylo_data", "matrix", function(object,
 }, sealed = SEALED)
 
 setMethod("phylo_data", "data.frame", function(object, as.labels = NULL,
-    subset = what, sep = " ", what = "numeric", ...) {
-  if (!missing(what))
-    warning("'what' is deprecated, use 'subset'")
+    subset = "numeric", sep = " ", ...) {
   object <- extract_columns(object, as.labels = as.labels, what = subset,
     direct = FALSE, sep = sep)
   phylo_data(object, ...)
