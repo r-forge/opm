@@ -389,7 +389,6 @@ setMethod("[", c(OPMS, "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
   x
 }, sealed = SEALED)
 
-
 setMethod("[", c(MOPMX, "missing", "missing", "missing"), function(x, i, j,
     drop) {
   x
@@ -439,26 +438,13 @@ setMethod("[", c(MOPMX, "formula", "missing", "ANY"), function(x, i, j,
 
 setMethod("[", c(MOPMX, "list", "missing", "missing"), function(x, i, j,
     drop) {
-  x@.Data <- close_index_gaps(mapply(function(x, i)
-    if (is(x, "OPM"))
-      if (i)
-        x
-      else
-        NULL
-    else
-      x[i], x = x@.Data, i = i, SIMPLIFY = FALSE, USE.NAMES = TRUE))
+  x@.Data <- mapply(do_select, x@.Data, i, SIMPLIFY = FALSE, USE.NAMES = TRUE)
+  x@.Data <- close_index_gaps(x@.Data)
   x
 }, sealed = SEALED)
 
 setMethod("[", c(MOPMX, "list", "missing", "ANY"), function(x, i, j, drop) {
-  x@.Data <- mapply(function(x, i)
-    if (is(x, "OPM"))
-      if (i)
-        x
-      else
-        NULL
-    else
-      x[i], x = x@.Data, i = i, SIMPLIFY = FALSE, USE.NAMES = TRUE)
+  x@.Data <- mapply(do_select, x@.Data, i, SIMPLIFY = FALSE, USE.NAMES = TRUE)
   if (drop)
     return(x@.Data)
   x@.Data <- close_index_gaps(x@.Data)
@@ -1138,7 +1124,7 @@ setMethod("disc_settings", MOPMX, function(object, join = NULL) {
 #' points from \code{\link{OPM}} measurements. This is a mainly experimental
 #' function that might be of use in testing.
 #'
-#' @param x \code{\link{OPMS}} object.
+#' @param x \code{\link{OPMX}} or \code{\link{MOPMX}} object.
 #' @param query Logical or numeric vector or object accepted as query by the
 #'   infix operators. If a logical or numeric vector, \code{query} is directly
 #'   used as the first argument of \code{\link{[}}, and all following arguments,
@@ -1165,13 +1151,14 @@ setMethod("disc_settings", MOPMX, function(object, join = NULL) {
 #'   hours and minutes).
 #' @param positive Character scalar. If \sQuote{ignore}, not used. Otherwise all
 #'   previous arguments except \code{object} are ignored, and the function
-#'   yields an error unless all elements of \code{object} have discretised
-#'   values.
+#'   yields an error unless \code{object} has been discretised throughout, i.e.
+#'   either it is an \code{\link{OPMD}} object or all elements of \code{object}
+#'   have discretised values.
 #'
-#'   In that case, if \sQuote{any}, wells are selected that contain positive
-#'   reactions in at least one plate. If \sQuote{all}, wells are selected that
-#'   contain positive reactions in all plates. Using \code{invert} means
-#'   selecting all negative or weak reactions.
+#'   If \code{object} has the necessary discretised values, if \sQuote{any},
+#'   wells are selected that contain positive reactions in at least one plate.
+#'   If \sQuote{all}, wells are selected that contain positive reactions in all
+#'   plates. Using \code{invert} means selecting all negative or weak reactions.
 #' @param negative Character scalar. Like \code{positive}, but returns the
 #'   negative reactions. Using \code{invert} means selecting all positive or
 #'   weak reactions.
@@ -1196,9 +1183,18 @@ setMethod("disc_settings", MOPMX, function(object, join = NULL) {
 #' @export
 #' @return \code{NULL} or \code{\link{OPM}} or \code{\link{OPMS}} object. This
 #'   depends on how many plates are selected; see \code{\link{[}} for details.
-#' @details Thinning the plates out is experimental insofar as it has
-#'   \strong{not} been tested whether and how this could sensibly be applied
-#'   before aggregating the data.
+#'   The \code{\link{MOPMX}} method always returns a \code{\link{MOPMX}} object.
+#' @details The \code{\link{MOPMX}} method creates subsets of all contained
+#'   \code{\link{OPMX}} objects (if any) in turn and then removes those that
+#'   yielded \code{NULL}. Thus \code{subset} is not intended for directly
+#'   creating subsets of \code{\link{MOPMX}} but of their elements to yield,
+#'   e.g., elements that have a common set of \code{\link{metadata}} entries, as
+#'   required under most circumstances by some other \code{\link{MOPMX}} methods
+#'   such as \code{\link{extract}}.
+#'
+#'   Thinning the plates out is experimental insofar as it has \strong{not} been
+#'   tested whether and how this could sensibly be applied before aggregating
+#'   the data.
 #' @family getter-functions
 #' @keywords manip
 #' @seealso base::`[` base::`[[` base::subset
@@ -1276,73 +1272,48 @@ setMethod("disc_settings", MOPMX, function(object, join = NULL) {
 #'
 setGeneric("subset")
 
-setMethod("subset", OPMS, function(x, query, values = TRUE,
+setMethod("subset", OPMX, function(x, query, values = TRUE,
     invert = FALSE, exact = FALSE, time = FALSE,
     positive = c("ignore", "any", "all"),
     negative = c("ignore", "any", "all"),
     use = c("i", "I", "k", "K", "n", "N", "p", "P", "q", "Q", "t", "T")) {
-  select_binary <- function(x, invert.1, comb.fun, invert.2) {
-    y <- discretized(x)
-    if (invert.1)
-      y <- !y
-    y[is.na(y)] <- FALSE
-    y <- apply(y, 2L, comb.fun)
-    if (invert.2)
-      y <- !y
-    x[, , y]
-  }
-  case(match.arg(use),
-    i =, I = NULL,
-    k =, K = values <- FALSE,
-    n = negative <- "any",
-    N = negative <- "all",
-    p = positive <- "any",
-    P = positive <- "all",
-    q = {
-      values <- TRUE
-      exact <- FALSE
-    },
-    Q = {
-      values <- TRUE
-      exact <- TRUE
-    },
-    t =, T = time <- TRUE
-  )
-  LL(values, invert, exact, time)
+  if (missing(use))
+    LL(values, invert, exact, time)
+  else
+    reassign_args_using(match.arg(use))
   case(negative <- match.arg(negative),
     ignore = NULL,
     any =,
-    all = return(select_binary(x, TRUE, negative, invert))
+    all = return(select_by_disc(x, TRUE, invert, negative))
   )
   case(positive <- match.arg(positive),
     ignore = NULL,
     any =,
-    all = return(select_binary(x, FALSE, positive, invert))
+    all = return(select_by_disc(x, FALSE, invert, positive))
   )
-  if (time) {
-    tp <- hours(x, what = "all")
-    if (is.matrix(tp))
-      tp <- lapply(seq_len(nrow(tp)), function(i) tp[i, ])
-    if (length(maxs <- unique.default(vapply(tp, max, 1))) < 2L)
-      return(x)
-    min.max <- min(maxs)
-    tp <- lapply(tp, function(x) which(x <= min.max))
-    return(x[, tp])
+  if (time)
+    return(common_times(x))
+  if (!is.logical(query) && !is.numeric(query)) {
+    query <- if (values) {
+        if (exact)
+          query %Q% x
+        else
+          query %q% x
+      } else if (exact) {
+        query %K% x
+      } else {
+        query %k% x
+      }
+    if (invert)
+      query <- !query
   }
-  if (is.logical(query) || is.numeric(query))
-    return(x[query, , ])
-  pos <- if (values) {
-    if (exact)
-      query %Q% x
-    else
-      query %q% x
-  } else if (exact)
-    query %K% x
-  else
-    query %k% x
-  if (invert)
-    pos <- !pos
-  x[pos, , ]
+  do_select(x, query)
+}, sealed = SEALED)
+
+setMethod("subset", MOPMX, function(x, query, ...) {
+  x@.Data <- lapply(X = x@.Data, FUN = subset, query = query, ...)
+  x@.Data <- close_index_gaps(x@.Data)
+  x
 }, sealed = SEALED)
 
 #= thin_out subset
@@ -1375,24 +1346,32 @@ setMethod("thin_out", MOPMX, function(object, ...) {
 
 #' Determine duplicated plates
 #'
-#' Check whether duplicated \code{\link{OPM}} or \code{\link{OPMA}} objects are
-#' contained within an \code{\link{OPMS}} object. For reasons of consistency,
-#' the \code{\link{OPM}} methods always returns \code{FALSE} or \code{0}.
-#' Alternatively, query \code{\link{OPMX}} objects with other such objects.
+#' Check whether some, or duplicated, \code{\link{OPM}} objects are contained
+#' within an \code{\link{OPMS}} object, or whether \code{\link{OPMX}} objects
+#' are contained within an \code{\link{MOPMX}} object. For reasons of
+#' consistency, the \code{\link{OPM}} methods always returns \code{FALSE} or
+#' \code{0}. Alternatively, query \code{\link{OPMX}} objects with other such
+#' objects.
 #'
-#' @param x \code{\link{OPMX}} object.
-#' @param  incomparables Vector passed to \code{duplicated} from the \pkg{base}
+#' @param x \code{\link{OPMX}} or \code{\link{MOPMX}} object.
+#' @param incomparables Vector passed to \code{duplicated} from the \pkg{base}
 #'   package. By default this is \code{FALSE}.
 #' @param what Indicating which parts of \code{x} should be compared. If a
 #'   character scalar, the following entries are special: \describe{
 #'   \item{all}{Compares entire \code{OPM} objects.}
 #'   \item{csv}{Compares the \acronym{CSV} data entries \code{setup_time} and
-#'   \code{position} (see \code{\link{csv_data}}).}
+#'   \code{position} (see \code{\link{csv_data}}). Not for \code{\link{MOPMX}}
+#'   objects.}
 #'   \item{metadata}{Compares the entire metadata content.}
+#'   \item{plate.type}{Compares the plate types (only for \code{\link{MOPMX}}
+#'   objects).}
 #'   }
 #'   If \code{what} does not match any of these, or is not a character scalar at
 #'   all, it is passed as \code{key} argument to \code{\link{metadata}}, and the
-#'   resulting metadata subsets are compared.
+#'   resulting metadata subsets are compared. The following two arguments are
+#'   only relevant in this case.
+#' @param exact Logical scalar passed to \code{\link{metadata}}.
+#' @param strict Logical scalar passed to \code{\link{metadata}}.
 #' @param ... Optional arguments passed to \code{duplicated} from the \pkg{base}
 #'   package. For \code{contains}, optional arguments passed to \code{identical}
 #'   from the \pkg{base} package, allowing for fine-control of identity.
@@ -1403,11 +1382,11 @@ setMethod("thin_out", MOPMX, function(object, ...) {
 #' @return Logical vector in the case of \code{duplicated}, integer scalar in
 #'   the case of \code{anyDuplicated}. \code{0} if no values are duplicated, the
 #'   index of the first or last (depending on \code{fromLast}) duplicated object
-#'   otherwise.
+#'   otherwise. \code{contains} returns a logical vector.
 #' @details The \code{\link{OPMS}} and \code{\link{OPM}} methods of
 #'   \code{contains} test, for instance, whether an \code{\link{OPM}} object is
-#'   contained in an \code{\link{OPMS}} object. The test may also be vice versa
-#'   but then trivially fails.
+#'   contained in an \code{\link{OPMS}} object. The length of the resulting
+#'   logical vector is the length of \code{other}.
 #' @family getter-functions
 #' @keywords attribute
 #' @seealso base::duplicated base::anyDuplicated base::identical
@@ -1440,31 +1419,54 @@ setMethod("thin_out", MOPMX, function(object, ...) {
 #' stopifnot(identical(anyDuplicated(x), 2L))
 #'
 #' ## contains: 'OPMS'/'OPM' methods
-#' stopifnot(contains(vaas_4, vaas_4[3])) # single one contained
-#' stopifnot(contains(vaas_4, vaas_4)) # all contained
-#' stopifnot(!contains(vaas_4[3], vaas_4)) # OPMS cannot be contained in OPM
+#' (x <- contains(vaas_4, vaas_4[3])) # single one contained
+#' stopifnot(length(x) == 1, x)
+#' (x <- contains(vaas_4, vaas_4))
+#' stopifnot(length(x) == 4, x) # all contained
+#' (x <- contains(vaas_4[3], vaas_4)) # one of four contained
+#' stopifnot(length(x) == 4, sum(x) == 1)
 #' stopifnot(contains(vaas_4[3], vaas_4[3])) # identical OPM objects
 #' stopifnot(!contains(vaas_4[3], vaas_4[2])) # non-identical OPM objects
 #'
 setGeneric("duplicated")
 
-setMethod("duplicated", c(OPM, "ANY"), function(x, incomparables, ...) {
-  FALSE
+setMethod("duplicated", c(OPM, "missing"), function(x, incomparables, ...) {
+  duplicated(x = x, incomparables = FALSE, ...)
 }, sealed = SEALED)
 
 setMethod("duplicated", c(OPMS, "missing"), function(x, incomparables, ...) {
   duplicated(x = x, incomparables = FALSE, ...)
 }, sealed = SEALED)
 
+setMethod("duplicated", c(OPM, "ANY"), function(x, incomparables, ...) {
+  FALSE
+}, sealed = SEALED)
+
 setMethod("duplicated", c(OPMS, "ANY"), function(x, incomparables,
-    what = c("all", "csv", "metadata"), ...) {
+    what = c("all", "csv", "metadata"), exact = TRUE, strict = FALSE, ...) {
   selection <- tryCatch(match.arg(what), error = function(e) "other")
   duplicated(x = case(selection,
     all = x@plates,
     csv = cbind(csv_data(x, what = "setup_time"),
       csv_data(x, what = "position")),
     metadata = metadata(x),
-    other = metadata(object = x, key = what)
+    other = metadata(object = x, key = what, exact = exact, strict = strict)
+  ), incomparables = incomparables, ...)
+}, sealed = SEALED)
+
+setMethod("duplicated", c(MOPMX, "missing"), function(x, incomparables, ...) {
+  duplicated(x = x, incomparables = FALSE, ...)
+}, sealed = SEALED)
+
+setMethod("duplicated", c(MOPMX, "ANY"), function(x, incomparables,
+    what = c("plate.type", "all", "metadata"), exact = TRUE, strict = FALSE,
+    ...) {
+  selection <- tryCatch(match.arg(what), error = function(e) "other")
+  duplicated(x = case(selection,
+    all = x@.Data,
+    metadata = metadata(x),
+    other = metadata(object = x, key = what, exact = exact, strict = strict),
+    plate.type = plate_type(x)
   ), incomparables = incomparables, ...)
 }, sealed = SEALED)
 
@@ -1475,15 +1477,30 @@ setGeneric("anyDuplicated")
 
 #= anyDuplicated duplicated
 
-setMethod("anyDuplicated", c(OPM, "ANY"), function(x, incomparables, ...) {
-  0L
+setMethod("anyDuplicated", c(OPM, "missing"), function(x, incomparables, ...) {
+  anyDuplicated(x = x, incomparables = FALSE, ...)
 }, sealed = SEALED)
 
 setMethod("anyDuplicated", c(OPMS, "missing"), function(x, incomparables, ...) {
   anyDuplicated(x = x, incomparables = FALSE, ...)
 }, sealed = SEALED)
 
+
+setMethod("anyDuplicated", c(OPM, "ANY"), function(x, incomparables, ...) {
+  0L
+}, sealed = SEALED)
+
 setMethod("anyDuplicated", c(OPMS, "ANY"), function(x, incomparables, ...) {
+  dups <- which(duplicated(x = x, incomparables = incomparables, ...))
+  case(length(dups), 0L, dups[1L])
+}, sealed = SEALED)
+
+setMethod("anyDuplicated", c(MOPMX, "missing"), function(x, incomparables,
+    ...) {
+  anyDuplicated(x = x, incomparables = FALSE, ...)
+}, sealed = SEALED)
+
+setMethod("anyDuplicated", c(MOPMX, "ANY"), function(x, incomparables, ...) {
   dups <- which(duplicated(x = x, incomparables = incomparables, ...))
   case(length(dups), 0L, dups[1L])
 }, sealed = SEALED)
@@ -1513,11 +1530,27 @@ setMethod("contains", c(OPMS, OPMS), function(object, other, ...) {
 }, sealed = SEALED)
 
 setMethod("contains", c(OPM, OPMS), function(object, other, ...) {
-  FALSE
+  mapply(identical, y = other@plates, MoreArgs = list(x = object, ...),
+    SIMPLIFY = TRUE, USE.NAMES = FALSE)
 }, sealed = SEALED)
 
 setMethod("contains", c(OPM, OPM), function(object, other, ...) {
   identical(x = object, y = other, ...)
+}, sealed = SEALED)
+
+setMethod("contains", c(OPMX, MOPMX), function(object, other, ...) {
+  FALSE
+}, sealed = SEALED)
+
+setMethod("contains", c(MOPMX, OPMX), function(object, other, ...) {
+  for (elem in object@.Data)
+    if (all(contains(elem, other, ...)))
+      return(TRUE)
+  FALSE
+}, sealed = SEALED)
+
+setMethod("contains", c(MOPMX, MOPMX), function(object, other, ...) {
+  vapply(X = other@.Data, FUN = contains, FUN.VALUE = NA, object = object, ...)
 }, sealed = SEALED)
 
 

@@ -275,13 +275,17 @@ setMethod("$<-", c(MOPMX, "NULL"), function(x, name, value) {
 
 #' Combination and addition of plates
 #'
-#' Combine a \code{\link{OPM}} or \code{\link{OPMS}} object with other objects.
+#' Combine a \code{\link{OPMX}} or \code{\link{MOPMX}} object with other
+#' objects.
 #'
 #' @param x \code{\link{OPMX}} or \code{\link{MOPMX}} object.
 #' @param ... Other \R objects.
 #' @param recursive Logical scalar. See \code{c} from the \pkg{base} package.
-#' @param e1 \code{\link{OPM}} or \code{\link{OPMS}} object.
-#' @param e2 \code{\link{OPM}} or \code{\link{OPMS}} object, or list.
+#' @param e1 \code{\link{OPMX}} object. If \code{e2} is a \code{\link{MOPMX}}
+#'   object, anything that can be converted with \code{as} to that class.
+#' @param e2 \code{\link{OPMX}} object, or list. If \code{e1} is a
+#'   \code{\link{MOPMX}} object, anything that can be converted with \code{as}
+#'   to that class.
 #' @export
 #' @return
 #'   The \code{\link{OPMX}} method of \code{c} creates an \code{\link{OPMS}}
@@ -388,6 +392,16 @@ setMethod("+", c(OPMS, OPM), function(e1, e2) {
 
 setMethod("+", c(OPMS, "list"), function(e1, e2) {
   new(OPMS, plates = c(e1@plates, e2)) # unnaming also needed
+}, sealed = SEALED)
+
+setMethod("+", c(MOPMX, "ANY"), function(e1, e2) {
+  e1@.Data <- c(e1@.Data, as(e2, class(e1))@.Data)
+  e1
+}, sealed = SEALED)
+
+setMethod("+", c("ANY", MOPMX), function(e1, e2) {
+  e2@.Data <- c(as(e1, class(e2))@.Data, e2@.Data)
+  e2
 }, sealed = SEALED)
 
 

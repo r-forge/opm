@@ -103,6 +103,80 @@ setMethod("pick_from", "data.frame", function(object, selection) {
 ################################################################################
 
 
+#' Helper methods for subsetting.
+#'
+#' These are helper methods for subsetting any kinds of \code{\link{OPMX}}
+#' objects.
+#'
+#' @param x \code{\link{OPMX}} object.
+#' @param query Query passed to the infix operators.
+#' @param invert.1 Logical scalar.
+#' @param invert.2 Logical scalar.
+#' @param comb.fun Function applied to logical vectors.
+#' @return \code{\link{OPMX}} object or \code{NULL}.
+#' @keywords internal
+#'
+setGeneric("common_times", function(x) standardGeneric("common_times"))
+
+setMethod("common_times", OPM, function(x) {
+  x
+}, sealed = SEALED)
+
+setMethod("common_times", OPMS, function(x) {
+  tp <- hours(x, what = "all")
+  if (is.matrix(tp))
+    tp <- lapply(seq_len(nrow(tp)), function(i) tp[i, ])
+  if (length(maxs <- unique.default(vapply(tp, max, 1))) < 2L)
+    return(x)
+  min.max <- min(maxs)
+  tp <- lapply(tp, function(x) which(x <= min.max))
+  x[, tp]
+}, sealed = SEALED)
+
+#= select_by_disc common_times
+
+setGeneric("select_by_disc", function(x, ...) standardGeneric("select_by_disc"))
+
+setMethod("select_by_disc", OPMD, function(x, invert.1, invert.2, comb.fun) {
+  y <- discretized(x)
+  if (invert.1)
+    y <- !y
+  y[is.na(y)] <- FALSE
+  if (invert.2)
+    y <- !y
+  x[, y]
+}, sealed = SEALED)
+
+setMethod("select_by_disc", OPMS, function(x, invert.1, invert.2, comb.fun) {
+  y <- discretized(x)
+  if (invert.1)
+    y <- !y
+  y[is.na(y)] <- FALSE
+  y <- apply(y, 2L, comb.fun)
+  if (invert.2)
+    y <- !y
+  x[, , y]
+}, sealed = SEALED)
+
+#= do_select common_times
+
+setGeneric("do_select", function(x, query) standardGeneric("do_select"))
+
+setMethod("do_select", OPM, function(x, query) {
+  if (query)
+    x
+  else
+    NULL
+}, sealed = SEALED)
+
+setMethod("do_select", OPMS, function(x, query) {
+  x[query]
+}, sealed = SEALED)
+
+
+################################################################################
+
+
 ## NOTE: not an S4 method because applicable to any objects
 
 #' Reduce an object
@@ -419,6 +493,8 @@ vector2row <- function(x) matrix(x, 1L, length(x), FALSE, list(NULL, names(x)))
 #' @param ... Passed to \code{sprintf} after joining. It is an error to not
 #'   pass enough arguments.
 #' @param env Passed to \code{formula} as \sQuote{env} argument.
+#' @param use Character scalar used for modifiying metadata queries in the
+#'   environment of the caller.
 #' @return List, formula or character vector.
 #' @keywords internal
 #'
@@ -616,6 +692,30 @@ formula2infix <- function(f) {
     sprintf("%%%s%%", all.vars(f[[2L]]))
   else
     "%q%"
+}
+
+#' @rdname metadata_key
+#' @keywords internal
+#'
+reassign_args_using <- function(use) {
+  case(use,
+    i =, I = NULL,
+    k =, K = assign("values", FALSE, parent.frame()),
+    n = assign("negative", "any", parent.frame()),
+    N = assign("negative", "all", parent.frame()),
+    p = assign("positive", "any", parent.frame()),
+    P = assign("positive", "all", parent.frame()),
+    q = {
+      assign("values", TRUE, parent.frame())
+      assign("exact", FALSE, parent.frame())
+    },
+    Q = {
+      assign("values", TRUE, parent.frame())
+      assign("exact", TRUE, parent.frame())
+    },
+    t =, T = assign("time", TRUE, parent.frame())
+  )
+  invisible(NULL)
 }
 
 

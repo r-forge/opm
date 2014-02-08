@@ -310,6 +310,33 @@ test_that("the plates can be subset based on the metadata", {
 })
 
 ## subset
+test_that("an OPM object can be subset based on the metadata", {
+  query <- list(Organism = ORGN)
+  other.query <- list(Organism = "Elephas maximums") # wrong value
+  third.query <- list(organism = ORGN) # wrong key
+  got <- subset(OPM.WITH.MD, query = query, values = TRUE)
+  expect_is(got, OPM)
+  got <- subset(OPM.WITH.MD, query = query, use = "q")
+  expect_is(got, OPM)
+  got <- subset(OPM.WITH.MD, query = query, values = FALSE)
+  expect_is(got, OPM)
+  got <- subset(OPM.WITH.MD, query = query, use = "k")
+  expect_is(got, OPM)
+  got <- subset(OPM.WITH.MD, query = other.query, values = TRUE)
+  expect_is(got, "NULL")
+  got <- subset(OPM.WITH.MD, query = other.query, use = "q")
+  expect_is(got, "NULL")
+  got <- subset(OPM.WITH.MD, query = other.query, values = FALSE)
+  expect_is(got, OPM)
+  got <- subset(OPM.WITH.MD, query = other.query, use = "k")
+  expect_is(got, OPM)
+  got <- subset(OPM.WITH.MD, query = third.query, values = FALSE)
+  expect_is(got, "NULL")
+  got <- subset(OPM.WITH.MD, query = third.query, use = "k")
+  expect_is(got, "NULL")
+})
+
+## subset
 test_that("the plates can be subset based on common time points", {
   expect_warning(x <- c(OPM.1[1:50, ], OPM.2))
   expect_equal(as.vector(oapply(x, dim)), c(50L, 96L, 384L, 96L))
@@ -317,6 +344,8 @@ test_that("the plates can be subset based on common time points", {
   expect_equal(as.vector(oapply(got, dim)), c(50L, 96L, 50L, 96L))
   got <- subset(x, use = "t")
   expect_equal(as.vector(oapply(got, dim)), c(50L, 96L, 50L, 96L))
+  got <- subset(OPM.1, time = TRUE)
+  expect_equal(got, OPM.1)
 })
 
 

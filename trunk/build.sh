@@ -908,6 +908,19 @@ show_example_warnings()
           text = (text $0)
         }
         print text > "/dev/stderr"
+        next
+      }
+      /^Note: method with signature / {
+        cnt++
+        text = $0
+        while (1) {
+          getline
+          if ($0 !~ /^ /)
+            break
+          text = (text $0)
+        }
+        print text > "/dev/stderr"
+        next
       }
       END {
         if (!cnt)
