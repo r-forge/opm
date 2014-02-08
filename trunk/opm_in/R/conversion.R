@@ -13,18 +13,23 @@
 #' Combine all plates in a single \code{\link{OPM}} object by treating them as
 #' originating from subsequent runs of the same experimental plate. Adjust the
 #' times accordingly. Alternatively, split plates according to the contained
-#' regular series of substrates, if any.
+#' regular series of substrates, if any. The \code{\link{MOPMX}} method merges
+#' according to plate types, optionally including a novel element.
 #'
-#' @param x \code{\link{OPMX}} object.
-#' @param y Numeric vector indicating the time(s) (in hours) between two
-#'   subsequent plates. Must be positive throughout, and its length should fit
-#'   to the number of plates (e.g., either \code{1} or \code{length(x) - 1}
-#'   would work). If missing, \code{0.25} is used.
+#' @param x \code{\link{OPMX}} or \code{\link{MOPMX}} object.
+#' @param y For the \code{\link{OPMS}} method a numeric vector indicating the
+#'   time(s) (in hours) between two subsequent plates. Must be positive
+#'   throughout, and its length should fit to the number of plates (e.g., either
+#'   \code{1} or \code{length(x) - 1} would work). If missing, \code{0.25} is
+#'   used.
 #'
 #'   If \code{x} is an \code{\link{OPM}} object, a missing or numeric \code{y}
 #'   argument causes \code{merge} to just return \code{x} because there is
 #'   nothing to merge. But \code{y} can be an \code{\link{OPM}} object in that
 #'   case, which, if compatible, will be merged with \code{x}.
+#'
+#'   For the \code{\link{MOPMX}} method, the optional \code{y} can be any object
+#'   that can be convert to the class of \code{x} using \code{as}.
 #'
 #' @param sort.first Logical scalar. Sort the plates according to their setup
 #'   times before merging?
@@ -46,9 +51,13 @@
 #'   plate and converted to a factor used for splitting \code{x}.
 #' @param drop Passed to \code{\link{[}}. The default is \code{FALSE}.
 #' @export
-#' @return \code{merge} yields an \code{\link{OPM}} object. The
-#'   \code{\link{metadata}} and \code{\link{csv_data}} will be taken from the
-#'   first contained plate, but aggregated values, if any, will be dropped.
+#' @return The \code{\link{OPMX}} method of \code{merge} yields an
+#'   \code{\link{OPM}} object. The \code{\link{metadata}} and
+#'   \code{\link{csv_data}} will be taken from the first contained plate, but
+#'   aggregated values, if any, will be dropped.
+#'
+#'   The \code{\link{MOPMX}} method yields a \code{\link{MOPMX}} object with
+#'   a potentially different number of elements.
 #'
 #'   The \code{split} methods yield either an \code{\link{OPMS}} or an
 #'   \code{\link{MOPMX}} object.
@@ -85,6 +94,11 @@
 #'   suffixes. The \code{no.num} argument of \code{\link{wells}} and the
 #'   dependent methods can be used to remove the suffixes before displaying the
 #'   full well names.
+#'
+#'   The \code{\link{MOPMX}} method will raise an error if elements occur within
+#'   \code{x} (and optionally \code{y}) that have the same plate but cannot be
+#'   combined any way because they contain distinct sets of wells. See the
+#'   comments on combining plates into a \code{\link{OPMS}} object.
 #'
 #' @references Montero-Calasanz, M. d. C., Goeker, M.,  Poetter, G., Rohde, M.,
 #'   Sproeer, C., Schumann, P., Gorbushina, A. A., Klenk, H.-P. 2012
@@ -176,12 +190,26 @@ setMethod("merge", c(OPMS, "missing"), function(x, y, sort.first = TRUE,
   merge(x, 0.25, sort.first, parse)
 }, sealed = SEALED)
 
+setMethod("merge", c(MOPMX, "missing"), function(x, y) {
+  combine <- function(x) if (length(x) > 1L)
+      new(OPMS, x)
+    else
+      x
+  if (!anyDuplicated.default(pt <- plate_type(x)))
+    return(x)
+  x@.Data <- lapply(split.default(x@.Data, as.factor(pt)), combine)
+  x
+}, sealed = SEALED)
+
+setMethod("merge", c(MOPMX, "ANY"), function(x, y) {
+  merge(x + y)
+}, sealed = SEALED)
+
 setMethod("merge", c(CMAT, "logical"), function(x, y) {
-  y <- if (L(y))
+  merge(x, if (L(y))
       as.factor(rownames(x))
     else
-      as.factor(seq_len(nrow(x)))
-  merge(x, y)
+      as.factor(seq_len(nrow(x))))
 }, sealed = SEALED)
 
 setMethod("merge", c(CMAT, "ANY"), function(x, y) {
@@ -216,7 +244,7 @@ setMethod("split", c(OPMX, "missing", "missing"), function(x, f, drop) {
   split(x, drop = FALSE)
 }, sealed = SEALED)
 
-setMethod("split", c(OPM, "missing", "logical"), function(x, f, drop) {
+setMethod("split", c(OPM, "missing", "ANY"), function(x, f, drop) {
   extract_concentration <- function(x) {
     m <- regexpr("(?<=#)\\s*\\d+\\s*$", x, FALSE, TRUE)
     conc <- as.integer(substr(x, m, m + attr(m, "match.length") - 1L))
@@ -251,7 +279,7 @@ setMethod("split", c(OPM, "missing", "logical"), function(x, f, drop) {
       w2 = w[[1L]], drop = drop, key = get("series.key", OPM_OPTIONS))))
 }, sealed = SEALED)
 
-setMethod("split", c(OPMS, "missing", "logical"), function(x, f, drop) {
+setMethod("split", c(OPMS, "missing", "ANY"), function(x, f, drop) {
   x@plates <- lapply(x@plates, split, drop = drop)
   x@plates <- unlist(lapply(x@plates, slot, "plates"), FALSE, FALSE)
   x
@@ -261,19 +289,47 @@ setMethod("split", c(OPMX, "ANY", "missing"), function(x, f, drop) {
   split(x, f, FALSE)
 }, sealed = SEALED)
 
-setMethod("split", c(OPM, "factor", "logical"), function(x, f, drop) {
+setMethod("split", c(OPM, "factor", "ANY"), function(x, f, drop) {
   object <- split.default(0L, f, FALSE) # to get the warnings/errors
   object[[1L]] <- x[drop = drop]
   new(MOPMX, object)
 }, sealed = SEALED)
 
-setMethod("split", c(OPMS, "factor", "logical"), function(x, f, drop) {
+setMethod("split", c(OPMS, "factor", "ANY"), function(x, f, drop) {
   new(MOPMX, lapply(split.default(x, f, FALSE), `[`, drop = drop))
 }, sealed = SEALED)
 
-setMethod("split", c(OPMX, "ANY", "logical"), function(x, f, drop) {
+setMethod("split", c(OPMX, "ANY", "ANY"), function(x, f, drop) {
   split(x, as.factor(extract_columns(x, f, TRUE, " ", "ignore")), drop)
 }, sealed = SEALED)
+
+setMethod("split", c(MOPMX, "factor", "missing"), function(x, f, drop) {
+  split.default(x, f, FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c(MOPMX, "factor", "ANY"), function(x, f, drop) {
+  split.default(x, f, drop)
+}, sealed = SEALED)
+
+setMethod("split", c(MOPMX, "ANY", "missing"), function(x, f, drop) {
+  split(x, f, FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c(MOPMX, "ANY", "ANY"), function(x, f, drop) {
+  stop(NOT_YET)
+}, sealed = SEALED)
+
+# setMethod("split", c(MOPMX, "formula", "ANY"), function(x, f, drop) {
+#   split(x, do.call(formula2infix(f), list(f, x)), drop)
+# }, sealed = SEALED)
+#
+# setMethod("split", c(MOPMX, "expression", "ANY"), function(x, f, drop) {
+#   split(x, f %q% x, drop)
+# }, sealed = SEALED)
+#
+# setMethod("split", c(MOPMX, "list", "ANY"), function(x, f, drop) {
+#   stop(NOT_YET)
+# }, sealed = SEALED)
 
 
 ################################################################################
@@ -433,22 +489,29 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #' Sort, unify, revert or repeat \acronym{OPMS} objects
 #'
 #' Sort an \code{\link{OPMS}} object based on one to several metadata or
-#' \acronym{CSV} data entries, or check whether duplicated \code{\link{OPM}} or
-#' \code{\link{OPMA}} objects are contained within an \code{\link{OPMS}} object
-#' and remove the duplicated ones, or revert the order of plates within an
-#' \code{\link{OPMS}} object. Alternatively, repeat \code{\link{OPMS}} or
-#' \code{\link{OPM}} objects zero times, once, or several times, and accordingly
-#' create a novel \code{\link{OPMS}} or \code{\link{OPM}} object (\code{NULL} if
-#' zero length is chosen).
+#' \acronym{CSV} data entries, or sort elements of a \code{\link{MOPMX}} object
+#' based on plate type, length, or a metadata entry. Alternatively, remove
+#' duplicated elements from a \code{\link{OPMS}} or \code{\link{MOPMX}} object,
+#' or revert the order of plates within an \code{\link{OPMS}} object, or, repeat
+#' \code{\link{OPMS}} or \code{\link{OPM}} objects zero times, once, or several
+#' times.
 #'
-#' @param x \code{\link{OPMS}} or \code{\link{OPM}} object.
-#' @param decreasing Logical scalar. Passed to \code{order} from the \pkg{base}
-#'   package.
-#' @param by List or character vector. If a list, a list of one to several keys
-#'   passed as \code{key} argument to \code{\link{metadata}}. If a character
-#'   vector of length one, \code{by} is passed as \sQuote{what} argument to
-#'   \code{\link{csv_data}}. If longer, passed step-by-step to
-#'   \code{\link{csv_data}} as \code{keys} argument.
+#' @param x \code{\link{OPM}} or \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
+#' @param decreasing Logical scalar. Passed to \code{order} or \code{sort.list}
+#'   from the \pkg{base} package.
+#' @param by List or character vector. For \code{\link{OPMS}} objects, if a
+#'   list, a list of one to several keys passed as \code{key} argument to
+#'   \code{\link{metadata}}. If a character vector of length one, \code{by} is
+#'   passed as \sQuote{what} argument to \code{\link{csv_data}}. If longer,
+#'   passed step-by-step to \code{\link{csv_data}} as \code{keys} argument.
+#'
+#'   For \code{\link{MOPMX}} objects, either \sQuote{plate.type}, which sorts
+#'   according to the plate types, \sQuote{length}, which sorts the elements
+#'   according to their lengths (i.e., number of plates), or a metadata query
+#'   that yields, for each element of \code{x}, a vector to which \code{max}
+#'   can be applied. Sorting \code{x} is then done according to these maxima.
+#'
 #' @param parse Logical scalar. Convert the \code{setup_time} via
 #'   \code{strptime} before ordering? Has only an effect if \code{by} is
 #'   \sQuote{setup_time}. It is an error if the time format is not recognised.
@@ -463,7 +526,8 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #'   found at all. Note that it is always an error if keys are found in the
 #'   \code{\link{metadata}} of some of the \code{\link{plates}} but not in
 #'   those of others.
-#' @param na.last Logical scalar. Also passed to \code{order}.
+#' @param na.last Logical scalar. Also passed to \code{order} or
+#'   \code{sort.list}.
 #' @param incomparables Vector passed to \code{\link{duplicated}}. The default
 #'   is \code{FALSE}.
 #' @param ... Optional arguments passed between the methods or to
@@ -577,7 +641,7 @@ setMethod("sort", c(OPMS, "logical"), function(x, decreasing, by = "setup_time",
     if (!strict)
       if (!length(keys <- keys[!vapply(keys, is.null, NA)]))
         return(x)
-  } else if (is.character(by)) {
+  } else if (is.character(by))
     case(length(by),
       stop("if a character scalar, 'by' must not be empty"),
       {
@@ -588,12 +652,33 @@ setMethod("sort", c(OPMS, "logical"), function(x, decreasing, by = "setup_time",
       },
       keys <- lapply(X = by, FUN = csv_data, object = x)
     )
-  } else
+  else
     stop("'by' must be a list or a character vector")
   keys <- insert(keys, decreasing = decreasing, na.last = na.last,
     .force = TRUE)
   x@plates <- x@plates[do.call(order, keys)]
   x
+}, sealed = SEALED)
+
+setMethod("sort", c(MOPMX, "missing"), function(x, decreasing, ...) {
+  sort(x = x, decreasing = FALSE, ...)
+}, sealed = SEALED)
+
+setMethod("sort", c(MOPMX, "logical"), function(x, decreasing,
+    by = c("plate.type", "length"), exact = TRUE, strict = TRUE,
+    na.last = TRUE, ...) {
+  if (length(x) < 2L)
+    return(x)
+  selection <- tryCatch(match.arg(by), error = function(e) "other")
+  case(selection,
+    length = criterion <- vapply(x, length, 0L),
+    plate.type = criterion <- plate_type(x),
+    other = {
+      m <- metadata(object = x, key = by, exact = exact, strict = strict)
+      criterion <- sapply(m, max, na.rm = TRUE, USE.NAMES = FALSE)
+    }
+  )
+  x[sort.list(x = criterion, decreasing = decreasing, na.last = na.last, ...)]
 }, sealed = SEALED)
 
 #= unique sort
