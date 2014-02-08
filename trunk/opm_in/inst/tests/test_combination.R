@@ -126,6 +126,21 @@ test_that("`+`() can be used to put plates together", {
 })
 
 
+## +
+test_that("`+`() can be used to put MOPMX objects together", {
+  got <- MOPMX.1 + OPM.1
+  expect_equal(length(got), length(MOPMX.1) + 1L)
+  got <- OPM.1 + MOPMX.1
+  expect_equal(length(got), length(MOPMX.1) + 1L)
+  got <- OPMS.INPUT + MOPMX.1
+  expect_equal(length(got), length(MOPMX.1) + 1L)
+  got <- MOPMX.1 + OPMS.INPUT
+  expect_equal(length(got), length(MOPMX.1) + 1L)
+  expect_error(MOPMX.1 + 5)
+  expect_error(5 + MOPMX.1)
+})
+
+
 ## c
 test_that("c() can be used to put plates together", {
   x <- c(OPM.1)

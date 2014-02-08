@@ -1,6 +1,6 @@
 
 
-2014-01-XX (the 13th release on CRAN)
+2014-02-XX (the 13th release on CRAN)
 
 - fixed bug in extract() that affected logical 'what' arguments; now the
   special treatmen of logical vectors is already done by extract_columns()

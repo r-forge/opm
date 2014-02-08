@@ -519,6 +519,12 @@ setMethod("plate_type", OPM, function(object, ..., normalize = FALSE,
     normalize = normalize, subtype = subtype)
 }, sealed = SEALED)
 
+setMethod("plate_type", MOPMX, function(object, ..., normalize = FALSE,
+    subtype = FALSE) {
+  vapply(X = object@.Data, FUN = plate_type, FUN.VALUE = "", ...,
+    normalize = normalize, subtype = subtype)
+}, sealed = SEALED)
+
 setMethod("plate_type", "character", function(object, full = FALSE,
     in.parens = TRUE, max = opm_opt("max.chars"), clean = TRUE,
     brackets = FALSE, word.wise = FALSE, paren.sep = " ", downcase = FALSE,
@@ -1878,7 +1884,7 @@ lapply(c(
     #-
   ), FUN = function(func_) {
   setMethod(func_, MOPMX, function(object, ...) {
-    apply(object@.Data, FUN = func_, ...)
+    lapply(object@.Data, FUN = func_, ...)
   }, sealed = SEALED)
 })
 
