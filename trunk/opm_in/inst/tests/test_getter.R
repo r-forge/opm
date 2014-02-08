@@ -36,6 +36,15 @@ test_that("the content of the wells can be subset", {
   expect_true(all(vapply(w.got, is.matrix, NA)))
 })
 
+## well
+test_that("the content of the wells can be obtained from MOPMX objects", {
+  w.got <- well(MOPMX.1)
+  expect_is(w.got, "list")
+  expect_false(all(vapply(w.got, is.matrix, NA)))
+  expect_true(any(vapply(w.got, is.matrix, NA)))
+  expect_false(all(vapply(w.got, is.list, NA)))
+  expect_true(any(vapply(w.got, is.list, NA)))
+})
 
 ## hours
 test_that("hours can be explicitely queried", {
@@ -348,6 +357,14 @@ test_that("the plates can be subset based on common time points", {
   expect_equal(got, OPM.1)
 })
 
+## subset
+test_that("MOPMX objects can be subset", {
+  got <- subset(MOPMX.1, time = TRUE)
+  expect_equal(got, MOPMX.1)
+  expect_warning(got <- subset(MOPMX.1, ~ organism, use = "k"))
+  expect_equal(got, MOPMX.1[2L])
+})
+
 
 ## thin_out
 test_that("OPM example data can be thinned out", {
@@ -369,18 +386,39 @@ test_that("OPMS example data can be thinned out", {
   expect_equal(metadata(thin), metadata(OPMS.INPUT))
 })
 
+## thin_out
+test_that("MOPMX example data can be thinned out", {
+  thin <- thin_out(MOPMX.1, 10)
+  expect_is(thin, MOPMX)
+  expect_equal(length(thin), length(MOPMX.1))
+  expect_false(identical(thin, MOPMX.1))
+})
+
 
 ################################################################################
 
 
 ## duplicated
-## UNTESTED
+test_that("MOPMX objects can be checked for duplicates #2", {
+  expect_equal(duplicated(MOPMX.1), c(FALSE, FALSE))
+  x <- MOPMX.1 + OPM.3
+  expect_equal(duplicated(x), c(FALSE, FALSE, TRUE))
+})
+
 
 ## anyDuplicated
-## UNTESTED
+test_that("MOPMX objects can be checked for duplicates #2", {
+  expect_equal(anyDuplicated(MOPMX.1), 0L)
+  x <- MOPMX.1 + OPM.3
+  expect_equal(anyDuplicated(x), 3L)
+})
 
 ## contains
-## UNTESTED
+test_that("MOPMX objects can be queried with contains()", {
+  expect_true(contains(MOPMX.1, OPM.3))
+  expect_false(contains(MOPMX.1, OPM.1))
+  expect_equal(contains(MOPMX.1, MOPMX.1), c(TRUE, TRUE))
+})
 
 
 ################################################################################
@@ -497,6 +535,13 @@ test_that("OPMS metadata can be queried with %k% and formula #3", {
 })
 
 
+## %k%
+test_that("MOPMX metadata can be queried with %k%", {
+  got <- MOPMX.1 %k% ~ organism
+  expect_equal(got, list(FALSE, c(TRUE, TRUE)))
+})
+
+
 #-------------------------------------------------------------------------------
 
 
@@ -606,6 +651,13 @@ test_that("OPMS metadata can be queried with %K% and formula #3", {
 })
 
 
+## %K%
+test_that("MOPMX metadata can be queried with %K%", {
+  got <- MOPMX.1 %K% ~ organism
+  expect_equal(got, list(FALSE, c(TRUE, TRUE)))
+})
+
+
 #-------------------------------------------------------------------------------
 
 
@@ -660,6 +712,13 @@ test_that("OPMS metadata values can be queried with %q%", {
 })
 
 
+## %q%
+test_that("MOPMX metadata can be queried with %q%", {
+  got <- MOPMX.1[2] %q% ~ organism == "Bacillus simplex"
+  expect_equal(got, list(c(TRUE, TRUE)))
+})
+
+
 #-------------------------------------------------------------------------------
 
 
@@ -699,6 +758,13 @@ test_that("OPMS metadata can be queried with %Q%", {
   expect_equal(c(FALSE, FALSE), list(missing = "not there") %Q% OPMS.INPUT)
   expect_equal(c(FALSE, FALSE), list("not there") %Q% OPMS.INPUT)
 })
+
+## %Q%
+test_that("MOPMX metadata can be queried with %Q%", {
+  got <- MOPMX.1[2] %Q% ~ organism == "Bacillus simplex"
+  expect_equal(got, list(c(TRUE, TRUE)))
+})
+
 
 
 ################################################################################

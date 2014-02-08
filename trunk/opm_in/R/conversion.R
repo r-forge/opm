@@ -192,9 +192,9 @@ setMethod("merge", c(OPMS, "missing"), function(x, y, sort.first = TRUE,
 
 setMethod("merge", c(MOPMX, "missing"), function(x, y) {
   combine <- function(x) if (length(x) > 1L)
-      new(OPMS, x)
+      new(OPMS, plates = x)
     else
-      x
+      x[[1L]]
   if (!anyDuplicated.default(pt <- plate_type(x)))
     return(x)
   x@.Data <- lapply(split.default(x@.Data, as.factor(pt)), combine)
@@ -625,15 +625,19 @@ setMethod("flattened_to_factor", "data.frame", function(object, sep = " ") {
 #'
 setGeneric("sort")
 
-setMethod("sort", c(OPMX, "missing"), function(x, decreasing, ...) {
-  sort(x = x, decreasing = FALSE, ...)
-}, sealed = SEALED)
-
-setMethod("sort", c(OPM, "logical"), function(x, decreasing, ...) {
+setMethod("sort", c(OPM, "missing"), function(x, decreasing, ...) {
   x
 }, sealed = SEALED)
 
-setMethod("sort", c(OPMS, "logical"), function(x, decreasing, by = "setup_time",
+setMethod("sort", c(OPM, "ANY"), function(x, decreasing, ...) {
+  x
+}, sealed = SEALED)
+
+setMethod("sort", c(OPMS, "missing"), function(x, decreasing, ...) {
+  sort(x = x, decreasing = FALSE, ...)
+}, sealed = SEALED)
+
+setMethod("sort", c(OPMS, "ANY"), function(x, decreasing, by = "setup_time",
     parse = by == "setup_time", exact = TRUE, strict = TRUE, na.last = TRUE) {
   if (is.list(by)) {
     keys <- lapply(X = by, FUN = metadata, object = x, exact = exact,
@@ -664,7 +668,7 @@ setMethod("sort", c(MOPMX, "missing"), function(x, decreasing, ...) {
   sort(x = x, decreasing = FALSE, ...)
 }, sealed = SEALED)
 
-setMethod("sort", c(MOPMX, "logical"), function(x, decreasing,
+setMethod("sort", c(MOPMX, "ANY"), function(x, decreasing,
     by = c("plate.type", "length"), exact = TRUE, strict = TRUE,
     na.last = TRUE, ...) {
   if (length(x) < 2L)
@@ -689,6 +693,10 @@ setMethod("sort", c(MOPMX, "logical"), function(x, decreasing,
 setGeneric("unique")
 
 setMethod("unique", c(OPM, "ANY"), function(x, incomparables, ...) {
+  x
+}, sealed = SEALED)
+
+setMethod("unique", c(OPM, "missing"), function(x, incomparables, ...) {
   x
 }, sealed = SEALED)
 

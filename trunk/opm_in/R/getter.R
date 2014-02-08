@@ -1459,7 +1459,7 @@ setMethod("duplicated", c(MOPMX, "missing"), function(x, incomparables, ...) {
 }, sealed = SEALED)
 
 setMethod("duplicated", c(MOPMX, "ANY"), function(x, incomparables,
-    what = c("plate.type", "all", "metadata"), exact = TRUE, strict = FALSE,
+    what = c("all", "plate.type", "metadata"), exact = TRUE, strict = FALSE,
     ...) {
   selection <- tryCatch(match.arg(what), error = function(e) "other")
   duplicated(x = case(selection,
@@ -1589,7 +1589,6 @@ lapply(c(
     hours,
     measurements,
     metadata,
-    plate_type,
     well
     #-
   ), FUN = function(func_) {

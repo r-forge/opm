@@ -56,6 +56,15 @@ test_that("plates can be merged", {
   expect_equal(dim(x), c(dim(y[1L])[1L] + dim(y[2L])[1L], d1[3L]))
 })
 
+## merge
+test_that("MOPMX objects can be merged", {
+  got <- merge(MOPMX.1)
+  expect_equal(got, MOPMX.1)
+  got <- merge(MOPMX.1, OPM.3)
+  expect_equal(length(got), length(MOPMX.1))
+  expect_true(length(plates(got)) > length(plates(MOPMX.1)))
+})
+
 
 ## merge
 test_that("character-matrix objects can be merged", {
@@ -94,6 +103,15 @@ test_that("the plates can be obtained as a list", {
   expect_equal(length(pl), 2L)
   expect_true(all(vapply(pl, is, NA, "OPM")))
 })
+
+## plates
+test_that("the plates in MOPMX objects can be obtained as a list", {
+  pl <- plates(MOPMX.1)
+  expect_is(pl, "list")
+  expect_equal(length(pl), 3L)
+  expect_true(all(vapply(pl, is, NA, "OPM")))
+})
+
 
 
 ## oapply
@@ -410,11 +428,25 @@ test_that("extract_columns can be applied to a data frame", {
 
 
 ## sort
-## UNTESTED
+test_that("MOPMX objects can be sorted", {
+  got <- sort(MOPMX.1)
+  expect_equal(got, rev(MOPMX.1))
+  got <- sort(MOPMX.1, by = "length")
+  expect_equal(got, MOPMX.1)
+})
 
 
 ## unique
-## UNTESTED
+test_that("MOPMX objects can be made unique", {
+  got <- unique(MOPMX.1)
+  expect_equal(got, MOPMX.1)
+  got <- unique(MOPMX.1 + OPM.3)
+  expect_equal(got, MOPMX.1)
+  got <- unique(MOPMX.1 + OPM.1, what = "all")
+  expect_true(length(got) > length(MOPMX.1))
+  got <- unique(MOPMX.1 + OPM.1, what = "plate.type")
+  expect_equal(got, MOPMX.1)
+})
 
 
 ## rep
@@ -702,7 +734,10 @@ test_that("extract() deals with duplicate column names", {
 
 
 ## as.data.frame
-## UNTESTED
+test_that("MOPMX objects can be converted into a data frame", {
+  x <- as.data.frame(MOPMX.1)
+  expect_equal(dim(x), c(288L, 5L))
+})
 
 
 ################################################################################
