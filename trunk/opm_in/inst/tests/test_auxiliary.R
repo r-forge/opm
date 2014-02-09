@@ -61,6 +61,10 @@ test_that("we can memoize queries", {
 ## UNTESTED
 
 
+## metadata2factorlist
+## UNTESTED
+
+
 ## sub_indexes
 test_that("sub-indexes can be got and incremented", {
   x <- list(a = 1:2, b = 'a', c = c(TRUE, FALSE, FALSE))

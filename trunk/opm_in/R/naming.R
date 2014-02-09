@@ -357,6 +357,10 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #'   EcoPlate\eqn{\textsuperscript{\texttrademark}}{(TM)}, use \kbd{eco}; the
 #'   remaining allowed values are only \kbd{sf.n2}, \kbd{sf.p2}, \kbd{an2},
 #'   \kbd{ff} and \kbd{yt}, but matching is case-insensitive.
+#'
+#'   A character vector of length greater than one can be passed to the
+#'   \code{\link{MOPMX}} method, which recycles its \code{to} argument.
+#'
 #' @param ... Optional arguments passed between the methods. For
 #'   \code{register_plate}, named arguments to be used if \code{object} is
 #'   missing.
@@ -623,7 +627,8 @@ setMethod("gen_iii", OPMS, function(object, ...) {
 }, sealed = SEALED)
 
 setMethod("gen_iii", MOPMX, function(object, ...) {
-  object@.Data <- lapply(X = object@.Data, FUN = gen_iii, ...)
+  object@.Data <- mapply(FUN = gen_iii, object = object@.Data, ...,
+    MoreArgs = NULL, SIMPLIFY = FALSE, USE.NAMES = FALSE)
   object
 }, sealed = SEALED)
 

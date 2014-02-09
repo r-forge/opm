@@ -37,10 +37,10 @@
 #'   For sorting, parse the setup times using \code{strptime} from the
 #'   \pkg{base} package? It is an error if this does not work, but see
 #'   \sQuote{Details}.
-#' @param f Factor or missing. If missing, the behaviour is special. Splitting
-#'   is applied to the plates themselves and attempted according to the
-#'   positions of substrates within series as revealed by
-#'   \code{\link{substrate_info}} in \sQuote{concentration} mode.
+#' @param f For the \code{\link{OPMX}} methods, a factor or missing. If missing,
+#'   the behaviour is special. Splitting is applied to the plates themselves and
+#'   attempted according to the positions of substrates within series as
+#'   revealed by \code{\link{substrate_info}} in \sQuote{concentration} mode.
 #'
 #'   If a factor, \code{f} is used as in the default \code{split} method from
 #'   the \pkg{base} package, yielding a list (\code{\link{MOPMX}} object) of
@@ -49,6 +49,21 @@
 #'   If neither missing nor a factor, \code{f} is used as \code{key} argument
 #'   of \code{\link{metadata}}. The resulting entries are pasted together per
 #'   plate and converted to a factor used for splitting \code{x}.
+#'
+#'   For the \code{\link{MOPMX}} methods, f is a factor, a list of factors, or
+#'   an object suitable as \code{\link{metadata}} key. If a factor, it is
+#'   directly used for splitting \code{x}. If a list of factors, the factor
+#'   lengths must correspond to the lengths of the elements of \code{x}, in
+#'   turn. Each element of \code{x} is then split separately, and the resulting
+#'   \code{\link{MOPMX}} objects are reassigned, yielding a list with one
+#'   \code{\link{MOPMX}} object per factor level. Factor levels that do not
+#'   occur in some of the elements of \code{x} are dropped, with a warning,
+#'   independent of \code{drop} argument.
+#'
+#'   If \code{f} is neither a factor nor a list of factors, such a list of
+#'   factors is generated from the metadata, with \code{NULL} results replaced
+#'   by \code{NA}.
+#'
 #' @param drop Passed to \code{\link{[}}. The default is \code{FALSE}.
 #' @export
 #' @return The \code{\link{OPMX}} method of \code{merge} yields an
@@ -56,11 +71,13 @@
 #'   \code{\link{csv_data}} will be taken from the first contained plate, but
 #'   aggregated values, if any, will be dropped.
 #'
-#'   The \code{\link{MOPMX}} method yields a \code{\link{MOPMX}} object with
-#'   a potentially different number of elements.
+#'   The \code{\link{MOPMX}} method for \code{merge} yields a
+#'   \code{\link{MOPMX}} object with a potentially different number of elements.
 #'
 #'   The \code{split} methods yield either an \code{\link{OPMS}} or an
-#'   \code{\link{MOPMX}} object.
+#'   \code{\link{MOPMX}} object; the \code{\link{MOPMX}} method for \code{split}
+#'   yields a list of \code{\link{MOPMX}} objects.
+#'
 #' @details This \code{\link{OPMS}} method of \code{merge} is intended for
 #'   dealing with slowly growing or reacting organisms that need to be analysed
 #'   with subsequent runs of the same plate in \acronym{PM} mode. Results
@@ -95,10 +112,11 @@
 #'   dependent methods can be used to remove the suffixes before displaying the
 #'   full well names.
 #'
-#'   The \code{\link{MOPMX}} method will raise an error if elements occur within
-#'   \code{x} (and optionally \code{y}) that have the same plate but cannot be
-#'   combined any way because they contain distinct sets of wells. See the
-#'   comments on combining plates into a \code{\link{OPMS}} object.
+#'   The \code{\link{MOPMX}} method for \code{merge} will raise an error if
+#'   elements occur within \code{x} (and optionally \code{y}) that have the same
+#'   plate type but cannot be combined any way because they contain distinct
+#'   sets of wells. See the comments on combining plates into a
+#'   \code{\link{OPMS}} object.
 #'
 #' @references Montero-Calasanz, M. d. C., Goeker, M.,  Poetter, G., Rohde, M.,
 #'   Sproeer, C., Schumann, P., Gorbushina, A. A., Klenk, H.-P. 2012
@@ -240,7 +258,11 @@ setMethod("merge", c(CMAT, "factor"), function(x, y) {
 #'
 setGeneric("split")
 
-setMethod("split", c(OPMX, "missing", "missing"), function(x, f, drop) {
+setMethod("split", c(OPM, "missing", "missing"), function(x, f, drop) {
+  split(x, drop = FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c(OPMS, "missing", "missing"), function(x, f, drop) {
   split(x, drop = FALSE)
 }, sealed = SEALED)
 
@@ -285,7 +307,15 @@ setMethod("split", c(OPMS, "missing", "ANY"), function(x, f, drop) {
   x
 }, sealed = FALSE)
 
-setMethod("split", c(OPMX, "ANY", "missing"), function(x, f, drop) {
+setMethod("split", c(OPM, "ANY", "missing"), function(x, f, drop) {
+  split(x, f, FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c(OPMS, "ANY", "missing"), function(x, f, drop) {
+  split(x, f, FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c(OPM, "factor", "missing"), function(x, f, drop) {
   split(x, f, FALSE)
 }, sealed = SEALED)
 
@@ -293,6 +323,10 @@ setMethod("split", c(OPM, "factor", "ANY"), function(x, f, drop) {
   object <- split.default(0L, f, FALSE) # to get the warnings/errors
   object[[1L]] <- x[drop = drop]
   new(MOPMX, object)
+}, sealed = SEALED)
+
+setMethod("split", c(OPMS, "factor", "missing"), function(x, f, drop) {
+  split(x, f, FALSE)
 }, sealed = SEALED)
 
 setMethod("split", c(OPMS, "factor", "ANY"), function(x, f, drop) {
@@ -311,25 +345,29 @@ setMethod("split", c(MOPMX, "factor", "ANY"), function(x, f, drop) {
   split.default(x, f, drop)
 }, sealed = SEALED)
 
+setMethod("split", c(MOPMX, "list", "missing"), function(x, f, drop) {
+  split(x, f, FALSE)
+}, sealed = SEALED)
+
+setMethod("split", c(MOPMX, "list", "ANY"), function(x, f, drop) {
+  if (!all(vapply(f, is.factor, NA)))
+    f <- metadata2factorlist(x, f)
+  x <- mapply(split, x = x, f = f, MoreArgs = list(drop = drop),
+    SIMPLIFY = FALSE)
+  f <- sort.int(unique.default(unlist(lapply(f, levels), FALSE, FALSE)))
+  result <- structure(vector("list", length(f)), names = f)
+  for (level in f)
+    result[[level]] <- lapply(x, `[[`, i = level)
+  lapply(lapply(result, close_index_gaps), as, MOPMX)
+}, sealed = SEALED)
+
 setMethod("split", c(MOPMX, "ANY", "missing"), function(x, f, drop) {
   split(x, f, FALSE)
 }, sealed = SEALED)
 
 setMethod("split", c(MOPMX, "ANY", "ANY"), function(x, f, drop) {
-  stop(NOT_YET)
+  split(x, metadata2factorlist(x, f), drop)
 }, sealed = SEALED)
-
-# setMethod("split", c(MOPMX, "formula", "ANY"), function(x, f, drop) {
-#   split(x, do.call(formula2infix(f), list(f, x)), drop)
-# }, sealed = SEALED)
-#
-# setMethod("split", c(MOPMX, "expression", "ANY"), function(x, f, drop) {
-#   split(x, f %q% x, drop)
-# }, sealed = SEALED)
-#
-# setMethod("split", c(MOPMX, "list", "ANY"), function(x, f, drop) {
-#   stop(NOT_YET)
-# }, sealed = SEALED)
 
 
 ################################################################################
@@ -440,8 +478,8 @@ setMethod("oapply", OPMS, function(object, fun, ...,
 
 setMethod("oapply", MOPMX, function(object, fun, ...,
     simplify = TRUE) {
-  result <- sapply(X = object@.Data, FUN = fun, ..., simplify = simplify,
-    USE.NAMES = TRUE)
+  result <- sapply(X = object, FUN = fun, ..., simplify = simplify,
+    USE.NAMES = TRUE) # using object@.Data would lose the names
   if (simplify && is.list(result))
     tryCatch(new(class(object), result[!vapply(result, is.null, NA)]),
       error = function(e) result)
