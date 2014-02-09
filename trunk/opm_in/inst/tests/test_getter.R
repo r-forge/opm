@@ -19,6 +19,9 @@ test_that("all measurements are accessible", {
   m.got <- measurements(OPMS.INPUT, 3L)
   expect_is(m.got, "list")
   expect_true(all(vapply(m.got, is.matrix, NA)))
+  m.got <- measurements(MOPMX.1, 3L)
+  expect_is(m.got, "list")
+  expect_equal(length(m.got), length(MOPMX.1))
 })
 
 
@@ -55,6 +58,10 @@ test_that("hours can be explicitely queried", {
   h.got <- hours(OPMS.INPUT, what = "all")
   expect_is(h.got, "matrix")
   expect_equal(nrow(h.got), length(OPMS.INPUT))
+  h.got <- hours(MOPMX.1, what = "all")
+  expect_is(h.got, "list")
+  expect_is(h.got[[1L]], "numeric")
+  expect_is(h.got[[2L]], "matrix")
 })
 
 
@@ -122,6 +129,19 @@ test_that("the entire OPMS object can be subset", {
   expect_equal(dim(few), dims)
 })
 
+## [
+test_that("the entire MOPMX object can be subset", {
+  x <- MOPMX.1[]
+  expect_equal(x, MOPMX.1)
+  x <- MOPMX.1[1L:2L]
+  expect_equal(x, MOPMX.1)
+  x <- MOPMX.1[1L]
+  expect_is(x, "MOPMX")
+  x <- MOPMX.1[2L]
+  expect_is(x, "MOPMX")
+  expect_warning(x <- MOPMX.1[10L])
+  expect_is(x, "MOPMX")
+})
 
 
 ################################################################################

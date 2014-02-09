@@ -177,15 +177,15 @@ setMethod("do_select", OPMS, function(x, query) {
 ################################################################################
 
 
-## NOTE: not an S4 method because applicable to any objects
-
 #' Reduce an object
 #'
 #' Reduce a countable object to the most frequent element(s). Alternatively,
-#' join list to a matrix or data frame.
+#' join list to a matrix or data frame. \code{metadata2factorlist} is a helper
+#' function for \code{link{split}}.
 #'
 #' @param x For \code{reduce_to_mode}, an \R object to which \code{table} can be
-#'   applied. The matrix method reduces the columns.
+#'   applied. The matrix method reduces the columns. For
+#'   \code{metadata2factorlist}, a \code{link{MOPMX}} object.
 #' @param cutoff Numeric scalar. Relative frequency below which elements are
 #'   discarded.
 #' @param use.na Logical scalar indicating whether ambiguous results should be
@@ -291,6 +291,19 @@ fix_names <- function(x, y) {
   if (any(bad <- !nzchar(x)[i <- seq_along(y)] & nzchar(y)))
     x[i][bad] <- y[bad]
   x
+}
+
+#' @rdname reduce_to_mode
+#'
+metadata2factorlist <- function(x, f) {
+  replace_null <- function(x) {
+    x[vapply(x, is.null, NA)] <- NA
+    x
+  }
+  f <- metadata(x, f)
+  f[simple] <- lapply(f[simple <- vapply(x, is, NA, OPM)], list)
+  f <- lapply(lapply(f, replace_null), lapply, replace_null)
+  lapply(lapply(f, vapply, paste0, "", collapse = " "), as.factor)
 }
 
 

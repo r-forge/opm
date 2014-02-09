@@ -190,6 +190,14 @@ test_that("the plate type of OPMS objects can be changed", {
   expect_false(plate_type(x) == plate_type(OPMS.INPUT))
 })
 
+## gen_iii
+test_that("the plate type of MOPMX objects can be changed", {
+  got <- gen_iii(MOPMX.1, to <- c("ff", "sf.n2"))
+  expect_equal(plate_type(got), plate_type(to))
+  got <- gen_iii(MOPMX.1)
+  expect_equal(plate_type(got), rep(plate_type("gen.iii"), length(MOPMX.1)))
+})
+
 
 ################################################################################
 

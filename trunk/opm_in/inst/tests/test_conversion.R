@@ -93,7 +93,12 @@ test_that("character-matrix objects can be merged", {
 
 
 ## split
-## UNTESTED
+test_that("MOPMX objects can be split", {
+  expect_warning(got <- split(MOPMX.1, "organism"))
+  expect_is(got, "list")
+  expect_equal(names(got), c(ORGN, "NA"))
+  expect_true(all(vapply(got, is, NA, MOPMX)))
+})
 
 
 ## plates
@@ -113,9 +118,11 @@ test_that("the plates in MOPMX objects can be obtained as a list", {
 })
 
 
-
 ## oapply
-## UNTESTED -- but see examples and tests for subsetting
+test_that("oapply() can be applied to MOPMX objects", {
+  got <- oapply(MOPMX.1, identity)
+  expect_equal(got, MOPMX.1)
+})
 
 
 ################################################################################
@@ -827,10 +834,22 @@ test_that("OPMS example data can be converted to YAML", {
   expect_equal("---", lines[1L])
   pats <- c("metadata", "measurements", "csv_data", "aggregated")
   for (pat in sprintf("^[ -] %s:$", pats)) {
-    pos <- grep(pat, lines, perl = TRUE)
+    pos <- grep(pat, lines, FALSE, TRUE)
     expect_equal(length(THIN.AGG), length(pos))
   }
 })
+
+## to_yaml
+test_that("MOPMX example data can be converted to YAML", {
+  lines <- strsplit(to_yaml(MOPMX.1), "\n", fixed = TRUE)[[1]]
+  expect_equal("---", lines[1L])
+  pats <- c("measurements", "csv_data")
+  for (pat in sprintf("^[ -] %s:$", pats)) {
+    pos <- grep(pat, lines, FALSE, TRUE)
+    expect_equal(length(pos), 3L)
+  }
+})
+
 
 
 ################################################################################
