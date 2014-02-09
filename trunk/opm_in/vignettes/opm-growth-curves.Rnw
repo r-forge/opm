@@ -78,8 +78,7 @@
 
 
 % authors, first page
-\author{Lea A.I. \Surname{Vaas}\\Leibniz Institute \acs{DSMZ} \And
-        Markus \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
+\author{Markus \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
 
 
 % title, first page
@@ -87,7 +86,7 @@
 
 
 % authors, header on every 2nd page
-\Plainauthor{L.A.I. Vaas, M. G\"{o}ker}
+\Plainauthor{M. G\"{o}ker}
 
 
 % main title, first page
@@ -512,7 +511,7 @@ For the forthcoming analyses we restrict ourselves to the results obtained with 
 
 <<label=select-splines, echo=TRUE>>=
 tecan <- sm.tecan
-rm(tp.tecan, p.tecan)
+rm(tp.tecan, p.tecan, sm.tecan) # tidy up
 potato.fm <- do_aggr(potato.fm, method = "splines", boot = 0,
   options = set_spline_options(type = "smooth.spline"))
 potato.dm <- do_aggr(potato.dm, method = "splines", boot = 0,
@@ -529,28 +528,86 @@ As there is no difference to plotting \ac{PM} data, we refer to Section~\ref*{tu
 In the following we will use \code{opm\_mcp} to assess whether the conclusions from the graphical analysis (Figure~\ref{fig:growth_xy_plot} and Figure~\ref{fig:potato_xy_plot}) can be confirmed for the example data.
 The \code{opm\_mcp} method is extensively documented in Section~\ref*{tutorial-methods group-means} and particularly Section~\ref*{tutorial-application group-means} of the main tutorial, hence we here restrict ourselves to just the necessary function calls.
 
+The following code answers the main question regarding the potato data sets, i.e. for which treatment (well) significant or insignificant differences between the genotypes are found, and how large the according effect size is.
 
-%% END FROZEN SECTION
+<<label=potato-mcp, echo=TRUE>>=
+dm.mcp <- opm_mcp(potato.dm, ~ J(Well, Genotype), m.type = "aov",
+  linfct = c(Pairs.Well = 1), max = 7, in.parens = FALSE)
+fm.mcp <- opm_mcp(potato.fm, ~ J(Well, Genotype), m.type = "aov",
+  linfct = c(Pairs.Well = 1), max = 7, in.parens = FALSE)
+@
 
+Using the dedicated \code{plot} method, the results can be visualised as demonstrated in Figure~\ref{fig:dm-mcp} and Figure~\ref{fig:fm-mcp}.
 
-\rcscom{
-TODO: Lea, please conduct selected analyses that make sense for these data.
-The interpretations given in the figure captions should be assessed using \code{opm\_mcp}.
-Restrict yourself to the fresh mass and the TECAN data and to one call to \code{opm\_mcp}, and one plot of the resulting \code{glht} object, per data set.
-Provide some brief explanations on the function arguments specific to these two data sets.
-Omit all issues not specific to growth data.
-A final sentence should relate the \code{opm\_mcp} results to the statements in the figure captions, i.e. the following two:
-``It also indicates that the stresses impair growth but that the genetically modified cells grow better then the wild type under moderate stress conditions.''
-and
-``The plot indicates that one of the strains outgrows the other unless high concentrations of Glucose are applied.''
-Omit anything else.
+\begin{figure}
+\centering
+<<label=plot-fm-mcp, echo=FALSE, fig=TRUE>>=
+library(multcomp) # now needed
+old.mar <- par(mar = c(3, 15, 3, 2))
+plot(fm.mcp)
+par(old.mar)
+@
+\caption{
+\label{fig:fm-mcp}
+Point estimates and 95\% confidence intervals in a ``Pairs''-type comparison of group means for the fresh-mass exemplar object.
+Compare the outcome with Figure~\ref{fig:potato_xy_plot} and see the main text for an interpretation.
 }
+\end{figure}
+
+\begin{figure}
+\centering
+<<label=plot-dm-mcp, echo=FALSE, fig=TRUE>>=
+old.mar <- par(mar = c(3, 15, 3, 2))
+plot(dm.mcp)
+par(old.mar)
+@
+\caption{
+\label{fig:dm-mcp}
+Point estimates and 95\% confidence intervals in a ``Pairs''-type comparison of group means for the dry-mass exemplar object.
+Compare the outcome with Figure~\ref{fig:potato_xy_plot} and see the main text for an interpretation.
+}
+\end{figure}
+
+Results obtained with \code{opm\_mcp} confirm the suspicion from Figure~\ref{fig:potato_xy_plot} that the stresses impair growth but that, when measured using fresh mass (Figure~\ref{fig:fm-mcp}), the genetically modified cells grow better then the wild type under moderate stress conditions.
+In contrast, the wild type outgrows the genetically modified lineages under non-stress (control) conditions.
+In the dry-mass measurements (Figure~\ref{fig:fm-mcp}) some differences are less apparent.
+For instance, there is no significant difference between the lineages under control conditions.
+See the publication by \citet{ijms140715141} for an in-depth interpretation of these results.
+
+The TECAN can be analysed in an analogous fashion.
+
+<<label=tecan-mcp, echo=TRUE>>=
+tecan.mcp <- opm_mcp(tecan, ~ J(Well, Strain), m.type = "aov",
+  linfct = c(Pairs.Well = 1), full = FALSE)
+@
+
+
+\begin{figure}
+\centering
+<<label=plot-tecan-mcp, echo=FALSE, fig=TRUE>>=
+old.mar <- par(mar = c(3, 15, 3, 2))
+plot(tecan.mcp)
+par(old.mar)
+@
+\caption{
+\label{fig:tecan-mcp}
+Point estimates and 95\% confidence intervals in a ``Pairs''-type comparison of group means for the TECAN example data obtained from two \textit{E. coli} strains.
+Compare the outcome with Figure~\ref{fig:growth_xy_plot} and see the main text for an interpretation.
+}
+\end{figure}
+
+
+The plot in Figure~\ref{fig:growth_xy_plot} indicated that one of the strains outgrows the other unless high concentrations of Glucose are applied.
+This can be confirmed with the \code{opm\_mcp} analysis, as significant differences between the two strains only occur for moderate Glucose concentrations (wells ``A02'' and ``A03'') but neither in the control treatment nor for high concentrations of the sugar.
+
 
 
 \section{Acknowledgements}
-We are grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves measured with a TECAN instrument.
+The author is grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves measured with a TECAN instrument.
+Cordial thanks are addressed to Lea A.I. \German{Vaas} (\ac{DSMZ}) for providing the potato growth measurements and background information on these data, as well as for clarifying some technical issues related to the TECAN data.
 
 
 \bibliography{opm}
 
 \end{document}
+
