@@ -1230,9 +1230,12 @@ setMethod("ci_plot", OPMS, function(object, as.labels,
 #'   the margin (i) at the bottom and (ii) at the left.
 #'
 #' @param col Character vector containing the proper heat map colours.
-#' @param asqr Logical scalar indicating whether the data should be treated
-#'   with the arcsine-square root transformation. This usually only makes
-#'   sense for proportion data. If \code{NA}, percentages are assumed.
+#' @param asqr Logical scalar indicating whether the data should be treated with
+#'   the arcsine-square root transformation. This usually only makes sense for
+#'   proportion data and cannot be used in conjunction with the \code{log1}
+#'   argument set to \code{TRUE}. If \code{NA}, percentages are assumed.
+#' @param log1 Logical scalar indicating whether \code{log1p} should be used
+#'   for transforming the data prior to plotting.
 #' @param lmap Numeric scalar with at least three elements, or empty. If empty,
 #'   ignored. Otherwise used for mapping logical values to numeric values. See
 #'   \code{\link{map_values}} for details. Ignored if the data are not logical.
@@ -1294,7 +1297,7 @@ setMethod("heat_map", "matrix", function(object,
       borders[length(borders)] * cexRow * max(nchar(rownames(object))))
     else
       c(5, 5),
-    col = opm_opt("heatmap.colors"), asqr = FALSE, lmap = 1L:3L,
+    col = opm_opt("heatmap.colors"), asqr = FALSE, log1 = FALSE, lmap = 1L:3L,
     abbrev = c("none", "row", "column", "both"),
     ...,
     use.fun = c("gplots", "stats")) {
@@ -1391,8 +1394,13 @@ setMethod("heat_map", "matrix", function(object,
     else
       storage.mode(object) <- "integer"
 
-  if (is.na(L(asqr)) || asqr)
+  LL(asqr, log1)
+  if (is.na(asqr) || asqr) {
+    if (log1)
+      stop("log and asrq tranformation cannot both be chosen")
     object[] <- do_asqr(object, is.na(asqr))
+  } else if (log1)
+    object[] <- log1p(object)
 
   result <- do.call(heatmap_fun, c(list(x = object), arg.list))
   result$colColMap <- col.side.colors

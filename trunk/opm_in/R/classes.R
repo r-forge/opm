@@ -1017,6 +1017,25 @@ setClass("OPMD_DB",
 #
 
 
+setAs("OPM", "OPMA", function(from) {
+  stop("do_aggr() is needed to aggregate OPM objects")
+})
+
+setAs("OPM", "OPMD", function(from) {
+  stop("do_aggr() and do_disc() are needed to discretise OPM objects")
+})
+
+setAs("OPMA", "OPMD", function(from) {
+  stop("do_disc() is needed to discretise OPMA objects")
+})
+
+
+################################################################################
+#
+# Conversion to and from database I/O objects
+#
+
+
 setAs("OPM", "OPM_DB", function(from) {
   x <- forward_OPM_to_list(from)
   new("OPM_DB", plates = x$plates, wells = x$wells,
