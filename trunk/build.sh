@@ -1583,7 +1583,7 @@ case $RUNNING_MODE in
     exit $?
   ;;
   cran )
-    for mode in test demo sql time plex spell; do
+    for mode in test demo sql2 time plex spell; do
       "$0" "$mode" || :
     done
     exit $?
