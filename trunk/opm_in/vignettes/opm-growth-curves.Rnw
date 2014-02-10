@@ -485,7 +485,7 @@ p.tecan <- do_aggr(tecan, method = "splines", boot = 0,
 After these preparations the methods can be visually compared as follows.
 
 <<label=plot-opm-spline-dummy, eval=FALSE, echo=TRUE>>=
-par(mfrow = c(2, 4))
+old.par <- par(mfrow = c(2, 4))
 plot_param_diff(Sm = sm.tecan, Tp = tp.tecan, P = p.tecan)
 par(old.par)
 @
@@ -537,44 +537,36 @@ fm.mcp <- opm_mcp(potato.fm, ~ J(Well, Genotype), m.type = "aov",
   linfct = c(Pairs.Well = 1), max = 7, in.parens = FALSE)
 @
 
-Using the dedicated \code{plot} method, the results can be visualised as demonstrated in Figure~\ref{fig:dm-mcp} and Figure~\ref{fig:fm-mcp}.
+Using the dedicated \code{plot} method, the results can be visualised as demonstrated in Figure~\ref{fig:potato-mcp}.
+
 
 \begin{figure}
 \centering
-<<label=plot-fm-mcp, echo=FALSE, fig=TRUE>>=
+<<label=plot-potato-mcp, echo=FALSE, fig=TRUE>>=
 library(multcomp) # now needed
-old.mar <- par(mar = c(3, 15, 3, 2))
+old.mar <- par(mar = c(1, 15, 2, 1))
+old.par <- par(mfrow = c(2, 1))
 plot(fm.mcp)
+plot(dm.mcp, main = "")
 par(old.mar)
+par(old.par)
 @
 \caption{
-\label{fig:fm-mcp}
-Point estimates and 95\% confidence intervals in a ``Pairs''-type comparison of group means for the fresh-mass exemplar object.
+\label{fig:potato-mcp}
+Point estimates and 95\% confidence intervals in a ``Pairs''-type comparison of group means for the fresh-mass (upper section) and dry-mass (lower section) potato cell-line example data.
+Significant differences are those whose confidence intervals do not cross the dotted line at \code{x = 0}; effect sizes are also easily visible.
 Compare the outcome with Figure~\ref{fig:potato_xy_plot} and see the main text for an interpretation.
 }
 \end{figure}
 
-\begin{figure}
-\centering
-<<label=plot-dm-mcp, echo=FALSE, fig=TRUE>>=
-old.mar <- par(mar = c(3, 15, 3, 2))
-plot(dm.mcp)
-par(old.mar)
-@
-\caption{
-\label{fig:dm-mcp}
-Point estimates and 95\% confidence intervals in a ``Pairs''-type comparison of group means for the dry-mass exemplar object.
-Compare the outcome with Figure~\ref{fig:potato_xy_plot} and see the main text for an interpretation.
-}
-\end{figure}
 
-Results obtained with \code{opm\_mcp} confirm the suspicion from Figure~\ref{fig:potato_xy_plot} that the stresses impair growth but that, when measured using fresh mass (Figure~\ref{fig:fm-mcp}), the genetically modified cells grow better then the wild type under moderate stress conditions.
+Results obtained with \code{opm\_mcp} confirm the suspicion from Figure~\ref{fig:potato_xy_plot} that the stresses impair growth but that, when measured using fresh mass (Figure~\ref{fig:potato-mcp}, upper section), the genetically modified cells grow better then the wild type under moderate stress conditions.
 In contrast, the wild type outgrows the genetically modified lineages under non-stress (control) conditions.
-In the dry-mass measurements (Figure~\ref{fig:fm-mcp}) some differences are less apparent.
+In the dry-mass measurements (Figure~\ref{fig:potato-mcp}, lower section) some differences are less apparent.
 For instance, there is no significant difference between the lineages under control conditions.
 See the publication by \citet{ijms140715141} for an in-depth interpretation of these results.
 
-The TECAN can be analysed in an analogous fashion.
+The TECAN data can be analysed in an analogous fashion.
 
 <<label=tecan-mcp, echo=TRUE>>=
 tecan.mcp <- opm_mcp(tecan, ~ J(Well, Strain), m.type = "aov",
@@ -592,6 +584,7 @@ par(old.mar)
 \caption{
 \label{fig:tecan-mcp}
 Point estimates and 95\% confidence intervals in a ``Pairs''-type comparison of group means for the TECAN example data obtained from two \textit{E. coli} strains.
+Significant differences are those whose confidence intervals do not cross the dotted line at \code{x = 0}; effect sizes are also easily visible.
 Compare the outcome with Figure~\ref{fig:growth_xy_plot} and see the main text for an interpretation.
 }
 \end{figure}
@@ -600,7 +593,7 @@ Compare the outcome with Figure~\ref{fig:growth_xy_plot} and see the main text f
 The plot in Figure~\ref{fig:growth_xy_plot} indicated that one of the strains outgrows the other unless high concentrations of Glucose are applied.
 This can be confirmed with the \code{opm\_mcp} analysis, as significant differences between the two strains only occur for moderate Glucose concentrations (wells ``A02'' and ``A03'') but neither in the control treatment nor for high concentrations of the sugar.
 
-
+\clearpage
 
 \section{Acknowledgements}
 The author is grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves measured with a TECAN instrument.
