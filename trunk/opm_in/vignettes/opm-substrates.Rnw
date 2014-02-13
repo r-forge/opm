@@ -836,7 +836,7 @@ i.e. the higher the value of the coefficient the more important is the variable.
   \begin{center}
 \scalebox{0.55}{
 <<coef-plot2, fig=TRUE, echo=FALSE, width = 6>>=
-par(mar = c(4, 8, 0.1, 0.1))
+old.par <- par(mar = c(4, 8, 0.1, 0.1)) # adapt plotting settings
 cf <- coef(mod)[-1]
 plot(sort(abs(cf)), 1:length(cf),
   type = "n", yaxt = "n", xlim = c(0, max(abs(cf))),
@@ -844,6 +844,7 @@ plot(sort(abs(cf)), 1:length(cf),
 abline(h = 1:length(cf), lty = "dotted", col = "grey")
 points(sort(abs(cf)), 1:length(cf), pch = 19)
 axis(2, at = 1:length(cf), names(cf)[order(abs(cf))], las = 2)
+par(old.par) # reset plotting settings
 @
 }
 \caption{Absolute value of coefficients at the optimal stopping iteration
@@ -867,7 +868,7 @@ stab <- stabsel(mod, cutoff = 0.6, PFER = 1.5, error.bound = "SS")
 @
 
 <<mboost_stability_selection2, results = hide, eval = true, echo = false>>=
-if (!file.exists("stabsel.Rda")) {
+if ( !file.exists("stabsel.Rda") ) {
 <<mboost_stability_selection>>
     save(mod, stab, file = "stabsel.Rda")
 } else {
@@ -898,8 +899,9 @@ are stable and thus can be considered to play a substantial role.
 \begin{figure}
 \scalebox{1.1}{
 <<label=stabsel-plot, fig=TRUE, echo=FALSE, width=12>>=
-par(mar = c(5, 4, 4, 7))
+old.par <- par(mar = c(5, 4, 4, 7)) # adapt plotting settings
 plot(stab, main = "Stability selection paths")
+par(old.par) # reset plotting settings
 @
 }
 \caption{Inclusion probability of variables (over the number of boosting
@@ -913,7 +915,7 @@ plot(stab, main = "Stability selection paths")
   \begin{center}
 \scalebox{0.55}{
 <<max-include-freq, fig=TRUE, echo=FALSE, width = 6>>=
-par(mar = c(4, 8, 0.1, 0.1))
+old.par <- par(mar = c(4, 8, 0.1, 0.1)) # adapt plotting settings
 ## number of substrates to plot
 ps <- 20
 ## remove intercept as its selection is not interesting
@@ -926,6 +928,7 @@ points(tail(sort(inc_freq), ps), 1:ps, pch = 19)
 axis(2, at = 1:ps, names(inc_freq)[tail(order(inc_freq), ps)], las = 2)
 ## add cutoff
 abline(v = stab$cutoff, col = "grey")
+par(old.par) # reset plotting settings
 @
 }
 \caption{Maximum inclusion frequency $\hat{\pi}$ for the top 20
@@ -950,6 +953,11 @@ This fits well to the visualisation approaches exemplified above but ignores the
 %%%%  Alternativer Ansatz mit Variation in den Daten:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+<<set_seed_again, echo = FALSE, results = hide>>=
+## set seed (for reproducible results)
+set.seed(1907)
+@
+
 \subsubsection{Using repeated measurements as input}
 
 Using two biological replicates and all technical replicates thereof the
@@ -966,14 +974,14 @@ data <- opm_mcp(coli.sub1, ~ Species + Strain + Experiment +
 y <- annotated(coli.sub, how = "values")
 ## add everything but the value
 data[, colnames(y)[-1]] <- y[as.character(data$Well), -1]
-data <- data[complete.cases(data),]
+data <- data[complete.cases(data), ]
 data <- data[, !(names(data) %in% c("Well", "Species", "Parameter"))]
 names(data) <- gsub(" ", "_", names(data))
 names(data) <- gsub("2-", "", names(data))
 
 tmp <- data
 for (i in 1:ncol(data)) {
-    if(all(data[, i] %in% c(0,1)))
+    if (all(data[, i] %in% c(0, 1)))
         data[, i] <- as.factor(data[, i])
 }
 
@@ -1018,7 +1026,7 @@ stab2 <- stabsel(mod2, cutoff = 0.6, PFER = 1.5, error.bound = "SS")
 @
 
 <<model, echo = false, results = hide>>=
-if (!file.exists("pathway_model.Rda")) {
+if ( !file.exists("pathway_model.Rda") ) {
 <<model_code>>
   save(offsetmod, mod2, stab2, file = "pathway_model.Rda")
 } else {
@@ -1043,21 +1051,22 @@ effects are selected (while controlling the per-family error rate).
 
 Plotting the results
 <<model_pathways_code, eval = false>>=
-par(mar = c(4, 0.1, 0.1, 15), mfrow = c(1,2))
+old.par <- par(mar = c(4, 0.1, 0.1, 15), mfrow = c(1, 2))# adapt plotting settings
 plot(stab2, main = "")
 par(mar = c(4, 15, 0.1, 0.1))
 ## number of substrates to plot
 ps <- 20
 inc_freq <- stab2$max
 plot(tail(sort(inc_freq), ps), 1:ps,
-     type = "n", yaxt = "n", xlim = c(0, 1),
-     ylab = "", xlab = expression(hat(pi)))
+  type = "n", yaxt = "n", xlim = c(0, 1),
+  ylab = "", xlab = expression(hat(pi)))
 abline(h = 1:ps, lty = "dotted", col = "grey")
 points(tail(sort(inc_freq), ps), 1:ps, pch = 19)
 nms <- gsub(", ", " by ", variable.names(mod2))
 axis(2, at = 1:ps, nms[tail(order(inc_freq), ps)], las = 2)
 ## add cutoff
 abline(v = stab2$cutoff, col = "grey")
+par(old.par) # reset plotting settings
 @
 leads to a similar but more complex structure (see Figure~\ref{fig:stabsel2}).
 %\rcsdel{The forthcoming version of this vignette will demonstrate feature selection from the curve parameters themselves. We will show how to easily generate matrices containing estimated both traditional \pkg{opm} metadata and novel \pkg{opm} substrate metainformation as (potential) explanatory variables.}
@@ -1065,7 +1074,7 @@ leads to a similar but more complex structure (see Figure~\ref{fig:stabsel2}).
 \begin{figure}
 \centering
 \scalebox{1.1}{
-<<model_pathways, fig = true, width = 14, height = 8, echo = false, results = hide>>=
+<<model_pathways, fig=true, width = 14, height = 7, echo = false, results = hide>>=
 <<model_pathways_code>>
 @
 }
@@ -1074,6 +1083,53 @@ leads to a similar but more complex structure (see Figure~\ref{fig:stabsel2}).
   selection paths stop to increase after 100 iterations. (right) Maximum
   inclusion frequency $\hat{\pi}$ for the top 20 variables as determined by
   stability selection.\label{fig:stabsel2}}
+\end{figure}
+
+Now we can have a look at the regression coefficients of the selected variables.
+Therefor we first determine the optimal stopping iteration of the boosting algorithm:
+<<cvrisk_mod2_code, eval=false>>=
+## first increase the model
+mod2[1000]
+cvr2 <- cvrisk(mod2)
+mod2[mstop(cvr2)]
+@
+
+<<cvrisk_mod2, echo = false, results = hide>>=
+if ( !file.exists("cvrisk_mod2.Rda") ) {
+<<cvrisk_mod2_code>>
+  save(cvr, file = "cvrisk_mod2.Rda")
+} else {
+  load("cvrisk_mod2.Rda")
+}
+@
+
+In the next step we extract the coefficients of the stable variables
+<<coefficients_code, eval = false>>=
+cf <- coef(mod2, which = selected(stab2))
+## use only the second coefficient, the first coefficient of each base-learner
+## is the intercept which isn't of interest here.
+beta <- sapply(cf, function(x) x[2])
+old.par <- par(mar = c(4, 15, 0.1, 0.1))# adapt plotting settings
+plot(sort(beta), 1:length(beta),
+     type = "n", yaxt = "n",
+     ylab = "", xlab = expression(hat(beta)))
+
+abline(h = 1:length(beta), lty = "dotted", col = "grey")
+points(sort(beta), 1:length(beta), pch = 19)
+nms <- gsub(", ", " by ", variable.names(mod2, which = selected(stab2)))
+axis(2, at = 1:length(beta), nms[order(beta)], las = 2)
+abline(v = 0, col = "grey")
+par(old.par) # reset plotting settings
+@
+
+\begin{figure}
+\centering
+\scalebox{0.55}{
+<<coefficients, fig=true, width = 7, height = 7, echo = false, results = hide>>=
+<<coefficients_code>>
+@
+}
+\caption{Coefficients of stable variables (for the optimal boosting iteration).\label{fig:stabsel2}}
 \end{figure}
 
 \subsubsection{Evaluation of results}
@@ -1134,8 +1190,9 @@ See \cite{Wouter2012} for a review of \ac{RF} properties that allow for maximisi
  \centering
 \scalebox{1.0}{
 <<label=carb-comp-test-figure, fig=TRUE, echo=FALSE, width=12, height=3>>=
-par(mar = c(3, 25, 4, 3))
+old.par <- par(mar = c(3, 25, 4, 3)) # adapt plotting settings
 plot(carb.test, xlim = c(-190, 20))
+par(old.par) # reset plotting settings
 @
 }
 \caption{
