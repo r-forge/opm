@@ -41,7 +41,7 @@ do_read <- function(infile, options) {
 }
 
 
-read_and_create_unique_names <- function(files, options) {
+read_and_create_unique_column_names <- function(files, options) {
   data <- lapply(X = files, FUN = do_read, options = options)
   change.first <- !options$first
   suffixes <- if (options$indices)
@@ -67,6 +67,11 @@ read_and_create_unique_names <- function(files, options) {
 do_split <- function(x) {
   x <- unlist(strsplit(x, ",", fixed = TRUE), recursive = FALSE)
   x[nzchar(x)]
+}
+
+
+make_unique <- function(x) {
+  make.unique(as.character(x), " #")
 }
 
 
@@ -137,6 +142,10 @@ option.parser <- OptionParser(option_list = list(
   make_option(c("-o", "--onename"), action = "store_true",
     help = paste("Do not split arguments of '-x' and '-y' at ','",
       "[default: %default]"), default = FALSE),
+
+  make_option(c("-q", "--unique"), action = "store_true",
+    help = "Make entries in join column unique [default: %default]",
+    default = FALSE),
 
   make_option(c("-s", "--separator"), type = "character",
     help = "Field separator in CSV files [default: '%default']",
@@ -243,7 +252,13 @@ if (opt$vertical) {
 #
 
 
-data <- read_and_create_unique_names(files, opt)
+data <- read_and_create_unique_column_names(files, opt)
+
+if (opt$unique) {
+  data[[1L]][, opt$xcolumn] <- make_unique(data[[1L]][, opt$xcolumn])
+  for (i in seq_along(data)[-1L])
+    data[[i]][, opt$ycolumn] <- make_unique(data[[i]][, opt$ycolumn])
+}
 
 x <- data[[1L]]
 for (i in seq_along(data)[-1L])
