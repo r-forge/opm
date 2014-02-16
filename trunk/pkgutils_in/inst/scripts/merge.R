@@ -65,7 +65,7 @@ read_and_create_unique_column_names <- function(files, options) {
 
 
 do_split <- function(x) {
-  x <- unlist(strsplit(x, ",", fixed = TRUE), recursive = FALSE)
+  x <- unlist(strsplit(x, ",", TRUE), FALSE, FALSE)
   x[nzchar(x)]
 }
 
@@ -82,8 +82,40 @@ join_unique <- function(x, join) {
 
 to_numbered_header <- function(x) {
   x[x == COLUMN_DEFAULT_NAME] <- "1"
-  x <- sub("^\\s*V", "", x, perl = TRUE, ignore.case = TRUE)
+  x <- sub("^\\s*V", "", x, TRUE, TRUE)
   sprintf("V%i", must(as.integer(x)))
+}
+
+
+# This is slow if 'x' contains strings that have no close match in 'y' (and no
+# 'cutoff' is set) but otherwise converges quickly.
+#
+assort_strings <- function(x, y, cutoff = Inf, ...) {
+  result <- adist(x, y, ...)
+  result <- data.frame(X = rep.int(seq_along(x), length(y)),
+    Y = rep(seq_along(y), each = length(x)), D = c(result), W = FALSE)
+  if (is.finite(cutoff))
+    result <- result[result[, 3L] < cutoff, , drop = FALSE]
+  result <- result[sort.list(result[, 3L]), , drop = FALSE]
+  have.x <- logical(length(x))
+  have.y <- logical(length(y))
+  for (i in seq_len(nrow(result))) {
+    if (have.x[[result[i, 1L]]] || have.y[[result[i, 2L]]])
+      next
+    result[i, 4L] <- have.x[[result[i, 1L]]] <- have.y[[result[i, 2L]]] <- TRUE
+    if (all(have.x) || all(have.y))
+      break
+  }
+  result <- result[result[, 4L], -4L, drop = FALSE]
+  result[, 1L] <- x[result[, 1L]]
+  result[, 2L] <- y[result[, 2L]]
+  if (length(x <- setdiff(x, result[, 1L])))
+    result <- rbind(result, data.frame(X = x, Y = NA_character_, D = NA_real_,
+      stringsAsFactors = FALSE))
+  if (length(y <- setdiff(y, result[, 2L])))
+    result <- rbind(result, data.frame(X = NA_character_, Y = y, D = NA_real_,
+      stringsAsFactors = FALSE))
+  result
 }
 
 
