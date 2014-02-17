@@ -923,7 +923,7 @@ map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
     return(trim_string(str = wells, max = max, ...))
   }
   if (rm.num)
-    res <- sub("\\s*#\\s*\\d+\\s*$", "", res, FALSE, TRUE)
+    res <- remove_concentration(res)
   if (downcase)
     res <- substrate_info(res, "downcase")
   if (in.parens)
@@ -1682,11 +1682,22 @@ setMethod("substrate_info", "character", function(object,
   }
 
   parse_peptide <- function(x) {
-    parse <- function(x) strsplit(gsub("(?<=\\b[A-Za-z])-", "_", x, FALSE,
-      TRUE), "-", TRUE)
+#     recognize_full_names <- function(x) {
+#       prefix <- grepl("^[A-Za-z]-", x, FALSE, TRUE)
+#       result <- ifelse(prefix, substr(x, 3L, nchar(x)), x)
+#       result <- lapply(result, function(s) s[s %in% AMINO_ACIDS])
+#       prefix <- prefix & vapply(result, length, 0L) > 0L
+#       result[prefix] <- mapply(paste0, substr(x[prefix], 1L, 2L),
+#         result[prefix], SIMPLIFY = FALSE, USE.NAMES = FALSE)
+#       result
+#     }
+    # TODO
     result <- structure(vector("list", length(x)), names = x)
+    x <- remove_concentration(x)
     pat <- sprintf("^%s(-%s)*$", pat <- "([A-Za-z]-)?[A-Z][a-z][a-z]", pat)
-    result[ok] <- parse(x[ok <- grepl(pat, x, FALSE, TRUE)])
+    ok <- grepl(pat, x, FALSE, TRUE)
+    result[ok] <- strsplit(x[ok], "(?<!\\b\\w)-", FALSE, TRUE)
+    #result[!ok] <- recognize_full_names(x[!ok])
     result[!ok] <- list(character())
     result
   }

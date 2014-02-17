@@ -1027,6 +1027,7 @@ setMethod("separate", "data.frame", function(object, split = opm_opt("split"),
 #' whether something has been trimmed. Alternatively, append an annotation in
 #' parentheses to a string; trim it if necessary.
 #'
+#' @param x Character vector from which to remove the concentration indicators.
 #' @param str Character vector or convertible to such.
 #' @param max Numeric scalar. Maximum allowed length.
 #' @param append Character scalar. To be appended to strings that needed to be
@@ -1086,6 +1087,13 @@ add_in_parens <- function(str.1, str.2, max = 1000L, append = ".",
     remove <- " \\(\\)$"
   }
   sub(remove, "", sprintf(template, str.1, paren.sep, str.2))
+}
+
+#' @rdname trim_string
+#' @keywords internal
+#'
+remove_concentration <- function(x) {
+  sub("\\s*#\\s*\\d+\\s*$", "", x, FALSE, TRUE)
 }
 
 
