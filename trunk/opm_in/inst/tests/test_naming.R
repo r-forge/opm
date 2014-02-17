@@ -476,6 +476,16 @@ test_that("substrate_info() works with MOPMX objects", {
 })
 
 
+## substrate_info
+test_that("substrate_info() can extract amino acids from peptides", {
+  x <- c("Ser-D-Val", "D-Fructose", "D-Serine #2", "L-Arginine")
+  got <- substrate_info(x, "peptide")
+  #print(got)
+  # TODO
+})
+
+
+
 ################################################################################
 
 
