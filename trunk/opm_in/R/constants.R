@@ -213,7 +213,7 @@ AMINO_ACIDS <- c(
   Homoarginine = "Har", Homocysteine = "Hcy", Homohistidine = "Hhs",
   Homoserine = "Hse", Isovaline = "Iva", Norleucine = "Nle",
   Nortyrosine = "Nty", Norvaline = "Nva", Ornithine = "Orn",
-  Penicillamine = "Pen", `Pyroglutamic Acid` = "Glp", Pyrrolysine = "Pyl", 
+  Penicillamine = "Pen", `Pyroglutamic Acid` = "Glp", Pyrrolysine = "Pyl",
   Sarcosine = "Sar", Selenocysteine = "Scy", Statin = "Sta"
 )
 
