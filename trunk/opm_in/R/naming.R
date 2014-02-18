@@ -1670,10 +1670,10 @@ setMethod("substrate_info", "character", function(object,
     in.parens <- grepl(SUBSTRATE_PATTERN[["either"]], x, FALSE, TRUE)
     x <- ifelse(in.parens, substr(x, 1L, nchar(x) - 1L), x)
     m <- regexpr("(?<=#)\\s*\\d+\\s*$", x, FALSE, TRUE)
-    # The following code is currently not in use because the only plate to
-    # which it is applicable (PM09) does not show regularity anyway. Conversion
-    # to integer would also be problematic because contractions such as 5.5 or
-    # 6.5 are present.
+    ## The following code is currently not in use because the only plate to
+    ## which it is applicable (PM09) does not show regularity anyway. Conversion
+    ## to integer would also be problematic because contractions such as 5.5 or
+    ## 6.5 are present.
     #if (all(m < 0L)) {
     #  x <- ifelse(in.parens, substr(x, 6L, nchar(x)), x)
     #  m <- regexpr("^(?:\\d+(?:\\.\\d+)?)(?=%|mM)", x, FALSE, TRUE)
@@ -1684,11 +1684,12 @@ setMethod("substrate_info", "character", function(object,
   parse_peptide <- function(x) {
     recognize_full_names <- function(x) {
       prefix <- grepl("^[A-Za-z]-", x, FALSE, TRUE)
-      result <- ifelse(prefix, substr(x, 3L, nchar(x)), x)
-      ok <- !is.na(result <- AMINO_ACIDS[result])
-      prefix <- prefix & vapply(result, length, 0L) > 0L
-      result[prefix] <- mapply(paste0, substr(x[prefix], 1L, 2L),
-        result[prefix], SIMPLIFY = FALSE, USE.NAMES = FALSE)
+      result <- AMINO_ACIDS[ifelse(prefix, substr(x, 3L, nchar(x)), x)]
+      ok <- !is.na(result)
+      prefix <- prefix & ok
+      result[prefix] <- paste0(substr(x[prefix], 1L, 2L), result[prefix])
+      result <- as.list(result)
+      result[!ok] <- list(character())
       result
     }
     result <- structure(vector("list", length(x)), names = x)

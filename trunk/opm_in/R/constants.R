@@ -201,12 +201,21 @@ PHYLO_FORMATS <- c("epf", "nexus", "phylip", "hennig", "html")
 #
 
 
-AMINO_ACIDS <- c(Alanine = "Ala", Cysteine = "Cys", Glycine = "Gly",
+AMINO_ACIDS <- c(
+  Alanine = "Ala", Cysteine = "Cys", Glycine = "Gly",
   Isoleucine = "Ile", Leucine = "Leu", Methionine = "Met", Proline = "Pro",
-  Valine = "Val", Serine = "Ser", Threonine = "Thr", `Aspartic acid` = "Asp",
-  `Glutamic acid` = "Glu", Histidine = "His", Arginine = "Arg", Lysine = "Lys",
+  Valine = "Val", Serine = "Ser", Threonine = "Thr", `Aspartic Acid` = "Asp",
+  `Glutamic Acid` = "Glu", Histidine = "His", Arginine = "Arg", Lysine = "Lys",
   Asparagine = "Asn", Glutamine = "Gln", Phenylalanine = "Phe",
-  Tryptophan = "Trp", Tyrosine = "Tyr")
+  Tryptophan = "Trp", Tyrosine = "Tyr",
+  # the uncommon ones:
+  `Diaminopimelic Acid` = "Dpm",
+  Homoarginine = "Har", Homocysteine = "Hcy", Homohistidine = "Hhs",
+  Homoserine = "Hse", Isovaline = "Iva", Norleucine = "Nle",
+  Nortyrosine = "Nty", Norvaline = "Nva", Ornithine = "Orn",
+  Penicillamine = "Pen", `Pyroglutamic Acid` = "Glp", Pyrrolysine = "Pyl", 
+  Sarcosine = "Sar", Selenocysteine = "Scy", Statin = "Sta"
+)
 
 
 # We consider only those Greek letters that are likely to occur in substrate
