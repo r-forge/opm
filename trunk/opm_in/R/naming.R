@@ -1506,15 +1506,18 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #' @param ... Optional other arguments passed between the methods.
 #' @export
 #' @return The character method returns a character vector with \code{object}
-#'   used as names and either a matched entry or \code{NA} as value. The factor
-#'   method does the same, whereas the list method traverses a list and calls
-#'   \code{substrate_info} on suitable elements, leaving others unchanged. The
-#'   \code{\link{OPM}} and \code{\link{OPMS}} methods work like the character
-#'   method, using their own substrates. Depending on the \code{browse}
-#'   argument, the returned \acronym{ID}s might have been converted to
-#'   \acronym{URL}s, and as a side effect tabs in the default web browser might
-#'   have been opened. For suitable values of \code{what}, setting
-#'   \code{download} to \code{TRUE} yielded special objects as described above.
+#'   used as names and either a matched entry or \code{NA} as value. Only if
+#'   \code{what} is set to \sQuote{peptide} a named list is returned instead.
+#'   The factor method works like the character method, whereas the list method
+#'   traverses a list and calls \code{substrate_info} on suitable elements,
+#'   leaving others unchanged. The \code{\link{OPM}} and \code{\link{OPMS}}
+#'   methods work like the character method, using their own substrates.
+#'
+#'   Depending on the \code{browse} argument, the returned \acronym{ID}s might
+#'   have been converted to \acronym{URL}s, and as a side effect tabs in the
+#'   default web browser might have been opened. For suitable values of
+#'   \code{what}, setting \code{download} to \code{TRUE} yielded special objects
+#'   as described above.
 #'
 #'   The \code{\link{MOPMX}} method yield a list with one element of one of the
 #'   kinds described above per element of \code{object}.

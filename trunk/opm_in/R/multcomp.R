@@ -845,19 +845,30 @@ setMethod("annotated", "opm_glht", function(object, what = "kegg", how = "ids",
 #' @keywords internal
 #'
 convert_annotation_vector <- function(x, how, what, conc) {
+  peptides2vector <- function(ids) {
+    ids <- vapply(ids, paste0, "", collapse = "-")
+    ifelse(nzchar(ids), ids, NA_character_)
+  }
   ids <- substrate_info(names(x), what)
   case(match.arg(how, c("ids", "values")),
-    ids = structure(x, names = ids, concentration = if (L(conc))
+    ids = {
+      switch(what, peptide = ids <- peptides2vector(ids))
+      structure(x, names = ids, concentration = if (L(conc))
         unname(substrate_info(names(x), "concentration"))
       else
-        NULL, comment = names(x)),
+        NULL, comment = names(x))
+    },
     values = {
       x <- as.matrix(x)
       colnames(x) <- RESERVED_NAMES[["value"]]
       if (L(conc))
         x <- cbind(x,
           Concentration = substrate_info(rownames(x), "concentration"))
-      structure(cbind(x, collect(web_query(ids, what))), comment = ids)
+      switch(what,
+        peptide = structure(cbind(x, collect(ids)),
+          comment = peptides2vector(ids)),
+        structure(cbind(x, collect(web_query(ids, what))), comment = ids)
+      )
     }
   )
 }
