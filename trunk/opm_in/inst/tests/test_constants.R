@@ -234,5 +234,9 @@ test_that("SUBSTRATE_PATTERN matches what it should match", {
 })
 
 
+## AMINO_ACIDS
+## UNTESTED
+
+
 ################################################################################
 
