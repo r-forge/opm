@@ -1682,23 +1682,21 @@ setMethod("substrate_info", "character", function(object,
   }
 
   parse_peptide <- function(x) {
-#     recognize_full_names <- function(x) {
-#       prefix <- grepl("^[A-Za-z]-", x, FALSE, TRUE)
-#       result <- ifelse(prefix, substr(x, 3L, nchar(x)), x)
-#       result <- lapply(result, function(s) s[s %in% AMINO_ACIDS])
-#       prefix <- prefix & vapply(result, length, 0L) > 0L
-#       result[prefix] <- mapply(paste0, substr(x[prefix], 1L, 2L),
-#         result[prefix], SIMPLIFY = FALSE, USE.NAMES = FALSE)
-#       result
-#     }
-    # TODO
+    recognize_full_names <- function(x) {
+      prefix <- grepl("^[A-Za-z]-", x, FALSE, TRUE)
+      result <- ifelse(prefix, substr(x, 3L, nchar(x)), x)
+      ok <- !is.na(result <- AMINO_ACIDS[result])
+      prefix <- prefix & vapply(result, length, 0L) > 0L
+      result[prefix] <- mapply(paste0, substr(x[prefix], 1L, 2L),
+        result[prefix], SIMPLIFY = FALSE, USE.NAMES = FALSE)
+      result
+    }
     result <- structure(vector("list", length(x)), names = x)
     x <- remove_concentration(x)
     pat <- sprintf("^%s(-%s)*$", pat <- "([A-Za-z]-)?[A-Z][a-z][a-z]", pat)
     ok <- grepl(pat, x, FALSE, TRUE)
     result[ok] <- strsplit(x[ok], "(?<!\\b\\w)-", FALSE, TRUE)
-    #result[!ok] <- recognize_full_names(x[!ok])
-    result[!ok] <- list(character())
+    result[!ok] <- recognize_full_names(x[!ok])
     result
   }
 

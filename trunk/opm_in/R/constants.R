@@ -201,6 +201,14 @@ PHYLO_FORMATS <- c("epf", "nexus", "phylip", "hennig", "html")
 #
 
 
+AMINO_ACIDS <- c(Alanine = "Ala", Cysteine = "Cys", Glycine = "Gly",
+  Isoleucine = "Ile", Leucine = "Leu", Methionine = "Met", Proline = "Pro",
+  Valine = "Val", Serine = "Ser", Threonine = "Thr", `Aspartic acid` = "Asp",
+  `Glutamic acid` = "Glu", Histidine = "His", Arginine = "Arg", Lysine = "Lys",
+  Asparagine = "Asn", Glutamine = "Gln", Phenylalanine = "Phe",
+  Tryptophan = "Trp", Tyrosine = "Tyr")
+
+
 # We consider only those Greek letters that are likely to occur in substrate
 # names, and deliberately not their uppercase versions.
 GREEK_LETTERS <- c("alpha", "beta", "gamma", "delta", "epsilon")
