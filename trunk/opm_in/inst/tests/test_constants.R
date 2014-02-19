@@ -235,7 +235,13 @@ test_that("SUBSTRATE_PATTERN matches what it should match", {
 
 
 ## AMINO_ACIDS
-## UNTESTED
+test_that("amino-acid spelling is consistent", {
+  aa <- names(AMINO_ACIDS)[1:20] # proteinogenic ones must come first
+  gly <- "Glycine"
+  expect_true(gly %in% aa)
+  expect_true(gly %in% WELL_MAP)
+  expect_true(all(paste0("L-", setdiff(aa, gly)) %in% WELL_MAP))
+})
 
 
 ################################################################################

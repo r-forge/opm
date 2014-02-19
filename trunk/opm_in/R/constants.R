@@ -184,7 +184,7 @@ OPM_OPTIONS$time.zone <- ""
 #
 
 
-# These must be kepot in sync between phylogeny and discretization functions.
+# These must be kept in sync between phylogeny and discretisation functions.
 #
 CHARACTER_STATES <- c(0L:9L, LETTERS)[1L:32L]
 MISSING_CHAR <- "?"
@@ -202,19 +202,20 @@ PHYLO_FORMATS <- c("epf", "nexus", "phylip", "hennig", "html")
 
 
 AMINO_ACIDS <- c(
-  Alanine = "Ala", Cysteine = "Cys", Glycine = "Gly",
-  Isoleucine = "Ile", Leucine = "Leu", Methionine = "Met", Proline = "Pro",
-  Valine = "Val", Serine = "Ser", Threonine = "Thr", `Aspartic Acid` = "Asp",
+  # proteinogenic amino acids
+  Alanine = "Ala", Cysteine = "Cys", Glycine = "Gly", Isoleucine = "Ile",
+  Leucine = "Leu", Methionine = "Met", Proline = "Pro", Valine = "Val",
+  Serine = "Ser", Threonine = "Thr", `Aspartic Acid` = "Asp",
   `Glutamic Acid` = "Glu", Histidine = "His", Arginine = "Arg", Lysine = "Lys",
   Asparagine = "Asn", Glutamine = "Gln", Phenylalanine = "Phe",
   Tryptophan = "Trp", Tyrosine = "Tyr",
-  # the uncommon ones:
-  `Diaminopimelic Acid` = "Dpm",
-  Homoarginine = "Har", Homocysteine = "Hcy", Homohistidine = "Hhs",
-  Homoserine = "Hse", Isovaline = "Iva", Norleucine = "Nle",
-  Nortyrosine = "Nty", Norvaline = "Nva", Ornithine = "Orn",
+  # modified proteinogenic amino acids and selection of uncommon ones
+  # three-letter abbreviations are from CAS search engine
+  `Diamino-Pimelic Acid` = "Dpm", Homoarginine = "Har", Homocysteine = "Hcy",
+  Homohistidine = "Hhs", Homoserine = "Hse", Isovaline = "Iva",
+  Norleucine = "Nle", Nortyrosine = "Nty", Norvaline = "Nva", Ornithine = "Orn",
   Penicillamine = "Pen", `Pyroglutamic Acid` = "Glp", Pyrrolysine = "Pyl",
-  Sarcosine = "Sar", Selenocysteine = "Scy", Statin = "Sta"
+  Sarcosine = "Sar", Selenocysteine = "Scy", Statine = "Sta"
 )
 
 
