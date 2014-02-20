@@ -867,7 +867,7 @@ mod[1000]
 stab <- stabsel(mod, cutoff = 0.6, PFER = 1.5, error.bound = "SS")
 @
 
-<<mboost_stability_selection2, results = hide, eval = true, echo = false>>=
+<<mboost_stability_selection_hidden, results = hide, eval = true, echo = false>>=
 if ( !file.exists("stabsel.Rda") ) {
 <<mboost_stability_selection>>
     save(mod, stab, file = "stabsel.Rda")

@@ -527,8 +527,8 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #' @param what Character scalar indicating the kind of annotation to use. Passed
 #'   as eponymous argument to \code{\link{substrate_info}}.
 #' @param how Character scalar. Indicating how the annotation is inserted.
-#'   Currently \sQuote{ids} and \sQuote{values} are supported. See below for
-#'   details.
+#'   Currently \sQuote{ids}, \sQuote{values} and \sQuote{data.frame} are
+#'   supported. See below for details.
 #' @param output For the \code{\link{OPMA}} and \code{\link{OPMS}} methods, the
 #'   estimated parameter of interest (see \code{\link{param_names}}). For the
 #'   \code{opm_glht} method, either a numeric scalar or one of the following
@@ -595,6 +595,11 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'   matrix to a data frame, to convert the column names to syntactical names
 #'   (see \code{make.names} from the \pkg{base} package), or to remove all rows
 #'   and columns with missing values.
+#'
+#'   For \code{how = "data.frame"}, much like \code{how = "values"}, but the
+#'   numeric matrix is converted to a data frame, the column names are made
+#'   syntactic, and all essentially binary (zero/one) columns are converted to
+#'   factors.
 #'
 #' @details
 #'   All methods use \code{\link{substrate_info}} for translating substrate
@@ -849,8 +854,29 @@ convert_annotation_vector <- function(x, how, what, conc) {
     ids <- vapply(ids, paste0, "", collapse = "-")
     ifelse(nzchar(ids), ids, NA_character_)
   }
+  create_matrix <- function(x, ids, what, conc) {
+    x <- as.matrix(x)
+    colnames(x) <- RESERVED_NAMES[["value"]]
+    if (L(conc))
+      x <- cbind(x,
+        Concentration = substrate_info(rownames(x), "concentration"))
+    switch(what,
+      peptide = structure(cbind(x, collect(ids)),
+        comment = peptides2vector(ids)),
+      structure(cbind(x, collect(web_query(ids, what))), comment = ids)
+    )
+  }
+  create_dataframe <- function(x) {
+    x <- as.data.frame(x)
+    names(x) <- make.names(names(x))
+    for (i in seq_along(x))
+      if (all(x[, i] %in% c(0, 1)))
+        x[, i] <- as.factor(x[, i])
+    x
+  }
   ids <- substrate_info(names(x), what)
-  case(match.arg(how, c("ids", "values")),
+  case(match.arg(how, c("ids", "values", "data.frame")),
+    data.frame = create_dataframe(create_matrix(x, ids, what, conc)),
     ids = {
       switch(what, peptide = ids <- peptides2vector(ids))
       structure(x, names = ids, concentration = if (L(conc))
@@ -858,18 +884,7 @@ convert_annotation_vector <- function(x, how, what, conc) {
       else
         NULL, comment = names(x))
     },
-    values = {
-      x <- as.matrix(x)
-      colnames(x) <- RESERVED_NAMES[["value"]]
-      if (L(conc))
-        x <- cbind(x,
-          Concentration = substrate_info(rownames(x), "concentration"))
-      switch(what,
-        peptide = structure(cbind(x, collect(ids)),
-          comment = peptides2vector(ids)),
-        structure(cbind(x, collect(web_query(ids, what))), comment = ids)
-      )
-    }
+    values = create_matrix(x, ids, what, conc)
   )
 }
 
