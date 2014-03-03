@@ -94,7 +94,7 @@
 
 
 % authors, header on every 2nd page
-\Plainauthor{L.A.I. Vaas, M. G\"{o}ker}
+\Plainauthor{L.A.I. Vaas, B. Hofner, M. G\"{o}ker}
 
 
 % main title, first page
@@ -785,21 +785,18 @@ The information accessible \textit{via} \code{annotated} can serve as input for 
 Beside the identification of pathways of interest to be used when drawing the \pkg{opm} results in a graph, as detailed in the previous section, such results can further be used as a starting point when searching for a causal explanation of the given \pkg{opm} results.
 
 In the next coding example, we prepare a data matrix with the differences between the two \textit{E. coli} strains (as computed in section~\ref{pathview-group-diffs}) and add potential explanatory variables from \ac{KEGG}.
-Please refer to the manual and Section~\ref{annotated-input} for an explanation of the usage of \code{annotated} with the argument \code{how = "values"}.
+Please refer to the manual and Section~\ref{annotated-input} for an explanation of the usage of \code{annotated} with the argument \code{how = "data.frame"}.
 Again, the comparison applies to the default parameter given by \code{opm_opt("curve.param")}; see the manual for details.
 
 <<label=e-coli-comp-full>>=
 coli.comp <- opm_mcp(coli.sub, output = "mcp",
   model = ~ J(Well + Strain), linfct = c(Pairs = 1))
-coli.anno <- annotated(coli.comp, how = "value")
+coli.anno <- annotated(coli.comp, how = "data.frame")
+coli.anno <- coli.anno[complete.cases(coli.anno), ]
 @
 
-The matrix has to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in \ac{KEGG} have to be removed.
-The matrix also needs to be converted to a data frame before the \pkg{mboost} package \citep{mboost:pkg:2013} can be applied.
+The data frame has to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in \ac{KEGG} have to be removed, before the \pkg{mboost} package \citep{mboost:pkg:2013} can be applied.
 
-<<as.data.frame>>=
-coli.anno <- as.data.frame(coli.anno[complete.cases(coli.anno), ])
-@
 
 \subsection{Boosting as a tool to identify important substrates}
 
@@ -939,7 +936,6 @@ par(old.par) # reset plotting settings
 %For details on stability selection in the context of boosting see \rcsmark{DRAFT \acs{BH}}.
 
 The results can be interpreted a follows:
-
 Whether or not a substrate is a carbohydrate works best for predicting whether one of the strains performs differently than the other.
 The category ``Carbohydrates'' works even better than its subcategories such as ``Oligosaccharides''.
 The pathway map IDs that are shown to have a strong influence are also related to carbohydrate metabolism, of course.
@@ -968,22 +964,14 @@ restructure the data:
 coli.sub1 <- subset(vaas_et_al, list(Species = "Escherichia coli",
   Experiment = c("First replicate", "Second replicate")))
 
-data <- opm_mcp(coli.sub1, ~ Species + Strain + Experiment +
+data <- opm_mcp(coli.sub1, ~ Strain + Experiment +
   Slot + 'Plate number', output = "data", in.parens = FALSE)
 
-y <- annotated(coli.sub, how = "values")
+y <- annotated(coli.sub, how = "data.frame")
 ## add everything but the value
 data[, colnames(y)[-1]] <- y[as.character(data$Well), -1]
 data <- data[complete.cases(data), ]
-data <- data[, !(names(data) %in% c("Well", "Species", "Parameter"))]
-names(data) <- gsub(" ", "_", names(data))
-names(data) <- gsub("2-", "", names(data))
-
-tmp <- data
-for (i in 1:ncol(data)) {
-    if (all(data[, i] %in% c(0, 1)))
-        data[, i] <- as.factor(data[, i])
-}
+data <- data[, !(names(data) %in% c("Well", "Parameter"))]
 
 ## restructure plate number to ID for usage of brandom:
 data$ID <- as.numeric(as.character(data$Plate.number)) +
