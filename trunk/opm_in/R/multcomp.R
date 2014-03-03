@@ -870,7 +870,7 @@ convert_annotation_vector <- function(x, how, what, conc) {
     x <- as.data.frame(x)
     names(x) <- make.names(names(x))
     for (i in seq_along(x))
-      if (all(x[, i] %in% c(0, 1)))
+      if (all(x[, i] %in% c(0, 1, NA_real_)))
         x[, i] <- as.factor(x[, i])
     x
   }
