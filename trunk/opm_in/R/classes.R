@@ -208,6 +208,10 @@ setClassUnion(FOE, c("formula", "expression"))
 #' lists. \acronym{MOPMX} objects can be created with \code{new} or \code{as}
 #' and then further manipulated; see the examples below.
 #'
+#' \acronym{OPM_MCP} is a data-frame based class useful as intermediate result
+#' of \code{\link{opm_mcp}}. See there and its \code{\link{annotated}} method
+#' for usages.
+#'
 #' @examples
 #'
 #' ## overview on the classes
@@ -297,11 +301,11 @@ setClass(OPMD,
   sealed = SEALED
 )
 
-#' @docType class
 #' @rdname OPM
 #' @name OPMS
-#' @export
 #' @aliases OPMS-class
+#' @docType class
+#' @export
 #'
 setClass(OPMS,
   contains = WMDS,
@@ -314,11 +318,11 @@ setClass(OPMS,
   sealed = SEALED
 )
 
-#' @docType class
 #' @rdname OPM
 #' @name MOPMX
-#' @export
 #' @aliases MOPMX-class
+#' @docType class
+#' @export
 #'
 setClass(MOPMX,
   contains = "list",
@@ -329,6 +333,28 @@ setClass(MOPMX,
     else
       "not ell elements inherit from 'OPMX'"
   }, sealed = SEALED
+)
+
+
+#' @rdname OPM
+#' @name OPM_MCP
+#' @aliases OPM_MCP-class
+#' @docType class
+#' @export
+#'
+setClass(OPM_MCP,
+  contains = "data.frame",
+  validity = function(object) {
+    errs <- NULL
+    for (name in RESERVED_NAMES[c("well", "value")])
+      if (!name %in% colnames(object))
+        errs <- c(errs, sprintf("missing column named '%s'", name))
+    if (length(errs))
+      errs
+    else
+      TRUE
+  },
+  sealed = SEALED
 )
 
 

@@ -49,6 +49,9 @@ expect_length <- function(actual, expected) {
 ## MOPMX
 ## UNTESTED
 
+## OPM_MCP
+## UNTESTED
+
 ## YAML_VIA_LIST
 ## UNTESTED
 

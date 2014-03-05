@@ -137,12 +137,12 @@
 #'     \code{summary}, \code{confint}, \code{coef} and \code{vcov} are available
 #'     for this class. See \code{glht} in the \pkg{multcomp} package for
 #'     details.}
-#'     \item{data}{Reshaped (\sQuote{flattened}) data frame. It contains one
-#'     column for the measured values, one factorial variable determining the
-#'     well, one factorial variable for the curve parameter (see
-#'     \code{\link{param_names}}) and additional factorial variables selected by
-#'     \code{model} as factors. The column names are converted to syntactical
-#'     names. Such a data frame might be of use for
+#'     \item{data}{Reshaped (\sQuote{flattened}) data frame of the class
+#'     \code{\link{OPM_MCP}}. It contains one column for the measured values,
+#'     one factorial variable determining the well, one factorial variable for
+#'     the curve parameter (see \code{\link{param_names}}) and additional
+#'     factorial variables selected by \code{model} as factors. The column names
+#'     are converted to syntactical names. Such a data frame might be of use for
 #'     model-building approaches not covered by this function.}
 #'     \item{model}{The \code{model} argument \emph{after} the conversions
 #'     conducted by \code{opm_mcp}, if any.}
@@ -467,6 +467,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     colnames(object) <- make.names(colnames(object))
     object
   }
+
   contrast_matrices <- function(data, linfct, model, rhs, alternative) {
     linfct <- convert_hypothesis_spec(linfct, model, data, rhs, alternative)
     if (!inherits(linfct, "mcp"))
@@ -475,11 +476,15 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     mapply(multcomp::contrMat, n = n, type = linfct, SIMPLIFY = FALSE)
   }
 
+  opm_mcp_object <- function(x) {
+    as(x, OPM_MCP) ## TODO: deal with distinct plate types
+  }
+
   # conversions and early returns, if requested
   sep <- check_mcp_sep(sep)
   model <- convert_model(model, ops)
   case(match.arg(output),
-    data = return(convert_data(object, split.at, model, sep)),
+    data = return(opm_mcp_object(convert_data(object, split.at, model, sep))),
     model = return(model),
     linfct = return(convert_hypothesis_spec(linfct, model,
       convert_data(object, split.at, model, sep), rhs, alternative)),
