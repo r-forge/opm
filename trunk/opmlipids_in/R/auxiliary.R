@@ -314,3 +314,39 @@ macro <- function(x) {
 
 
 ################################################################################
+
+
+#' Interpret fatty-acid sample \acronym{ID}
+#'
+#' Interpret sample \acronym{ID} as used at \acronym{DSMZ}. This is hard to
+#' generalise and thus internal.
+#'
+#' @param x Character vector.
+#' @return Four-column data frame with character vectors as elements.
+#' @keywords internal
+#'
+interpret_dsmz_sample_id <- function(x) {
+  cultivation_components <- function(x) {
+    interpret <- function(x) {
+      duration <- grepl("^\\d+d$", x, TRUE, TRUE)
+      x <- ifelse(duration, tolower(x), toupper(x))
+      names(x) <- rep.int("Medium", length(x))
+      names(x)[x %in% c("NDK", "VDK")] <- "Timepoint"
+      names(x)[duration] <- "Duration"
+      x
+    }
+    x <- sub("^\\s+", "", sub("\\s+$", "", x, FALSE, TRUE), FALSE, TRUE)
+    x <- lapply(strsplit(x, "\\s*,\\s*", FALSE, TRUE), interpret)
+    collect(x, "values", dataframe = TRUE, stringsAsFactors = FALSE)
+  }
+  x <- sub("^\\s+", "", x, FALSE, TRUE)
+  m <- regexpr("\\([^()]+\\)", x, FALSE, TRUE)
+  result <- data.frame(Organism = ifelse(m > 0L, substr(x, 1L, m - 1L), x),
+    stringsAsFactors = FALSE)
+  result$Organism <- sub("\\s+$", "", result$Organism, FALSE, TRUE)
+  x <- substr(x, m + 1L, m + attr(m, "match.length") - 2L)
+  cbind(result, cultivation_components(x))
+}
+
+
+################################################################################
