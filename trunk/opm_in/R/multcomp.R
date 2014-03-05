@@ -872,11 +872,11 @@ convert_annotation_vector <- function(x, how, what, conc) {
     )
   }
   create_dataframe <- function(x) {
-    x <- as.data.frame(x)
+    x <- structure(as.data.frame(x), comment = comment(x))
     names(x) <- make.names(names(x))
     for (i in seq_along(x))
       if (all(x[, i] %in% c(0, 1, NA_real_)))
-        x[, i] <- as.factor(x[, i])
+        x[, i] <- as.factor(as.logical(x[, i]))
     x
   }
   ids <- substrate_info(names(x), what)

@@ -220,7 +220,7 @@ test_that("Pairs-like tests are converted by annotated() to binary data", {
 
 
 ## annotated
-test_that("annotated() generates amino-acid vectors and matrices", {
+test_that("annotated() yields amino-acid vectors, matrices and data frames", {
   x <- annotated(EXPL.OPMS, "peptide")
   expect_is(x, "numeric")
   got <- names(x)
@@ -233,6 +233,11 @@ test_that("annotated() generates amino-acid vectors and matrices", {
   expect_true(all(x %in% c(0, 1)))
   expect_false(all(x == 1))
   expect_true(all(colSums(x) > 0L))
+  x <- annotated(EXPL.OPMS, "peptide", how = "data.frame")
+  expect_is(x, "data.frame")
+  expect_is(comment(x), "character")
+  klasses <- vapply(x, class, "")
+  expect_true(setequal(klasses, c("numeric", "factor")))
 })
 
 
