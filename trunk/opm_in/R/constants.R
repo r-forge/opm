@@ -213,10 +213,11 @@ AMINO_ACIDS <- c(
   # modified proteinogenic amino acids and selection of uncommon ones
   # three-letter abbreviations are from CAS search engine
   `Diamino-Pimelic Acid` = "Dpm", Homoarginine = "Har", Homocysteine = "Hcy",
-  Homohistidine = "Hhs", Homoserine = "Hse", Isovaline = "Iva",
-  Norleucine = "Nle", Nortyrosine = "Nty", Norvaline = "Nva", Ornithine = "Orn",
-  Penicillamine = "Pen", `Pyroglutamic Acid` = "Glp", Pyrrolysine = "Pyl",
-  Sarcosine = "Sar", Selenocysteine = "Scy", Statine = "Sta"
+  Homohistidine = "Hhs", Homoserine = "Hse", Hydroxyproline = "Hyp",
+  Isovaline = "Iva", Norleucine = "Nle", Nortyrosine = "Nty", Norvaline = "Nva",
+  Ornithine = "Orn", Penicillamine = "Pen", `Pyroglutamic Acid` = "Glp",
+  Pyrrolysine = "Pyl", Sarcosine = "Sar", Selenocysteine = "Scy",
+  Statine = "Sta"
 )
 
 
@@ -251,10 +252,9 @@ SUBSTRATE_PATTERN <- (function() {
   # we prepare for paired parentheses or paired brackets in substrate names
   x <- c(paren = "\\(((?:[^()]+|\\([^()]+\\))+)\\)",
     bracket = "\\[((?:[^\\[\\]]+|\\[[^\\[\\]]+\\])+)\\]")
-  # because 'paren.sep' may be anything, we cannot be too strict here
-  x <- c(x, either = paste0(".*(", x[1L], "|", x[2L], ")", collapse = ""))
-  x <- c(x, any = paste0("(?:.*(?:", x[1L], "|", x[2L], "))?", collapse = ""))
-  x[1L:2L] <- sprintf(".*%s", x[1L:2L])
+  x <- c(x, either = paste0("\\s*(", x[1L], "|", x[2L], ")", collapse = ""))
+  x <- c(x, any = paste0("(?:\\s*(?:", x[1L], "|", x[2L], "))?", collapse = ""))
+  x[1L:2L] <- sprintf("\\s*%s", x[1L:2L])
   x <- c(x, plain = "")
   structure(sprintf("^[A-Z]\\d{2}%s$", x), names = names(x))
 })()

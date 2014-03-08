@@ -841,12 +841,14 @@ map_param_names <- function(subset = NULL, ci = TRUE, plain = FALSE,
 ################################################################################
 
 
-#' Translate well coordinates (or plate positions).
+#' Translate well coordinates (or names or plate positions).
 #'
 #' Translate well coordinates to numeric indexes, or clean well indexes given
 #' as character vector, or translate well names (which are basically their
 #' coordinates on the plate) to substrate names, given the name of the plate.
-#' (The user-level function for this is \code{\link{wells}}.)
+#' (The user-level function for this is \code{\link{wells}}.) Alternatively,
+#' get the substrate from full well names, potentially containing well
+#' coordinate together with the substrate name.
 #'
 #' @param x Vector, formula or missing. Basically any \R object. The cleaning
 #'   functions expect a character vector.
@@ -933,6 +935,24 @@ map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
     trim_string(str = res, max = max, ...)
 }
 
+#' @rdname well_index
+#'
+well_to_substrate <- function(x, plate) {
+  if (length(plate)) {
+    if (all(grepl(SUBSTRATE_PATTERN[["any"]], x, FALSE, TRUE)))
+      wells(substr(x, 1L, 3L), TRUE, FALSE, plate = plate)[, 1L]
+    else
+      x # assume plain substrate names without wells as prefix
+  } else {
+    for (p in SUBSTRATE_PATTERN[c("paren", "bracket")]) {
+      m <- regexpr(p, x, FALSE, TRUE)
+      if (all(attr(m, "match.length") > 0L))
+        return(get_partial_match(1L, m, x))
+    }
+    x
+  }
+}
+
 
 ################################################################################
 
@@ -1008,7 +1028,9 @@ to_sentence.logical <- function(x, html, ...) {
 #' @param word.wise Logical scalar. If \code{TRUE}, abbreviation works by
 #'   truncating each word separately, and removing vowels first.
 #' @param paren.sep Character scalar. What to insert before the opening
-#'   parenthesis (or bracket).
+#'   parenthesis (or bracket). Currently only zero to many whitespace characters
+#'   are allowed. The ability to insert a line break is the main purpose of this
+#'   argument.
 #' @param downcase Logical scalar indicating whether full names should be
 #'   (carefully) converted to lower case. This uses \code{\link{substrate_info}}
 #'   in \kbd{downcase} mode; see there for details.
@@ -1686,6 +1708,8 @@ setMethod("substrate_info", "character", function(object,
 
   parse_peptide <- function(x) {
     recognize_full_names <- function(x) {
+      ## TODO: improve name of this substrate directly in database
+      x <- map_values(x, c(`4-Hydroxy-L-Proline [trans]` = "L-Hydroxyproline"))
       m <- regexpr("^(?:[A-Za-z],)*[A-Za-z]-", x, FALSE, TRUE)
       result <- AMINO_ACIDS[substr(x, m + attr(m, "match.length"), nchar(x))]
       ok <- !is.na(result)
@@ -1703,7 +1727,9 @@ setMethod("substrate_info", "character", function(object,
     ok <- grepl(pat, x, FALSE, TRUE)
     result[ok] <- strsplit(x[ok], "(?<!\\b\\w)-", FALSE, TRUE)
     result[!ok] <- recognize_full_names(x[!ok])
-    result
+    ## TODO: make this optional
+    lapply(result, sub, pattern = "^L-", replacement = "", ignore.case = FALSE,
+      perl = TRUE)
   }
 
   all_information <- function(x) {
