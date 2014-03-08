@@ -223,7 +223,7 @@ test_that("phylogeny formats are defined", {
 test_that("SUBSTRATE_PATTERN matches what it should match", {
   m <- function(s, p) grepl(p, s, FALSE, TRUE)
   e <- function(x) as.logical(unlist(strsplit(x, "", TRUE), FALSE, FALSE))
-  x <- c("B07 (Substrate(s))", "A02@[My [other] substrate]", "F11", "foo")
+  x <- c("B07\t\n(Substrate(s))", "A02 \r[My [other] substrate]", "F11", "foo")
   got <- m(x, SUBSTRATE_PATTERN["paren"])
   expect_equal(got, e("TFFF"))
   got <- m(x, SUBSTRATE_PATTERN["bracket"])

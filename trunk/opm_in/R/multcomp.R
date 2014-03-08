@@ -526,9 +526,9 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #' (selected parameter estimates or \code{\link{opm_mcp}} results) as well as
 #' an annotation of the according substrates.
 #'
-#' @param object An object of the classes \code{opm_glht} as created by
-#'   \code{\link{opm_mcp}}, \code{\link{OPMA}}, \code{\link{OPMD}} or
-#'   \code{\link{OPMS}}.
+#' @param object An object of the classes \code{opm_glht} or
+#'   \code{\link{OPM_MCP}} as created by \code{\link{opm_mcp}},
+#'   \code{\link{OPMA}}, \code{\link{OPMD}} or \code{\link{OPMS}}.
 #' @param what Character scalar indicating the kind of annotation to use. Passed
 #'   as eponymous argument to \code{\link{substrate_info}}.
 #' @param how Character scalar. Indicating how the annotation is inserted.
@@ -693,14 +693,14 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'
 setGeneric("annotated", function(object, ...) standardGeneric("annotated"))
 
-setMethod("annotated", "OPMA", function(object, what = "kegg", how = "ids",
+setMethod("annotated", OPMA, function(object, what = "kegg", how = "ids",
     output = opm_opt("curve.param"), lmap = NULL, sep = NULL, conc = FALSE) {
   result <- aggregated(object, subset = output, ci = FALSE, full = TRUE,
     in.parens = FALSE, max = 10000L)[1L, ]
   convert_annotation_vector(result, how, what, conc)
 }, sealed = SEALED)
 
-setMethod("annotated", "OPMD", function(object, what = "kegg", how = "ids",
+setMethod("annotated", OPMD, function(object, what = "kegg", how = "ids",
     output = opm_opt("curve.param"), lmap = NULL, sep = NULL, conc = FALSE) {
   output <- match.arg(output,
     unlist(map_param_names(plain = TRUE, disc = TRUE)))
@@ -713,7 +713,7 @@ setMethod("annotated", "OPMD", function(object, what = "kegg", how = "ids",
   convert_annotation_vector(result, how, what, conc)
 }, sealed = SEALED)
 
-setMethod("annotated", "OPMS", function(object, what = "kegg", how = "ids",
+setMethod("annotated", OPMS, function(object, what = "kegg", how = "ids",
     output = opm_opt("curve.param"), lmap = NULL, sep = opm_opt("min.mode"),
     conc = FALSE) {
   output <- match.arg(output,
@@ -729,27 +729,52 @@ setMethod("annotated", "OPMS", function(object, what = "kegg", how = "ids",
   convert_annotation_vector(result, how, what, conc)
 }, sealed = SEALED)
 
+setMethod("annotated", OPM_MCP, function(object, what = "kegg", how = "ids",
+    output = c("full", "plain"), lmap = NULL, sep = NULL, conc = FALSE) {
+  alternative <- function(x, y, sep) {
+    if (!length(sep) || identical(sep, FALSE))
+      return(y)
+    if (identical(sep, TRUE))
+      return(x)
+    if (inherits(sep, "AsIs"))
+      paste(y, x, sep = sep)
+    else
+      paste(x, y, sep = sep)
+  }
+  result <- object[, RESERVED_NAMES[["value"]]]
+  names(result) <- well_to_substrate(as.character(object[,
+    RESERVED_NAMES[["well"]]]), attr(object, CSV_NAMES[["PLATE_TYPE"]]))
+  result <- convert_annotation_vector(result, how, what, conc)
+  case(match.arg(output), plain = return(result), full = NULL)
+  if (is.null(dim(result))) {
+    cn <- alternative(RESERVED_NAMES[["parameter"]], what, sep)
+    suppressWarnings(object[, cn] <- names(result)) # removes the S4 class
+    return(object)
+  }
+  result <- result[, setdiff(colnames(result), RESERVED_NAMES[["value"]]),
+    drop = FALSE]
+  if (is.matrix(result))
+    result <- as.data.frame(result, optional = TRUE, stringsAsFactors = FALSE)
+  rownames(result) <- rownames(object)
+  cbind(object, result)
+}, sealed = SEALED)
+
 setOldClass("opm_glht")
 
 setMethod("annotated", "opm_glht", function(object, what = "kegg", how = "ids",
     output = "numeric", lmap = NULL, sep = opm_opt("comb.value.join"),
     conc = FALSE) {
 
+  # Find (1) full well names within 'opm_glht' objects and (2) substrate names
+  # within these full names.
   names_to_substrates <- function(x, sep, plate) {
-
-    # Helper functions
+    # Simple helper function
     prepare_sep <- function(x) {
       x <- check_mcp_sep(x)
       if (x %in% c("^", "\\"))
         x <- paste0("\\", x)
       sprintf("[%s]", x)
     }
-    get_submatch <- function(i, m, string) {
-      start <- attr(m, "capture.start")[, i]
-      substr(string, start, start + attr(m, "capture.length")[, i] - 1L)
-    }
-    all_matched <- function(m) all(attr(m, "match.length") > 0L)
-
     # Extract substrate names (with or w/o well coordinates) from 'Pairs' type
     # names of test results stored in 'opm_glht' objects.
     match_Pairs_type <- function(x, sep) {
@@ -757,41 +782,25 @@ setMethod("annotated", "opm_glht", function(object, what = "kegg", how = "ids",
         sprintf("^`[^`]+?%s([^`]+)`\\s-\\s`[^`]+?%s\\1`$", sep, sep),
         "^`([^`]+)`\\s-\\s`\\1`$")
       for (p in pats)
-        if (all_matched(m <- regexpr(p, x, FALSE, TRUE)))
-          return(get_submatch(1L, m, x))
+        if (all(attr(m <- regexpr(p, x, FALSE, TRUE), "match.length") > 0L))
+          return(get_partial_match(1L, m, x))
       NULL
     }
-
+    # Same for 'Dunnett' type names
     match_Dunnett_type <- function(x) {
-      if (!all_matched(m <- regexpr("^(.+)\\s-\\s(.+)$", x, FALSE, TRUE)))
+      m <- regexpr("^(.+)\\s-\\s(.+)$", x, FALSE, TRUE)
+      if (!all(attr(m, "match.length") > 0L))
         return(NULL)
-      result <- lapply(seq_len(2L), get_submatch, m, x)
+      result <- lapply(seq_len(2L), get_partial_match, m, x)
       result <- result[!vapply(result, is_constant, NA)]
       case(length(result), NULL, result[[1L]])
     }
-
-    # Use full substrate name if available; otherwise translate well coordinate
-    # using the given plate name.
-    get_substrate <- function(x, plate) {
-      if (length(plate)) {
-        if (all(grepl(SUBSTRATE_PATTERN[["any"]], x, FALSE, TRUE)))
-          wells(substr(x, 1L, 3L), TRUE, FALSE, plate = plate)[, 1L]
-        else
-          x # assume plain substrate names without wells as prefix
-      } else {
-        for (p in SUBSTRATE_PATTERN[c("paren", "bracket")])
-          if (all_matched(m <- regexpr(p, x, FALSE, TRUE)))
-            return(get_submatch(1L, m, x))
-        x
-      }
-    }
-
     if (length(result <- match_Pairs_type(x, prepare_sep(sep))))
-      return(get_substrate(result, plate))
+      return(well_to_substrate(result, plate))
     if (length(result <- match_Dunnett_type(x)))
-      return(get_substrate(result, plate))
-    # other patterns to be added here
-
+      return(well_to_substrate(result, plate))
+    # other patterns to be added here (but currently none of the others are
+    # expected to contain substrate names)
     warning("pattern matching of substrates in contrast names did not result")
     rep.int(NA_character_, length(x))
   }

@@ -274,6 +274,10 @@ test_that("well indices given as formula can be mapped", {
 ## UNTESTED
 
 
+## well_to_substrate
+## UNTESTED
+
+
 ## to_sentence
 ## UNTESTED
 

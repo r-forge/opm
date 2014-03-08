@@ -67,7 +67,8 @@ get_and_remember <- function(x, prefix, default, getfun, single = FALSE, ...) {
   result <- vector("list", length(x))
   ok <- !is.na(x) & nzchar(x)
   result[!ok] <- rep.int(list(default), sum(!ok))
-  result[ok] <- do_get(x[ok], MEMOIZED, prefix, default, getfun, single, ...)
+  result[ok] <- reassign_duplicates(x[ok], do_get, MEMOIZED, prefix,
+    default, getfun, single, ...)
   names(result) <- x
   result
 }
@@ -314,11 +315,13 @@ metadata2factorlist <- function(x, f) {
 
 #' Check for uniformity
 #'
-#' Assess whether all elements in a collection are identical.
+#' Assess whether all elements in a collection are identical, or skip
+#' calculations for duplicated elements but re-assign the results.
 #'
 #' @param x An \R object to which \code{duplicated} can be applied.
 #' @param na.rm Logical scalar. Remove \code{NA} elements before determining
 #'   uniformity?
+#' @param FUN Function to be applied to the non-duplicated part of \code{x}.
 #' @return Either \code{TRUE} or a vector of the class of \code{x} containing
 #'   all deviating elements.
 #' @keywords internal
@@ -329,6 +332,14 @@ is_uniform <- function(x, na.rm = FALSE) {
   if (length(x) < 2L || all((dup <- duplicated(x))[-1L]))
     return(TRUE)
   x[!dup]
+}
+
+#' @rdname is_uniform
+#'
+reassign_duplicates <- function(x, FUN, ...) {
+  if (!any(dup <- duplicated.default(x)))
+    return(FUN(x, ...))
+  FUN(x[!dup], ...)[match(x, x)]
 }
 
 
@@ -1043,6 +1054,9 @@ setMethod("separate", "data.frame", function(object, split = opm_opt("split"),
 #'   used?
 #' @param paren.sep Character scalar. What to insert before the opening
 #'   parenthesis (or bracket).
+#' @param i Integer scalar indicating the position of the partial match.
+#' @param m Object as returned by \code{regexpr}.
+#' @param string Originally matched character vector.
 #' @return Character vector.
 #' @keywords internal
 #'
@@ -1075,6 +1089,8 @@ trim_string <- function(str, max, append = ".", clean = TRUE,
 add_in_parens <- function(str.1, str.2, max = 1000L, append = ".",
     clean = TRUE, brackets = FALSE, word.wise = FALSE, paren.sep = " ") {
   max <- max - nchar(str.1) - 3L
+  if (!grepl("^\\s*$", paren.sep))
+    stop("'paren.sep' must only contain whitespace characters")
   str.2 <- trim_string(str.2, max, append = append, clean = clean,
     word.wise = word.wise)
   if (brackets) {
@@ -1086,7 +1102,7 @@ add_in_parens <- function(str.1, str.2, max = 1000L, append = ".",
     str.2 <- chartr("()", "[]", str.2)
     remove <- " \\(\\)$"
   }
-  sub(remove, "", sprintf(template, str.1, paren.sep, str.2))
+  sub(remove, "", sprintf(template, str.1, paren.sep, str.2), FALSE, TRUE)
 }
 
 #' @rdname trim_string
@@ -1094,6 +1110,14 @@ add_in_parens <- function(str.1, str.2, max = 1000L, append = ".",
 #'
 remove_concentration <- function(x) {
   sub("\\s*#\\s*\\d+\\s*$", "", x, FALSE, TRUE)
+}
+
+#' @rdname trim_string
+#' @keywords internal
+#'
+get_partial_match <- function(i, m, string) {
+  start <- attr(m, "capture.start")[, i]
+  substr(string, start, start + attr(m, "capture.length")[, i] - 1L)
 }
 
 

@@ -1215,6 +1215,10 @@ setMethod("to_metadata", WMDS, function(object, stringsAsFactors = FALSE,
   x
 }, sealed = SEALED)
 
+setMethod("to_metadata", MOPMX, function(object, ...) {
+  stop(NOT_YET)
+}, sealed = SEALED)
+
 
 ################################################################################
 ################################################################################
