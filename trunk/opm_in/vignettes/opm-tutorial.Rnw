@@ -53,8 +53,8 @@
 % * Use appropriate indentation (NOT the default one used by Rstudio).
 % * For the figures mostly two chunks have to be used, one for the display of
 %   the code and one for the figure. It is crucial to use eval=FALSE in the
-%   first one because otherwise the code will be run twice. Further, label the
-%   first chunk ...-dummy and the second one ...-figure, as mentioned above.
+%   first one because otherwise the code will be run twice. Further, do not
+%   copy the code but re-use the chunk using the <<...>> annotation.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1409,7 +1409,7 @@ In the \pkg{opm} manual and help pages, the functions relevant for plotting are 
 The function \code{xy\_plot} displays the respiration curves as such (see Figure~\ref{fig:xy_plot}).
 In our example the selected \proglang{OPMS} object \code{vaas.1.6} is the subset of the data set \code{vaas\_et\_al} constructed in Section~\ref{application manipulation}, additionally reduced to the firs 24 wells:
 
-<<label=xy-plot-dummy, eval=FALSE>>=
+<<label=xy-plot-figure-code, eval=FALSE>>=
 xy_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
   include = list("Species", "Strain"))
 @
@@ -1418,8 +1418,7 @@ xy_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
 \centering
 \scalebox{1.225}{
 <<label=xy-plot-figure, fig=TRUE, echo=FALSE, width=18, height=8.5>>=
-print(xy_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
-  include = list("Species", "Strain")))
+<<xy-plot-figure-code>>
 @
 }
 \caption{
@@ -1446,7 +1445,7 @@ If more colours were needed, the user should set up a larger own colour vector a
 
 The plotting of fewer sub-panels (see Figure~\ref{fig:xy_plot_2}) works as described above; the only difference is in the manipulation of the data set (note that the order of wells is changed in the plotted object, but not in the plot):
 
-<<label=xy-plot-partial-dummy, eval=FALSE>>=
+<<label=xy-plot-partial-figure-code, eval=FALSE>>=
 xy_plot(vaas.1.6[, , c("D01", "D02", "C10", "C11")], neg.ctrl = NULL,
   main = "E. coli vs. P. aeruginosa", include = list("Species", "Strain"))
 @
@@ -1455,9 +1454,7 @@ xy_plot(vaas.1.6[, , c("D01", "D02", "C10", "C11")], neg.ctrl = NULL,
 \centering
 \scalebox{1.0}{
 <<label=xy-plot-partial-figure, fig=TRUE, echo=FALSE, width=18, height=8>>=
-print(xy_plot(vaas.1.6[, , c("D01", "D02", "C10", "C11")],
-  main = "E. coli vs. P. aeruginosa", neg.ctrl = NULL,
-  include = list("Species", "Strain")))
+<<xy-plot-partial-figure-code>>
 @
 }
 \caption{
@@ -1471,7 +1468,7 @@ The x-axes show the measurement time in hours, the y-axes the measured colour-va
 
 The function \code{level\_plot} (see Figure~\ref{fig:level_plot}) provides false-colour level plots from the raw respiration measurements over time.
 
-<<label=level-plot-dummy, eval=FALSE>>=
+<<label=level-plot-figure-code, eval=FALSE>>=
 level_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
   include = list("Species", "Strain"))
 @
@@ -1479,8 +1476,7 @@ level_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
 \begin{figure}
 \scalebox{1.225}{
 <<label=level-plot-figure, fig=TRUE, echo=FALSE, width=18, height=7>>=
-print(level_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
-  include = list("Species", "Strain")))
+<<level-plot-figure-code>>
 @
 }
 \caption{
@@ -1503,7 +1499,7 @@ The purpose of \code{parallelplot} is to include several estimated curve paramet
 Figure~\ref{fig:para_plot_simple} provides an example of such a visualisation.
 All four parameters are plotted for the wells A01 to A10 from the data set \code{vaas\_4} and superimposed with colours according their affiliation to strains.
 
-<<label=para-plot-dummy, results=hide, eval=FALSE>>=
+<<label=para-plot-figure-code, results=hide, eval=FALSE>>=
 parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
 @
 
@@ -1511,7 +1507,7 @@ parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
 \centering
 \scalebox{1.0}{
 <<label=para-plot-figure, fig=TRUE, echo=FALSE, results=hide, width=10, height=6>>=
-parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
+<<para-plot-figure-code>>
 @
 }
 \caption{
@@ -1528,7 +1524,7 @@ Additionally, \code{panel.var} for creating sub-panels can access the metadata s
 If no metadata are selected (the default), only \code{Well} is available as grouping variable.
 Figure~\ref{fig:para_plot_advanced} demonstrates how the \code{panel.var} and the \code{groups} argument can be used for fine tuning the plot.
 
-<<label=para-plot-advanced-dummy, results=hide, eval=FALSE>>=
+<<label=para-plot-advanced-figure-code, results=hide, eval=FALSE>>=
 parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
   panel.var = "Species", groups = "Strain")
 @
@@ -1537,8 +1533,7 @@ parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
 \centering
 \scalebox{1.0}{
 <<label=para-plot-advanced, fig=TRUE, echo=FALSE, results=hide, width=10, height=6>>=
-parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
-  panel.var = "Species", groups = "Strain")
+<<para-plot-advanced-figure-code>>
 @
 }
 \caption{
@@ -1564,7 +1559,7 @@ Note also that the values for positioning the upper-left corner of the legend ar
 For positioning in the lower left part of the figure, negative values for x and y would be necessary (see Figure~\ref{fig:radial_plot-symbols}).
 The code is as follows:
 
-<<label=radial-plot-dummy, results=hide, eval=FALSE>>=
+<<label=radial-plot-figure-code, results=hide, eval=FALSE>>=
 radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
   x = 150, y = 200)
 @
@@ -1573,8 +1568,7 @@ radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
 \centering
 \scalebox{1.0}{
 <<label=radial-plot-figure, fig=TRUE, echo=FALSE, results=hide, width=10, height=6>>=
-radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
-  x = 150, y = 200)
+<<radial-plot-figure-code>>
 @
 }
 \caption{
@@ -1589,7 +1583,7 @@ Using the argument \code{rp.type} it is possible to plot symbols instead of a po
 With \code{show.centroid}, centroids are included in the graphic, potentially indicating a trend in the data at hand.
 The centroid of a polygon is the arithmetic mean position of all the points in the shape.
 
-<<label=radial-plot-symbols-dummy, results=hide, eval=FALSE>>=
+<<label=radial-plot-symbols-figure-code, results=hide, eval=FALSE>>=
 radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
   main = "Test", x = -550, y = -50, rp.type = "s",
   point.symbols = 15, show.centroid = TRUE)
@@ -1599,9 +1593,7 @@ radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
 \centering
 \scalebox{1.0}{
 <<label=radial-plot-symbols-figure, fig=TRUE, echo=FALSE, results=hide, width=10, height=6>>=
-radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
-  main = "Test", x = -550, y = -50, rp.type = "s",
-  point.symbols = 15, show.centroid = TRUE)
+<<radial-plot-symbols-figure-code>>
 @
 }
 \caption{
@@ -1621,7 +1613,7 @@ Figure~\ref{fig:ci_plot} provides an example of such a visualisation.
 The parameter \ac{A} is plotted for the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose) from one plate (the sixth plate of the first biological repetition from data set \code{vaas_et_al}).
 The code is as follows:
 
-<<label=ci-plot-dummy, results=hide, eval=FALSE>>=
+<<label=ci-plot-figure-code, results=hide, eval=FALSE>>=
 ci_plot.legend <- ci_plot(vaas.1.6[, , c("A01", "A02", "A03")],
   as.labels = list("Species", "Strain"), subset = "A",
   legend.field = NULL, x = 170, y = 3)
@@ -1631,9 +1623,7 @@ ci_plot.legend <- ci_plot(vaas.1.6[, , c("A01", "A02", "A03")],
 \centering
 \scalebox{1.225}{
 <<label=ci-plot-figure, fig=TRUE, echo=FALSE, results=hide, width=9, height=4>>=
-ci_plot(vaas.1.6[, , c("A01", "A02", "A03")],
-  as.labels = list("Species", "Strain"), subset = "A",
-  legend.field = NULL, x = 170, y = 3)
+<<ci-plot-figure-code>>
 @
 }
 \caption{
@@ -1662,7 +1652,7 @@ Using \code{norm.per = "none"} causes normalisation to be omitted.
 If \code{as.groups = TRUE} is used, all metadata that have been included in the first data frame are used to determine the groups.
 The result is shown in Fig~\ref{fig:ci_plot_groups}, after a further selection of columns from the second data frame to be passed to \code{ci\_plot}.
 
-<<label=ci-plot-of-groups-dummy, eval=FALSE>>=
+<<label=ci-plot-of-groups-figure-code, eval=FALSE>>=
 # without normalisation
 ci_plot(extract(x, as.groups = TRUE, norm.per = "none")[, c(1:7, 13)],
   legend.field = NULL, x = 350, y = 0)
@@ -1672,8 +1662,7 @@ ci_plot(extract(x, as.groups = TRUE, norm.per = "none")[, c(1:7, 13)],
 \centering
 \scalebox{1.225}{
 <<label=ci-plot-of-groups-figure, fig=TRUE, echo=FALSE, width=9, height=6>>=
-ci_plot(extract(x, as.groups = TRUE, norm.per = "none")[, c(1:7, 13)],
-  legend.field = NULL, x = 350, y = 0)
+<<ci-plot-of-groups-figure-code>>
 @
 }
 \caption{
@@ -1706,7 +1695,7 @@ See Figure~\ref{fig:ci_plot_norm} for an example of plotted confidence intervals
 Note that due to the structure of the data frame \code{norm.per = "row"} in combination with the \code{norm.by} argument has to be used.
 One could normalise by subtracting the means of well A10 only as follows:
 
-<<label=ci-plot-norm-well-A10-dummy, eval=FALSE>>=
+<<label=ci-plot-norm-well-A10-figure-code, eval=FALSE>>=
 ci_plot(extract(x, as.groups = TRUE, norm.per = "row",
   norm.by = 10, subtract = TRUE)[, c(1:7, 13)],
   legend.field = NULL, x = 0, y = 0)
@@ -1716,9 +1705,7 @@ ci_plot(extract(x, as.groups = TRUE, norm.per = "row",
 \centering
 \scalebox{1.225}{
 <<label=ci-plot-norm-well-A10-figure, fig=TRUE, echo=FALSE, width=9, height=6>>=
-ci_plot(extract(x, as.groups = TRUE, norm.per = "row",
-  norm.by = 10, subtract = TRUE)[, c(1:7, 13)],
-  legend.field = NULL, x = 0, y = 0)
+<<ci-plot-norm-well-A10-figure-code>>
 @
 }
 \caption{
@@ -1738,7 +1725,7 @@ For instance, row groups can be automatically constructed from the metadata.
 
 The function \code{heat\_map} could be applied to matrices or data frames constructed using the helper function \code{extract}, but it is more convenient to apply it directly to \proglang{OPMS} objects:
 
-<<label=heat-map-dummy, results=hide, eval=FALSE>>=
+<<label=heat-map-figure-code, results=hide, eval=FALSE>>=
 vaas.1.6.A <- heat_map(vaas.1.6, as.labels = "Strain",
   as.groups = "Species")
 @
@@ -1747,7 +1734,7 @@ vaas.1.6.A <- heat_map(vaas.1.6, as.labels = "Strain",
 \centering
 \scalebox{1.225}{
 <<label=heat-map-figure, fig=TRUE, echo=FALSE, results=hide, width=9, height=6>>=
-heat_map(vaas.1.6, as.labels = "Strain", as.groups = "Species")
+<<heat-map-figure-code>>
 @
 }
 \caption{
@@ -1792,7 +1779,7 @@ vaas.G06 <- subset(vaas_et_al[, , "G06"],
 
 The resulting data set of four strains, each represented by the ten replicates, is shown in Figure~\ref{fig:xy_plot_mcp}.
 
-<<label=plot-vaas-subset-dummy, eval=FALSE, echo=FALSE>>=
+<<label=plot-vaas-subset-figure-code, eval=FALSE, echo=FALSE>>=
 xy_plot(vaas.G06, include = ~ Strain, neg.ctrl = FALSE, space = "right")
 @
 
@@ -1800,7 +1787,7 @@ xy_plot(vaas.G06, include = ~ Strain, neg.ctrl = FALSE, space = "right")
 \centering
 \scalebox{1.0}{
 <<label=plot-vaas-subset-figure, fig=TRUE, echo=FALSE, width=9, height=6>>=
-xy_plot(vaas.G06, include = ~ Strain, neg.ctrl = FALSE, space = "right")
+<<plot-vaas-subset-figure-code>>
 @
 }
 \caption{
@@ -1861,7 +1848,7 @@ opm_mcp(vaas.G06, model = ~ Strain, m.type = "aov",
 For the computation of the tests itself, \code{opm\_mcp} uses \code{glht} from the package \pkg{multcomp} and returns an object of class \code{opm_glht} (which inherits from \code{glht}).
 As shown in Figure~\ref{fig:ci_plot_mcp}, the results of the performed statistical test can be plotted using the methods available for objects of that class (see \code{?multcomp::glht} for details).
 
-<<label=plot-mcp-linfct-dummy, eval=FALSE>>=
+<<label=plot-mcp-linfct-figure-code, eval=FALSE>>=
 library(multcomp) # now needed
 old.mar <- par(mar = c(3, 15, 3, 2)) # adapt margins in the plot
 plot(vaas.G06.mcp)
@@ -1873,10 +1860,7 @@ par(old.mar) # reset to default plotting settings
 \centering
 \scalebox{1.225}{
 <<label=plot-mcp-linfct-figure, fig=TRUE, echo=FALSE, width=8, height=3>>=
-library(multcomp)
-old.mar <- par(mar = c(3, 15, 3, 2))
-plot(vaas.G06.mcp)
-par(old.mar)
+<<plot-mcp-linfct-figure-code>>
 @
 }
 \caption{

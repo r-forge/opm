@@ -384,7 +384,7 @@ dim(tecan)
 Visualising raw measurements of growth curves with the methods intended for \ac{PM} data is straightforward, but some adaptations are necessary due to the deviations between the distinct kinds of data.
 For instance, the expected maximum for \ac{PM} data can seldom be used for delimiting the y axes, and the data are not measured in OmniLog\textregistered \ units, and a negative control might not be present:
 
-<<label=potato-growth-dummy, eval=FALSE>>=
+<<label=potato-growth-code, eval=FALSE>>=
 library(gridExtra)
 plot.fm <- xy_plot(potato.fm, theor.max = FALSE, rcr = 1,
   include = "Genotype", main = list(in.parens = FALSE),
@@ -399,14 +399,7 @@ grid.arrange(plot.fm, plot.dm, ncol = 2)
 \centering
 \scalebox{1.2}{
 <<label=potato-growth-figure, fig=TRUE, echo=FALSE, width=14, height=8>>=
-library(gridExtra)
-plot.fm <- xy_plot(potato.fm, theor.max = FALSE, rcr = 1,
-  include = "Genotype", main = list(in.parens = FALSE),
-  ylab = "Fresh cell mass [mg]", neg.ctrl = FALSE)
-plot.dm <- xy_plot(potato.dm, theor.max = FALSE, rcr = 1,
-  include = "Genotype", main = list(in.parens = FALSE),
-  ylab = "Dry mass [mg]", neg.ctrl = FALSE)
-grid.arrange(plot.fm, plot.dm, ncol = 2)
+<<potato-growth-code>>
 @
 }
 \caption{
@@ -423,7 +416,7 @@ The result is shown in Figure~\ref{fig:potato_xy_plot}.
 The TECAN data (which contain a negative control) can be visualised in the same way as the potato data, yielding Figure~\ref{fig:growth_xy_plot}.
 Note the \code{rm.num} argument, which causes the removal of the numbering from the end of the full well names (which is not needed any more after applying the \code{split} function as described in Section~\ref{tecan-input}):
 
-<<label=xy-plot-coli-dummy, eval=FALSE, echo=TRUE>>=
+<<label=xy-plot-coli-code, eval=FALSE>>=
 xy_plot(tecan, theor.max = FALSE, include = "Strain",
   main = list(in.parens = FALSE), ylab = "OD at 690nm", rm.num = TRUE)
 @
@@ -432,8 +425,7 @@ xy_plot(tecan, theor.max = FALSE, include = "Strain",
 \centering
 \scalebox{0.9}{
 <<label=xy-plot-coli-figure, fig=TRUE, echo=FALSE, width=10, height=8>>=
-xy_plot(tecan, theor.max = FALSE, include = "Strain",
-  main = list(in.parens = FALSE), ylab = "OD at 690nm", rm.num = TRUE)
+<<xy-plot-coli-code>>
 @
 }
 \caption{
@@ -473,7 +465,7 @@ plot_param_diff <- function(...) {
 
 In the next step, the distinct spline-fitting approaches have to be applied.
 
-<<label=agg-opm-spline, echo=TRUE>>=
+<<label=agg-opm-spline>>=
 sm.tecan <- do_aggr(tecan, method = "splines", boot = 0,
   options = set_spline_options(type = "smooth.spline"))
 tp.tecan <- do_aggr(tecan, method = "splines", boot = 0,
@@ -484,7 +476,7 @@ p.tecan <- do_aggr(tecan, method = "splines", boot = 0,
 
 After these preparations the methods can be visually compared as follows.
 
-<<label=plot-opm-spline-dummy, eval=FALSE, echo=TRUE>>=
+<<label=plot-opm-spline-code, eval=FALSE>>=
 old.par <- par(mfrow = c(2, 4))
 plot_param_diff(Sm = sm.tecan, Tp = tp.tecan, P = p.tecan)
 par(old.par)
@@ -493,9 +485,7 @@ par(old.par)
 \begin{figure}
 \centering
 <<label=plot-opm-spline, echo=FALSE, fig=TRUE>>=
-old.par <- par(mfrow = c(2, 4))
-plot_param_diff(Sm = sm.tecan, Tp = tp.tecan, P = p.tecan)
-par(old.par)
+<<plot-opm-spline-code>>
 @
 \caption{
 \label{fig:correlation}
@@ -509,7 +499,7 @@ Apparently the distinct spline-fitting methods yield approximately the same esti
 Thus even in the case of comparatively few data points it seems that spline fitting as implemented in \pkg{opm} can robustly be applied.
 For the forthcoming analyses we restrict ourselves to the results obtained with smoothing splines.
 
-<<label=select-splines, echo=TRUE>>=
+<<label=select-splines>>=
 tecan <- sm.tecan
 rm(tp.tecan, p.tecan, sm.tecan) # tidy up
 potato.fm <- do_aggr(potato.fm, method = "splines", boot = 0,
@@ -530,7 +520,7 @@ The \code{opm\_mcp} method is extensively documented in Section~\ref*{tutorial-m
 
 The following code answers the main question regarding the potato data sets, i.e. for which treatment (well) significant or insignificant differences between the genotypes are found, and how large the according effect size is.
 
-<<label=potato-mcp, echo=TRUE>>=
+<<label=potato-mcp>>=
 dm.mcp <- opm_mcp(potato.dm, ~ J(Well, Genotype), m.type = "aov",
   linfct = c(Pairs.Well = 1), max = 7, in.parens = FALSE)
 fm.mcp <- opm_mcp(potato.fm, ~ J(Well, Genotype), m.type = "aov",
@@ -539,17 +529,18 @@ fm.mcp <- opm_mcp(potato.fm, ~ J(Well, Genotype), m.type = "aov",
 
 Using the dedicated \code{plot} method, the results can be visualised as demonstrated in Figure~\ref{fig:potato-mcp}.
 
+<<label=plot-potato-mcp-code, eval=FALSE>>=
+library(multcomp) # now needed
+old.par <- par(mfrow = c(2, 1), mar = c(1, 15, 2, 1))
+plot(fm.mcp)
+plot(dm.mcp, main = "")
+par(old.par)
+@
 
 \begin{figure}
 \centering
 <<label=plot-potato-mcp, echo=FALSE, fig=TRUE>>=
-library(multcomp) # now needed
-old.mar <- par(mar = c(1, 15, 2, 1))
-old.par <- par(mfrow = c(2, 1))
-plot(fm.mcp)
-plot(dm.mcp, main = "")
-par(old.mar)
-par(old.par)
+<<plot-potato-mcp-code>>
 @
 \caption{
 \label{fig:potato-mcp}
@@ -568,18 +559,23 @@ See the publication by \citet{ijms140715141} for an in-depth interpretation of t
 
 The TECAN data can be analysed in an analogous fashion.
 
-<<label=tecan-mcp, echo=TRUE>>=
+<<label=tecan-mcp>>=
 tecan.mcp <- opm_mcp(tecan, ~ J(Well, Strain), m.type = "aov",
   linfct = c(Pairs.Well = 1), full = FALSE)
 @
 
+Plotting the object accordingly yields Figure~\ref{fig:tecan-mcp}:
+
+<<label=plot-tecan-mcp-code, eval=FALSE>>=
+old.mar <- par(mar = c(3, 15, 3, 2))
+plot(tecan.mcp)
+par(old.mar)
+@
 
 \begin{figure}
 \centering
 <<label=plot-tecan-mcp, echo=FALSE, fig=TRUE>>=
-old.mar <- par(mar = c(3, 15, 3, 2))
-plot(tecan.mcp)
-par(old.mar)
+<<plot-tecan-mcp-code>>
 @
 \caption{
 \label{fig:tecan-mcp}
@@ -591,7 +587,7 @@ Compare the outcome with Figure~\ref{fig:growth_xy_plot} and see the main text f
 
 
 The plot in Figure~\ref{fig:growth_xy_plot} indicated that one of the strains outgrows the other unless high concentrations of Glucose are applied.
-This can be confirmed with the \code{opm\_mcp} analysis, as significant differences between the two strains only occur for moderate Glucose concentrations (wells ``A02'' and ``A03'') but neither in the control treatment nor for high concentrations of the sugar.
+This can be confirmed with the \code{opm\_mcp} analysis (Figure~\ref{fig:tecan-mcp}), as significant differences between the two strains only occur for moderate Glucose concentrations (wells ``A02'' and ``A03'') but neither in the control treatment nor for high concentrations of the sugar.
 
 \clearpage
 

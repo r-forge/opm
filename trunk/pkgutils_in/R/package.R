@@ -596,7 +596,8 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
           starts <- grepl("^<<.*>>=", x, FALSE, TRUE)
           stops <- grepl("^@", x, FALSE, TRUE)
           stopifnot(must(which(starts) < which(stops)))
-          as.integer(sections(starts | stops)) %% 2L == 1L | starts
+          as.integer(sections(starts | stops)) %% 2L == 1L | starts |
+            grepl("^<<.*>>$", x, FALSE, TRUE) # Sweave references
         }
       )
     }
@@ -648,6 +649,7 @@ check_Sweave_start.character <- function(x, ignore = TRUE,
     parse_chunk_start <- function(x) {
       to_named_vector <- function(x) {
         x <- structure(vapply(x, `[[`, "", 2L), names = vapply(x, `[[`, "", 1L))
+        x <- map_values(x, c(true = "TRUE", false = "FALSE"))
         lapply(as.list(x), type.convert, "", TRUE)
       }
       x <- sub("\\s+$", "", sub("^\\s+", "", x, FALSE, TRUE), FALSE, TRUE)
