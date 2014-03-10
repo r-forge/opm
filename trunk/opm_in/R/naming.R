@@ -1510,8 +1510,12 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #'     \acronym{URL}.}
 #'     \item{peptide}{List of character vectors representing amino acids in
 #'     three-letter code, in order, contained in the substrate if it is a
-#'     peptide. Empty character vectors are returned for non-peptide
-#'     substrates.}
+#'     peptide. Empty character vectors are returned for non-peptide substrates.
+#'     Amino acids without \sQuote{L} or \sQuote{D} annotation are assumed to be
+#'     in \sQuote{L} conformation, i.e. \sQuote{L-} is removed from the
+#'     beginning of the amino acid codes.}
+#'     \item{peptide2}{Like \code{peptide}, but without removal of \sQuote{L-}
+#'     from the beginning of the amino acid codes.}
 #'   }
 #'   See the references for information on the databases.
 #' @param browse Numeric scalar. If non-zero, an \acronym{URL} is generated from
@@ -1638,8 +1642,8 @@ setGeneric("substrate_info",
 
 setMethod("substrate_info", "character", function(object,
     what = c("cas", "kegg", "drug", "metacyc", "chebi", "mesh", "downcase",
-      "greek", "concentration", "html", "peptide", "all"), browse = 0L,
-    download = FALSE, ...) {
+      "greek", "concentration", "html", "peptide", "peptide2", "all"),
+    browse = 0L, download = FALSE, ...) {
 
   find_substrate_id <- function(x) {
     result <- WELL_MAP[, , "substrate_id"][match(x, WELL_MAP[, , "name"])]
@@ -1706,10 +1710,9 @@ setMethod("substrate_info", "character", function(object,
     as.integer(substr(x, m, m + attr(m, "match.length") - 1L))
   }
 
-  parse_peptide <- function(x) {
+  parse_peptide <- function(x, remove.L) {
     recognize_full_names <- function(x) {
-      ## TODO: improve name of this substrate directly in database
-      x <- map_values(x, c(`4-Hydroxy-L-Proline [trans]` = "L-Hydroxyproline"))
+      #x <- map_values(x, c(`4-Hydroxy-L-Proline [trans]` = "L-Hydroxyproline"))
       m <- regexpr("^(?:[A-Za-z],)*[A-Za-z]-", x, FALSE, TRUE)
       result <- AMINO_ACIDS[substr(x, m + attr(m, "match.length"), nchar(x))]
       ok <- !is.na(result)
@@ -1727,9 +1730,10 @@ setMethod("substrate_info", "character", function(object,
     ok <- grepl(pat, x, FALSE, TRUE)
     result[ok] <- strsplit(x[ok], "(?<!\\b\\w)-", FALSE, TRUE)
     result[!ok] <- recognize_full_names(x[!ok])
-    ## TODO: make this optional
-    lapply(result, sub, pattern = "^L-", replacement = "", ignore.case = FALSE,
-      perl = TRUE)
+    if (remove.L)
+      result <- lapply(result, sub, pattern = "^L-", replacement = "",
+        ignore.case = FALSE, perl = TRUE)
+    result
   }
 
   all_information <- function(x) {
@@ -1751,7 +1755,8 @@ setMethod("substrate_info", "character", function(object,
     downcase = safe_downcase(object),
     greek = expand_greek_letters(object),
     html = compound_name_to_html(object),
-    peptide = parse_peptide(object)
+    peptide = parse_peptide(object, TRUE),
+    peptide2 = parse_peptide(object, FALSE)
   )
   browse <- must(as.integer(L(browse)))
   if (browse != 0L) {
