@@ -909,6 +909,8 @@ clean_plate_positions <- function(x) {
 map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
     paren.sep = " ", downcase = FALSE, rm.num = FALSE,
     max = opm_opt("max.chars"), ...) {
+  if ((L(paren.sep) == "@"))
+    return(sprintf("%s@%s", wells, plate))
   if (custom_plate_is(plate)) {
     if (custom_plate_exists(plate))
       res <- custom_plate_get(plate)[wells]
@@ -938,11 +940,21 @@ map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
 #' @rdname well_index
 #'
 well_to_substrate <- function(x, plate) {
+  get_name <- function(x, plate) wells(x, TRUE, FALSE, plate = plate)[, 1L]
   if (length(plate)) {
     if (all(grepl(SUBSTRATE_PATTERN[["any"]], x, FALSE, TRUE)))
-      wells(substr(x, 1L, 3L), TRUE, FALSE, plate = plate)[, 1L]
+      get_name(substr(x, 1L, 3L), plate)
     else
       x # assume plain substrate names without wells as prefix
+  } else if (all(grepl("^[A-Z][0-9]{2}@", x, FALSE, TRUE))) {
+    plate <- as.factor(substr(x, 5L, nchar(x)))
+    pos <- split.default(seq_along(x), plate)
+    x <- split.default(substr(x, 1L, 3L), plate)
+    x <- mapply(get_name, x, names(x), SIMPLIFY = FALSE)
+    result <- character(length(plate))
+    for (i in seq_along(x))
+      result[pos[[i]]] <- x[[i]]
+    result
   } else {
     for (p in SUBSTRATE_PATTERN[c("paren", "bracket")]) {
       m <- regexpr(p, x, FALSE, TRUE)
@@ -1030,7 +1042,12 @@ to_sentence.logical <- function(x, html, ...) {
 #' @param paren.sep Character scalar. What to insert before the opening
 #'   parenthesis (or bracket). Currently only zero to many whitespace characters
 #'   are allowed. The ability to insert a line break is the main purpose of this
-#'   argument.
+#'   argument. Using the \sQuote{at sign} as value is the only alternative and
+#'   also special, as it causes the plate name itself to be appended to the well
+#'   coordinate (after an \sQuote{at sign}, without parentheses or brackets). So
+#'   mapping is not actually done in that case but the resulting names are
+#'   understood by certain other \pkg{opm} methods which can conduct the mapping
+#'   at a later stage.
 #' @param downcase Logical scalar indicating whether full names should be
 #'   (carefully) converted to lower case. This uses \code{\link{substrate_info}}
 #'   in \kbd{downcase} mode; see there for details.

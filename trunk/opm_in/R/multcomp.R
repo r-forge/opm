@@ -128,7 +128,11 @@
 #' @param ... Optional arguments passed to \code{\link{extract}}. Most of them
 #'   would be passed to \code{\link{wells}} for creating substrate names. Some
 #'   restrictions are necessary here if the resulting object shall latter on be
-#'   analysed with \code{\link{annotated}}; see there for details.
+#'   analysed with \code{\link{annotated}}; see there for details. This holds
+#'   particularly if \code{object} is of class \code{\link{MOPMX}}. In that
+#'   case, setting \code{full} to \code{FALSE} is likely to cause most
+#'   combinations of wells and plates to be omitted because the well names get
+#'   non-unique.
 #'
 #' @return The kind of object returned by this function are determined by the
 #'   \code{output} argument: \describe{
@@ -312,6 +316,18 @@
 #'
 setGeneric("opm_mcp",
   function(object, ...) standardGeneric("opm_mcp"))
+
+setMethod("opm_mcp", MOPMX, function(object, model, linfct = 1L,
+    m.type = "glm", rhs = 0, alternative = "two.sided", glht.args = list(),
+    ops = "+", output = "mcp", sep = opm_opt("comb.value.join"), ...) {
+  object <- extract(object = object, dataframe = TRUE, sep = sep, ...,
+    as.labels = metadata_key(model, FALSE, ops = ops, syntactic = FALSE,
+      remove = RESERVED_NAMES[c("well", "value", "parameter")]))
+  attr(object, opm_string()) <- list(plate.type = NULL)
+  opm_mcp(object = object, model = model, linfct = linfct, ops = ops,
+    m.type = m.type, split.at = param_names("split.at"), glht.args = glht.args,
+    output = output, sep = sep, rhs = rhs, alternative = alternative)
+}, sealed = SEALED)
 
 setMethod("opm_mcp", OPMS, function(object, model, linfct = 1L,
     m.type = "glm", rhs = 0, alternative = "two.sided", glht.args = list(),
