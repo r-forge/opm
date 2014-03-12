@@ -597,7 +597,7 @@ check_R_code.character <- function(x, lwd = 80L, indention = 2L,
           stops <- grepl("^@", x, FALSE, TRUE)
           stopifnot(must(which(starts) < which(stops)))
           as.integer(sections(starts | stops)) %% 2L == 1L | starts |
-            grepl("^<<.*>>$", x, FALSE, TRUE) # Sweave references
+            grepl("^\\s*<<.*>>\\s*$", x, FALSE, TRUE) # Sweave references
         }
       )
     }
