@@ -904,6 +904,13 @@ par(old.par) # reset plotting settings
 \end{figure}
 \end{center}
 
+The results can be interpreted as follows:
+Whether or not a substrate is a carbohydrate works best for predicting whether one of the strains performs differently than the other.
+The category ``Carbohydrates'' works even better than its subcategories such as ``Oligosaccharides''.
+The pathway map IDs that are shown to have a strong influence are also related to carbohydrate metabolism, of course.
+For instance, the Galactose metabolism (``map00052'') is among the top-scoring substrate features.
+For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
+
 
 \begin{figure}
   \begin{center}
@@ -932,13 +939,6 @@ par(old.par) # reset plotting settings
 
 %For details on stability selection in the context of boosting see \rcsmark{DRAFT \acs{BH}}.
 
-The results can be interpreted a follows:
-Whether or not a substrate is a carbohydrate works best for predicting whether one of the strains performs differently than the other.
-The category ``Carbohydrates'' works even better than its subcategories such as ``Oligosaccharides''.
-The pathway map IDs that are shown to have a strong influence are also related to carbohydrate metabolism, of course.
-For instance, the Galactose metabolism (``map00052'') is among the top-scoring substrate features.
-For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
-
 Note that the approach used here is suboptimal in a certain respect because mean differences between metadata-defined groups have entered the model as dependent variable.
 This fits well to the visualisation approaches exemplified above but ignores the variance of the differences and lets the metainformation not directly enter the model because here metadata are only used to define the groups.
 
@@ -956,19 +956,18 @@ set.seed(1907)
 Using two biological replicates and all technical replicates thereof the
 statistical model gets more complicated. First we need to extract and
 restructure the data:
+
 <<make_data_set>>=
 ## use multiple biological replicates:
 coli.sub1 <- subset(vaas_et_al, list(Species = "Escherichia coli",
   Experiment = c("First replicate", "Second replicate")))
 
-data <- opm_mcp(coli.sub1, ~ Strain + Experiment +
-  Slot + 'Plate number', output = "data", in.parens = FALSE)
-
-y <- annotated(coli.sub, how = "data.frame")
-## add everything but the value
-data[, colnames(y)[-1]] <- y[as.character(data$Well), -1]
-data <- data[complete.cases(data), ]
-data <- data[, !(names(data) %in% c("Well", "Parameter"))]
+## reformat and add substrate information
+data <- annotated(opm_mcp(coli.sub1,
+  ~ Strain + Experiment + Slot + 'Plate number',
+  output = "data", in.parens = FALSE), how = "data.frame")
+data <- data[complete.cases(data),
+  !(names(data) %in% c("Well", "Parameter"))]
 
 ## restructure plate number to ID for usage of brandom:
 data$ID <- as.numeric(as.character(data$Plate.number)) +
@@ -980,7 +979,8 @@ data$Plate.number <- NULL
 
 Now we can set up the model and use stability selection to extract the substrate
 groups and pathways that best explain the difference between strains. Be
-carefull as this takes a while.
+careful as this takes a while.
+
 <<model_code, eval = false>>=
 fm <- as.formula(paste("Value ~ Strain + ",
   paste(paste(names(data)[-c(1, 4)]), collapse = "+"), "+",
@@ -1025,16 +1025,17 @@ neglecting possible differences in substrate/map effects between strains.
 Additionally, we specify effects for strain, experiment and slot to account for
 overall differences between strains, experiments and slots. To account for
 repeated measurements we include a random effects term in the model
-\rcscom{(currently we use ONE random effect for both technical and biological
+\rcscom{(Currently we use ONE random effect for both technical and biological
   replicates; this is ok as we currently do not really want to differentiate
-  between the two types of variability;)}. In a second step we allow for
+  between the two types of variability.)}. In a second step we allow for
 interactions between strain and the substrate/map effects and check if any are
 present. We use stability selection to determine which of the (interaction)
 effects are selected (while controlling the per-family error rate).
-\rcscom{More technical details if necessary but first we should discuss the
-  results}
+\rcscom{More technical details will be added here if necessary but we are
+still in the process of discussing the results.}
 
-Plotting the results
+Plotting the results...
+
 <<model_pathways_code, eval = false>>=
 # adapt plotting settings
 old.par <- par(mar = c(4, 0.1, 0.1, 15), mfrow = c(1, 2))
@@ -1054,7 +1055,8 @@ axis(2, at = 1:ps, nms[tail(order(inc_freq), ps)], las = 2)
 abline(v = stab2$cutoff, col = "grey")
 par(old.par) # reset plotting settings
 @
-leads to a similar but more complex structure (see Figure~\ref{fig:stabsel2}).
+
+...leads to a similar but more complex structure (see Figure~\ref{fig:stabsel2}).
 %\rcsdel{The forthcoming version of this vignette will demonstrate feature selection from the curve parameters themselves. We will show how to easily generate matrices containing estimated both traditional \pkg{opm} metadata and novel \pkg{opm} substrate metainformation as (potential) explanatory variables.}
 
 \begin{figure}
@@ -1115,12 +1117,12 @@ par(old.par) # reset plotting settings
 <<coefficients_code>>
 @
 }
-\caption{Coefficients of stable variables (for the optimal boosting iteration).\label{fig:stabsel2}}
+\caption{Coefficients of stable variables (for the optimal boosting iteration).\label{fig:stabsel3}}
 \end{figure}
 
 \subsubsection{Evaluation of results}
 
-\rcsmark{For now,} we will augment the boosting approach with an \code{opm\_mcp} analysis for confirming whether the reactions on carbohydrate wells are indeed more strongly different between the two strains than those on other wells.
+In the next step we will augment the boosting approach with an \code{opm\_mcp} analysis for confirming whether the reactions on carbohydrate wells are indeed more strongly different between the two strains than those on other wells.
 First, the positions of the substrates either belonging to the category ``Carbohydrates'' or not to it are determined and afterwards stored in two vectors.
 
 <<label=prep_mcp_dat>>=
