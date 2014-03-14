@@ -489,6 +489,13 @@ strip_whitespace <- function(x) {
 #'
 vector2row <- function(x) matrix(x, 1L, length(x), FALSE, list(NULL, names(x)))
 
+#' @rdname assert_splittable_matrix
+#'
+sortable_indexes <- function(x) {
+  n <- seq_along(x)
+  sprintf(sprintf("%%0%ii", ceiling(log(n[length(n)], 10))), n)
+}
+
 
 ################################################################################
 ################################################################################

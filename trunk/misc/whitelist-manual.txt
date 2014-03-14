@@ -3,6 +3,7 @@ Acidovorax
 BIOLOG
 Buddruhs
 CSV
+Calasanz
 Calinski
 Corynebacterium
 Discretisation
@@ -14,6 +15,7 @@ Harabasz
 Hennig
 Metadata
 MicroStation
+Montero
 OmniLog
 Original
 PDF
@@ -72,7 +74,9 @@ subdirectories
 subdirectory
 superset
 taxon
+telluris
 tuberosum
+tzadiensis
 unary
 urealyticum
 versa
