@@ -1401,6 +1401,7 @@ Finally, note that methods for a variety of generic \proglang{R} functions such 
 As specified using \code{sort(by = ...)}, sorting can be done based on selected metadata or on \code{csv_data} entries such as the setup time.
 The latter is of use in conjunction with the \code{merge} method, which is able to concatenate \proglang{OPM} objects from subsequent runs of the same plate.
 Enter \code{help(sort, package = "opm")} and \code{help(merge, package = "opm")} at the \proglang{R} prompt for details.
+A usage example (and entire exemplar data set) is given under \code{?opmdata::montero_et_al}.
 
 
 \subsection[Plotting functions for raw data]{Plotting functions for raw data}\label{application plotting}
