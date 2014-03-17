@@ -824,7 +824,7 @@ mod[mstop(cvr)]
 If one uses cross-validation techniques to find the optimal stopping iteration, boosting intrinsically selects variables that best predict the outcome, i.e. here the differences between the two \textit{E. coli} strains with respect to certain substrates.
 We can now depict these features within a ``Variable Importance Plot'', which shows the absolute values of the regression coefficients $\beta$ (Figure~\ref{fig:var-imp-plot}).
 Higher values of the absolute coefficient tend to indicate bigger contributions of the corresponding variable to the prediction of the differences of strains,
-i.e. the higher the value of the coefficient the more important is the variable.\footnote{This at least holds true for variables that have comparable standard deviations or standardized coefficients.}
+i.e. the higher the value of the coefficient the more important is the variable.\footnote{This at least holds true for variables that have comparable standard deviations or standardised coefficients.}
 
 \begin{figure}
   \begin{center}
@@ -1026,7 +1026,7 @@ Additionally, we specify effects for strain, experiment and slot to account for
 overall differences between strains, experiments and slots. To account for
 repeated measurements we include a random effects term in the model
 \rcscom{(Currently we use ONE random effect for both technical and biological
-  replicates; this is ok as we currently do not really want to differentiate
+  replicates; this is appropriate as we currently do not really want to differentiate
   between the two types of variability.)}. In a second step we allow for
 interactions between strain and the substrate/map effects and check if any are
 present. We use stability selection to determine which of the (interaction)
@@ -1067,7 +1067,7 @@ par(old.par) # reset plotting settings
 @
 }
 \caption{Selected pathways and substrate classes. (left) From the selection path
-  plot one can deduce that the number of iterations was suffiently large as all
+  plot one can deduce that the number of iterations was sufficiently large as all
   selection paths stop to increase after 100 iterations. (right) Maximum
   inclusion frequency $\hat{\pi}$ for the top 20 variables as determined by
   stability selection.\label{fig:stabsel2}}

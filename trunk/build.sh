@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 
 ################################################################################
@@ -128,7 +128,8 @@ export_gs_location()
     for exe in gs-910 gs-906; do
       for suffix in '' -linux_x86_64; do
         if [ -x "$bindir/${exe}$suffix" ]; then
-          export R_GSCMD=$bindir/${exe}$suffix
+          R_GSCMD=$bindir/${exe}$suffix
+          export R_GSCMD
           return
         fi
       done
@@ -1243,7 +1244,9 @@ test_demos()
   local errs=0
   for rscript in "$wdir"/"$1"/demo/*.R; do
     [ -s "$rscript" ] || continue
-    [ "$1" = opm_in ] && [[ $rscript =~ SQL|ODBC ]] && continue
+    if [ "$1" = opm_in ] && echo "${rscript##*/}" | grep -q 'SQL\|ODBC' -; then
+      continue
+    fi
     echo "TESTING ${rscript##*/}..."
     if R CMD BATCH "$rscript"; then
       echo "	<<<SUCCESS>>>"
@@ -1272,10 +1275,11 @@ test_sql_demos()
   cd "$tmpdir"
   local rscript
   local errs=0
-  export OPM_SQLITE_DB=$wdir/misc/pmdata.db
+  OPM_SQLITE_DB=$wdir/misc/pmdata.db
+  export OPM_SQLITE_DB
   for rscript in "$wdir"/opm_in/demo/*.R; do
     [ -s "$rscript" ] || continue
-    [[ $rscript =~ SQL|ODBC ]] || continue
+    echo "${rscript##*/}" | grep -q 'SQL\|ODBC' - || continue
     echo "TESTING ${rscript##*/}..."
     if R CMD BATCH "$rscript"; then
       echo "	<<<SUCCESS>>>"
