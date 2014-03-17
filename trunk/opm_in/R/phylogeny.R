@@ -596,13 +596,13 @@ setMethod("format", CMAT, function(x, how, enclose, digits, indent,
 #' suitable for displaying \acronym{PM} data in taxonomic journals such as
 #' \acronym{IJSEM}.
 #'
-#' @param object Data frame, numeric matrix or \code{\link{OPMS}} object (with
-#'   aggregated values). Currently only \sQuote{integer}, \sQuote{logical},
-#'   \sQuote{double} and \sQuote{character} matrix content is supported. The
-#'   data-frame and \code{\link{OPMS}} methods first call \code{\link{extract}}
-#'   and then the matrix method. The methods for \code{OPMD_Listing} and
-#'   \code{OPMS_Listing} objects can be applied to the results of
-#'   \code{\link{listing}}.
+#' @param object Data frame, numeric matrix or \code{\link{OPMS}} or
+#'   \code{\link{MOPMX}} object (with aggregated values). Currently only
+#'   \sQuote{integer}, \sQuote{logical}, \sQuote{double} and \sQuote{character}
+#'   matrix content is supported. The data-frame and \code{\link{OPMS}} methods
+#'   first call \code{\link{extract}} and then the matrix method. The methods
+#'   for \code{OPMD_Listing} and \code{OPMS_Listing} objects can be applied to
+#'   the results of \code{\link{listing}}.
 #' @param format Character scalar determining the output format, either
 #'   \kbd{epf} (Extended \acronym{PHYLIP} Format), \kbd{nexus}, \kbd{phylip},
 #'   \kbd{hennig} or \kbd{html}.
@@ -911,7 +911,7 @@ setMethod("phylo_data", "data.frame", function(object, as.labels = NULL,
   phylo_data(object, ...)
 }, sealed = SEALED)
 
-setMethod("phylo_data", OPMS, function(object, as.labels,
+setMethod("phylo_data", XOPMX, function(object, as.labels,
     subset = param_names("disc.name"), sep = " ", extract.args = list(),
     join = TRUE, discrete.args = list(range = TRUE, gap = TRUE), ...) {
   extract.args <- insert(as.list(extract.args), list(object = object,

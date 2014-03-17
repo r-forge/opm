@@ -374,6 +374,18 @@ NULL
 #
 setClassUnion(OPMX, c(OPM, OPMS))
 
+
+#' @rdname WMD
+#' @name WMDX
+#' @aliases XOPMX-class
+#' @docType class
+#' @exportClass XOPMX
+#'
+NULL
+
+setClassUnion(XOPMX, c(MOPMX, OPMS))
+
+
 #' @rdname WMD
 #' @name YAML_VIA_LIST
 #' @aliases YAML_VIA_LIST-class
