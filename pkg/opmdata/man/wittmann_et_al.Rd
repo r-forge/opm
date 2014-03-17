@@ -29,7 +29,7 @@
 
   In addition to \sQuote{genus}, \sQuote{species} and
   \sQuote{strain}, the following metadata entries are
-  contained in the Wittmann \emph{et al.} \code{OPMS}
+  contained in the \code{wittmann_et_al} \code{OPMS}
   object: \describe{ \item{country}{Lists the geographical
   origin.} \item{city}{Lists the city where the strain was
   isolated.} \item{year}{Lists the year in which the strain
@@ -41,7 +41,7 @@
   replicates per strain. 2-3 replicates per strain were
   performed.} \item{MLSTcluster}{Name of phylogenetic
   cluster to which a strain is affiliated. See reference
-  Wittmann \emph{et al}.} }
+  Wittmann \emph{et al} (2014).} }
 }
 \examples{
 data(wittmann_et_al)
@@ -63,8 +63,8 @@ head(to_metadata(wittmann_et_al))
   Sikorski, J. 2014 Isolation and characterization of
   numerous novel phages targeting diverse strains of the
   ubiquitious and opportunistic pathogen
-  \emph{Achromobacter xylosoxidans}. \emph{PLoS ONE}, in
-  press.
+  \emph{Achromobacter xylosoxidans}. \emph{PLoS ONE}
+  \strong{9}, e86935.
 }
 \keyword{datasets}
 \keyword{datasets}

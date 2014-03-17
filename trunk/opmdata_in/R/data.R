@@ -42,10 +42,11 @@ NULL
 #'   below. Please see also the description for the data set \code{vaas_4} in
 #'   the \pkg{opm} package for further details regarding the Figures 2, 3 and 4
 #'   in Vaas \emph{et al.} (2012). Figure 5 in Vaas \emph{et al.} (2012)
-#'   represents the data for the \emph{E. coli} strain \acronym{DSM} 30083T from
-#'   well D12 only but comprising all ten technical replicates from the first
-#'   experimental run. Finally, the upper part of Figure 6 shows the data
-#'   derived only from well C08 in the time-series experiment.
+#'   represents the data for the \emph{E. coli} strain \acronym{DSM}
+#'   30083\eqn{\textsuperscript{T}}{T} from well D12 only but comprising all ten
+#'   technical replicates from the first experimental run. Finally, the upper
+#'   part of Figure 6 shows the data derived only from well C08 in the
+#'   time-series experiment.
 #'
 #' @references Bochner, B.R., Savageau, M.A. 1977. Generalized indicator plate
 #'   for genetic, metabolic, and taxonomic studies with microorganisms. \emph{
@@ -76,6 +77,7 @@ NULL
 #' stopifnot(d == c(114, 384, 96), ha, hd)
 #'
 #' \dontrun{
+#'
 #' # get the data subset used in Figure 1 in Vaas et al. (2012)
 #' vaas.1.3 <- subset(vaas_et_al, query = list(Experiment = "First replicate",
 #'   'Plate number' = 3))
@@ -116,7 +118,7 @@ NULL
 #'   OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} reader.
 #'
 #'   In addition to \sQuote{genus}, \sQuote{species} and \sQuote{strain}, the
-#'   following metadata entries are contained in the Wittmann \emph{et al.}
+#'   following metadata entries are contained in the \code{wittmann_et_al}
 #'   \code{OPMS} object:
 #'   \describe{
 #'   \item{country}{Lists the geographical origin.}
@@ -129,7 +131,7 @@ NULL
 #'   \item{replicate}{Lists the number of experimental plate replicates per
 #'   strain. 2-3 replicates per strain were performed.}
 #'   \item{MLSTcluster}{Name of phylogenetic cluster to which a strain is
-#'   affiliated. See reference Wittmann \emph{et al}.}
+#'   affiliated. See reference Wittmann \emph{et al} (2014).}
 #' }
 #'
 #' @references Bochner, B.R., Savageau, M.A. 1977. Generalized indicator plate
@@ -138,7 +140,7 @@ NULL
 #' @references Wittmann, J., Dreiseikelmann, B., Rohde, C., Rohde, M.,
 #'   Sikorski, J. 2014 Isolation and characterization of numerous novel phages
 #'   targeting diverse strains of the ubiquitious and opportunistic pathogen
-#'   \emph{Achromobacter xylosoxidans}. \emph{PLoS ONE}, in press.
+#'   \emph{Achromobacter xylosoxidans}. \emph{PLoS ONE} \strong{9}, e86935.
 #'
 #' @examples
 #' data(wittmann_et_al)
@@ -181,8 +183,9 @@ NULL
 #'   which describe all aspects necessary for serving as an exemplar. The data
 #'   comprise three subsequent runs for each of the two replicates for each of
 #'   the two strains, hence twelve plates. The two strains are the type strains
-#'   of \emph{Geodermatophilus telluris} (\acronym{DSM} 45421) and
-#'   \emph{Geodermatophilus tzadiensis} (\acronym{DSM} 45416), respectively.
+#'   of \emph{Geodermatophilus telluris} (\acronym{DSM}
+#'   45421\eqn{\textsuperscript{T}}{T}) and \emph{Geodermatophilus tzadiensis}
+#'   (\acronym{DSM} 45416\eqn{\textsuperscript{T}}{T}), respectively.
 #'
 #' @references Bochner, B.R., Savageau, M.A. 1977. Generalized indicator plate
 #'   for genetic, metabolic, and taxonomic studies with microorganisms. \emph{
@@ -214,14 +217,14 @@ NULL
 #'
 #' ## Splitting, merging, joining
 #' x <- opms(lapply(split(montero_et_al, ~ Strain + Replicate), merge))
-#' # That's it. Other datasets might need an adaption of the parsing of the
-#' # setup time, and of course might contain other combinations of metadata
-#' # that identify the physical plate.
+#' # Other datasets might need an adaption of the parsing of the setup time,
+#' # and of course might contain other combinations of metadata entries that
+#' # identify the physical plate.
 #' x
 #' stopifnot(is(x, "OPMS"), length(x) == 4)
+#'
 #' \dontrun{
-#'   xy_plot(x, include = ~ Strain + Replicate)
-#' }
+#'   xy_plot(x, include = ~ Strain + Replicate)}
 #'
 NULL
 

@@ -29,8 +29,9 @@
   subsequent runs for each of the two replicates for each
   of the two strains, hence twelve plates. The two strains
   are the type strains of \emph{Geodermatophilus telluris}
-  (\acronym{DSM} 45421) and \emph{Geodermatophilus
-  tzadiensis} (\acronym{DSM} 45416), respectively.
+  (\acronym{DSM} 45421\eqn{\textsuperscript{T}}{T}) and
+  \emph{Geodermatophilus tzadiensis} (\acronym{DSM}
+  45416\eqn{\textsuperscript{T}}{T}), respectively.
 }
 \examples{
 data(montero_et_al)
@@ -44,14 +45,14 @@ to_metadata(montero_et_al)
 
 ## Splitting, merging, joining
 x <- opms(lapply(split(montero_et_al, ~ Strain + Replicate), merge))
-# That's it. Other datasets might need an adaption of the parsing of the
-# setup time, and of course might contain other combinations of metadata
-# that identify the physical plate.
+# Other datasets might need an adaption of the parsing of the setup time,
+# and of course might contain other combinations of metadata entries that
+# identify the physical plate.
 x
 stopifnot(is(x, "OPMS"), length(x) == 4)
+
 \dontrun{
-  xy_plot(x, include = ~ Strain + Replicate)
-}
+  xy_plot(x, include = ~ Strain + Replicate)}
 }
 \references{
   Bochner, B.R., Savageau, M.A. 1977. Generalized indicator
