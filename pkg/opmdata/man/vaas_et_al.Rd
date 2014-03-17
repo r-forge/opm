@@ -36,10 +36,11 @@
   details regarding the Figures 2, 3 and 4 in Vaas \emph{et
   al.} (2012). Figure 5 in Vaas \emph{et al.} (2012)
   represents the data for the \emph{E. coli} strain
-  \acronym{DSM} 30083T from well D12 only but comprising
-  all ten technical replicates from the first experimental
-  run. Finally, the upper part of Figure 6 shows the data
-  derived only from well C08 in the time-series experiment.
+  \acronym{DSM} 30083\eqn{\textsuperscript{T}}{T} from well
+  D12 only but comprising all ten technical replicates from
+  the first experimental run. Finally, the upper part of
+  Figure 6 shows the data derived only from well C08 in the
+  time-series experiment.
 }
 \examples{
 data(vaas_et_al)
@@ -50,6 +51,7 @@ plate_type(vaas_et_al) # should indicate generation-III plates
 stopifnot(d == c(114, 384, 96), ha, hd)
 
 \dontrun{
+
 # get the data subset used in Figure 1 in Vaas et al. (2012)
 vaas.1.3 <- subset(vaas_et_al, query = list(Experiment = "First replicate",
   'Plate number' = 3))
