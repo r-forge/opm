@@ -141,13 +141,13 @@
 #'     \code{summary}, \code{confint}, \code{coef} and \code{vcov} are available
 #'     for this class. See \code{glht} in the \pkg{multcomp} package for
 #'     details.}
-#'     \item{data}{Reshaped (\sQuote{flattened}) data frame of the class
-#'     \code{\link{OPM_MCP}}. It contains one column for the measured values,
-#'     one factorial variable determining the well, one factorial variable for
-#'     the curve parameter (see \code{\link{param_names}}) and additional
-#'     factorial variables selected by \code{model} as factors. The column names
-#'     are converted to syntactical names. Such a data frame might be of use for
-#'     model-building approaches not covered by this function.}
+#'     \item{data}{Reshaped (\sQuote{flattened}) data frame of the class 
+#'     \code{\link{OPM_MCP_OUT}}. It contains one column for the measured
+#'     values, one factorial variable determining the well, one factorial
+#'     variable for the curve parameter (see \code{\link{param_names}}) and
+#'     additional factorial variables selected by \code{model} as factors. The
+#'     column names are converted to syntactical names. Such a data frame might
+#'     be of use for model-building approaches not covered by this function.}
 #'     \item{model}{The \code{model} argument \emph{after} the conversions
 #'     conducted by \code{opm_mcp}, if any.}
 #'     \item{linfct}{The \code{linfct} argument \emph{after} the conversions
@@ -494,15 +494,11 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
     mapply(multcomp::contrMat, n = n, type = linfct, SIMPLIFY = FALSE)
   }
 
-  opm_mcp_object <- function(x) {
-    as(x, OPM_MCP) ## TODO: deal with distinct plate types
-  }
-
   # conversions and early returns, if requested
   sep <- check_mcp_sep(sep)
   model <- convert_model(model, ops)
   case(match.arg(output),
-    data = return(opm_mcp_object(convert_data(object, split.at, model, sep))),
+    data = return(as(convert_data(object, split.at, model, sep), OPM_MCP_OUT)),
     model = return(model),
     linfct = return(convert_hypothesis_spec(linfct, model,
       convert_data(object, split.at, model, sep), rhs, alternative)),
@@ -545,7 +541,7 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #' an annotation of the according substrates.
 #'
 #' @param object An object of the classes \code{opm_glht} or
-#'   \code{\link{OPM_MCP}} as created by \code{\link{opm_mcp}},
+#'   \code{\link{OPM_MCP_OUT}} as created by \code{\link{opm_mcp}},
 #'   \code{\link{OPMA}}, \code{\link{OPMD}} or \code{\link{OPMS}}.
 #' @param what Character scalar indicating the kind of annotation to use. Passed
 #'   as eponymous argument to \code{\link{substrate_info}}.
@@ -766,7 +762,7 @@ setMethod("annotated", MOPMX, function(object, what = "kegg", how = "ids",
   convert_annotation_vector(result, how, what, conc)
 }, sealed = SEALED)
 
-setMethod("annotated", OPM_MCP, function(object, what = "kegg", how = "ids",
+setMethod("annotated", OPM_MCP_OUT, function(object, what = "kegg", how = "ids",
     output = c("full", "plain"), lmap = NULL, sep = NULL, conc = FALSE) {
   alternative <- function(x, y, sep) {
     if (!length(sep) || identical(sep, FALSE))

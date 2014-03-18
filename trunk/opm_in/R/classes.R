@@ -53,6 +53,9 @@
 #' \code{\link{OPM}} and \code{\link{OPMS}} objects.
 #' See \code{\link{show}} and \code{\link{sort}} for usage examples.
 #'
+#' Similarly, \acronym{XOPMX} unifies \code{\link{OPMS}} and
+#' \code{\link{MOPMX}}.
+#'
 #' See \code{\link{to_yaml}} for a usage example of \code{YAML_VIA_LIST}.
 #' This is a virtual class facilitating the conversion to \acronym{YAML} format
 #' (or its subset, \acronym{JSON}). It can currently be used by any class that
@@ -70,6 +73,7 @@
 #' showClass("WMD")
 #' showClass("WMDS")
 #' showClass("OPMX")
+#' showClass("XOPMX")
 #' showClass("FOE")
 #' showClass("YAML_VIA_LIST")
 #'
@@ -208,9 +212,9 @@ setClassUnion(FOE, c("formula", "expression"))
 #' lists. \acronym{MOPMX} objects can be created with \code{new} or \code{as}
 #' and then further manipulated; see the examples below.
 #'
-#' \acronym{OPM_MCP} is a data-frame based class useful as intermediate result
-#' of \code{\link{opm_mcp}}. See there and its \code{\link{annotated}} method
-#' for usages.
+#' \acronym{OPM_MCP_OUT} is a data-frame based class useful as intermediate
+#' result of \code{\link{opm_mcp}}. See there and its \code{\link{annotated}}
+#' method for usages.
 #'
 #' @examples
 #'
@@ -222,7 +226,7 @@ setClassUnion(FOE, c("formula", "expression"))
 #' showClass("MOPMX")
 #'
 #' ## OPMX conversions with as()
-#' showMethods("coerce", classes = c("OPM", "OPMA", "OPMD"))
+#' showMethods("coerce", classes = c("OPM", "OPMA", "OPMD", "OPMS"))
 #' data(vaas_1)
 #' data(vaas_4)
 #' (x <- as(vaas_1, "OPMA")) # drops the discretised data
@@ -236,6 +240,7 @@ setClassUnion(FOE, c("formula", "expression"))
 #' (x <- as(vaas_4, "MOPMX"))
 #' # conversion backwards is only possible as long as the MOPMX object contains
 #' # only a single OPMX object
+#' showMethods("coerce", classes = "MOPMX")
 #'
 #' @docType class
 #' @export
@@ -337,12 +342,12 @@ setClass(MOPMX,
 
 
 #' @rdname OPM
-#' @name OPM_MCP
-#' @aliases OPM_MCP-class
+#' @name OPM_MCP_OUT
+#' @aliases OPM_MCP_OUT-class
 #' @docType class
 #' @export
 #'
-setClass(OPM_MCP,
+setClass(OPM_MCP_OUT,
   contains = "data.frame",
   validity = function(object) {
     errs <- NULL
@@ -1097,14 +1102,14 @@ setAs("OPMA_DB", "OPMA", function(from) {
 
 setAs("OPMD", "OPMD_DB", function(from) {
   x <- forward_OPMA_to_list(from)
-  dsets <- settings_forward(from@disc_settings, x$plates[, "id"])
-  ddata <- from@discretized
-  ddata <- data.frame(id = seq_along(ddata), stringsAsFactors = FALSE,
-    well_id = match(names(ddata), x$wells[, "coordinate"]),
-    disc_setting_id = 1L, value = unname(ddata), check.names = FALSE)
+  d.sets <- settings_forward(from@disc_settings, x$plates[, "id"])
+  d.data <- from@discretized
+  d.data <- data.frame(id = seq_along(d.data), stringsAsFactors = FALSE,
+    well_id = match(names(d.data), x$wells[, "coordinate"]),
+    disc_setting_id = 1L, value = unname(d.data), check.names = FALSE)
   new("OPMD_DB", plates = x$plates, wells = x$wells,
     measurements = x$measurements, aggr_settings = x$aggr_settings,
-    aggregated = x$aggregated, disc_settings = dsets, discretized = ddata)
+    aggregated = x$aggregated, disc_settings = d.sets, discretized = d.data)
 })
 
 setAs("OPMD_DB", "OPMD", function(from) {
@@ -1171,6 +1176,38 @@ setAs("OPMA_DB", "OPMS", function(from) {
 
 setAs("OPMD_DB", "OPMS", function(from) {
   as(lapply(split(from), backward_OPMD_to_list), "OPMS")
+})
+
+
+
+################################################################################
+#
+# Conversion to and from OPMS objects
+#
+
+
+setAs("MOPMX", "OPM_DB", function(from) {
+  do.call(c, lapply(from, as, "OPM_DB"))
+})
+
+setAs("MOPMX", "OPMA_DB", function(from) {
+  do.call(c, lapply(from, as, "OPMA_DB"))
+})
+
+setAs("MOPMX", "OPMD_DB", function(from) {
+  do.call(c, lapply(from, as, "OPMD_DB"))
+})
+
+setAs("OPM_DB", "MOPMX", function(from) {
+  db2opmx(from)
+})
+
+setAs("OPMA_DB", "MOPMX", function(from) {
+  db2opmx(from)
+})
+
+setAs("OPMD_DB", "MOPMX", function(from) {
+  db2opmx(from)
 })
 
 
