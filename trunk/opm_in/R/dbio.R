@@ -19,16 +19,20 @@ setOldClass("RODBC")
 #' differently, and columns could be added containing user-defined combinations
 #' of metadata.
 #'
-#' @param object \code{\link{OPMX}} or \code{\link{OPM_DB}} object, integer
-#'   vector containing real or potential primary keys of a database table, or
-#'   character scalar containing a partial \acronym{SQL} query (the part after
-#'   the \sQuote{WHERE} keyword).
-#' @param conn Database connection object. Currently \code{DBIConnection} object
-#'   from one of the reverse dependencies of \pkg{DBI} (recommended) and
+#' @param object \code{\link{OPMX}}, \code{\link{MOPMX}} or \code{\link{OPM_DB}}
+#'   object, integer vector containing real or potential primary keys of a
+#'   database table, or character scalar containing a partial \acronym{SQL}
+#'   query (the part after the \sQuote{WHERE} keyword).
+#' @param conn Database connection object. Currently \code{DBIConnection}
+#'   objects from one of the reverse dependencies of \pkg{DBI} (recommended) and
 #'   \code{RODBC} objects as created by the \pkg{RODBC} package are supported.
-#' @param map.tables Passed as \code{do_map} argument to \code{\link{by}}.
+#' @param map.tables Passed as \code{do_map} argument to \code{by} from the
+#'   \pkg{pkgutils} package. Necessary if table names that deviate from the
+#'   defaults are to be used.
 #' @param include Integer scalar indicating whether aggregated data (1) or
-#'   aggregated and discretised data (2) should be added to the result.
+#'   aggregated and discretised data (2) or neither (0) should be added to the
+#'   result. The numeric method of \code{opm_dbnext} needs the same kind of
+#'   \code{object} argument.
 #' @param start Integer vector determining the minimum primary keys to which
 #'   those in \code{object} should be coerced. Necessary for appending to a
 #'   database table without overwriting previously inserted data.
@@ -57,23 +61,30 @@ setOldClass("RODBC")
 #'
 #'   Note that the deletion mechanism is based on \code{ON DELETE CASCADE}. To
 #'   enable this in \code{SQLite}, \code{PRAGMA foreign_keys = ON;} has to be
-#'   called each time a database is opened.
+#'   called each time a database is opened. See the according \code{demo} entry.
 #'
 #' @return
-#'   \code{opm_dbget} returns an \code{\link{OPMX}} object or \code{NULL}.
+#'   The main functions are those for create, search, read and delete
+#'   operations:\itemize{
+#'   \item{\code{opm_dbput} returns an integer vector containing the primary
+#'   keys of the inserted plates.}
+#'   \item{\code{opm_dbfind} returns an integer vector containing the primary
+#'   keys of the found plates.}
+#'   \item{\code{opm_dbget} returns an \code{\link{OPMX}} or \code{\link{MOPMX}}
+#'   object or \code{NULL}.}
+#'   \item{\code{opm_dbclear} invisibly returns the result of \code{dbGetQuery}
+#'   (which is usually \code{NULL}).}
+#'   }
+#'   Regarding the helper functions, \code{opm_dbnext} returns an integer scalar
+#'   that is suitable as \code{start} argument of \code{opm_dbput}, whereas
+#'   \code{opm_dbclass} returns a character scalar with the name of the
+#'   intermediary class (derived from \code{\link{OPM_DB}}) to be created for
+#'   database I/O. These need not normally be called by an \pkg{opm} user.
 #'
-#'   \code{opm_dbput} returns an integer vector containing the primary keys of
-#'   the inserted plates.
-#'
-#'   \code{opm_dbnext} returns an integer vector that is suitable as
-#'   \code{start} argument of \code{opm_dbput}.
-#'
-#'   \code{opm_dbclear} invisibly returns the result of \code{dbGetQuery} (which
-#'   is usually \code{NULL}).
-#'
-#'   \code{opm_dbcheck} returns a character vector whose elements are either
-#'   \kbd{ok} or a description of the error that has occurred at that step
-#'   of the checking process.
+#'   For checking whether a database (connection) is correctly set up,
+#'   \code{opm_dbcheck} is available, which returns a character vector whose
+#'   elements are either \kbd{ok} or a description of the error that has
+#'   occurred at that step of the checking process.
 #'
 #' @family dbio-functions
 #' @seealso DBI::make.db.names pkgutils::by
@@ -112,19 +123,33 @@ setMethod("opm_dbput", c("OPM_DB", "RODBC"), function(object, conn,
   object@plates[, "id"]
 }, sealed = FALSE)
 
-setMethod("opm_dbput", c("OPM", "ANY"), function(object, conn, ...) {
-  opm_dbput(as(object, paste0(class(object), "_DB")), conn, ...)
+setMethod("opm_dbput", c("ANY", "ANY"), function(object, conn, ...) {
+  opm_dbput(as(object, opm_dbclass(object)), conn, ...)
 })
 
-setMethod("opm_dbput", c("OPMS", "ANY"), function(object, conn, ...) {
-  klass <- if (all(has_disc(object)))
-      "OPMD"
-    else if (all(has_aggr(object)))
-      "OPMA"
-    else
-      "OPM"
-  opm_dbput(as(object, paste0(klass, "_DB")), conn, ...)
-})
+#= opm_dbclass opm_dbput
+
+#' @rdname opm_dbput
+#' @export
+#'
+setGeneric("opm_dbclass", function(object) standardGeneric("opm_dbclass"))
+
+setMethod("opm_dbclass", "numeric", function(object) {
+  int2dbclass(object)
+}, sealed = SEALED)
+
+setMethod("opm_dbclass", OPM, function(object) {
+  paste0(class(object), "_DB")
+}, sealed = SEALED)
+
+setMethod("opm_dbclass", OPMS, function(object) {
+  int2dbclass(all(has_aggr(object)) + all(has_disc(object)))
+}, sealed = SEALED)
+
+setMethod("opm_dbclass", MOPMX, function(object) {
+  int2dbclass(all(unlist(has_disc(object), FALSE, FALSE)) +
+    all(unlist(has_aggr(object), FALSE, FALSE)))
+}, sealed = SEALED)
 
 #= opm_dbfind opm_dbput
 
@@ -172,14 +197,14 @@ setGeneric("opm_dbget",
 
 setMethod("opm_dbget", c("integer", "DBIConnection"), function(object, conn,
     map.tables = NULL, include = 2L) {
-  db2opmx(by(int2dbclass(include), object, dbGetQuery, conn = conn,
+  db2opmx(by(new(int2dbclass(include)), object, dbGetQuery, conn = conn,
     do_map = map.tables, do_inline = TRUE, simplify = TRUE,
     do_quote = function(x) make.db.names(conn, x)))
 }, sealed = SEALED)
 
 setMethod("opm_dbget", c("integer", "RODBC"), function(object, conn,
     map.tables = NULL, include = 2L) {
-  db2opmx(by(int2dbclass(include), object, sqlQuery, channel = conn,
+  db2opmx(by(new(int2dbclass(include)), object, sqlQuery, channel = conn,
     do_map = map.tables, do_inline = TRUE, do_quote = if (attr(conn, "isMySQL"))
       "`"
     else
@@ -199,17 +224,9 @@ setMethod("opm_dbget", c("character", "ANY"), function(object, conn,
 setGeneric("opm_dbnext",
   function(object, conn, ...) standardGeneric("opm_dbnext"))
 
-setMethod("opm_dbnext", c("OPM", "ANY"), function(object, conn, ...) {
-  opm_dbnext(has_disc(object) + has_aggr(object), conn, ...)
-})
-
-setMethod("opm_dbnext", c("OPMS", "ANY"), function(object, conn, ...) {
-  opm_dbnext(all(has_disc(object)) + all(has_aggr(object)), conn, ...)
-})
-
-setMethod("opm_dbnext", c("integer", "ANY"), function(object, conn,
+setMethod("opm_dbnext", c("ANY", "ANY"), function(object, conn,
     map.tables = NULL) {
-  opm_dbnext(int2dbclass(object), conn, map.tables)
+  opm_dbnext(new(opm_dbclass(object)), conn, map.tables)
 }, sealed = SEALED)
 
 setMethod("opm_dbnext", c("OPM_DB", "DBIConnection"), function(object, conn,
@@ -435,9 +452,10 @@ backward_OPMD_to_list <- function(from) {
 
 #' Database I/O helper functions
 #'
-#' Internal helper functions for the databsse I/O methods.
+#' Internal helper functions for the database I/O methods.
 #'
-#' @param x Character or integer vector.
+#' @param x Character or integer vector, or \code{\link{OPM_DB}} or derived
+#'   object.
 #' @param s Character scalar.
 #' @return Character or integer vector or \code{OPMX} object or \code{NULL}.
 #' @keywords internal
@@ -450,14 +468,14 @@ quote_protected <- function(x, s) {
 #' @rdname quote_protected
 #'
 int2dbclass <- function(x) {
-  new(paste0(case(x, "OPM", "OPMA", "OPMD"), "_DB"))
+  paste0(case(x, "OPM", "OPMA", "OPMD"), "_DB")
 }
 
 #' @rdname quote_protected
 #'
 db2opmx <- function(x) {
-  x <- as(x, "list")
-  case(length(x), NULL, x[[1L]], new("OPMS", plates = x))
+  do.call(opms, c(as(x, "list"),
+    list(precomputed = TRUE, skip = FALSE, group = FALSE)))
 }
 
 #' @rdname quote_protected
