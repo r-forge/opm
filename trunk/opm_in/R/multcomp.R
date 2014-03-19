@@ -141,7 +141,7 @@
 #'     \code{summary}, \code{confint}, \code{coef} and \code{vcov} are available
 #'     for this class. See \code{glht} in the \pkg{multcomp} package for
 #'     details.}
-#'     \item{data}{Reshaped (\sQuote{flattened}) data frame of the class 
+#'     \item{data}{Reshaped (\sQuote{flattened}) data frame of the class
 #'     \code{\link{OPM_MCP_OUT}}. It contains one column for the measured
 #'     values, one factorial variable determining the well, one factorial
 #'     variable for the curve parameter (see \code{\link{param_names}}) and
