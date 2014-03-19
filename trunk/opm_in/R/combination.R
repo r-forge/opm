@@ -275,7 +275,7 @@ setMethod("$<-", c(MOPMX, "NULL"), function(x, name, value) {
 
 #' Combination and addition of plates
 #'
-#' Combine a \code{\link{OPMX}} or \code{\link{MOPMX}} object with other
+#' Combine an \code{\link{OPMX}} or \code{\link{MOPMX}} object with other
 #' objects.
 #'
 #' @param x \code{\link{OPMX}} or \code{\link{MOPMX}} object.
@@ -427,7 +427,7 @@ setMethod("+", c("ANY", MOPMX), function(e1, e2) {
 
 #' \acronym{OPMS} constructor
 #'
-#' Easily build \code{\link{OPMS}} objects.
+#' Easily build \code{\link{OPMS}} (or \code{\link{MOPMX}}) objects.
 #'
 #' @rdname opms.function
 #'
