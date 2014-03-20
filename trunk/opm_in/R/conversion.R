@@ -962,13 +962,24 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   only temporarily created.
 #'
 #'   Duplicate combinations of row and columns names currently cause the
-#'   \code{\link{MOPMX}} methods to skip all of them except the last one. This
-#'   should mainly effect substrates that occur in plates of distinct plate
-#'   types. Row names and names of substrate columns will be reordered (sorted).
-#'   The created \sQuote{row.groups} attribute, if any, will be adapted
-#'   accordingly. If \code{dataframe} is \code{TRUE}, the placement of the
-#'   columns created by \code{as.groups} will also be as usual, but duplicates,
-#'   if any, will be removed.
+#'   \code{\link{MOPMX}} methods to skip all of them except the last one if
+#'   \code{dataframe} is \code{FALSE}. This should mainly effect substrates that
+#'   occur in plates of distinct plate types.
+#'
+#'   Similarly, duplicate row names names will cause the skipping of all but the
+#'   last one. This can be circumvented by using an \code{as.labels} argument
+#'   that yields unique row names. If \code{as.labels} is empty, the
+#'   \code{\link{MOPMX}} method of \code{extract} will create potentially unique
+#'   row names from the names if these are present but from the plate types if
+#'   the \sQuote{names} attribute is \code{NULL}. This will not be done, and
+#'   rows will neither be skipped nor reordered, if \code{dataframe} is
+#'   \code{TRUE}.
+#'
+#'   Otherwise row names and names of substrate columns will be reordered
+#'   (sorted). The created \sQuote{row.groups} attribute, if any, will be
+#'   adapted accordingly. If \code{dataframe} is \code{TRUE}, the placement of
+#'   the columns created by \code{as.groups} will also be as usual, but
+#'   duplicates, if any, will be removed.
 #'
 #' @family conversion-functions
 #' @author Lea A.I. Vaas, Markus Goeker
@@ -1105,17 +1116,18 @@ setMethod("extract", MOPMX, function(object, as.labels,
     subset = subset, ci = ci, trim = trim, dataframe = dataframe,
     as.groups = as.groups, ...)
 
-#   if (!dataframe)
-#     return(structure(collect_rows(x), row.groups = if (length(as.groups))
-#         unlist(lapply(x, attr, "row.groups"), FALSE, FALSE)
-#       else
-#         NULL))
-
-  if (!dataframe)
+  if (!dataframe) {
+    if (!length(as.labels)) { # create potentially unique row names
+      if (is.null(base <- names(object)))
+        base <- plate_type(object)
+      for (i in seq_along(x))
+        rownames(x[[i]]) <- paste(base[[i]], seq_len(nrow(x[[i]])), sep = ".")
+    }
     return(structure(collect(x, "datasets"), row.groups = if (length(as.groups))
         convert_row_groups(x)
       else
         NULL))
+  }
 
   x <- collect_rows(x)
   rownames(x) <- NULL
