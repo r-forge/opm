@@ -1540,6 +1540,8 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #'     beginning of the amino acid codes.}
 #'     \item{peptide2}{Like \code{peptide}, but without removal of \sQuote{L-}
 #'     from the beginning of the amino acid codes.}
+#'     \item{seed}{\acronym{SEED} compound database ID, optionally expanded to
+#'     an \acronym{URL}.}
 #'   }
 #'   See the references for information on the databases.
 #' @param browse Numeric scalar. If non-zero, an \acronym{URL} is generated from
@@ -1624,6 +1626,16 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #'   Steinbeck, C. 2013 The ChEBI reference database and ontology for
 #'   biologically relevant chemistry: enhancements for 2013. \emph{Nucleic Acids
 #'   Research} \strong{41}: D456--D463.
+#' @references Overbeek, R., Begley, T., Butler, R., Choudhuri, J., Chuang, H.,
+#'   Cohoon, M., de Crecy-Lagard, V., Diaz, N., Disz, T., Edwards, R., Fonstein,
+#'   M., Frank, E., Gerdes, S., Glass, E., Goesmann, A., Hanson, A.,
+#'   Iwata-Reuyl, D., Jensen, R., Jamshidi, N., Krause, L., Kubal, M., Larsen,
+#'   N., Linke, B., McHardy, A., Meyer, F., Neuweger, H., Olsen, G., Olson, R.,
+#'   Osterman, A., Portnoy, V., Pusch, G., Rodionov, D., Rueckert, C., Steiner,
+#'   J., Stevens, R., Thiele, I., Vassieva, O., Ye, Y., Zagnitko, O., Vonstein,
+#'   V. 2005 The subsystems approach to genome annotation and its use in the
+#'   project to annotate 1000 genomes. \emph{Nucleic Acids Research}
+#'   \strong{33}: 5691--5702.
 #' @examples
 #'
 #' # Character method; compare correct and misspelled substrate name
@@ -1665,8 +1677,9 @@ setGeneric("substrate_info",
   function(object, ...) standardGeneric("substrate_info"))
 
 setMethod("substrate_info", "character", function(object,
-    what = c("cas", "kegg", "drug", "metacyc", "chebi", "mesh", "downcase",
-      "greek", "concentration", "html", "peptide", "peptide2", "all"),
+    what = c("cas", "kegg", "drug", "metacyc", "chebi", "mesh", "seed",
+      "downcase", "greek", "concentration", "html", "peptide", "peptide2",
+      "all"),
     browse = 0L, download = FALSE, ...) {
 
   find_substrate_id <- function(x) {
@@ -1681,9 +1694,11 @@ setMethod("substrate_info", "character", function(object,
       chebi = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:",
       metacyc = "http://biocyc.org/META/NEW-IMAGE?type=COMPOUND&object=",
       cas = "http://chem.sis.nlm.nih.gov/chemidplus/direct.jsp?regno=",
-      mesh = "http://www.ncbi.nlm.nih.gov/mesh/"
+      mesh = "http://www.ncbi.nlm.nih.gov/mesh/",
+      seed = paste0("http://seed-viewer.theseed.org/seedviewer.cgi?",
+        "page=CompoundViewer&compound=")
     )
-    base <- url_base[match.arg(how, names(url_base))]
+    base <- url_base[[match.arg(how, names(url_base))]]
     x <- sub("^(CAS\\s+|CHEBI:)", "", x, TRUE, TRUE)
     ifelse(is.na(x), NA_character_, paste0(base, vapply(x, URLencode, "")))
   }
@@ -1772,7 +1787,7 @@ setMethod("substrate_info", "character", function(object,
 
   result <- case(what <- match.arg(what),
     all = all_information(object),
-    chebi =, drug =, kegg =, metacyc =, mesh =,
+    chebi =, drug =, kegg =, metacyc =, mesh =, seed =,
     cas = SUBSTRATE_INFO[find_substrate_id(object), toupper(what)],
     concentration = extract_concentration(object),
     downcase = safe_downcase(object),
