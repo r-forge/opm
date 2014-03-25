@@ -74,7 +74,7 @@ if (!length(infiles)) {
 }
 
 for (pkg in c("opmlipids", "pkgutils", "yaml"))
-  library(pkg, quietly = TRUE, character.only = TRUE)
+  suppressMessages(library(pkg, quietly = TRUE, character.only = TRUE))
 
 
 ################################################################################

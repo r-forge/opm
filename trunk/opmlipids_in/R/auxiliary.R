@@ -27,6 +27,9 @@
 #'   objects, which are replaced by this default value.}
 #'   \item{row.names}{How to name the \code{rownames} entry of the
 #'   \code{\link{measurements}} slot when converting to a list.}
+#'   \item{sum.up}{Logical scalar indicating whether or not duplicate row names
+#'   should be summed up. (The alternative is to make them unique, but this is
+#'   not guaranteed to work across distinct plates.)}
 #'   \item{tolerance}{How much deviation from a sum of 100 percent to accept in
 #'   percentage input.}
 #'   \item{value.col}{The name of the column in the \code{\link{measurements}}

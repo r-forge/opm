@@ -26,7 +26,8 @@ DEFAULT_PLATE_TYPE_SETTINGS <- list(
   char.group = "Fatty acids",
   tolerance = 0.1, # used when checking whether MIDI results add up to 100%
   value.col = "VALUE", # special column within the measurements
-  row.names = "_ROWNAMES" # for YAML input/output
+  row.names = "_ROWNAMES", # for YAML input/output
+  sum.dup = TRUE # whether to sum up values from quasi-duplicate row names
 )
 
 
