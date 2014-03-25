@@ -14,8 +14,8 @@ Suggests: optparse, gplots, opmdata (>= 0.4.0), testthat, multcomp,
 Description: Tools for analysing OmniLog(R) and MicroStation(TM)
         phenotype microarray (PM) data as produced by the devices
         distributed by BIOLOG Inc. as well as similar kinds of data
-        such as growth curves. Implemented facilities include plotting,
-        aggregating (estimating curve parameters), comparing and
+        such as growth curves. Major facilities are plotting data,
+        accurately estimating curve parameters, comparing and
         discretising data, creating phylogenetic formats and reports
         for taxonomic journals, drawing the PM analysis results in
         biochemical pathway graphs optionally including genome

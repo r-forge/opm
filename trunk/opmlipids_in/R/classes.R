@@ -224,7 +224,15 @@ setAs("list", FAMES, function(from) {
 setAs(FAME, "numeric", function(from) {
   x <- from@measurements[, get_for(from@plate_type, "value.col")]
   names(x) <- rownames(from@measurements)
-  x[!is.na(x)]
+  x <- x[!is.na(x)]
+  if (get_for(from@plate_type, "sum.dup")) {
+    n <- vapply(strsplit(names(x), APPENDIX, TRUE), `[[`, "", 1L)
+    if (anyDuplicated(n)) {
+      warning("summing up duplicates")
+      x <- vapply(split.default(x, n), sum, 0)
+    }
+  }
+  x
 })
 
 setAs(FAMES, "matrix", function(from) {

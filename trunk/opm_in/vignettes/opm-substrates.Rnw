@@ -255,7 +255,7 @@ subst.info <- substrate_info(substrates)
 subst.info
 @
 
-By default this yields \ac{CAS} numbers (\url{http://www.cas.org/content/chemical-substances/faqs}), but \ac{MeSH} names (useful for conducting PubMed queries; see \url{http://www.ncbi.nlm.nih.gov/mesh/}) \citep{Coletti01072001}, \ac{ChEBI} IDs \citep{Hastings01012013}, \ac{KEGG} compound IDs, \ac{KEGG} drug IDs \citep{Kanehisa01012010} and MetaCyc IDs \citep{Caspi01012012} have also been collected for the majority of the substrates.
+By default this yields \ac{CAS} numbers (\url{http://www.cas.org/content/chemical-substances/faqs}), but \ac{MeSH} names (useful for conducting PubMed queries; see \url{http://www.ncbi.nlm.nih.gov/mesh/}) \citep{Coletti01072001}, \ac{ChEBI} IDs \citep{Hastings01012013}, \ac{KEGG} compound IDs, \ac{KEGG} drug IDs \citep{Kanehisa01012010}, MetaCyc compound IDs \citep{Caspi01012012} and SEED compound IDs \citep{Overbeek01012005} have also been collected for the majority of the substrates.
 Using the ``browse'' argument, full URLs can be created and optionally also directly opened in the default web browser.
 Using the ``download'' argument, if \ac{KEGG} drug or compound IDs have been selected, these can be downloaded from the \ac{KEGG} server (if the \pkg{KEGGREST} package is available) and converted into customised objects.
 It is possible to nicely display all available information at once:
