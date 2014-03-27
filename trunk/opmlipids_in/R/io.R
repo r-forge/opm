@@ -117,7 +117,8 @@ fatty_acids.midi_entries <- function(x, ...) {
 fatty_acids.list <- function(x, ...) {
   as_fatty_acids <- function(x) {
     augment_table <- function(x) {
-      pos <- grepl("^Summed\\s+Feature\\s+\\d+$", x[, "Peak Name"], TRUE, TRUE)
+      pos <- grepl("^\\s*Summed\\s+Feature\\s+\\d+\\s*$", x[, "Peak Name"],
+        TRUE, TRUE)
       value.col <- get_for("MIDI", "value.col")
       x[, value.col] <- ifelse(pos, NA_real_, x[, "Percent"])
       pos <- !is.na(x[, value.col])
@@ -125,8 +126,8 @@ fatty_acids.list <- function(x, ...) {
         tolerance <- get_for("MIDI", "tolerance")
         if (!isTRUE(all.equal(100, sum(x[pos, value.col]), tolerance)))
           stop("relative frequencies do not sum up to 100%")
-        rn <- ifelse(grepl("^Sum\\s*In\\s*Feature\\s*\\d+$", x[, "Peak Name"],
-          TRUE, TRUE), x[, "Comment2"], x[, "Peak Name"])
+        rn <- ifelse(grepl("^\\s*Sum\\s*In\\s*Feature\\s*\\d+\\s*$",
+          x[, "Peak Name"], TRUE, TRUE), x[, "Comment2"], x[, "Peak Name"])
         rownames(x)[pos] <- make.unique(norm_fa(rn[pos], TRUE), APPENDIX)
       }
       x
