@@ -816,6 +816,8 @@ suppressPackageStartupMessages(library("mboostDevel"))
 mod <- glmboost(Value ~ ., data = coli.anno,
   control = boost_control(mstop = 1000))
 ## obtain optimal stopping iteration via crossvalidation
+## to speed up computation on linux systems set number of
+## cores in cvrisk: e.g. mc.cores = 25
 cvr <- cvrisk(mod)
 ## set model to optimal stopping iteration
 mod[mstop(cvr)]
@@ -858,7 +860,9 @@ In general, stability selection is relatively insensitive to the choice of the c
 ## first, increase model again
 mod[1000]
 ## now use stability selection
-stab <- stabsel(mod, cutoff = 0.6, PFER = 1.5, error.bound = "SS")
+## to speed up computation on linux systems set number of
+## cores in cvrisk: e.g. mc.cores = 25
+stab <- stabsel(mod, cutoff = 0.75, PFER = 1.5, assumption = "unimodal")
 @
 
 <<mboost_stability_selection_hidden, results = hide, eval = true, echo = false>>=
@@ -917,18 +921,7 @@ For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
 \scalebox{0.55}{
 <<max-include-freq, fig=TRUE, echo=FALSE, width = 6>>=
 old.par <- par(mar = c(4, 8, 0.1, 0.1)) # adapt plotting settings
-## number of substrates to plot
-ps <- 20
-## remove intercept as its selection is not interesting
-inc_freq <- stab$max[-1]
-plot(tail(sort(inc_freq), ps), 1:ps,
-  type = "n", yaxt = "n", xlim = c(0, 1),
-  ylab = "", xlab = expression(hat(pi)))
-abline(h = 1:ps, lty = "dotted", col = "grey")
-points(tail(sort(inc_freq), ps), 1:ps, pch = 19)
-axis(2, at = 1:ps, names(inc_freq)[tail(order(inc_freq), ps)], las = 2)
-## add cutoff
-abline(v = stab$cutoff, col = "grey")
+plot(stab, type = "maxsel", main = "", np = 20)
 par(old.par) # reset plotting settings
 @
 }
@@ -1007,7 +1000,9 @@ mod2[250]
 options(contrasts = c("contr.treatment", "contr.poly"))
 
 ## use stability selection to extract important pathways / substrate classes
-stab2 <- stabsel(mod2, cutoff = 0.6, PFER = 1.5, error.bound = "SS")
+## to speed up computation on linux systems set number of
+## cores in cvrisk: e.g. mc.cores = 25
+stab2 <- stabsel(mod2, cutoff = 0.75, PFER = 1.5, assumption = "unimodal")
 @
 
 <<model, echo = false, results = hide>>=
@@ -1041,18 +1036,8 @@ Plotting the results...
 old.par <- par(mar = c(4, 0.1, 0.1, 15), mfrow = c(1, 2))
 plot(stab2, main = "")
 par(mar = c(4, 15, 0.1, 0.1))
-## number of substrates to plot
-ps <- 20
-inc_freq <- stab2$max
-plot(tail(sort(inc_freq), ps), 1:ps,
-  type = "n", yaxt = "n", xlim = c(0, 1),
-  ylab = "", xlab = expression(hat(pi)))
-abline(h = 1:ps, lty = "dotted", col = "grey")
-points(tail(sort(inc_freq), ps), 1:ps, pch = 19)
 nms <- gsub(", ", " by ", variable.names(mod2))
-axis(2, at = 1:ps, nms[tail(order(inc_freq), ps)], las = 2)
-## add cutoff
-abline(v = stab2$cutoff, col = "grey")
+plot(stab2, type = "maxsel", main = "", np = 20, labels = nms)
 par(old.par) # reset plotting settings
 @
 
@@ -1078,6 +1063,8 @@ Therefor we first determine the optimal stopping iteration of the boosting algor
 <<cvrisk_mod2_code, eval=false>>=
 ## first increase the model
 mod2[1000]
+## to speed up computation on linux systems set number of
+## cores in cvrisk: e.g. mc.cores = 25
 cvr2 <- cvrisk(mod2)
 mod2[mstop(cvr2)]
 @
