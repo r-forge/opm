@@ -1059,7 +1059,7 @@ par(old.par) # reset plotting settings
 \end{figure}
 
 Now we can have a look at the regression coefficients of the selected variables.
-Therefor we first determine the optimal stopping iteration of the boosting algorithm:
+Therefore we first determine the optimal stopping iteration of the boosting algorithm:
 <<cvrisk_mod2_code, eval=false>>=
 ## first increase the model
 mod2[1000]

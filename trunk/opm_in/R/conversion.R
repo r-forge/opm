@@ -215,7 +215,7 @@ setMethod("merge", c(OPMS, "missing"), function(x, y, sort.first = TRUE,
 }, sealed = SEALED)
 
 setMethod("merge", c(MOPMX, "missing"), function(x, y) {
-  combine <- function(x) if (length(x) > 1L)
+  combine <- function(x) if (length(x <- plates(x)) > 1L)
       new(OPMS, plates = x)
     else
       x[[1L]]
@@ -966,7 +966,7 @@ setMethod("rep", OPMS, function(x, ...) {
 #'   \code{dataframe} is \code{FALSE}. This should mainly effect substrates that
 #'   occur in plates of distinct plate types.
 #'
-#'   Similarly, duplicate row names names will cause the skipping of all but the
+#'   Similarly, duplicate row names will cause the skipping of all but the
 #'   last one. This can be circumvented by using an \code{as.labels} argument
 #'   that yields unique row names. If \code{as.labels} is empty, the
 #'   \code{\link{MOPMX}} method of \code{extract} will create potentially unique
