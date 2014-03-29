@@ -487,7 +487,7 @@
     - '7'
     - C18:1 cis9
     - C18:0
-    - i-C19:1
+    - i-C19:1 I
     - '11'
     - '12'
   metadata:
@@ -859,7 +859,7 @@
     - C18:3 cis6,9,12
     - C18:1 cis9
     - C18:0
-    - i-C19:1
+    - i-C19:1 I
   metadata:
     Volume: DATA7
     File: E058243.85A
@@ -1069,7 +1069,7 @@
     - C18:2 cis9,12/ai-C18:0
     - C18:1 cis9
     - C18:0
-    - i-C19:1
+    - i-C19:1 I
     - '16'
   metadata:
     Volume: DATA7

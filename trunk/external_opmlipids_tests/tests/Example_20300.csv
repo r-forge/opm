@@ -1,4 +1,4 @@
-"Sample ID"	"Parameter"	"C14:0"	"C15:0"	"C16:1 cis7"	"C16:0"	"C17:0"	"C18:1 cis9"	"C18:0"	"C12:0"	"C18:2 cis9,12/ai-C18:0"	"C18:1 cis12"	"C13:1"	"unknown 14.959"	"C16:0 alcohol"	"C17:1 cis8"	"C18:3 cis6,9,12"	"C17:1 cis9"	"i-C19:1"	"C10:0"	"C18:0 10-methyl"	"ai-C18:0/C18:2 cis9,12"	"i-C11:0 3OH"
+"Sample ID"	"Parameter"	"C14:0"	"C15:0"	"C16:1 cis7"	"C16:0"	"C17:0"	"C18:1 cis9"	"C18:0"	"C12:0"	"C18:2 cis9,12/ai-C18:0"	"C18:1 cis12"	"C13:1"	"unknown 14.959"	"C16:0 alcohol"	"C17:1 cis8"	"C18:3 cis6,9,12"	"C17:1 cis9"	"i-C19:1 I"	"C10:0"	"C18:0 10-methyl"	"ai-C18:0/C18:2 cis9,12"	"i-C11:0 3OH"
 "CNBT-GLUTA-20300(vdK,FS,24H)"	"MIDI"	0.95	0.66	0.61	45.25	0.18	51.58	0.76	0	0	0	0	0	0	0	0	0	0	0	0	0	0
 "CNBT-GLUTA-20300(ndK,FS,24H)"	"MIDI"	0.81	0.73	0.6	44.8	0	52.32	0.74	0	0	0	0	0	0	0	0	0	0	0	0	0	0
 "CNBT-GLUTA-20300(vdK,FS+BLUT,2d,37C)"	"MIDI"	1.47	2.17	0.41	44.68	0	46.64	2.82	0.22	0.87	0.71	0	0	0	0	0	0	0	0	0	0	0
