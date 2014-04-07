@@ -10,7 +10,7 @@ Suggests: testthat
 Description: Classes and methods for checking R objects.
 License: GPL (>= 2)
 URL: http://opm.dsmz.de/
-Collate: 'imports.R' 'constants.R' 'classes.R' 'conversion.R'
-        'validate.R'
+Collate: 'imports.R' 'constants.R' 'classes.R' 'auxiliary.R'
+        'conversion.R' 'validation.R'
 LazyData: yes
 LazyDataCompression: bzip2

@@ -26,6 +26,7 @@ expect_NA <- function(actual) {
 ################################################################################
 
 
+## validate
 test_that("character vector lengths can be validated", {
   got <- validate_atomic(letters, "min_elems", 1)
   expect_T(got)
@@ -34,8 +35,9 @@ test_that("character vector lengths can be validated", {
   got <- validate_atomic(letters, "max_elems", 26)
   expect_T(got)
 })
-  
 
+
+## validate
 test_that("character vector bounds can be validated", {
   got <- validate_atomic(letters, "lower_bound", "a")
   expect_T(got)
@@ -48,6 +50,7 @@ test_that("character vector bounds can be validated", {
 })
 
 
+## validate
 test_that("character vector types can be validated", {
   got <- validate_atomic(letters, "type", "character")
   expect_T(got)
@@ -58,6 +61,7 @@ test_that("character vector types can be validated", {
 })
 
 
+## validate
 test_that("character vector character numbers can be validated", {
   got <- validate_atomic(letters, "max_chars", 1)
   expect_T(got)
@@ -68,6 +72,7 @@ test_that("character vector character numbers can be validated", {
 })
 
 
+## validate
 test_that("character vector pattern matches can be validated", {
   got <- validate_atomic(letters, "pattern", c("^[a-z]$", "^\\w$"))
   expect_T(got)
@@ -76,6 +81,7 @@ test_that("character vector pattern matches can be validated", {
 })
 
 
+## validate
 test_that("character vector controlled vocabularies can be validated", {
   got <- validate_atomic(letters, "enum", letters)
   expect_T(got)
@@ -84,6 +90,7 @@ test_that("character vector controlled vocabularies can be validated", {
 })
 
 
+## validate
 test_that("character vector sorted- and uniqueness can be validated", {
   got <- validate_atomic(letters, "sorted", TRUE)
   expect_T(got)
@@ -96,6 +103,7 @@ test_that("character vector sorted- and uniqueness can be validated", {
 })
 
 
+## validate
 test_that("character vector validation responds to junk input", {
   got <- validate_atomic(letters, "bozo", TRUE)
   expect_NA(got)
@@ -108,12 +116,5 @@ test_that("character vector validation responds to junk input", {
 })
 
 
-
 ################################################################################
-
-
-
-
-
-
 

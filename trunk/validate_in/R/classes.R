@@ -4,32 +4,36 @@
 ################################################################################
 
 
-#' Classes of the \pkg{validate} package
+#' Validator classes of the \pkg{validate} package
 #'
-#' Classes whose members can be generated and manipulated by a \pkg{validate}
-#' user.
+#' Classes of whose members can be used for validating (parts of) other \R
+#' objects.
 #'
 #' @examples
 #'
-#' ## overview on the classes
+#' ## overview on the (non-virtual) classes
 #' showClass("ATOMIC_VALIDATOR")
-#' showClass("ATOMIC_VALIDATION")
 #' showClass("ATOMIC_VALIDATORS")
-#' showClass("ATOMIC_VALIDATIONS")
-#' showClass("ELEMENT_VALIDATORS")
-#' showClass("ELEMENT_VALIDATIONS")
+#' showClass("ELEMENT_VALIDATOR")
+#' showClass("COLLECTION_VALIDATOR")
 #'
 #' ## conversions with as()
-#' showMethods("coerce", classes = c("ATOMIC_VALIDATOR", "ATOMIC_VALIDATION",
-#'   "ATOMIC_VALIDATORS", "ATOMIC_VALIDATIONS", "ELEMENT_VALIDATORS",
-#'   "ELEMENT_VALIDATIONS"))
+#' showMethods("coerce", classes = c("ATOMIC_VALIDATOR", "ATOMIC_VALIDATORS",
+#'   "ELEMENT_VALIDATOR", "COLLECTION_VALIDATOR"))
 #'
 #' @docType class
-#' @export
-#' @aliases ATOMIC_VALIDATOR-class
+#' @name validator-classes
 #' @seealso methods::Methods methods::new
 #' @family classes
 #' @keywords methods classes
+#'
+NULL
+
+#' @rdname validator-classes
+#' @name ATOMIC_VALIDATOR
+#' @aliases ATOMIC_VALIDATOR-class
+#' @docType class
+#' @export
 #'
 setClass("ATOMIC_VALIDATOR",
   slots = c(how = "character", what = "ANY"),
@@ -48,7 +52,136 @@ setClass("ATOMIC_VALIDATOR",
   sealed = SEALED
 )
 
-#' @rdname ATOMIC_VALIDATOR
+#' @rdname validator-classes
+#' @name VALIDATORS
+#' @aliases VALIDATORS-class
+#' @docType class
+#' @export
+#'
+setClass("VALIDATORS",
+  contains = "VIRTUAL",
+  slots = c(checks = "list"),
+  sealed = SEALED
+)
+
+#' @rdname validator-classes
+#' @name PRESENCE_VALIDATOR
+#' @aliases PRESENCE_VALIDATOR-class
+#' @docType class
+#' @export
+#'
+setClass("PRESENCE_VALIDATOR",
+  contains = "VIRTUAL",
+  slots = c(required = "logical"),
+  validity = function(object) {
+    errs <- NULL
+    if (length(object@required) != 1L)
+      errs <- c(errs, "'required' entry must be logical scalar")
+    else if (is.na(object@required))
+      errs <- c(errs, "'required' entry must not be NA")
+    if (length(errs))
+      errs
+    else
+      TRUE
+  },
+  sealed = SEALED
+)
+
+#' @rdname validator-classes
+#' @name ATOMIC_VALIDATORS
+#' @aliases ATOMIC_VALIDATORS-class
+#' @docType class
+#' @export
+#'
+setClass("ATOMIC_VALIDATORS",
+  contains = "VALIDATORS",
+  prototype = list(checks = list(new("ATOMIC_VALIDATOR"))),
+  validity = function(object) {
+    if (all(vapply(object@checks, is, NA, "ATOMIC_VALIDATOR")))
+      TRUE
+    else
+      "not all elements of 'checks' inherit from 'ATOMIC_VALIDATOR'"
+  },
+  sealed = SEALED
+)
+
+#' @rdname validator-classes
+#' @name ELEMENT_VALIDATOR
+#' @aliases ELEMENT_VALIDATOR-class
+#' @docType class
+#' @export
+#'
+setClass("ELEMENT_VALIDATOR",
+  contains = c("ATOMIC_VALIDATORS", "PRESENCE_VALIDATOR"),
+  prototype = list(required = FALSE, checks = list(new("ATOMIC_VALIDATOR"))),
+  sealed = SEALED
+)
+
+#' @rdname validator-classes
+#' @name COLLECTION_VALIDATOR
+#' @aliases COLLECTION_VALIDATOR-class
+#' @docType class
+#' @export
+#'
+setClass("COLLECTION_VALIDATOR",
+  contains = c("ATOMIC_VALIDATORS", "PRESENCE_VALIDATOR"),
+  prototype = list(required = FALSE,
+    checks = structure(list(), names = character())),
+  validity = function(object) {
+    check_names <- function(n) {
+      if (is.null(n))
+        return("names of 'check' must not be null")
+      errs <- NULL
+      if (any(is.na(n)))
+        errs <- c(errs, "names of 'check' must not be NA")
+      if (!all(nzchar(n)))
+        errs <- c(errs, "names of 'check' must not be empty")
+      if (anyDuplicated.default(n, c("", NA_character_)))
+        errs <- c(errs, "names of 'check' must be unique")
+      errs
+    }
+    errs <- check_names(names(object@check))
+    if (!all(vapply(object@check, is, NA, "ELEMENT_VALIDATOR") |
+        vapply(object@check, is, NA, "COLLECTION_VALIDATOR")))
+      errs <- c(errs, paste0("not all elements of 'checks' inherit from ",
+        "'ELEMENT_VALIDATOR' or 'COLLECTION_VALIDATOR'"))
+    if (length(errs))
+      errs
+    else
+      TRUE
+  },
+  sealed = SEALED
+)
+
+
+################################################################################
+
+
+#' Validation-result classes of the \pkg{validate} package
+#'
+#' Classes whose members result from a call to \code{\link{validate}}. Each
+#' validator class has an according validation class.
+#'
+#' @examples
+#'
+#' ## overview on the classes
+#' showClass("ATOMIC_VALIDATION")
+#' showClass("ATOMIC_VALIDATIONS")
+#' showClass("ELEMENT_VALIDATION")
+#'
+#' ## conversions with as()
+#' showMethods("coerce", classes = c("ATOMIC_VALIDATION", "ATOMIC_VALIDATIONS",
+#'   "ELEMENT_VALIDATION"))
+#'
+#' @seealso methods::Methods methods::new
+#' @family classes
+#' @keywords methods classes
+#' @name validation-classes
+#' @docType class
+#'
+NULL
+
+#' @rdname validation-classes
 #' @name ATOMIC_VALIDATION
 #' @aliases ATOMIC_VALIDATION-class
 #' @docType class
@@ -80,31 +213,13 @@ setClass("ATOMIC_VALIDATION",
   sealed = SEALED
 )
 
-#' @rdname ATOMIC_VALIDATOR
-#' @name ATOMIC_VALIDATORS
-#' @aliases ATOMIC_VALIDATORS-class
-#' @docType class
-#' @export
-#'
-setClass("ATOMIC_VALIDATORS", 
-  slots = c(checks = "list"),
-  prototype = list(checks = list(new("ATOMIC_VALIDATOR"))),
-  validity = function(object) {
-    if (all(vapply(object@checks, is, NA, "ATOMIC_VALIDATOR")))
-      TRUE
-    else
-      "not all elements of 'checks' inherit from 'ATOMIC_VALIDATOR'"
-  },
-  sealed = SEALED
-)
-
-#' @rdname ATOMIC_VALIDATOR
+#' @rdname validation-classes
 #' @name ATOMIC_VALIDATIONS
 #' @aliases ATOMIC_VALIDATIONS-class
 #' @docType class
 #' @export
 #'
-setClass("ATOMIC_VALIDATIONS", 
+setClass("ATOMIC_VALIDATIONS",
   contains = "ATOMIC_VALIDATORS",
   prototype = list(checks = list(new("ATOMIC_VALIDATION"))),
   validity = function(object) {
@@ -116,34 +231,13 @@ setClass("ATOMIC_VALIDATIONS",
   sealed = SEALED
 )
 
-#' @rdname ATOMIC_VALIDATOR
-#' @name ELEMENT_VALIDATORS
-#' @aliases ELEMENT_VALIDATORS-class
+#' @rdname validation-classes
+#' @name ELEMENT_VALIDATION
+#' @aliases ELEMENT_VALIDATION-class
 #' @docType class
 #' @export
 #'
-setClass("ELEMENT_VALIDATORS",
-  contains = "ATOMIC_VALIDATORS",
-  slots = c(required = "logical"),
-  prototype = list(required = FALSE, checks = list(new("ATOMIC_VALIDATOR"))),
-  validity = function(object) {
-    if (length(object@required) != 1L)
-      "'required' entry must be logical scalar"
-    else if (is.na(object@required))
-      "'required' entry must not be NA"
-    else
-      TRUE
-  },
-  sealed = SEALED
-)
-
-#' @rdname ATOMIC_VALIDATOR
-#' @name ELEMENT_VALIDATIONS
-#' @aliases ELEMENT_VALIDATIONS-class
-#' @docType class
-#' @export
-#'
-setClass("ELEMENT_VALIDATIONS",
+setClass("ELEMENT_VALIDATION",
   contains = "ATOMIC_VALIDATIONS",
   slots = c(present = "logical"),
   prototype = list(required = FALSE, present = FALSE, checks = list()),
@@ -153,7 +247,8 @@ setClass("ELEMENT_VALIDATIONS",
       errs <- c(errs, "'present' entry must be logical scalar")
     else if (is.na(object@present))
       errs <- c(errs, "'present' entry must not be NA")
-    if (!length(errs) && !object@present && length(object@checks))
+    if (!length(errs) && !object@present &&
+        !all(is.na(as(object@checks, "logical"))))
       errs <- c(errs, "object not present but checks conducted")
     if (length(errs))
       errs
@@ -165,6 +260,4 @@ setClass("ELEMENT_VALIDATIONS",
 
 
 ################################################################################
-
-
 

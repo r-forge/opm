@@ -78,7 +78,37 @@ setAs("ATOMIC_VALIDATIONS", "logical", function(from) {
 ################################################################################
 
 
-setAs("ELEMENT_VALIDATIONS", "logical", function(from) {
+setAs("ELEMENT_VALIDATOR", "list", function(from) {
+  c(list(required = from@required),
+    unlist(lapply(from@checks, as, "list"), FALSE, TRUE))
+})
+
+
+setAs("list", "ELEMENT_VALIDATOR", function(from) {
+  if (pos <- match("required", names(from), 0L)) {
+    required <- from[[pos]]
+    from <- from[-pos]
+  } else {
+    required <- FALSE
+  }
+  new("ELEMENT_VALIDATOR", required = required,
+    checks = mapply(new, how = names(from), what = from, SIMPLIFY = FALSE,
+      MoreArgs = list(Class = "ATOMIC_VALIDATOR"), USE.NAMES = FALSE))
+})
+
+
+setAs("ELEMENT_VALIDATOR", "ELEMENT_VALIDATION", function(from) {
+  new("ELEMENT_VALIDATION", required = from@required, present = FALSE,
+    checks = list())
+})
+
+
+################################################################################
+
+
+setAs("ELEMENT_VALIDATION", "logical", function(from) {
+  if (from@required && !from@present)
+    return(FALSE)
   result <- c(present = from@present, vapply(from@checks, as, NA, "logical"))
   if (!result[1L])
     result[-1L] <- NA
