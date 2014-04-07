@@ -1764,6 +1764,11 @@ ____EOF
     show_todos
     exit $?
   ;;
+  vnorm )
+    PKG_DIR=validate_in
+    RUNNING_MODE=${RUNNING_MODE#v}
+    CHECK_R_TESTS=yes
+  ;;
   * )
     echo "unknown running mode '$RUNNING_MODE', exiting now" >&2
     exit 1
