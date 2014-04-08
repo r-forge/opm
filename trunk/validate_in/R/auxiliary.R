@@ -1,6 +1,10 @@
 
 
 ################################################################################
+################################################################################
+#
+# Internal auxiliary functions
+#
 
 
 #' Hidden auxiliary methods
@@ -13,12 +17,18 @@
 #' @return List.
 #' @keywords internal
 #'
-setGeneric("raw_check",
-  function(object, validator) standardGeneric("raw_check"))
+setGeneric("raw_checks",
+  function(object, validator) standardGeneric("raw_checks"))
 
-setMethod("raw_check", c("ANY", "ATOMIC_VALIDATORS"), function(object,
+setMethod("raw_checks", c("ANY", "ATOMIC_VALIDATORS"), function(object,
     validator) {
   lapply(X = validator@checks, FUN = validate, object = object)
+}, sealed = SEALED)
+
+setMethod("raw_checks", c("ANY", "COLLECTION_VALIDATOR"), function(object,
+    validator) {
+  mapply(function(v, n, x) validate(x[[n]], v), validator@checks,
+    names(validator@checks), MoreArgs = list(object), SIMPLIFY = FALSE)
 }, sealed = SEALED)
 
 
