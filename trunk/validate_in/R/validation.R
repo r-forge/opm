@@ -1,6 +1,11 @@
 
 
 ################################################################################
+################################################################################
+#
+# Validation methods
+#
+
 
 
 #' Validate an \R object
@@ -31,18 +36,31 @@ setMethod("validate", c("ANY", "ATOMIC_VALIDATOR"), function(object,
 
 setMethod("validate", c("ANY", "ATOMIC_VALIDATORS"), function(object,
     validator) {
-  new("ATOMIC_VALIDATIONS", checks = raw_check(object, validator))
+  new("ATOMIC_VALIDATIONS", checks = raw_checks(object, validator))
 }, sealed = SEALED)
 
 setMethod("validate", c("NULL", "ELEMENT_VALIDATOR"), function(object,
     validator) {
-  as(validator, "ELEMENT_VALIDATION")
+  new("ELEMENT_VALIDATION", present = FALSE, required = object@required,
+    checks = list()) # cannot conduct any checks
 }, sealed = SEALED)
 
 setMethod("validate", c("ANY", "ELEMENT_VALIDATOR"), function(object,
     validator) {
-  new("ELEMENT_VALIDATION", required = validator@required, present = TRUE,
-    checks = raw_check(object, validator))
+  new("ELEMENT_VALIDATION", present = TRUE, required = validator@required,
+    checks = raw_checks(object, validator))
+}, sealed = SEALED)
+
+setMethod("validate", c("NULL", "COLLECTION_VALIDATOR"), function(object,
+    validator) {
+  new("COLLECTION_VALIDATION", present = FALSE, required = object@required,
+    checks = structure(list(), names = character())) # cannot conduct any checks
+}, sealed = SEALED)
+
+setMethod("validate", c("ANY", "COLLECTION_VALIDATOR"), function(object,
+    validator) {
+  new("COLLECTION_VALIDATION", present = TRUE, required = object@required,
+    checks = raw_checks(object, validator))
 }, sealed = SEALED)
 
 

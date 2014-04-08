@@ -1,6 +1,11 @@
 
 
 ################################################################################
+################################################################################
+#
+# Conversion methods
+#
+
 
 
 setAs("ATOMIC_VALIDATOR", "list", function(from) {
@@ -50,8 +55,7 @@ setAs("ATOMIC_VALIDATOR", "function", function(from) {
 setAs("ATOMIC_VALIDATION", "logical",
   function(from) structure(from@result, names = from@how))
 
-
-setAs("ATOMIC_VALIDATION", "list", function(from) stop("not yet implemented"))
+## TODO: => list
 
 
 ################################################################################
@@ -67,12 +71,27 @@ setAs("list", "ATOMIC_VALIDATORS", function(from) new("ATOMIC_VALIDATORS",
     MoreArgs = list(Class = "ATOMIC_VALIDATOR"), USE.NAMES = FALSE)))
 
 
+setAs("ATOMIC_VALIDATORS", "ATOMIC_VALIDATIONS", function(from) {
+  new("ATOMIC_VALIDATIONS",
+    checks = lapply(from@checks, as, "ATOMIC_VALIDATION"))
+})
+
+
 ################################################################################
 
 
 setAs("ATOMIC_VALIDATIONS", "logical", function(from) {
   vapply(from@checks, as, NA, "logical")
 })
+
+
+setAs("ATOMIC_VALIDATIONS", "ATOMIC_VALIDATORS", function(from) {
+  new("ATOMIC_VALIDATORS",
+    checks = lapply(from@checks, as, "ATOMIC_VALIDATOR"))
+})
+
+
+## TODO: => list
 
 
 ################################################################################
@@ -97,9 +116,10 @@ setAs("list", "ELEMENT_VALIDATOR", function(from) {
 })
 
 
+# no inheritance relationship, explicit coercion necessary
 setAs("ELEMENT_VALIDATOR", "ELEMENT_VALIDATION", function(from) {
-  new("ELEMENT_VALIDATION", required = from@required, present = FALSE,
-    checks = list())
+  new("ELEMENT_VALIDATION", required = from@required, present = TRUE,
+    checks = lapply(from@checks, as, "ATOMIC_VALIDATION"))
 })
 
 
@@ -114,6 +134,15 @@ setAs("ELEMENT_VALIDATION", "logical", function(from) {
     result[-1L] <- NA
   result
 })
+
+# no inheritance relationship, explicit coercion necessary
+setAs("ELEMENT_VALIDATION", "ELEMENT_VALIDATOR", function(from) {
+  new("ELEMENT_VALIDATOR", required = from@required,
+    checks = lapply(from@checks, as, "ATOMIC_VALIDATOR"))
+})
+
+
+## TODO: => list
 
 
 ################################################################################

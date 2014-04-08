@@ -2,6 +2,11 @@
 
 
 ################################################################################
+################################################################################
+#
+# Classes of the package
+#
+
 
 
 #' Validator classes of the \pkg{validate} package
@@ -73,6 +78,7 @@ setClass("VALIDATORS",
 setClass("PRESENCE_VALIDATOR",
   contains = "VIRTUAL",
   slots = c(required = "logical"),
+  prototype = list(required = TRUE),
   validity = function(object) {
     errs <- NULL
     if (length(object@required) != 1L)
@@ -113,7 +119,6 @@ setClass("ATOMIC_VALIDATORS",
 #'
 setClass("ELEMENT_VALIDATOR",
   contains = c("ATOMIC_VALIDATORS", "PRESENCE_VALIDATOR"),
-  prototype = list(required = FALSE, checks = list(new("ATOMIC_VALIDATOR"))),
   sealed = SEALED
 )
 
@@ -125,24 +130,23 @@ setClass("ELEMENT_VALIDATOR",
 #'
 setClass("COLLECTION_VALIDATOR",
   contains = c("ATOMIC_VALIDATORS", "PRESENCE_VALIDATOR"),
-  prototype = list(required = FALSE,
-    checks = structure(list(), names = character())),
+  prototype = list(checks = structure(list(), names = character())),
   validity = function(object) {
     check_names <- function(n) {
       if (is.null(n))
-        return("names of 'check' must not be null")
+        return("names of 'checks' must not be null")
       errs <- NULL
       if (any(is.na(n)))
-        errs <- c(errs, "names of 'check' must not be NA")
+        errs <- c(errs, "names of 'checks' must not be NA")
       if (!all(nzchar(n)))
-        errs <- c(errs, "names of 'check' must not be empty")
+        errs <- c(errs, "names of 'checks' must not be empty")
       if (anyDuplicated.default(n, c("", NA_character_)))
-        errs <- c(errs, "names of 'check' must be unique")
+        errs <- c(errs, "names of 'checks' must be unique")
       errs
     }
-    errs <- check_names(names(object@check))
-    if (!all(vapply(object@check, is, NA, "ELEMENT_VALIDATOR") |
-        vapply(object@check, is, NA, "COLLECTION_VALIDATOR")))
+    errs <- check_names(names(object@checks))
+    if (!all(vapply(object@checks, is, NA, "ELEMENT_VALIDATOR") |
+        vapply(object@checks, is, NA, "COLLECTION_VALIDATOR")))
       errs <- c(errs, paste0("not all elements of 'checks' inherit from ",
         "'ELEMENT_VALIDATOR' or 'COLLECTION_VALIDATOR'"))
     if (length(errs))
@@ -168,10 +172,11 @@ setClass("COLLECTION_VALIDATOR",
 #' showClass("ATOMIC_VALIDATION")
 #' showClass("ATOMIC_VALIDATIONS")
 #' showClass("ELEMENT_VALIDATION")
+#' showClass("COLLECTION_VALIDATION")
 #'
 #' ## conversions with as()
 #' showMethods("coerce", classes = c("ATOMIC_VALIDATION", "ATOMIC_VALIDATIONS",
-#'   "ELEMENT_VALIDATION"))
+#'   "ELEMENT_VALIDATION", "COLLECTION_VALIDATION"))
 #'
 #' @seealso methods::Methods methods::new
 #' @family classes
@@ -220,7 +225,7 @@ setClass("ATOMIC_VALIDATION",
 #' @export
 #'
 setClass("ATOMIC_VALIDATIONS",
-  contains = "ATOMIC_VALIDATORS",
+  contains = "VALIDATORS",
   prototype = list(checks = list(new("ATOMIC_VALIDATION"))),
   validity = function(object) {
     if (all(vapply(object@checks, is, NA, "ATOMIC_VALIDATION")))
@@ -232,26 +237,54 @@ setClass("ATOMIC_VALIDATIONS",
 )
 
 #' @rdname validation-classes
+#' @name PRESENCE_VALIDATION
+#' @aliases PRESENCE_VALIDATION-class
+#' @docType class
+#' @export
+#'
+setClass("PRESENCE_VALIDATION",
+  contains = c("PRESENCE_VALIDATOR", "VIRTUAL"),
+  slots = c(present = "logical"),
+  prototype = list(present = TRUE),
+  validity = function(object) {
+    if (length(object@present) != 1L)
+      "'present' entry must be logical scalar"
+    else if (is.na(object@present))
+      "'present' entry must not be NA"
+    else
+      TRUE
+  },
+  sealed = SEALED
+)
+
+#' @rdname validation-classes
 #' @name ELEMENT_VALIDATION
 #' @aliases ELEMENT_VALIDATION-class
 #' @docType class
 #' @export
 #'
 setClass("ELEMENT_VALIDATION",
-  contains = "ATOMIC_VALIDATIONS",
-  slots = c(present = "logical"),
-  prototype = list(required = FALSE, present = FALSE, checks = list()),
+  contains = c("ATOMIC_VALIDATIONS", "PRESENCE_VALIDATION"),
   validity = function(object) {
-    errs <- NULL
-    if (length(object@present) != 1L)
-      errs <- c(errs, "'present' entry must be logical scalar")
-    else if (is.na(object@present))
-      errs <- c(errs, "'present' entry must not be NA")
-    if (!length(errs) && !object@present &&
-        !all(is.na(as(object@checks, "logical"))))
-      errs <- c(errs, "object not present but checks conducted")
-    if (length(errs))
-      errs
+    if (length(object@checks) && !object@present)
+      "object not present but checks conducted"
+    else
+      TRUE
+  },
+  sealed = SEALED
+)
+
+#' @rdname validation-classes
+#' @name COLLECTION_VALIDATION
+#' @aliases COLLECTION_VALIDATION-class
+#' @docType class
+#' @export
+#'
+setClass("COLLECTION_VALIDATION",
+  contains = c("COLLECTION_VALIDATOR", "PRESENCE_VALIDATION"),
+  validity = function(object) {
+    if (length(object@checks) && !object@present)
+      "object not present but checks conducted"
     else
       TRUE
   },
