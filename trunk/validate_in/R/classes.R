@@ -20,11 +20,11 @@
 #' showClass("ATOMIC_VALIDATOR")
 #' showClass("ATOMIC_VALIDATORS")
 #' showClass("ELEMENT_VALIDATOR")
-#' showClass("COLLECTION_VALIDATOR")
+#' showClass("MAP_VALIDATOR")
 #'
 #' ## conversions with as()
 #' showMethods("coerce", classes = c("ATOMIC_VALIDATOR", "ATOMIC_VALIDATORS",
-#'   "ELEMENT_VALIDATOR", "COLLECTION_VALIDATOR"))
+#'   "ELEMENT_VALIDATOR", "MAP_VALIDATOR"))
 #'
 #' @docType class
 #' @name validator-classes
@@ -123,12 +123,12 @@ setClass("ELEMENT_VALIDATOR",
 )
 
 #' @rdname validator-classes
-#' @name COLLECTION_VALIDATOR
-#' @aliases COLLECTION_VALIDATOR-class
+#' @name MAP_VALIDATOR
+#' @aliases MAP_VALIDATOR-class
 #' @docType class
 #' @export
 #'
-setClass("COLLECTION_VALIDATOR",
+setClass("MAP_VALIDATOR",
   contains = c("ATOMIC_VALIDATORS", "PRESENCE_VALIDATOR"),
   prototype = list(checks = structure(list(), names = character())),
   validity = function(object) {
@@ -146,9 +146,9 @@ setClass("COLLECTION_VALIDATOR",
     }
     errs <- check_names(names(object@checks))
     if (!all(vapply(object@checks, is, NA, "ELEMENT_VALIDATOR") |
-        vapply(object@checks, is, NA, "COLLECTION_VALIDATOR")))
+        vapply(object@checks, is, NA, "MAP_VALIDATOR")))
       errs <- c(errs, paste0("not all elements of 'checks' inherit from ",
-        "'ELEMENT_VALIDATOR' or 'COLLECTION_VALIDATOR'"))
+        "'ELEMENT_VALIDATOR' or 'MAP_VALIDATOR'"))
     if (length(errs))
       errs
     else
@@ -172,11 +172,11 @@ setClass("COLLECTION_VALIDATOR",
 #' showClass("ATOMIC_VALIDATION")
 #' showClass("ATOMIC_VALIDATIONS")
 #' showClass("ELEMENT_VALIDATION")
-#' showClass("COLLECTION_VALIDATION")
+#' showClass("MAP_VALIDATION")
 #'
 #' ## conversions with as()
 #' showMethods("coerce", classes = c("ATOMIC_VALIDATION", "ATOMIC_VALIDATIONS",
-#'   "ELEMENT_VALIDATION", "COLLECTION_VALIDATION"))
+#'   "ELEMENT_VALIDATION", "MAP_VALIDATION"))
 #'
 #' @seealso methods::Methods methods::new
 #' @family classes
@@ -275,13 +275,13 @@ setClass("ELEMENT_VALIDATION",
 )
 
 #' @rdname validation-classes
-#' @name COLLECTION_VALIDATION
-#' @aliases COLLECTION_VALIDATION-class
+#' @name MAP_VALIDATION
+#' @aliases MAP_VALIDATION-class
 #' @docType class
 #' @export
 #'
-setClass("COLLECTION_VALIDATION",
-  contains = c("COLLECTION_VALIDATOR", "PRESENCE_VALIDATION"),
+setClass("MAP_VALIDATION",
+  contains = c("MAP_VALIDATOR", "PRESENCE_VALIDATION"),
   validity = function(object) {
     if (length(object@checks) && !object@present)
       "object not present but checks conducted"

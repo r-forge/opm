@@ -25,7 +25,7 @@ setMethod("raw_checks", c("ANY", "ATOMIC_VALIDATORS"), function(object,
   lapply(X = validator@checks, FUN = validate, object = object)
 }, sealed = SEALED)
 
-setMethod("raw_checks", c("ANY", "COLLECTION_VALIDATOR"), function(object,
+setMethod("raw_checks", c("ANY", "MAP_VALIDATOR"), function(object,
     validator) {
   mapply(function(v, n, x) validate(x[[n]], v), validator@checks,
     names(validator@checks), MoreArgs = list(object), SIMPLIFY = FALSE)
