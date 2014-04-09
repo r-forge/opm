@@ -34,3 +34,33 @@ setMethod("raw_checks", c("ANY", "MAP_VALIDATOR"), function(object,
 
 ################################################################################
 
+
+#' Helper functions for object conversion
+#'
+#' Functions that are currently not exported.
+#'
+#' @name conversion-helpers
+#' @param x A validator or validation object.
+#' @return According validation or validator object.
+#' @keywords internal
+#'
+NULL
+
+#' @rdname conversion-helpers
+#' @name validator2validation
+#'
+validator2validation <- function(x) {
+  as(x, sub("_VALIDATOR", "_VALIDATION", class(x), FALSE, FALSE, TRUE))
+}
+
+#' @rdname conversion-helpers
+#' @name validation2validator
+#'
+validation2validator <- function(x) {
+  as(x, sub("_VALIDATION", "_VALIDATOR", class(x), FALSE, FALSE, TRUE))
+}
+
+
+################################################################################
+
+

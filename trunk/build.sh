@@ -1611,9 +1611,9 @@ case $RUNNING_MODE in
   ;;
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
-      remove_dirs_carefully pkgutils opm opmdata opmdata2 opmlipids &&
+      remove_dirs_carefully pkgutils opm opmdata opmdata2 opmlipids validate &&
       remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmdata2_doc \
-        opmlipids_doc
+        opmlipids_doc validate_doc
     exit $?
   ;;
   example )
