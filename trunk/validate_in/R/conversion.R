@@ -72,8 +72,7 @@ setAs("list", "ATOMIC_VALIDATORS", function(from) new("ATOMIC_VALIDATORS",
 
 
 setAs("ATOMIC_VALIDATORS", "ATOMIC_VALIDATIONS", function(from) {
-  new("ATOMIC_VALIDATIONS",
-    checks = lapply(from@checks, as, "ATOMIC_VALIDATION"))
+  new("ATOMIC_VALIDATIONS", checks = lapply(from@checks, validator2validation))
 })
 
 
@@ -87,7 +86,7 @@ setAs("ATOMIC_VALIDATIONS", "logical", function(from) {
 
 setAs("ATOMIC_VALIDATIONS", "ATOMIC_VALIDATORS", function(from) {
   new("ATOMIC_VALIDATORS",
-    checks = lapply(from@checks, as, "ATOMIC_VALIDATOR"))
+    checks = lapply(from@checks, as, validation2validator))
 })
 
 
@@ -119,7 +118,7 @@ setAs("list", "ELEMENT_VALIDATOR", function(from) {
 # no inheritance relationship, explicit coercion necessary
 setAs("ELEMENT_VALIDATOR", "ELEMENT_VALIDATION", function(from) {
   new("ELEMENT_VALIDATION", required = from@required, present = TRUE,
-    checks = lapply(from@checks, as, "ATOMIC_VALIDATION"))
+    checks = lapply(from@checks, validator2validation))
 })
 
 
@@ -138,7 +137,7 @@ setAs("ELEMENT_VALIDATION", "logical", function(from) {
 # no inheritance relationship, explicit coercion necessary
 setAs("ELEMENT_VALIDATION", "ELEMENT_VALIDATOR", function(from) {
   new("ELEMENT_VALIDATOR", required = from@required,
-    checks = lapply(from@checks, as, "ATOMIC_VALIDATOR"))
+    checks = lapply(from@checks, as, validation2validator))
 })
 
 
@@ -172,11 +171,25 @@ setAs("list", "MAP_VALIDATOR", function(from) {
         "ELEMENT_VALIDATOR")
   }
   if (!is_map_validator(from <- conditionally_create_mv_list(from)))
-    stop("list cannot be converted to MAP_VALIDATOR object")
+    stop("this list cannot be converted to a MAP_VALIDATOR object")
   if (is.null(required <- from$required))
     required <- FALSE
   new("MAP_VALIDATOR", required = required,
     checks = sapply(from$mapping, conditionally_create_mv, simplify = FALSE))
+})
+
+setAs("MAP_VALIDATOR", "MAP_VALIDATION", function(from) {
+  new("MAP_VALIDATION", required = from@required, present = TRUE,
+    checks = lapply(from@checks, validator2validation))
+})
+
+
+################################################################################
+
+
+setAs("MAP_VALIDATION", "MAP_VALIDATOR", function(from) {
+  new("MAP_VALIDATOR", required = from@required,
+    checks = lapply(from@checks, validation2validator))
 })
 
 
