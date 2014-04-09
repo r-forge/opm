@@ -51,15 +51,15 @@ setMethod("validate", c("ANY", "ELEMENT_VALIDATOR"), function(object,
     checks = raw_checks(object, validator))
 }, sealed = SEALED)
 
-setMethod("validate", c("NULL", "COLLECTION_VALIDATOR"), function(object,
+setMethod("validate", c("NULL", "MAP_VALIDATOR"), function(object,
     validator) {
-  new("COLLECTION_VALIDATION", present = FALSE, required = object@required,
+  new("MAP_VALIDATION", present = FALSE, required = object@required,
     checks = structure(list(), names = character())) # cannot conduct any checks
 }, sealed = SEALED)
 
-setMethod("validate", c("ANY", "COLLECTION_VALIDATOR"), function(object,
+setMethod("validate", c("ANY", "MAP_VALIDATOR"), function(object,
     validator) {
-  new("COLLECTION_VALIDATION", present = TRUE, required = object@required,
+  new("MAP_VALIDATION", present = TRUE, required = object@required,
     checks = raw_checks(object, validator))
 }, sealed = SEALED)
 

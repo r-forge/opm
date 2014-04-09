@@ -59,12 +59,12 @@ test_that("conversion of ELEMENT_VALIDATION works", {
 
 
 ## as
-test_that("conversion of COLLECTION_VALIDATOR works", {
-  x <- new("COLLECTION_VALIDATOR")
-  got <- as(x, "COLLECTION_VALIDATION")
-  expect_is(got, "COLLECTION_VALIDATION")
+test_that("conversion of MAP_VALIDATOR works", {
+  x <- new("MAP_VALIDATOR")
+  got <- as(x, "MAP_VALIDATION")
+  expect_is(got, "MAP_VALIDATION")
   validObject(got)
-  back <- as(got, "COLLECTION_VALIDATOR")
+  back <- as(got, "MAP_VALIDATOR")
   validObject(back)
   expect_equal(x, back)
 })

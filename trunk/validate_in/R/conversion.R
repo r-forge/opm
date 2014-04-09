@@ -147,3 +147,38 @@ setAs("ELEMENT_VALIDATION", "ELEMENT_VALIDATOR", function(from) {
 
 ################################################################################
 
+
+setAs("MAP_VALIDATOR", "list", function(from) {
+  list(type = "map", required = from@required,
+    mapping = sapply(from@checks, as, "list", simplify = FALSE))
+})
+
+
+setAs("list", "MAP_VALIDATOR", function(from) {
+  is_map_validator <- function(x) identical(x$type, "map")
+  conditionally_create_mv_list <- function(x) {
+    found <- match(c("type", "mapping"), names(x), 0L)
+    if (found[1L] && !found[2L])
+      x$mapping <- structure(list(), names = character())
+    if (found[2L] && !found[1L])
+      x$type <- "map"
+    x
+  }
+  conditionally_create_mv <- function(x) {
+    x <- conditionally_create_mv_list(x)
+    as(x, if (is_map_validator(x))
+        "MAP_VALIDATOR"
+      else
+        "ELEMENT_VALIDATOR")
+  }
+  if (!is_map_validator(from <- conditionally_create_mv_list(from)))
+    stop("list cannot be converted to MAP_VALIDATOR object")
+  if (is.null(required <- from$required))
+    required <- FALSE
+  new("MAP_VALIDATOR", required = required,
+    checks = sapply(from$mapping, conditionally_create_mv, simplify = FALSE))
+})
+
+
+################################################################################
+
