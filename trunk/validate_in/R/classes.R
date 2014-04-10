@@ -58,12 +58,12 @@ setClass("ATOMIC_VALIDATOR",
 )
 
 #' @rdname validator-classes
-#' @name VALIDATORS
-#' @aliases VALIDATORS-class
+#' @name WITH_CHECKS
+#' @aliases WITH_CHECKS-class
 #' @docType class
 #' @export
 #'
-setClass("VALIDATORS",
+setClass("WITH_CHECKS",
   contains = "VIRTUAL",
   slots = c(checks = "list"),
   sealed = SEALED
@@ -100,7 +100,7 @@ setClass("PRESENCE_VALIDATOR",
 #' @export
 #'
 setClass("ATOMIC_VALIDATORS",
-  contains = "VALIDATORS",
+  contains = "WITH_CHECKS",
   prototype = list(checks = list(new("ATOMIC_VALIDATOR"))),
   validity = function(object) {
     if (all(vapply(object@checks, is, NA, "ATOMIC_VALIDATOR")))
@@ -129,7 +129,7 @@ setClass("ELEMENT_VALIDATOR",
 #' @export
 #'
 setClass("MAP_VALIDATOR",
-  contains = c("ATOMIC_VALIDATORS", "PRESENCE_VALIDATOR"),
+  contains = c("WITH_CHECKS", "PRESENCE_VALIDATOR"),
   prototype = list(checks = structure(list(), names = character())),
   validity = function(object) {
     check_names <- function(n) {
@@ -225,7 +225,7 @@ setClass("ATOMIC_VALIDATION",
 #' @export
 #'
 setClass("ATOMIC_VALIDATIONS",
-  contains = "VALIDATORS",
+  contains = "WITH_CHECKS",
   prototype = list(checks = list(new("ATOMIC_VALIDATION"))),
   validity = function(object) {
     if (all(vapply(object@checks, is, NA, "ATOMIC_VALIDATION")))
@@ -281,10 +281,17 @@ setClass("ELEMENT_VALIDATION",
 #' @export
 #'
 setClass("MAP_VALIDATION",
-  contains = c("MAP_VALIDATOR", "PRESENCE_VALIDATION"),
+  contains = c("WITH_CHECKS", "PRESENCE_VALIDATION"),
   validity = function(object) {
+    errs <- NULL
     if (length(object@checks) && !object@present)
-      "object not present but checks conducted"
+      errs <- c(errs, "object not present but checks conducted")
+    if (!all(vapply(object@checks, is, NA, "ELEMENT_VALIDATION") |
+        vapply(object@checks, is, NA, "MAP_VALIDATION")))
+      errs <- c(errs, paste0("not all elements of 'checks' inherit from ",
+        "'ELEMENT_VALIDATION' or 'MAP_VALIDATION'"))
+    if (length(errs))
+      errs
     else
       TRUE
   },

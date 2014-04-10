@@ -86,7 +86,7 @@ setAs("ATOMIC_VALIDATIONS", "logical", function(from) {
 
 setAs("ATOMIC_VALIDATIONS", "ATOMIC_VALIDATORS", function(from) {
   new("ATOMIC_VALIDATORS",
-    checks = lapply(from@checks, as, validation2validator))
+    checks = lapply(from@checks, validation2validator))
 })
 
 
@@ -137,7 +137,7 @@ setAs("ELEMENT_VALIDATION", "logical", function(from) {
 # no inheritance relationship, explicit coercion necessary
 setAs("ELEMENT_VALIDATION", "ELEMENT_VALIDATOR", function(from) {
   new("ELEMENT_VALIDATOR", required = from@required,
-    checks = lapply(from@checks, as, validation2validator))
+    checks = lapply(from@checks, validation2validator))
 })
 
 
