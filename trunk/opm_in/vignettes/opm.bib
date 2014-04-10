@@ -75,6 +75,18 @@ pages = {493--507},
 doi = {10.1002/widm.1072},
 }
 
+@ARTICLE{buehlmann03,
+  author = {B\"{u}hlmann, Peter and Yu, Bin},
+  title = {Boosting with the {L}$_2$ Loss: {R}egression and Classification},
+  journal = {Journal of the American Statistical Association},
+  year = {2003},
+  volume = {98},
+  pages = {324--339},
+  cisid = {239942},
+  keywords = {functional gradient descent; LogitBoost; minimax error rate; Nonparametric
+	classification; Nonparametric regression; Smoothing spline}
+}
+
 @Book{bretz,
 author = {Bretz, F. and Hothorn, T. and Westfall, P. },
 title = {Multiple Comparisons Using R},
@@ -168,6 +180,16 @@ pages = {2640--2658},
   year = {1995},
 }
 
+@ARTICLE{Dudoit2003,
+  author = {Sandrine Dudoit and Juliet Popper Shaffer and Jennifer C. Boldrick},
+  title = {Multiple Hypothesis Testing in Microarray Experiments},
+  journal = {Statistical Science},
+  year = {2003},
+  volume = {18},
+  pages = {71--103}
+}
+
+
 @Article{efron,
 author = {Efron, B.},
 title = {Bootstrap Methods: Another Look at the Jackknife},
@@ -260,14 +282,15 @@ year = {1987},
 adress = {New York},
 }
 
-@ARTICLE{Hofner:mboost:2012,
+@ARTICLE{Hofner:mboost:2014,
   author = {B. Hofner and A. Mayr and N. Robinzonov and M. Schmid},
   title = {Model-based Boosting in {R} -- {A} Hands-on Tutorial Using the {R}
 	Package mboost},
   journal = {Computational Statistics},
-  year = {2012},
-  doi  = {10.1007/s00180-012-0382-5},
-  note = {Online First}
+  year = {2014},
+  volume =  29,
+  pages = {3--35},
+  doi = {10.1007/s00180-012-0382-5}
 }
 
 @Article{hothorn,
@@ -278,6 +301,16 @@ year = {2008},
 volume = {50},
 pages = {346-363},
 note = {See vignette("generalsiminf", package = "multcomp")},
+}
+
+@ARTICLE{Hothorn+Buehlmann+Kneib+Schmid+Hofner:mboost:2010,
+  author = {Torsten Hothorn and Peter B{\"u}hlmann and Thomas Kneib and Matthias
+	Schmid and Benjamin Hofner},
+  title = {Model-Based Boosting 2.0},
+  journal = {Journal of Machine Learning Research},
+  year = {2010},
+  volume = {11},
+  pages = {2109--2113}
 }
 
 @Book{hsu,
@@ -371,9 +404,20 @@ volume = {94},
 pages = {2091--2094},
 }
 
+@ARTICLE{Mayr:mstop:2012,
+  author = {Andreas Mayr and Benjamin Hofner and Matthias Schmid},
+  title = {The importance of knowing when to stop -- a sequential stopping rule
+	for component-wise gradient boosting},
+  journal = {Methods of Information in Medicine},
+  year = {2012},
+  volume = {51},
+  pages = {178--186},
+  doi = {10.3414/ME11-02-0030}
+}
+
 @Manual{mboost:pkg:2013,
   title = {Model-Based Boosting},
-  author = {Torsten Hothorn and Peter Buehlmann and Thomas Kneib and Matthias Schmid and Benjamin Hofner},
+  author = {Torsten Hothorn and Peter B\"{u}hlmann and Thomas Kneib and Matthias Schmid and Benjamin Hofner},
   year = {2013},
   note = {R package version 2.2-3},
   url = {http://CRAN.R-project.org/package=mboost},
@@ -648,16 +692,16 @@ address = {Upper Saddle River, NJ},
 }
 
 @article{Overbeek01012005,
-author = {Overbeek, Ross and Begley, Tadhg and Butler, Ralph M. and Choudhuri, Jomuna V. and Chuang, Han-Yu and Cohoon, Matthew and de Crecy-Lagard, Valerie and Diaz, Naryttza and Disz, Terry and Edwards, Robert and Fonstein, Michael and Frank, Ed D. and Gerdes, Svetlana and Glass, Elizabeth M. and Goesmann, Alexander and Hanson, Andrew and Iwata-Reuyl, Dirk and Jensen, Roy and Jamshidi, Neema and Krause, Lutz and Kubal, Michael and Larsen, Niels and Linke, Burkhard and McHardy, Alice C. and Meyer, Folker and Neuweger, Heiko and Olsen, Gary and Olson, Robert and Osterman, Andrei and Portnoy, Vasiliy and Pusch, Gordon D. and Rodionov, Dmitry A. and Rueckert, Christian and Steiner, Jason and Stevens, Rick and Thiele, Ines and Vassieva, Olga and Ye, Yuzhen and Zagnitko, Olga and Vonstein, Veronika}, 
+author = {Overbeek, Ross and Begley, Tadhg and Butler, Ralph M. and Choudhuri, Jomuna V. and Chuang, Han-Yu and Cohoon, Matthew and de Crecy-Lagard, Valerie and Diaz, Naryttza and Disz, Terry and Edwards, Robert and Fonstein, Michael and Frank, Ed D. and Gerdes, Svetlana and Glass, Elizabeth M. and Goesmann, Alexander and Hanson, Andrew and Iwata-Reuyl, Dirk and Jensen, Roy and Jamshidi, Neema and Krause, Lutz and Kubal, Michael and Larsen, Niels and Linke, Burkhard and McHardy, Alice C. and Meyer, Folker and Neuweger, Heiko and Olsen, Gary and Olson, Robert and Osterman, Andrei and Portnoy, Vasiliy and Pusch, Gordon D. and Rodionov, Dmitry A. and Rueckert, Christian and Steiner, Jason and Stevens, Rick and Thiele, Ines and Vassieva, Olga and Ye, Yuzhen and Zagnitko, Olga and Vonstein, Veronika},
 title = {The Subsystems Approach to Genome Annotation and its Use in the Project to Annotate 1000 Genomes},
-volume = {33}, 
-number = {17}, 
-pages = {5691-5702}, 
-year = {2005}, 
-doi = {10.1093/nar/gki866}, 
-abstract ={The release of the 1000th complete microbial genome will occur in the next two to three years. In anticipation of this milestone, the Fellowship for Interpretation of Genomes (FIG) launched the Project to Annotate 1000 Genomes. The project is built around the principle that the key to improved accuracy in high-throughput annotation technology is to have experts annotate single subsystems over the complete collection of genomes, rather than having an annotation expert attempt to annotate all of the genes in a single genome. Using the subsystems approach, all of the genes implementing the subsystem are analyzed by an expert in that subsystem. An annotation environment was created where populated subsystems are curated and projected to new genomes. A portable notion of a populated subsystem was defined, and tools developed for exchanging and curating these objects. Tools were also developed to resolve conflicts between populated subsystems. The SEED is the first annotation environment that supports this model of annotation. Here, we describe the subsystem approach, and offer the first release of our growing library of populated subsystems. The initial release of data includes 180 177 distinct proteins with 2133 distinct functional roles. This data comes from 173 subsystems and 383 different organisms.}, 
-URL = {http://nar.oxfordjournals.org/content/33/17/5691.abstract}, 
-journal = {Nucleic Acids Research} 
+volume = {33},
+number = {17},
+pages = {5691-5702},
+year = {2005},
+doi = {10.1093/nar/gki866},
+abstract ={The release of the 1000th complete microbial genome will occur in the next two to three years. In anticipation of this milestone, the Fellowship for Interpretation of Genomes (FIG) launched the Project to Annotate 1000 Genomes. The project is built around the principle that the key to improved accuracy in high-throughput annotation technology is to have experts annotate single subsystems over the complete collection of genomes, rather than having an annotation expert attempt to annotate all of the genes in a single genome. Using the subsystems approach, all of the genes implementing the subsystem are analyzed by an expert in that subsystem. An annotation environment was created where populated subsystems are curated and projected to new genomes. A portable notion of a populated subsystem was defined, and tools developed for exchanging and curating these objects. Tools were also developed to resolve conflicts between populated subsystems. The SEED is the first annotation environment that supports this model of annotation. Here, we describe the subsystem approach, and offer the first release of our growing library of populated subsystems. The initial release of data includes 180 177 distinct proteins with 2133 distinct functional roles. This data comes from 173 subsystems and 383 different organisms.},
+URL = {http://nar.oxfordjournals.org/content/33/17/5691.abstract},
+journal = {Nucleic Acids Research}
 }
 
 
