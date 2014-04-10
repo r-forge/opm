@@ -47,6 +47,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{enumitem}
+\usepackage{amsmath}
 %\usepackage{fancyvrb}
 \normalem              % set \emph to \textit again
 % Additions (in blue)
@@ -781,175 +782,39 @@ interest is one of the main subjects of research.
 The information accessible \textit{via} \code{annotated} can serve as input for suitable statistical procedures in order to assess and rank the observed metabolic capabilities (i.e. respiration on the substrates) with respect to their ability to predict a given response.
 Beside the identification of pathways of interest to be used when drawing the \pkg{opm} results in a graph, as detailed in the previous section, such results can further be used as a starting point when searching for a causal explanation of the given \pkg{opm} results.
 
-In the next coding example, we prepare a data matrix with the differences between the two \textit{E. coli} strains (as computed in section~\ref{pathview-group-diffs}) and add potential explanatory variables from \ac{KEGG}.
-Please refer to the manual and Section~\ref{annotated-input} for an explanation of the usage of \code{annotated} with the argument \code{how = "data.frame"}.
-Again, the comparison applies to the default parameter given by \code{opm_opt("curve.param")}; see the manual for details.
-
-<<label=e-coli-comp-full>>=
-coli.comp <- opm_mcp(coli.sub, output = "mcp",
-  model = ~ J(Well + Strain), linfct = c(Pairs = 1))
-coli.anno <- annotated(coli.comp, how = "data.frame")
-coli.anno <- coli.anno[complete.cases(coli.anno), ]
-@
-
-The data frame has to be reduced to the non-\code{NA} rows, i.e. substrates that are not included in \ac{KEGG} have to be removed, before the \pkg{mboost} package \citep{mboost:pkg:2013} can be applied.
-
-
 \subsection{Boosting as a tool to identify important substrates}
 
-In the following example we use boosting to estimate a linear model in order to determine important substrates that describe the differences between the experimental settings.
-Optimal stopping of the algorithm can be done via cross-validation.
-For a detailed hands-on introduction to boosting methods using the package \pkg{mboost} we refer to \citep{Hofner:mboost:2012}.
+<<increase_number_of_cores, results = hide, echo = false>>=
+## if possible, use 4 cores; change this if necessary
+options(mc.cores = 4)
+@
+
+In the following example we use boosting to estimate a linear model in order to
+determine important substrates that describe the differences between the two
+strains. Boosting
+\citep{buehlmann03,Hothorn+Buehlmann+Kneib+Schmid+Hofner:mboost:2010} is a
+method to fit a statistical model that additionally selects the most important
+predictor variables. Optimal stopping of the algorithm can be done via
+cross-validation. For a detailed hands-on introduction to boosting methods using
+the package \pkg{mboost} \citep{mboost:pkg:2013} we refer to
+\citet{Hofner:mboost:2014}.
 
 <<install.package.mboost, echo = FALSE, results = hide>>=
-if (!suppressPackageStartupMessages(require("mboostDevel")))
+if (!require("mboostDevel"))
     install.packages("mboostDevel", repos = "http://r-forge.r-project.org")
 ## set seed (for reproducible results)
 set.seed(1907)
 @
 
+At first, we need to load the package
 <<mboost_model_fitting, results = hide>>=
 ## load package mboost
 ## (currently the development version "mboostDevel" from r-forge is used)
-suppressPackageStartupMessages(library("mboostDevel"))
-## fit the boosting model with 1000 initial iterations
-mod <- glmboost(Value ~ ., data = coli.anno,
-  control = boost_control(mstop = 1000))
-## obtain optimal stopping iteration via crossvalidation
-## to speed up computation on linux systems set number of
-## cores in cvrisk: e.g. mc.cores = 25
-cvr <- cvrisk(mod)
-## set model to optimal stopping iteration
-mod[mstop(cvr)]
+library("mboostDevel")
 @
 
-If one uses cross-validation techniques to find the optimal stopping iteration, boosting intrinsically selects variables that best predict the outcome, i.e. here the differences between the two \textit{E. coli} strains with respect to certain substrates.
-We can now depict these features within a ``Variable Importance Plot'', which shows the absolute values of the regression coefficients $\beta$ (Figure~\ref{fig:var-imp-plot}).
-Higher values of the absolute coefficient tend to indicate bigger contributions of the corresponding variable to the prediction of the differences of strains,
-i.e. the higher the value of the coefficient the more important is the variable.\footnote{This at least holds true for variables that have comparable standard deviations or standardised coefficients.}
-
-\begin{figure}
-  \begin{center}
-\scalebox{0.55}{
-<<coef-plot2, fig=TRUE, echo=FALSE, width = 6>>=
-old.par <- par(mar = c(4, 8, 0.1, 0.1)) # adapt plotting settings
-cf <- coef(mod)[-1]
-plot(sort(abs(cf)), 1:length(cf),
-  type = "n", yaxt = "n", xlim = c(0, max(abs(cf))),
-  ylab = "", xlab = expression(paste("|", beta, "|")))
-abline(h = 1:length(cf), lty = "dotted", col = "grey")
-points(sort(abs(cf)), 1:length(cf), pch = 19)
-axis(2, at = 1:length(cf), names(cf)[order(abs(cf))], las = 2)
-par(old.par) # reset plotting settings
-@
-}
-\caption{Absolute value of coefficients at the optimal stopping iteration
-  determined via cross-validation (\code{mstop} = \Sexpr{mstop(cvr)}).
-  \label{fig:var-imp-plot}}
-  \end{center}
-\end{figure}
-
-\subsection{Boosting with stability selection}
-
-Stability selection \citep{Meinshausen:2010} is an additional screening tool that allows the user to determine which of the selected variables are stable ``stable'' variables, i.e. which are variables that always ``pop-up'' in random subsets of the data.
-Additionally, stability selection has a built in error control (for the per-family error rate).
-In our example the maximum acceptable error is set to 1.5, i.e. we accept at maximum 1.5 noise variables to be chosen by stability selection by chance. The cut-off value determines, which inclusion frequency is at least required to term a variable stable.
-In our example this is chosen to be $0.6$, but other values in, say $(0.6, 0.9)$, are possible as well.
-In general, stability selection is relatively insensitive to the choice of the cut-off.
-<<mboost_stability_selection, results = hide, eval = false>>=
-## first, increase model again
-mod[1000]
-## now use stability selection
-## to speed up computation on linux systems set number of
-## cores in cvrisk: e.g. mc.cores = 25
-stab <- stabsel(mod, cutoff = 0.75, PFER = 1.5, assumption = "unimodal")
-@
-
-<<mboost_stability_selection_hidden, results = hide, eval = true, echo = false>>=
-if (!file.exists("stabsel.Rda")) {
-<<mboost_stability_selection>>
-    save(mod, stab, file = "stabsel.Rda")
-} else {
-    load("stabsel.Rda")
-}
-@
-
-%TODO LATER:
-% \item \citep{Boccuto2013} - analysis of metabolic profiles of lymphoblastoid
-%   cell lines from 137 patients with neurodevelopmental disorders with or
-%   without \acs{ASD} and 78 normal individuals, using BIOLOG Phenotype
-%   microarrays. Feature selection approaches identified Tryptophan-substrates -
-%   cells from \ac{ASDs} patients are less capable in utilisation of
-%   Tryptophan-substrates
-%\item
-
-Plotting the results leads to a representation of the stability paths, i.e. the
-inclusion frequency dependent on the number of boosting iterations (see
-Figure~\ref{fig:stabsel}). This graphical display mainly helps to verify if the
-number of boosting iterations was sufficient. In this case, the selection paths
-stay constant after a certain point. As an alternative to the stability paths we
-can plot the maximum inclusion frequency (see Figure~\ref{fig:var-imp-plot2}).
-Higher inclusion frequencies indicate that the substrate is more important.
-Furthermore, we see that only the top \Sexpr{length(selected(stab))} variables
-are stable and thus can be considered to play a substantial role.
-
-\begin{center}
-\begin{figure}
-\scalebox{1.1}{
-<<label=stabsel-plot, fig=TRUE, echo=FALSE, width=12>>=
-old.par <- par(mar = c(5, 4, 4, 7)) # adapt plotting settings
-plot(stab, main = "Stability selection paths")
-par(old.par) # reset plotting settings
-@
-}
-\caption{Inclusion probability of variables (over the number of boosting
-  iterations). The grey horizontal line indicates the threshold above which
-  variables are termed ``stable''.}\label{fig:stabsel}
-\end{figure}
-\end{center}
-
-The results can be interpreted as follows:
-Whether or not a substrate is a carbohydrate works best for predicting whether one of the strains performs differently than the other.
-The category ``Carbohydrates'' works even better than its subcategories such as ``Oligosaccharides''.
-The pathway map IDs that are shown to have a strong influence are also related to carbohydrate metabolism, of course.
-For instance, the Galactose metabolism (``map00052'') is among the top-scoring substrate features.
-For a confirmation using \code{opm\_mcp}, see Figure~\ref{fig:e_coli_comp_ci}.
-
-
-\begin{figure}
-  \begin{center}
-\scalebox{0.55}{
-<<max-include-freq, fig=TRUE, echo=FALSE, width = 6>>=
-old.par <- par(mar = c(4, 8, 0.1, 0.1)) # adapt plotting settings
-plot(stab, type = "maxsel", main = "", np = 20)
-par(old.par) # reset plotting settings
-@
-}
-\caption{Maximum inclusion frequency $\hat{\pi}$ for the top 20
-  variables as determined by stability selection. \label{fig:var-imp-plot2}}
-\end{center}
-\end{figure}
-
-%For details on stability selection in the context of boosting see \rcsmark{DRAFT \acs{BH}}.
-
-Note that the approach used here is suboptimal in a certain respect because mean differences between metadata-defined groups have entered the model as dependent variable.
-This fits well to the visualisation approaches exemplified above but ignores the variance of the differences and lets the metainformation not directly enter the model because here metadata are only used to define the groups.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%  Alternativer Ansatz mit Variation in den Daten:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-<<set_seed_again, echo = FALSE, results = hide>>=
-## set seed (for reproducible results)
-set.seed(1907)
-@
-
-\subsubsection{Using repeated measurements as input}
-
-Using two biological replicates and all technical replicates thereof the
-statistical model gets more complicated. First we need to extract and
-restructure the data:
-
+Now we need to extract and restructure the data. We use all available biological
+and technical replicates and obtain the annotation from KEGG:
 <<make_data_set>>=
 ## use multiple biological replicates:
 coli.sub1 <- subset(vaas_et_al, list(Species = "Escherichia coli",
@@ -962,87 +827,215 @@ data <- annotated(opm_mcp(coli.sub1,
 data <- data[complete.cases(data),
   !(names(data) %in% c("Well", "Parameter"))]
 
-## restructure plate number to ID for usage of brandom:
-data$ID <- as.numeric(as.character(data$Plate.number)) +
-  10 * (as.numeric(data$Strain) - 1) +
-  20 * (as.numeric(data$Experiment) - 1)
-data$ID <- as.factor(data$ID)
+## add an ID per biological / technical replicate for usage of brandom:
+data$ID <- extract_columns(data, c("Plate.number", "Strain", "Experiment"),
+  direct = TRUE, factor = TRUE)
+## drop plate number
 data$Plate.number <- NULL
+## have a look at a subset of the resulting data set
+data[sample(1:nrow(data), size = 5), c(1:7)]
 @
 
-Now we can set up the model and use stability selection to extract the substrate
-groups and pathways that best explain the difference between strains. Be
-careful as this takes a while.
+<<set_seed, echo = false, results = hide>>=
+set.seed(1907)
+@
 
+Each row of the resulting data set describes the measurement of \emph{one well,
+  for one replicate, within one strain}. Starting from \code{map00010} we find
+the annotations that indicate, whether this well can be mapped to the
+corresponding substrate or pathway. Note that a well can potentially be mapped
+to multiple substrates or pathways.
+
+In the next step, we want to model the differences of the measured values
+between the two strains. Therefore we set up a model of the following form:
+\begin{align*}
+  y = & \beta_0 + \beta_1 \text{strain} + \beta_2 \text{experiment} + \beta_3
+  \text{slot} + b_{\text{ID}} +\\
+      & + \beta_{4,1} I_{\text{PW1}} + \beta_{4,2} I_{\text{PW2}} + \ldots + \\
+      & + X(\text{strain}) \cdot \beta_{5,1} I_{\text{PW1}} + X(\text{strain}) \cdot \beta_{5,2}
+      I_{\text{PW2}} +
+      \ldots,
+\end{align*}
+where $y$ is the measured PM value, $\beta_0$ is an overall intercept, $\beta_1$
+is the overall strain effect (the difference between strains irrespective of the
+pathway or substrate), and $\beta_2$ and $\beta_3$ are the effects of the
+experiment and slot. These are used to correct for possible confounding.
+Additionally, we use an random effect for the replicate ($b_{\text{ID}}$) to
+account for subject specific effects. The pathway specific effects $\beta_{4,j}$
+represent the differences of the PM values between pathways and substrates,
+where $I_{\text{PW}j}$ is an indicator function, which is 0 if the well does not
+belong to the pathway and 1 if it does, i.e., $I_{\text{PW}j}$ corresponds to
+the annotations discussed above.
+
+The most interesting part is given by $\beta_{5,j}$: $X(\text{strain})$ is a
+strain specific function which is either $-1$ (strain
+\Sexpr{levels(data$Strain)[2]}) or $1$ (strain \Sexpr{levels(data$Strain)[1]}).
+The coefficients $\beta_{5,j}$ hence represent the deviation of the strains from
+the global effect. If $\beta_{5,j} = 0$, no strain specific effect is present,
+i.e., the pathway $j$ does not differ between strains. If $\beta_{5,j} \neq 0$,
+the difference between the two strains is twice this effect, i.e.,
+$X(\text{strain}_1) \cdot \beta_{5,j} - (X(\text{strain}_2) \cdot \beta_{5,j}) =
+1 \cdot \beta_{5,j} - (-1 \cdot \beta_{5,j}) = 2 \beta_{5,j}$.
+
+Now we can set up and estimate the model. Be careful as this takes a while.
 <<model_code, eval = false>>=
-fm <- as.formula(paste("Value ~ Strain + ",
-  paste(paste(names(data)[-c(1, 4)]), collapse = "+"), "+",
-  paste("bols(", paste(names(data)[-c(1, 4)],
-      collapse = ", by = Strain, df = 2) + bols("),
-    ", by = Strain, df = 2)")))
-
-## re-define base-learner to have only 2 degrees of freedom
+## re-define base-learner to have only 1 degrees of freedom and no additinal
+## intercept term
+bols1 <- function(a)
+  bols(a, intercept = FALSE, df = 1)
 bols2 <- function(a)
   bols(a, df = 2)
 
 ## fit offset model with main effects only (and use very many iterations):
 options(contrasts = c("contr.treatment", "contr.poly"))
-offsetmod <- gamboost(Value ~ ., data = data, baselearner = bols2,
-  control = boost_control(mstop = 6000))
+offsetmod <- gamboost(log(Value) ~ ., data = data, baselearner = bols2,
+  control = boost_control(mstop = 6000, nu = 0.2))
 
 ## now start from the offset model and add interaction effects (which
 ## represent differences between strains).
 options(contrasts = c("contr.sum", "contr.poly"))
-mod2 <- gamboost(fm, data = data, baselearner = bols2,
+## set up model formula
+fm <- as.formula(paste("log(Value) ~ Strain + ",
+  paste(paste(names(data)[-c(1, 4)]), collapse = "+"), "+",
+  paste("bols(", paste(names(data)[-c(1, 4)],
+      collapse = ", by = Strain, intercept = FALSE, df = 1) + bols("),
+    ", by = Strain, intercept = FALSE, df = 1)")))
+## estimate model
+mod <- gamboost(fm, data = data, baselearner = bols1,
   offset = fitted(offsetmod),
-  control = boost_control(mstop = 100))
-mod2[250]
+  control = boost_control(mstop = 250, nu = 0.2))
 options(contrasts = c("contr.treatment", "contr.poly"))
-
-## use stability selection to extract important pathways / substrate classes
-## to speed up computation on linux systems set number of
-## cores in cvrisk: e.g. mc.cores = 25
-stab2 <- stabsel(mod2, cutoff = 0.75, PFER = 1.5, assumption = "unimodal")
 @
 
 <<model, echo = false, results = hide>>=
 if (!file.exists("pathway_model.Rda")) {
 <<model_code>>
-  save(offsetmod, mod2, stab2, file = "pathway_model.Rda")
+  save(offsetmod, mod, file = "pathway_model.Rda")
 } else {
   load("pathway_model.Rda")
 }
 @
 
-The model we used first fits all main effects, i.e. differences in the maximum
-curve height with respect to different substrate groups or pathway maps while
+The offset model fits all main effects, i.e. differences in the maximum curve
+height with respect to different substrate groups or pathway maps while
 neglecting possible differences in substrate/map effects between strains.
-Additionally, we specify effects for strain, experiment and slot to account for
-overall differences between strains, experiments and slots. To account for
-repeated measurements we include a random effects term in the model
-\rcscom{(Currently we use ONE random effect for both technical and biological
-  replicates; this is appropriate as we currently do not really want to differentiate
-  between the two types of variability.)}. In a second step we allow for
-interactions between strain and the substrate/map effects and check if any are
-present. We use stability selection to determine which of the (interaction)
-effects are selected (while controlling the per-family error rate).
-\rcscom{More technical details will be added here if necessary but we are
-still in the process of discussing the results.}
+Additionally, we specify effects for the strain, the experiment and the slot to
+account for overall differences between strains, experiments and slots. To
+account for repeated measurements we include a random effects term in the model
+(Currently we use \emph{one} random effect for both technical and biological
+replicates; this is appropriate as we currently do not really want to
+differentiate between the two types of variability. However, more complex random
+effect terms might be used as well).
 
-Plotting the results...
+In a second step, we start from the offset model and we allow for interactions
+between strain and the substrate/map effects and check if any are present. These
+interactions represent differential PM expressions between strains.
 
-<<model_pathways_code, eval = false>>=
-# adapt plotting settings
-old.par <- par(mar = c(4, 0.1, 0.1, 15), mfrow = c(1, 2))
-plot(stab2, main = "")
-par(mar = c(4, 15, 0.1, 0.1))
-nms <- gsub(", ", " by ", variable.names(mod2))
-plot(stab2, type = "maxsel", main = "", np = 20, labels = nms)
-par(old.par) # reset plotting settings
+Boosting is an iterative procedure where the major tuning parameter is the
+number of boosting steps (\texttt{mstop}). To find the optimal model, we need to
+use cross-validation techniques \citep{Hofner:mboost:2014,Mayr:mstop:2012}. This can be easily done
+using:
+<<cvrisk_mod_code, eval=false>>=
+## to speed up computation on linux systems set number of
+## cores in cvrisk: e.g. mc.cores = 25
+cvr <- cvrisk(mod, grid = 1:2000)
+@
+Note that this might take some time depending on your system.
+
+<<cvrisk_mod, echo = false, results = hide>>=
+if (!file.exists("cvrisk_mod.Rda")) {
+<<cvrisk_mod_code>>
+  save(cvr, file = "cvrisk_mod.Rda")
+} else {
+  load("cvrisk_mod.Rda")
+}
 @
 
-...leads to a similar but more complex structure (see Figure~\ref{fig:stabsel2}).
-%\rcsdel{The forthcoming version of this vignette will demonstrate feature selection from the curve parameters themselves. We will show how to easily generate matrices containing estimated both traditional \pkg{opm} metadata and novel \pkg{opm} substrate metainformation as (potential) explanatory variables.}
+Now, we subset the model to the optimal number of stopping iterations:
+<<>>=
+## optimal number of iterations
+mstop(cvr)
+## plot the cross-validation results
+plot(cvr)
+## finally set model iterations to this number
+mstop(mod) <- mstop(cvr)
+@
+
+<<selection_frac, echo = false, results = hide>>=
+prob <- round(length(coef(mod))/ length(coef(mod, which = "")), 3) * 100
+@
+
+If one uses cross-validation techniques to find the optimal stopping iteration,
+boosting intrinsically selects variables that best predict the outcome, i.e.,
+here the $\log(\text{PM})$ values that differ between the two \textit{E. coli}
+strains with respect to certain substrates. However, cross-validations tends to
+select to many variables to enter the model (here: \Sexpr{prob}\% of the
+base-learners where selected to enter the model; this makes
+\Sexpr{length(coef(mod))} out of \Sexpr{length(coef(mod, which = ""))} ). Thus,
+to refine the selection process, we use stability selection to determine which
+of the (interaction) effects are selected (while controlling the per-family
+error rate).
+
+<<set_mstop, echo = false, results = hide>>=
+## set mstop to 250 again to increase speed of stability selection
+mstop(mod) <- 250
+@
+
+\subsection{Boosting with stability selection}
+
+Stability selection \citep{Meinshausen:2010} is an additional screening tool
+that allows the user to determine which of the selected variables are ``stable''
+variables, i.e. which are variables that always ``pop-up'' in random subsets of
+the data. Additionally, stability selection has a built in error control
+\citep[for the per-family error rate, see][]{Dudoit2003}. In our example the
+maximum acceptable error is set to 1.5, i.e. we accept at maximum 1.5 noise
+variables to be chosen by stability selection by chance. The cut-off value
+determines, which inclusion frequency is at least required to term a variable
+stable. In our example this is chosen to be $0.6$, but other values in, say
+$(0.6, 0.9)$, are possible as well. In general, stability selection is
+relatively insensitive to the choice of the cut-off.
+
+<<stabsel_code, eval = false>>=
+## use stability selection to extract important pathways / substrate classes
+## to speed up computation on linux systems set number of
+## cores in stabsel: e.g. mc.cores = 25
+stab <- stabsel(mod, cutoff = 0.75, PFER = 1.5, assumption = "unimodal")
+@
+
+<<stabsel, echo = false, results = hide>>=
+if (!file.exists("stabsel.Rda")) {
+<<stabsel_code>>
+  save(stab, file = "stabsel.Rda")
+} else {
+  load("stabsel.Rda")
+}
+@
+%%%%%%%%%%%%%%%
+
+Plotting the results of stability selection shows, which of the pathways and
+substrate groups are differentially expressed between the two strains (see
+Figure~\ref{fig:stabsel2}). The stability paths (Figure~\ref{fig:stabsel2},
+left), show the inclusion frequencies per variable dependent on the number of
+boosting iterations. This graphical display mainly helps to verify if the number
+of boosting iterations was sufficient. In this case, the selection paths stay
+constant after a certain point, indicating a sufficiently large number of
+boosting iterations. As an alternative to the stability paths we can plot the
+maximum inclusion frequency (Figure~\ref{fig:stabsel2}, right). Higher inclusion
+frequencies indicate that the substrate is more important. Furthermore, we see
+that only the top \Sexpr{length(selected(stab))} variables are stable and thus
+can be considered to play a substantial role. This is a much sparser model than
+the one obtained from cross-validation.
+
+<<model_pathways_code, eval = false>>=
+## extract variable names
+nms <- gsub(", ", " by ", variable.names(mod))
+## adapt plotting settings
+old.par <- par(mar = c(4, 0.1, 0.1, 11.5), mfrow = c(1, 2))
+plot(stab, main = "", labels = nms)
+par(mar = c(4, 11.5, 0.1, 0.1))
+plot(stab, type = "maxsel", main = "", np = 20, labels = nms)
+par(old.par) # reset plotting settings
+@
 
 \begin{figure}
 \centering
@@ -1051,47 +1044,36 @@ par(old.par) # reset plotting settings
 <<model_pathways_code>>
 @
 }
-\caption{Selected pathways and substrate classes. (left) From the selection path
-  plot one can deduce that the number of iterations was sufficiently large as all
-  selection paths stop to increase after 100 iterations. (right) Maximum
-  inclusion frequency $\hat{\pi}$ for the top 20 variables as determined by
-  stability selection.\label{fig:stabsel2}}
+\caption{Selected pathways and substrate classes. From the stability selection
+  paths plot one can deduce that the number of iterations was sufficiently large
+  as all selection paths stop to increase after approx.\ 100 iterations (left).
+  All variables that cross the threshold value (horizontal gray line;
+  $\hat{\pi}_{\text{thr}} = \Sexpr{stab$cutoff}$) at some point are termed % $
+  ``stable'', i.e., are chosen by stability selection. The maximum inclusion
+  frequency $\hat{\pi}$ for the top 20 variables as determined by stability
+  selection is displayed in the right figure. All variables with inclusion
+  frequencies $\hat{\pi} \geq \hat{\pi}_{\text{thr}}$, i.e., right of the gray
+  vertical line are stable variables. \label{fig:stabsel2}}
 \end{figure}
 
-Now we can have a look at the regression coefficients of the selected variables.
-Therefore we first determine the optimal stopping iteration of the boosting algorithm:
-<<cvrisk_mod2_code, eval=false>>=
-## first increase the model
-mod2[1000]
-## to speed up computation on linux systems set number of
-## cores in cvrisk: e.g. mc.cores = 25
-cvr2 <- cvrisk(mod2)
-mod2[mstop(cvr2)]
-@
+In the next step we extract the coefficient estimates of the stable variables.
+We set the stopping iteration to the optimal iteration obtained by
+cross-validation and extract only the coefficients of the stable variables:
 
-<<cvrisk_mod2, echo = false, results = hide>>=
-if (!file.exists("cvrisk_mod2.Rda")) {
-<<cvrisk_mod2_code>>
-  save(cvr, file = "cvrisk_mod2.Rda")
-} else {
-  load("cvrisk_mod2.Rda")
-}
-@
-
-In the next step we extract the coefficients of the stable variables
 <<coefficients_code, eval = false>>=
-cf <- coef(mod2, which = selected(stab2))
-## use only the second coefficient, the first coefficient of each base-learner
-## is the intercept which isn't of interest here.
-beta <- sapply(cf, function(x) x[2])
+mstop(mod) <- mstop(cvr)
+cf <- coef(mod, which = selected(stab))
+## make cf a vector
+beta <- unlist(cf)
 old.par <- par(mar = c(4, 15, 0.1, 0.1))# adapt plotting settings
-plot(sort(beta), 1:length(beta),
-    type = "n", yaxt = "n",
-    ylab = "", xlab = expression(hat(beta)))
-
+## plot 2 * beta as this is the difference between the two strains
+plot(2 * sort(beta), 1:length(beta),
+  type = "n", yaxt = "n",
+  ylab = "", xlab = expression(paste("Difference between strains (",
+    2 * hat(beta), ")")))
 abline(h = 1:length(beta), lty = "dotted", col = "grey")
-points(sort(beta), 1:length(beta), pch = 19)
-nms <- gsub(", ", " by ", variable.names(mod2, which = selected(stab2)))
+points(2 * sort(beta), 1:length(beta), pch = 19)
+nms <- gsub(", ", " by ", variable.names(mod, which = selected(stab)))
 axis(2, at = 1:length(beta), nms[order(beta)], las = 2)
 abline(v = 0, col = "grey")
 par(old.par) # reset plotting settings
@@ -1104,13 +1086,50 @@ par(old.par) # reset plotting settings
 <<coefficients_code>>
 @
 }
-\caption{Coefficients of stable variables (for the optimal boosting iteration).\label{fig:stabsel3}}
+\caption{Coefficients of stable variables (in the optimal boosting
+  iteration). Positve signs indicate an increase in strain
+  \Sexpr{levels(data$Strain)[1]} compared to \Sexpr{levels(data$Strain)[2]},
+  and negative signs vice versa.\label{fig:stabsel3}}
 \end{figure}
+
+From Figure~\ref{fig:stabsel3}, we can see that \code{map04070} explains the
+largest difference between the two strains (as the absolute value is biggest)
+followed by \code{Phenylpropanoids}, \code{map00072} and \code{map00053}. While
+the first three variables have a negative sign, indicating that
+\Sexpr{levels(data$Strain)[2]} is increased compared to strain %$
+\Sexpr{levels(data$Strain)[1]}, \code{map00053} has a positive sign, indicating
+an increase in strain \Sexpr{levels(data$Strain)[1]}. %$
+
+% All these pathways are differentially expressed given the other pathways (i.e.
+% keeping the group affiliation w.r.t. all other pathways fixed and changing
+% only the one group).
 
 \subsubsection{Evaluation of results}
 
-In the next step we will augment the boosting approach with an \code{opm\_mcp} analysis for confirming whether the reactions on carbohydrate wells are indeed more strongly different between the two strains than those on other wells.
-First, the positions of the substrates either belonging to the category ``Carbohydrates'' or not to it are determined and afterwards stored in two vectors.
+In the next step we will augment the boosting approach with an \code{opm\_mcp}
+analysis for confirming whether the reactions on carbohydrate wells are indeed
+more strongly different between the two strains than those on other wells.
+
+\rcsmark{moved here to get coli.anno data set... do we need this?} First, we
+prepare a data matrix with the differences between the two \textit{E. coli}
+strains (as computed in section~\ref{pathview-group-diffs}) and add potential
+explanatory variables from \ac{KEGG}. Please refer to the manual and
+Section~\ref{annotated-input} for an explanation of the usage of
+\code{annotated} with the argument \code{how = "data.frame"}. Again, the
+comparison applies to the default parameter given by
+\code{opm_opt("curve.param")}; see the manual for details.
+
+<<label=e-coli-comp-full>>=
+coli.comp <- opm_mcp(coli.sub, output = "mcp",
+  model = ~ J(Well + Strain), linfct = c(Pairs = 1))
+coli.anno <- annotated(coli.comp, how = "data.frame")
+coli.anno <- coli.anno[complete.cases(coli.anno), ]
+@
+\rcsmark{end of insertion}
+
+Now, the positions of the substrates either belonging to the category
+``Carbohydrates'' or not to it are determined and afterwards stored in two
+vectors.
 
 <<label=prep_mcp_dat>>=
 carb.pos <- rownames(coli.anno)[coli.anno$Carbohydrates == TRUE]
