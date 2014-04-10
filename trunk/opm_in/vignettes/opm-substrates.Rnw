@@ -847,9 +847,10 @@ corresponding substrate or pathway. Note that a well can potentially be mapped
 to multiple substrates or pathways.
 
 In the next step, we want to model the differences of the measured values
-between the two strains. Therefore we set up a model of the following form:
+between the two strains. Therefore we set up a log-linear model of the following
+form:
 \begin{align*}
-  y = & \beta_0 + \beta_1 \text{strain} + \beta_2 \text{experiment} + \beta_3
+  \log(y) = & \beta_0 + \beta_1 \text{strain} + \beta_2 \text{experiment} + \beta_3
   \text{slot} + b_{\text{ID}} +\\
       & + \beta_{4,1} I_{\text{PW1}} + \beta_{4,2} I_{\text{PW2}} + \ldots + \\
       & + X(\text{strain}) \cdot \beta_{5,1} I_{\text{PW1}} + X(\text{strain}) \cdot \beta_{5,2}
