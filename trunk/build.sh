@@ -1496,7 +1496,8 @@ spellcheck_vignettes()
 	ctrl <- c("ac", "acf", "acs", "acl")
 	ctrl <- c(ctrl, paste0(ctrl, "p"))
 	ctrl <- c(ctrl, "bibliography", "code", "citep", "citet", "pkg", "proglang",
-	  "German", "Plainauthor", "Plainkeywords", "Plaintitle", "Sexpr", "Surname")
+	  "texttt", "German", "Plainauthor", "Plainkeywords", "Plaintitle", "Sexpr",
+	  "Surname")
 	ctrl <- c("DefineVerbatimEnvironment oppp", "acrodef op", "subsection o",
 	  "subsubsection o", "pdfbookmark opp", "item o", "externaldocument p",
 	  sprintf("%s op", ctrl))
