@@ -60,5 +60,6 @@ subdirectories
 subtilis
 tetrazolium
 transcriptomics
+versa
 vertices
 whitespace

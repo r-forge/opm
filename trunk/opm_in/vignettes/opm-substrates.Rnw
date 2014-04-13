@@ -814,7 +814,7 @@ library("mboostDevel")
 @
 
 Now we need to extract and restructure the data. We use all available biological
-and technical replicates and obtain the annotation from KEGG:
+and technical replicates and obtain the annotation from \ac{KEGG}:
 <<make_data_set>>=
 ## use multiple biological replicates:
 coli.sub1 <- subset(vaas_et_al, list(Species = "Escherichia coli",
@@ -953,7 +953,7 @@ if (!file.exists("cvrisk_mod.Rda")) {
 @
 
 Now, we subset the model to the optimal number of stopping iterations:
-<<>>=
+<<cvrisk_mod_shown>>=
 ## optimal number of iterations
 mstop(cvr)
 ## plot the cross-validation results
@@ -963,7 +963,7 @@ mstop(mod) <- mstop(cvr)
 @
 
 <<selection_frac, echo = false, results = hide>>=
-prob <- round(length(coef(mod))/ length(coef(mod, which = "")), 3) * 100
+prob <- round(length(coef(mod)) / length(coef(mod, which = "")), 3) * 100
 @
 
 If one uses cross-validation techniques to find the optimal stopping iteration,
@@ -1048,12 +1048,12 @@ par(old.par) # reset plotting settings
 \caption{Selected pathways and substrate classes. From the stability selection
   paths plot one can deduce that the number of iterations was sufficiently large
   as all selection paths stop to increase after approx.\ 100 iterations (left).
-  All variables that cross the threshold value (horizontal gray line;
+  All variables that cross the threshold value (horizontal grey line;
   $\hat{\pi}_{\text{thr}} = \Sexpr{stab$cutoff}$) at some point are termed % $
   ``stable'', i.e., are chosen by stability selection. The maximum inclusion
   frequency $\hat{\pi}$ for the top 20 variables as determined by stability
   selection is displayed in the right figure. All variables with inclusion
-  frequencies $\hat{\pi} \geq \hat{\pi}_{\text{thr}}$, i.e., right of the gray
+  frequencies $\hat{\pi} \geq \hat{\pi}_{\text{thr}}$, i.e., right of the grey
   vertical line are stable variables. \label{fig:stabsel2}}
 \end{figure}
 
@@ -1088,7 +1088,7 @@ par(old.par) # reset plotting settings
 @
 }
 \caption{Coefficients of stable variables (in the optimal boosting
-  iteration). Positve signs indicate an increase in strain
+  iteration). Positive signs indicate an increase in strain
   \Sexpr{levels(data$Strain)[1]} compared to \Sexpr{levels(data$Strain)[2]},
   and negative signs vice versa.\label{fig:stabsel3}}
 \end{figure}
@@ -1111,7 +1111,7 @@ In the next step we will augment the boosting approach with an \code{opm\_mcp}
 analysis for confirming whether the reactions on carbohydrate wells are indeed
 more strongly different between the two strains than those on other wells.
 
-\rcsmark{moved here to get coli.anno data set... do we need this?} First, we
+\rcsmark{moved here to get \code{coli.anno} data set... do we need this?} First, we
 prepare a data matrix with the differences between the two \textit{E. coli}
 strains (as computed in section~\ref{pathview-group-diffs}) and add potential
 explanatory variables from \ac{KEGG}. Please refer to the manual and
