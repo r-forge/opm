@@ -881,11 +881,12 @@ $X(\text{strain}_1) \cdot \beta_{5,j} - (X(\text{strain}_2) \cdot \beta_{5,j}) =
 Now we can set up and estimate the model. Be careful as this takes a while.
 <<model_code, eval = false>>=
 ## re-define base-learner to have only 1 degrees of freedom and no additional
-## intercept term
-bols1 <- function(a)
-  bols(a, intercept = FALSE, df = 1)
-bols2 <- function(a)
-  bols(a, df = 2)
+## intercept term ...
+bols1 <- function(a, by = NULL, ...)
+  bols(a, by = by, intercept = FALSE, df = 1, ...)
+## ... and 2 degrees of freedom (with intercept term)
+bols2 <- function(a, ...)
+  bols(a, df = 2, ...)
 
 ## fit offset model with main effects only (and use very many iterations):
 options(contrasts = c("contr.treatment", "contr.poly"))
@@ -895,15 +896,14 @@ offsetmod <- gamboost(log(Value) ~ ., data = data, baselearner = bols2,
 ## now start from the offset model and add interaction effects (which
 ## represent differences between strains).
 options(contrasts = c("contr.sum", "contr.poly"))
-## set up model formula
-#fm <- as.formula(paste("log(Value) ~ Strain + ",
-#  paste(names(data)[-c(1, 4)], collapse = "+"), "+",
-#  paste("bols(", paste(names(data)[-c(1, 4)],
-#      collapse = ", by = Strain, intercept = FALSE, df = 1) + bols("),
-#    ", by = Strain, intercept = FALSE, df = 1)")))
-fm <- as.formula(paste(c("log(Value) ~ Strain", names(data)[-c(1, 4)],
-  sprintf("bols(%s, by = Strain, intercept = FALSE, df = 1)",
-    names(data)[-c(1, 4)])), collapse = " + "))
+
+## set up model formula.
+fm <- as.formula(paste(c("log(Value) ~ Strain",
+    ## add variables as main effects
+    names(data)[-c(1, 4)],
+    ## add the interaction terms (i.e. strain specific effects)
+    sprintf("bols1(%s, by = Strain)", names(data)[-c(1, 4)])),
+  collapse = " + "))
 ## estimate model
 mod <- gamboost(fm, data = data, baselearner = bols1,
   offset = fitted(offsetmod),
