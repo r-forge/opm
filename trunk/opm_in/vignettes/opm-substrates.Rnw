@@ -832,8 +832,8 @@ data$ID <- extract_columns(data, c("Plate.number", "Strain", "Experiment"),
   direct = TRUE, factor = TRUE)
 ## drop plate number
 data$Plate.number <- NULL
-## have a look at a subset of the resulting data set
-data[sample(1:nrow(data), size = 5), c(1:7)]
+## have a look at a random subset of the resulting data set
+data[sample(1:nrow(data), size = 5), 1:7]
 @
 
 <<set_seed, echo = false, results = hide>>=
@@ -842,9 +842,9 @@ set.seed(1907)
 
 Each row of the resulting data set describes the measurement of \emph{one well,
   for one replicate, within one strain}. Starting from \code{map00010} we find
-the annotations that indicate, whether this well can be mapped to the
-corresponding substrate or pathway. Note that a well can potentially be mapped
-to multiple substrates or pathways.
+the annotations that indicate whether or not this well can be mapped to the
+corresponding substrate class or pathway. Note that a well can potentially be found
+in multiple substrate classes or pathways.
 
 In the next step, we want to model the differences of the measured values
 between the two strains. Therefore we set up a log-linear model of the following
@@ -869,7 +869,7 @@ belong to the pathway and 1 if it does, i.e., $I_{\text{PW}j}$ corresponds to
 the annotations discussed above.
 
 The most interesting part is given by $\beta_{5,j}$: $X(\text{strain})$ is a
-strain specific function which is either $-1$ (strain
+strain-specific function which is either $-1$ (strain
 \Sexpr{levels(data$Strain)[2]}) or $1$ (strain \Sexpr{levels(data$Strain)[1]}).
 The coefficients $\beta_{5,j}$ hence represent the deviation of the strains from
 the global effect. If $\beta_{5,j} = 0$, no strain specific effect is present,
@@ -880,7 +880,7 @@ $X(\text{strain}_1) \cdot \beta_{5,j} - (X(\text{strain}_2) \cdot \beta_{5,j}) =
 
 Now we can set up and estimate the model. Be careful as this takes a while.
 <<model_code, eval = false>>=
-## re-define base-learner to have only 1 degrees of freedom and no additinal
+## re-define base-learner to have only 1 degrees of freedom and no additional
 ## intercept term
 bols1 <- function(a)
   bols(a, intercept = FALSE, df = 1)
@@ -896,11 +896,14 @@ offsetmod <- gamboost(log(Value) ~ ., data = data, baselearner = bols2,
 ## represent differences between strains).
 options(contrasts = c("contr.sum", "contr.poly"))
 ## set up model formula
-fm <- as.formula(paste("log(Value) ~ Strain + ",
-  paste(paste(names(data)[-c(1, 4)]), collapse = "+"), "+",
-  paste("bols(", paste(names(data)[-c(1, 4)],
-      collapse = ", by = Strain, intercept = FALSE, df = 1) + bols("),
-    ", by = Strain, intercept = FALSE, df = 1)")))
+#fm <- as.formula(paste("log(Value) ~ Strain + ",
+#  paste(names(data)[-c(1, 4)], collapse = "+"), "+",
+#  paste("bols(", paste(names(data)[-c(1, 4)],
+#      collapse = ", by = Strain, intercept = FALSE, df = 1) + bols("),
+#    ", by = Strain, intercept = FALSE, df = 1)")))
+fm <- as.formula(paste(c("log(Value) ~ Strain", names(data)[-c(1, 4)],
+  sprintf("bols(%s, by = Strain, intercept = FALSE, df = 1)",
+    names(data)[-c(1, 4)])), collapse = " + "))
 ## estimate model
 mod <- gamboost(fm, data = data, baselearner = bols1,
   offset = fitted(offsetmod),
@@ -987,11 +990,11 @@ mstop(mod) <- 250
 Stability selection \citep{Meinshausen:2010} is an additional screening tool
 that allows the user to determine which of the selected variables are ``stable''
 variables, i.e. which are variables that always ``pop-up'' in random subsets of
-the data. Additionally, stability selection has a built in error control
+the data. Additionally, stability selection has a built-in error control
 \citep[for the per-family error rate, see][]{Dudoit2003}. In our example the
 maximum acceptable error is set to 1.5, i.e. we accept at maximum 1.5 noise
 variables to be chosen by stability selection by chance. The cut-off value
-determines, which inclusion frequency is at least required to term a variable
+determines which inclusion frequency is at least required to term a variable
 stable. In our example this is chosen to be $0.6$, but other values in, say
 $(0.6, 0.9)$, are possible as well. In general, stability selection is
 relatively insensitive to the choice of the cut-off.
@@ -1013,11 +1016,11 @@ if (!file.exists("stabsel.Rda")) {
 @
 %%%%%%%%%%%%%%%
 
-Plotting the results of stability selection shows, which of the pathways and
+Plotting the results of stability selection shows which of the pathways and
 substrate groups are differentially expressed between the two strains (see
 Figure~\ref{fig:stabsel2}). The stability paths (Figure~\ref{fig:stabsel2},
-left), show the inclusion frequencies per variable dependent on the number of
-boosting iterations. This graphical display mainly helps to verify if the number
+left) show the inclusion frequencies per variable dependent on the number of
+boosting iterations. This graphical display mainly helps to verify whether or not the number
 of boosting iterations was sufficient. In this case, the selection paths stay
 constant after a certain point, indicating a sufficiently large number of
 boosting iterations. As an alternative to the stability paths we can plot the
