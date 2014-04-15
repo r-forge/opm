@@ -861,8 +861,8 @@ where $y$ is the measured PM value, $\beta_0$ is an overall intercept, $\beta_1$
 is the overall strain effect (the difference between strains irrespective of the
 pathway or substrate), and $\beta_2$ and $\beta_3$ are the effects of the
 experiment and slot. These are used to correct for possible confounding.
-Additionally, we use an random effect for the replicate ($b_{\text{ID}}$) to
-account for subject specific effects. The pathway specific effects $\beta_{4,j}$
+Additionally, we use a random effect for the replicate ($b_{\text{ID}}$) to
+account for subject specific effects. The pathway-specific effects $\beta_{4,j}$
 represent the differences of the PM values between pathways and substrates,
 where $I_{\text{PW}j}$ is an indicator function, which is 0 if the well does not
 belong to the pathway and 1 if it does, i.e., $I_{\text{PW}j}$ corresponds to
@@ -872,7 +872,7 @@ The most interesting part is given by $\beta_{5,j}$: $X(\text{strain})$ is a
 strain-specific function which is either $-1$ (strain
 \Sexpr{levels(data$Strain)[2]}) or $1$ (strain \Sexpr{levels(data$Strain)[1]}).
 The coefficients $\beta_{5,j}$ hence represent the deviation of the strains from
-the global effect. If $\beta_{5,j} = 0$, no strain specific effect is present,
+the global effect. If $\beta_{5,j} = 0$, no strain-specific effect is present,
 i.e., the pathway $j$ does not differ between strains. If $\beta_{5,j} \neq 0$,
 the difference between the two strains is twice this effect, i.e.,
 $X(\text{strain}_1) \cdot \beta_{5,j} - (X(\text{strain}_2) \cdot \beta_{5,j}) =
@@ -901,7 +901,7 @@ options(contrasts = c("contr.sum", "contr.poly"))
 fm <- as.formula(paste(c("log(Value) ~ Strain",
     ## add variables as main effects
     names(data)[-c(1, 4)],
-    ## add the interaction terms (i.e. strain specific effects)
+    ## add the interaction terms (i.e. strain-specific effects)
     sprintf("bols1(%s, by = Strain)", names(data)[-c(1, 4)])),
   collapse = " + "))
 ## estimate model
@@ -929,7 +929,7 @@ account for repeated measurements we include a random effects term in the model
 (Currently we use \emph{one} random effect for both technical and biological
 replicates; this is appropriate as we currently do not really want to
 differentiate between the two types of variability. However, more complex random
-effect terms might be used as well).
+effect terms might be used as well.)
 
 In a second step, we start from the offset model and we allow for interactions
 between strain and the substrate/map effects and check if any are present. These
@@ -937,8 +937,8 @@ interactions represent differential PM expressions between strains.
 
 Boosting is an iterative procedure where the major tuning parameter is the
 number of boosting steps (\texttt{mstop}). To find the optimal model, we need to
-use cross-validation techniques \citep{Hofner:mboost:2014,Mayr:mstop:2012}. This can be easily done
-using:
+use cross-validation techniques \citep{Hofner:mboost:2014,Mayr:mstop:2012}. This can be easily done using:
+
 <<cvrisk_mod_code, eval=false>>=
 ## to speed up computation on linux systems set number of
 ## cores in cvrisk: e.g. mc.cores = 25
@@ -973,7 +973,7 @@ If one uses cross-validation techniques to find the optimal stopping iteration,
 boosting intrinsically selects variables that best predict the outcome, i.e.,
 here the $\log(\text{PM})$ values that differ between the two \textit{E. coli}
 strains with respect to certain substrates. However, cross-validations tends to
-select to many variables to enter the model (here: \Sexpr{prob}\% of the
+select too many variables to enter the model (here: \Sexpr{prob}\% of the
 base-learners where selected to enter the model; this makes
 \Sexpr{length(coef(mod))} out of \Sexpr{length(coef(mod, which = ""))} ). Thus,
 to refine the selection process, we use stability selection to determine which
@@ -1052,11 +1052,11 @@ par(old.par) # reset plotting settings
   paths plot one can deduce that the number of iterations was sufficiently large
   as all selection paths stop to increase after approx.\ 100 iterations (left).
   All variables that cross the threshold value (horizontal grey line;
-  $\hat{\pi}_{\text{thr}} = \Sexpr{stab$cutoff}$) at some point are termed % $
+  $\hat{\pi}_{\text{threshold}} = \Sexpr{stab$cutoff}$) at some point are termed % $
   ``stable'', i.e., are chosen by stability selection. The maximum inclusion
   frequency $\hat{\pi}$ for the top 20 variables as determined by stability
   selection is displayed in the right figure. All variables with inclusion
-  frequencies $\hat{\pi} \geq \hat{\pi}_{\text{thr}}$, i.e., right of the grey
+  frequencies $\hat{\pi} \geq \hat{\pi}_{\text{threshold}}$, i.e., right of the grey
   vertical line are stable variables. \label{fig:stabsel2}}
 \end{figure}
 
