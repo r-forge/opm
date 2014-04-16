@@ -813,7 +813,8 @@ At first, we need to load the package
 library("mboostDevel")
 @
 
-Now we need to extract and restructure the data. We use all available biological
+Now we need to extract and restructure the data using custom methods available in 
+\pkg{opm} and a few further adaptations. We use all available biological
 and technical replicates and obtain the annotation from \ac{KEGG}:
 <<make_data_set>>=
 ## use multiple biological replicates:
@@ -827,11 +828,13 @@ data <- annotated(opm_mcp(coli.sub1,
 data <- data[complete.cases(data),
   !(names(data) %in% c("Well", "Parameter"))]
 
-## add an ID per biological / technical replicate for usage of brandom:
+## add an ID per biological / technical replicate for usage of
+## brandom (subject-specific random effect, see below):
 data$ID <- extract_columns(data, c("Plate.number", "Strain", "Experiment"),
   direct = TRUE, factor = TRUE)
-## drop plate number
+## now the plate number is not needed any more
 data$Plate.number <- NULL
+
 ## have a look at a random subset of the resulting data set
 data[sample(1:nrow(data), size = 5), 1:7]
 @
@@ -862,7 +865,7 @@ is the overall strain effect (the difference between strains irrespective of the
 pathway or substrate), and $\beta_2$ and $\beta_3$ are the effects of the
 experiment and slot. These are used to correct for possible confounding.
 Additionally, we use a random effect for the replicate ($b_{\text{ID}}$) to
-account for subject specific effects. The pathway-specific effects $\beta_{4,j}$
+account for subject-specific effects. The pathway-specific effects $\beta_{4,j}$
 represent the differences of the PM values between pathways and substrates,
 where $I_{\text{PW}j}$ is an indicator function, which is 0 if the well does not
 belong to the pathway and 1 if it does, i.e., $I_{\text{PW}j}$ corresponds to
@@ -897,13 +900,14 @@ offsetmod <- gamboost(log(Value) ~ ., data = data, baselearner = bols2,
 ## represent differences between strains).
 options(contrasts = c("contr.sum", "contr.poly"))
 
-## set up model formula.
+## set up model formula
 fm <- as.formula(paste(c("log(Value) ~ Strain",
     ## add variables as main effects
     names(data)[-c(1, 4)],
     ## add the interaction terms (i.e. strain-specific effects)
     sprintf("bols1(%s, by = Strain)", names(data)[-c(1, 4)])),
   collapse = " + "))
+
 ## estimate model
 mod <- gamboost(fm, data = data, baselearner = bols1,
   offset = fitted(offsetmod),
@@ -925,7 +929,7 @@ height with respect to different substrate groups or pathway maps while
 neglecting possible differences in substrate/map effects between strains.
 Additionally, we specify effects for the strain, the experiment and the slot to
 account for overall differences between strains, experiments and slots. To
-account for repeated measurements we include a random effects term in the model
+account for repeated measurements we include a random effects term in the model.
 (Currently we use \emph{one} random effect for both technical and biological
 replicates; this is appropriate as we currently do not really want to
 differentiate between the two types of variability. However, more complex random
@@ -972,7 +976,7 @@ prob <- round(length(coef(mod)) / length(coef(mod, which = "")), 3) * 100
 If one uses cross-validation techniques to find the optimal stopping iteration,
 boosting intrinsically selects variables that best predict the outcome, i.e.,
 here the $\log(\text{PM})$ values that differ between the two \textit{E. coli}
-strains with respect to certain substrates. However, cross-validations tends to
+strains with respect to certain substrates. However, cross-validation tends to
 select too many variables to enter the model (here: \Sexpr{prob}\% of the
 base-learners where selected to enter the model; this makes
 \Sexpr{length(coef(mod))} out of \Sexpr{length(coef(mod, which = ""))} ). Thus,
@@ -1114,7 +1118,8 @@ In the next step we will augment the boosting approach with an \code{opm\_mcp}
 analysis for confirming whether the reactions on carbohydrate wells are indeed
 more strongly different between the two strains than those on other wells.
 
-\rcsmark{moved here to get \code{coli.anno} data set... do we need this?} First, we
+%\rcsmark{moved here to get \code{coli.anno} data set... do we need this?} 
+First, we
 prepare a data matrix with the differences between the two \textit{E. coli}
 strains (as computed in section~\ref{pathview-group-diffs}) and add potential
 explanatory variables from \ac{KEGG}. Please refer to the manual and
@@ -1129,7 +1134,7 @@ coli.comp <- opm_mcp(coli.sub, output = "mcp",
 coli.anno <- annotated(coli.comp, how = "data.frame")
 coli.anno <- coli.anno[complete.cases(coli.anno), ]
 @
-\rcsmark{end of insertion}
+%\rcsmark{end of insertion}
 
 Now, the positions of the substrates either belonging to the category
 ``Carbohydrates'' or not to it are determined and afterwards stored in two
