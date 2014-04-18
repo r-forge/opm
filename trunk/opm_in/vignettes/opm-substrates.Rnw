@@ -115,12 +115,12 @@ We show how these data can be used to visualise results from \ac{PM} experiments
 Visually comparing genome annotation and \ac{PM} results is easily possible in that manner.
 Moreover, methods are described to automatically detect the substrate features that potentially explain a given experimental outcome.
 This includes determining the relevant pathways to be used in the visualisations.
-More examples for the powerful feature-selection approaches available within \proglang{R} will be explained in future versions of this tutorial.
+The final chapters of this tutorial provide examples for the powerful feature-selection approaches available within \proglang{R} with a focus on state-of-the-art boosting implementations.
 }
 
-\Keywords{Respiration Kinetics, Pathways, \acs{CAS}, \acs{MeSH}, \acs{ChEBI}, MetaCyc, \acs{KEGG}, \pkg{pathview}}
+\Keywords{Respiration Kinetics, Pathways, Feature Selection, Boosting, \acs{CAS}, \acs{MeSH}, \acs{ChEBI}, MetaCyc, \acs{KEGG}, SEED, \pkg{pathview}, \pkg{mboost}}
 
-\Plainkeywords{respiration kinetics, pathways, CAS, MeSH, ChEBI, MetaCyc, KEGG, pathview}
+\Plainkeywords{respiration kinetics, pathways, feature selection, boosting, CAS, MeSH, ChEBI, MetaCyc, KEGG, SEED, pathview, mboost}
 
 \Address{
   Markus \Surname{G\"{o}ker}\\
@@ -813,7 +813,7 @@ At first, we need to load the package
 library("mboostDevel")
 @
 
-Now we need to extract and restructure the data using custom methods available in 
+Now we need to extract and restructure the data using custom methods available in
 \pkg{opm} and a few further adaptations. We use all available biological
 and technical replicates and obtain the annotation from \ac{KEGG}:
 <<make_data_set>>=
@@ -883,8 +883,8 @@ $X(\text{strain}_1) \cdot \beta_{5,j} - (X(\text{strain}_2) \cdot \beta_{5,j}) =
 
 Now we can set up and estimate the model. Be careful as this takes a while.
 <<model_code, eval = false>>=
-## re-define base-learner to have only 1 degrees of freedom and no additional
-## intercept term ...
+## re-define liner base-learner to have only 1 degrees of freedom and no
+## additional intercept term ...
 bols1 <- function(a, by = NULL, ...)
   bols(a, by = by, intercept = FALSE, df = 1, ...)
 ## ... and 2 degrees of freedom (with intercept term)
@@ -1118,7 +1118,7 @@ In the next step we will augment the boosting approach with an \code{opm\_mcp}
 analysis for confirming whether the reactions on carbohydrate wells are indeed
 more strongly different between the two strains than those on other wells.
 
-%\rcsmark{moved here to get \code{coli.anno} data set... do we need this?} 
+%\rcsmark{moved here to get \code{coli.anno} data set... do we need this?}
 First, we
 prepare a data matrix with the differences between the two \textit{E. coli}
 strains (as computed in section~\ref{pathview-group-diffs}) and add potential
