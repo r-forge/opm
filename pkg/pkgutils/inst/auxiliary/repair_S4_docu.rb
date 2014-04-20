@@ -225,7 +225,7 @@ class S4_Method
 
 
   def cleaned_s4_classes # :nodoc:
-    @s4_class.scan(/\w+/).join('-plus')
+    @s4_class =~ /,ANY$/ ? @s4_class.sub(/(,ANY)*,ANY$/, '') : nil
   end
 
 
@@ -274,8 +274,11 @@ class S4_Method
       result << "\\alias{#{name}-methods}"
     end
     result << "\\alias{#{name},#{@s4_class}-method}"
+    short = cleaned_s4_classes
+    result << "\\alias{#{name},#{short}-method}" if short
     if is_special
       result << "\\alias{#{@name.gsub(/%/, "\\%")},#{@s4_class}-method}"
+      result << "\\alias{#{@name.gsub(/%/, "\\%")},#{short}-method}" if short
     end
     result.join "\n"
   end

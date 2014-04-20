@@ -194,7 +194,6 @@ setMethod("do_select", OPMS, function(x, query) {
 #'   converted to \code{NA}.
 #' @param how Character scalar indicating how to join the list. See
 #'   \code{\link{aggr_settings}} for the values.
-#' @param y For \code{fix_names}, a vector of original names.
 #' @return Vector of the same storage mode than \code{x}.
 #' @keywords internal
 #'
@@ -284,14 +283,6 @@ close_index_gaps <- function(x) {
     warning("closing gaps in indexes", call. = FALSE)
     return(x[!bad])
   }
-  x
-}
-
-#' @rdname reduce_to_mode
-#'
-fix_names <- function(x, y) {
-  if (any(bad <- !nzchar(x)[i <- seq_along(y)] & nzchar(y)))
-    x[i][bad] <- y[bad]
   x
 }
 
