@@ -92,6 +92,9 @@ get_for <- function(plate.type, what) {
 }
 
 
+################################################################################
+
+
 #' Helper methods for indexing etc.
 #'
 #' Close gaps in indexes by removing all \code{NULL} elements, with a warning.
@@ -126,6 +129,54 @@ join_if_possible <- function(x) {
     new(FAMES, plates = unlist(lapply(x, plates), FALSE, FALSE))
   else
     x
+}
+
+
+################################################################################
+
+
+#' Helper methods for re-interpreting fatty acids
+#'
+#' Find unnamed fatty acids and accordingly re-calculate all percentages, or
+#' find the closests occurrence of the elements of a vector in another one.
+#'
+#' @param x Data frame of measurements as contained in a \code{\link{FAME}}
+#'   object. For \code{nearest}, a numeric vector.
+#' @param table Numeric vector.
+#' @return \code{x}, its columns accordingly modified. \code{nearest} returns
+#'   the indexes in \code{table} of the value closest to the respective element
+#'   of \code{x}.
+#' @keywords internal
+#'
+recalculate_percents <- function(x) {
+  interpolate_rfact <- function(x) {
+    if (any(x$Interpol <- is.na(x$RFact) & !is.na(x$RT))) {
+      m <- lm(log(x$RFact) ~ log(x$RT))
+      x$RFact <- ifelse(x$Interpol, exp(predict(m, x)), x$RFact)
+    }
+    x
+  }
+  x <- interpolate_rfact(x)
+  skip <- grepl("^\\s*(<\\s+min|>\\s+max)\\s+rt\\s*$", x$Comment1, TRUE,
+    TRUE) | grepl("^\\s*Summed\\s+Feature\\s+\\d+\\s*$", x[, "Peak Name"],
+    TRUE, TRUE)
+  val <- ifelse(skip, NA_real_, x$Response * x$RFact)
+  val <- 100 * val / sum(val, na.rm = TRUE)
+  x$VALUE2 <- val
+  is.nn <- is.na(x$VALUE) & !is.na(x$VALUE2)
+  nn <- ifelse(nzchar(x$`Peak Name`), x$`Peak Name`,
+    sprintf("unknown %0.2f", x$ECL))
+  nn[is.nn] <- norm_fa(nn[is.nn], TRUE)
+  rownames(x) <- make.unique(ifelse(is.nn, nn, rownames(x)), APPENDIX)
+  x
+}
+
+#' @rdname recalculate_percents
+#'
+nearest <- function(x, table) {
+  # from http://stackoverflow.com/questions/10160400/r-find-nearest-index
+  idx <- findInterval(x, table, FALSE, TRUE)
+  idx + (2 * x > table[idx] + table[idx + 1L])
 }
 
 
