@@ -23,7 +23,8 @@ Description: Tools for analysing OmniLog(R) and MicroStation(TM)
         interaction with powerful feature-selection approaches,
         integrating metadata, using the YAML format for the storage of
         data and metadata, batch conversion of large numbers of files,
-        and database I/O.
+        and database I/O. (The suggested mboostDevel is from R-Forge
+        and not necessary.)
 License: GPL (>= 2)
 URL: http://opm.dsmz.de/
 MailingList:
