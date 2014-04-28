@@ -36,7 +36,7 @@ do_read <- function(infile, options) {
   if (infile == "-")
     infile <- file("stdin")
   read.delim(infile, sep = options$separator, check.names = options$names,
-    strip.white = !options$keep, header = !options$bald,
+    strip.white = !options$keep, header = !options$bald, na.strings = opt$prune,
     stringsAsFactors = FALSE, fileEncoding = options$encoding)
 }
 
@@ -76,7 +76,7 @@ make_unique <- function(x) {
 
 
 join_unique <- function(x, join) {
-  paste(unique.default(x[nzchar(x)]), collapse = join)
+  paste(unique.default(x[nzchar(x) & !is.na(x)]), collapse = join)
 }
 
 
@@ -151,6 +151,8 @@ option.parser <- OptionParser(option_list = list(
     help = "Do not adapt column names of file 1 [default: %default]",
     default = FALSE),
 
+  # g, [h]
+
   make_option(c("-i", "--indices"), action = "store_true",
     help = "Use indices for adapting column names [default: %default]",
     default = FALSE),
@@ -162,6 +164,8 @@ option.parser <- OptionParser(option_list = list(
   make_option(c("-k", "--keep"), action = "store_true",
     help = "Keep whitespace surrounding the separators [default: %default]",
     default = FALSE),
+
+  # l
 
   make_option(c("-m", "--make-header"), action = "store_true",
     help = "Output headers even for input without headers [default: %default]",
@@ -175,17 +179,23 @@ option.parser <- OptionParser(option_list = list(
     help = paste("Do not split arguments of '-x' and '-y' at ','",
       "[default: %default]"), default = FALSE),
 
+  make_option(c("-p", "--prune"), type = "character",
+    help = "Value to prune by treating as NA [default: %default]",
+    default = "NA", metavar = "STR"),
+
   make_option(c("-q", "--unique"), action = "store_true",
     help = "Make entries in join column unique [default: %default]",
+    default = FALSE),
+
+  make_option(c("-r", "--rows"), action = "store_true",
+    help = "Merge each row horizontally, file by file [default: %default]",
     default = FALSE),
 
   make_option(c("-s", "--separator"), type = "character",
     help = "Field separator in CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
 
-  make_option(c("-r", "--rows"), action = "store_true",
-    help = "Merge each row horizontally, file by file [default: %default]",
-    default = FALSE),
+  # t
 
   make_option(c("-u", "--unquoted"), action = "store_true",
     help = "Do not quote fields in output [default: %default]",
@@ -195,6 +205,8 @@ option.parser <- OptionParser(option_list = list(
     help = "Merge vertically, file by file [default: %default]",
     default = FALSE),
 
+  # w
+
   make_option(c("-x", "--xcolumn"), type = "character",
     help = "Name of the merge column in file 1 [default: '%default']",
     default = COLUMN_DEFAULT_NAME, metavar = "COLUMN"),
@@ -202,6 +214,8 @@ option.parser <- OptionParser(option_list = list(
   make_option(c("-y", "--ycolumn"), type = "character",
     help = "Name of the merge column in file 2 [default: like file 1]",
     default = "", metavar = "COLUMN")
+
+  # z
 
 ), usage = "%prog [options] csv_file_1 csv_file_2 ...", prog = "merge.R")
 
