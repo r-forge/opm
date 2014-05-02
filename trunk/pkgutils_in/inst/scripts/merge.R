@@ -87,6 +87,23 @@ to_numbered_header <- function(x) {
 }
 
 
+fill_randomly <- function(x, empty = TRUE) {
+  if (is.list(x)) { # works also for data frames
+    x[] <- rapply(x, fill_randomly, "ANY", NULL, "replace", empty)
+    return(x)
+  }
+  isna <- is.na(x)
+  if (empty && is.character(x))
+    isna <- isna | !nzchar(x)
+  if (all(isna)) {
+    warning("cannot fill in values because all are missing")
+    return(x)
+  }
+  x[isna] <- sample(x[!isna], sum(isna), TRUE)
+  x
+}
+
+
 # This is slow if 'x' contains strings that have no close match in 'y' (and no
 # 'cutoff' is set) but otherwise converges quickly.
 #
@@ -165,7 +182,9 @@ option.parser <- OptionParser(option_list = list(
     help = "Keep whitespace surrounding the separators [default: %default]",
     default = FALSE),
 
-  # l
+  make_option(c("-l", "--load"), action = "store_true",
+    help = "Randomly replace missing by present values [default: %default]",
+    default = FALSE),
 
   make_option(c("-m", "--make-header"), action = "store_true",
     help = "Output headers even for input without headers [default: %default]",
@@ -252,7 +271,7 @@ if (opt$bald) {
 #
 
 
-if (opt$help || (length(files) + (opt$vertical || opt$rows)) < 2L) {
+if (opt$help || (length(files) + (opt$vertical || opt$rows || opt$load)) < 2L) {
   print_help(option.parser)
   quit(status = 1L)
 }
@@ -288,6 +307,18 @@ if (opt$vertical) {
       join = opt$join, simplify = TRUE)
     do_write(x[, -1L, drop = FALSE], opt)
   }
+  quit(status = 0L)
+}
+
+
+################################################################################
+#
+# random fill mode
+#
+
+if (opt$load) {
+  for (file in files)
+    do_write(fill_randomly(do_read(file, opt), opt$all), opt)
   quit(status = 0L)
 }
 

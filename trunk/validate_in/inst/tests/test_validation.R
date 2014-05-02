@@ -119,3 +119,6 @@ test_that("character vector validation responds to junk input", {
 
 ################################################################################
 
+
+## validator
+## UNTESTED
