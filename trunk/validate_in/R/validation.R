@@ -65,4 +65,33 @@ setMethod("validate", c("ANY", "MAP_VALIDATOR"), function(object,
 
 
 ################################################################################
+################################################################################
+#
+# Validator object constructor functions
+#
 
+
+#' Generate a validator object
+#'
+#' Object constructor function for generating validator objects.
+#'
+#' @param object Named list.
+#' @return According validation object, depending on the \code{object}
+#'   argument.
+#' @export
+#' @family validation-functions
+#' @keywords utilities
+#' @examples
+#' ## TODO
+#'
+setGeneric("validator", function(object) standardGeneric("validator"))
+
+setMethod("validator", "list", function(object) {
+  if (is.null(keys <- names(object)))
+    stop("list 'object' must be named")
+  tryCatch(as(object, "MAP_VALIDATOR"), condition = function(cond)
+    as(object, "ATOMIC_VALIDATORS"))
+}, sealed = SEALED)
+
+
+################################################################################
