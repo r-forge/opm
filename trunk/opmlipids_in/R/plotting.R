@@ -37,7 +37,7 @@
 setGeneric("summary")
 
 setMethod("summary", FAME, function(object, ...) {
-  result <- list(Class = class(object), `Plate type` = object@plate_type,
+  result <- list(Class = class(object), `Plate type` = plate_type(object),
     Measurements = dim(object@measurements),
     Metadata = sum(rapply(object@metadata, function(item) 1L)), ...)
   class(result) <- "FAME_Summary"

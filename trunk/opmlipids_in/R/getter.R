@@ -38,12 +38,12 @@ NULL
 #' @export
 #'
 setMethod("plate_type", FAME, function(object) {
-  object@plate_type
+  sub("[\\W_].*", "", tail(class(object@measurements), 1L), FALSE, TRUE)
 }, sealed = SEALED)
 
 setMethod("plate_type", FAMES, function(object) {
   if (length(object@plates))
-    object@plates[[1L]]@plate_type
+    plate_type(object@plates[[1L]])
   else
     NA_character_
 }, sealed = SEALED)
