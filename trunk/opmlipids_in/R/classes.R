@@ -56,11 +56,10 @@
 #' @keywords methods classes
 #'
 setClass(FAME,
-  slots = c(plate_type = "character", measurements = "data.frame"),
+  slots = c(measurements = "data.frame"),
   contains = c("WMD", "YAML_VIA_LIST"),
   validity = function(object) {
-    errs <- c(fame_problems(object@plate_type),
-      fame_problems(object@measurements, object@plate_type[1L]))
+    errs <- fame_problems(object@measurements)
     if (length(errs))
       errs
     else
@@ -85,6 +84,14 @@ setClass(FAMES,
   },
   sealed = SEALED
 )
+
+#' @docType class
+#' @rdname FAME
+#' @name MIDI
+#' @export
+#' @aliases MIDI-class
+#'
+setClass("MIDI", contains = "data.frame", sealed = SEALED)
 
 
 ################################################################################
@@ -112,11 +119,10 @@ setGeneric("fame_problems",
 
 #= fame_problems initialize
 
-setMethod("fame_problems", "data.frame", function(object, plate.type) {
-  if (is.na(plate.type))
-    return("plate type is missing")
+setMethod("fame_problems", "data.frame", function(object) {
+  plate.type <- sub("[\\W_].*", "", tail(class(object), 1L), FALSE, TRUE)
   errs <- NULL
-  value.col <- tryCatch(get_for(make.names(plate.type), "value.col"),
+  value.col <- tryCatch(get_for(plate.type, "value.col"),
     error = function(e) NA_character_)
   pos <- match(value.col, colnames(object), 0L)
   if (!pos)
@@ -126,26 +132,13 @@ setMethod("fame_problems", "data.frame", function(object, plate.type) {
   errs
 }, sealed = SEALED)
 
-setMethod("fame_problems", "character", function(object) {
-  if (length(object) == 1L)
-    NULL
-  else
-    sprintf("plate-type entry has wrong length (%i)", length(object))
-}, sealed = SEALED)
-
 setMethod("fame_problems", "list", function(object) {
   if (!all(vapply(object, is, NA, FAME)))
     return("not all elements inherit from the 'FAME' class")
-  x <- duplicated.default(vapply(object, slot, "", "plate_type"))
+  x <- duplicated.default(vapply(object, plate_type, ""))
   if (!all(x[-1L]))
     return("non-uniform plate types")
   NULL
-}, sealed = SEALED)
-
-setMethod("initialize", FAME, function(.Object, ...) {
-  .Object <- callNextMethod()
-  .Object@plate_type <- make.names(.Object@plate_type)
-  .Object
 }, sealed = SEALED)
 
 setMethod("initialize", FAMES, function(.Object, ...) {
@@ -172,8 +165,8 @@ setAs("midi_entry", FAME, function(from) {
   if (is.null(olif <- attr(from, ".file")))
     stop("object of class 'midi_entry' lacks '.file' attribute")
   olif <- structure(list(olif), names = get_for("MIDI", "file.entry"))
-  new(FAME, measurements = from[[pos]], metadata = c(from[-pos], olif),
-    plate_type = "MIDI")
+  new(FAME, measurements = as(from[[pos]], "MIDI"),
+    metadata = c(from[-pos], olif))
 })
 
 setAs("midi_entries", FAMES, function(from) {
@@ -186,27 +179,27 @@ setAs("midi_entries", FAMES, function(from) {
 
 setAs(FAME, "list", function(from) {
   to_list <- function(x, pt) {
-    x[, get_for(pt, "row.names")] <- rownames(x)
-    as.list(x)
+    c(as.list(x),
+      structure(list(rownames(x)), names = get_for(pt, "row.names")))
   }
-  sn <- slotNames(from)
-  x <- structure(vector("list", length(sn)), names = sn)
-  for (i in seq_along(sn))
-    x[[i]] <- slot(from, sn[[i]])
-  x[["measurements"]] <- to_list(x[["measurements"]], x[["plate_type"]])
-  x
+  list(plate_type = tail(class(from@measurements), 1L),
+    measurements = to_list(from@measurements, plate_type(from)),
+    metadata = from@metadata)
 })
 
 setAs("list", FAME, function(from) {
   from_list <- function(x, pt) {
     x <- as.data.frame(x, stringsAsFactors = FALSE, optional = TRUE)
-    rownames(x) <- x[, rn <- get_for(pt, "row.names")]
+    rn <- get_for(sub("[\\W_].*", "", pt, FALSE, TRUE), "row.names")
+    rownames(x) <- x[, rn]
     x[, rn] <- NULL
-    x
+    as(x, pt)
   }
-  from[["measurements"]] <- from_list(from[["measurements"]],
-    from[["plate_type"]])
-  do.call(new, c(list(Class = FAME), from))
+  #from[["measurements"]] <- from_list(from[["measurements"]],
+  #  from[["plate_type"]])
+  #do.call(new, c(list(Class = FAME), from))
+  new("FAME", measurements = from_list(from[["measurements"]],
+    from[["plate_type"]]), metadata = from[["metadata"]])
 })
 
 setAs(FAMES, "list", function(from) {
@@ -222,10 +215,10 @@ setAs("list", FAMES, function(from) {
 
 
 setAs(FAME, "numeric", function(from) {
-  x <- from@measurements[, get_for(from@plate_type, "value.col")]
+  x <- from@measurements[, get_for(pt <- plate_type(from), "value.col")]
   names(x) <- rownames(from@measurements)
   x <- x[!is.na(x)]
-  if (get_for(from@plate_type, "sum.dup")) {
+  if (get_for(pt, "sum.dup")) {
     n <- vapply(strsplit(names(x), APPENDIX, TRUE), `[[`, "", 1L)
     if (anyDuplicated(n)) {
       warning("summing up duplicates")
