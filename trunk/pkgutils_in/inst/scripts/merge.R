@@ -13,10 +13,6 @@
 ################################################################################
 
 
-invisible(lapply(c("optparse", "tools", "pkgutils"), library, quietly = TRUE,
-  warn.conflicts = FALSE, character.only = TRUE))
-
-
 COLUMN_DEFAULT_NAME <- "Object"
 
 
@@ -41,13 +37,18 @@ do_read <- function(infile, options) {
 }
 
 
+truncate <- function(files) {
+  sub("\\.[^.]+(\\.(gz|xz|bz2|lzma))?$", "", basename(files), TRUE, TRUE)
+}
+
+
 read_and_create_unique_column_names <- function(files, options) {
   data <- lapply(X = files, FUN = do_read, options = options)
   change.first <- !options$first
   suffixes <- if (options$indices)
       seq_along(files)
     else
-      file_path_sans_ext(basename(files), compression = TRUE)
+      truncate(files)
   cn <- lapply(data, colnames)
   ok <- rep(list(options$ycolumn), length(data))
   ok[[1L]] <- options$xcolumn
@@ -83,7 +84,7 @@ join_unique <- function(x, join) {
 to_numbered_header <- function(x) {
   x[x == COLUMN_DEFAULT_NAME] <- "1"
   x <- sub("^\\s*V", "", x, TRUE, TRUE)
-  sprintf("V%i", must(as.integer(x)))
+  sprintf("V%i", tryCatch(as.integer(x), warning = stop))
 }
 
 
@@ -101,6 +102,32 @@ fill_randomly <- function(x, empty = TRUE) {
   }
   x[isna] <- sample(x[!isna], sum(isna), TRUE)
   x
+}
+
+
+process_specially <- function(files, opt) {
+  merge_horizontally <- function(x, opt) {
+    x <- apply(x, 1L, function(x) pkgutils::listing(x[nzchar(x)],
+      style = "%s: %s", collapse = opt$join))
+    matrix(x, length(x), 1L, FALSE, list(NULL, COLUMN_DEFAULT_NAME))
+  }
+  merge_vertically <- function(x, opt) {
+    aggregate(x, by = list(x[, opt$xcolumn]), FUN = join_unique,
+      join = opt$join, simplify = TRUE)[, -1L, drop = FALSE]
+  }
+  fill_columns_randomly <- function(x, opt) {
+    fill_randomly(x, opt$all)
+  }
+  if (opt$rows)
+    do_convert <- merge_horizontally
+  else if (opt$vertical)
+    do_convert <- merge_vertically
+  else if (opt$load)
+    do_convert <- fill_columns_randomly
+  else
+    stop("invalid combination of options")
+  for (file in files)
+    do_write(do_convert(do_read(file, opt), opt), opt)
 }
 
 
@@ -136,6 +163,10 @@ assort_strings <- function(x, y, cutoff = Inf, ...) {
 }
 
 
+# Replace the first of the merge columns by one that contains the approximate
+# matches to the first merge column in the other data frame. Retain the original
+# merge columns as well as the edit distance between the strings.
+#
 include_approximate_matches <- function(x, y, options, idx) {
   ycol <- options$ycolumn[1L]
   m <- assort_strings(x[, options$xcolumn[1L]], y[, ycol], options$threshold)
@@ -155,106 +186,115 @@ include_approximate_matches <- function(x, y, options, idx) {
 #
 
 
-option.parser <- OptionParser(option_list = list(
+option.parser <- optparse::OptionParser(option_list = list(
 
-  make_option(c("-a", "--all"), action = "store_true",
+  optparse::make_option(c("-a", "--all"), action = "store_true",
     help = "Keep non-matching lines of file 2, too [default: %default]",
     default = FALSE),
 
-  make_option(c("-b", "--bald"), action = "store_true",
+  optparse::make_option(c("-b", "--bald"), action = "store_true",
     help = "Assume files have no headers [default: %default]",
     default = FALSE),
 
-  make_option(c("-c", "--conserve"), action = "store_true",
+  optparse::make_option(c("-c", "--conserve"), action = "store_true",
     help = "Conserve input column order, do not sort [default: %default]",
     default = FALSE),
 
-  make_option(c("-d", "--delete"), action = "store_true",
+  optparse::make_option(c("-d", "--delete"), action = "store_true",
     help = "Delete non-matching lines of file 1 [default: %default]",
     default = FALSE),
 
-  make_option(c("-e", "--encoding"), type = "character",
+  optparse::make_option(c("-e", "--encoding"), type = "character",
     help = "Encoding to be assumed in input files [default: '%default']",
     metavar = "NAME", default = ""),
 
-  make_option(c("-f", "--first"), action = "store_true",
+  optparse::make_option(c("-f", "--first"), action = "store_true",
     help = "Do not adapt column names of file 1 [default: %default]",
     default = FALSE),
 
-  # g, [h]
+  # g
 
-  make_option(c("-i", "--indices"), action = "store_true",
+  optparse::make_option(c("-h", "--help"), action = "store_true",
+    help = "Print help message and exit [default: %default]",
+    default = FALSE),
+
+  optparse::make_option(c("-i", "--indices"), action = "store_true",
     help = "Use indices for adapting column names [default: %default]",
     default = FALSE),
 
-  make_option(c("-j", "--join-by"), type = "character",
+  optparse::make_option(c("-j", "--join-by"), type = "character",
     help = "Join character(s) for -r/-v [default: '%default']",
     metavar = "SEP", default = "; "),
 
-  make_option(c("-k", "--keep"), action = "store_true",
+  optparse::make_option(c("-k", "--keep"), action = "store_true",
     help = "Keep whitespace surrounding the separators [default: %default]",
     default = FALSE),
 
-  make_option(c("-l", "--load"), action = "store_true",
+  optparse::make_option(c("-l", "--load"), action = "store_true",
     help = "Randomly replace missing by present values [default: %default]",
     default = FALSE),
 
-  make_option(c("-m", "--make-header"), action = "store_true",
+  optparse::make_option(c("-m", "--make-header"), action = "store_true",
     help = "Output headers even for input without headers [default: %default]",
     default = FALSE),
 
-  make_option(c("-n", "--names"), action = "store_true",
+  optparse::make_option(c("-n", "--names"), action = "store_true",
     help = "Convert column names to syntactical names [default: %default]",
     default = FALSE),
 
-  make_option(c("-o", "--onename"), action = "store_true",
+  optparse::make_option(c("-o", "--onename"), action = "store_true",
     help = paste("Do not split arguments of '-x' and '-y' at ','",
       "[default: %default]"), default = FALSE),
 
-  make_option(c("-p", "--prune"), type = "character",
+  optparse::make_option(c("-p", "--prune"), type = "character",
     help = "Value to prune by treating as NA [default: %default]",
     default = "NA", metavar = "STR"),
 
-  make_option(c("-q", "--unique"), action = "store_true",
+  optparse::make_option(c("-q", "--unique"), action = "store_true",
     help = "Make entries in join column unique [default: %default]",
     default = FALSE),
 
-  make_option(c("-r", "--rows"), action = "store_true",
+  optparse::make_option(c("-r", "--rows"), action = "store_true",
     help = "Merge each row horizontally, file by file [default: %default]",
     default = FALSE),
 
-  make_option(c("-s", "--separator"), type = "character",
+  optparse::make_option(c("-s", "--separator"), type = "character",
     help = "Field separator in CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
 
-  make_option(c("-t", "--threshold"), type = "numeric",
+  optparse::make_option(c("-t", "--threshold"), type = "numeric",
     help = "Threshold for error-tolerant matching [default: %default]",
     metavar = "NUM", default = -1),
 
-  make_option(c("-u", "--unquoted"), action = "store_true",
+  optparse::make_option(c("-u", "--unquoted"), action = "store_true",
     help = "Do not quote fields in output [default: %default]",
     default = FALSE),
 
-  make_option(c("-v", "--vertical"), action = "store_true",
+  optparse::make_option(c("-v", "--vertical"), action = "store_true",
     help = "Merge vertically, file by file [default: %default]",
     default = FALSE),
 
   # w
 
-  make_option(c("-x", "--xcolumn"), type = "character",
+  optparse::make_option(c("-x", "--xcolumn"), type = "character",
     help = "Name of the merge column in file 1 [default: '%default']",
     default = COLUMN_DEFAULT_NAME, metavar = "COLUMN"),
 
-  make_option(c("-y", "--ycolumn"), type = "character",
+  optparse::make_option(c("-y", "--ycolumn"), type = "character",
     help = "Name of the merge column in file 2 [default: like file 1]",
     default = "", metavar = "COLUMN")
 
   # z
 
-), usage = "%prog [options] csv_file_1 csv_file_2 ...", prog = "merge.R")
+), usage = "%prog [options] csv_file_1 csv_file_2 ...", prog = "merge.R",
+  add_help_option = FALSE, description = paste("\nMerge CSV files",
+    "rows or columns in such files", "or fill rows randomly.", sep = ", "),
+  epilogue = paste0(
+    "In default mode, providing less than two files makes not much sense.\n")
+)
 
 
-opt <- parse_args(option.parser, positional_arguments = TRUE)
+opt <- optparse::parse_args(option.parser, positional_arguments = TRUE)
 files <- opt$args
 opt <- opt$options
 
@@ -265,10 +305,12 @@ opt <- opt$options
 #
 
 
-if (opt$bald)
+if (opt$bald) {
   opt$onename <- FALSE
-if (!opt$onename)
+}
+if (!opt$onename) {
   opt$xcolumn <- do_split(opt$xcolumn)
+}
 if (!nzchar(opt$ycolumn)) {
   opt$ycolumn <- opt$xcolumn
 } else if (!opt$onename) {
@@ -286,54 +328,19 @@ if (opt$bald) {
 #
 
 
-if (opt$help || (length(files) + (opt$vertical || opt$rows || opt$load)) < 2L) {
-  print_help(option.parser)
+if (opt$help || !length(files)) {
+  optparse::print_help(option.parser)
   quit(status = 1L)
 }
 
 
 ################################################################################
 #
-# horizontal merging of rows
+# horizontal merging of rows, vertical merging, or random filling
 #
 
-
-if (opt$rows) {
-  for (file in files) {
-    x <- do_read(file, opt)
-    x <- apply(x, 1L,
-      function(x) listing(x[nzchar(x)], style = "%s: %s", collapse = opt$join))
-    do_write(x, opt)
-  }
-  quit(status = 0L)
-}
-
-
-################################################################################
-#
-# vertical merge mode
-#
-
-
-if (opt$vertical) {
-  for (file in files) {
-    x <- do_read(file, opt)
-    x <- aggregate(x, by = list(x[, opt$xcolumn]), FUN = join_unique,
-      join = opt$join, simplify = TRUE)
-    do_write(x[, -1L, drop = FALSE], opt)
-  }
-  quit(status = 0L)
-}
-
-
-################################################################################
-#
-# random fill mode
-#
-
-if (opt$load) {
-  for (file in files)
-    do_write(fill_randomly(do_read(file, opt), opt$all), opt)
+if (opt$vertical || opt$rows || opt$load) {
+  process_specially(files, opt)
   quit(status = 0L)
 }
 
