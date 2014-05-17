@@ -136,6 +136,19 @@ assort_strings <- function(x, y, cutoff = Inf, ...) {
 }
 
 
+include_approximate_matches <- function(x, y, options, idx) {
+  ycol <- options$ycolumn[1L]
+  m <- assort_strings(x[, options$xcolumn[1L]], y[, ycol], options$threshold)
+  m <- m[match(y[, ycol], m$Y), , drop = FALSE]
+  ncol <- paste(ycol, c("ORIG", "DIST"), options$threshold, idx, sep = "_")
+  colnames(y)[colnames(y) == ycol] <- ncol[1L]
+  y[, c(ycol, ncol[2L])] <- m[, c("X", "D")]
+  if (opt$all && any(isna <- is.na(y[, ycol])))
+    y[isna, ycol] <- y[isna, ncol[1L]]
+  y
+}
+
+
 ################################################################################
 #
 # option processing
@@ -214,7 +227,9 @@ option.parser <- OptionParser(option_list = list(
     help = "Field separator in CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
 
-  # t
+  make_option(c("-t", "--threshold"), type = "numeric",
+    help = "Threshold for error-tolerant matching [default: %default]",
+    metavar = "NUM", default = -1),
 
   make_option(c("-u", "--unquoted"), action = "store_true",
     help = "Do not quote fields in output [default: %default]",
@@ -338,9 +353,12 @@ if (opt$unique) {
 }
 
 x <- data[[1L]]
-for (i in seq_along(data)[-1L])
+for (i in seq_along(data)[-1L]) {
+  if (opt$threshold >= 0)
+    data[[i]] <- include_approximate_matches(x, data[[i]], opt, i)
   x <- merge(x, data[[i]], by.x = opt$xcolumn, by.y = opt$ycolumn,
     all.x = !opt$delete, all.y = opt$all, sort = !opt$conserve)
+}
 
 if (opt$conserve) {
   found <- match(previous <- data[[1L]][, opt$xcolumn], x[, opt$xcolumn], 0L)
