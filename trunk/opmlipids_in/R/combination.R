@@ -39,24 +39,28 @@
 #' copy[[3]] <- copy[[4]]
 #' stopifnot(length(copy) == size - 1)
 #'
-setMethod("[<-", c(FAMES, "ANY", "missing", "NULL"), function(x, i, j, value) {
+setMethod("[<-", c("FAMES", "ANY", "missing", "NULL"), function(x, i, j,
+    value) {
   x@plates[i] <- NULL
   x # no checks necessary here
 }, sealed = SEALED)
 
-setMethod("[<-", c(FAMES, "ANY", "missing", FAME), function(x, i, j, value) {
+setMethod("[<-", c("FAMES", "ANY", "missing", "FAME"), function(x, i, j,
+    value) {
   x@plates[i] <- value
-  new(FAMES, plates = close_index_gaps(x@plates)) # checks and unnaming needed
+  new("FAMES", plates = close_index_gaps(x@plates)) # checks and unnaming needed
 }, sealed = SEALED)
 
-setMethod("[<-", c(FAMES, "ANY", "missing", FAMES), function(x, i, j, value) {
+setMethod("[<-", c("FAMES", "ANY", "missing", "FAMES"), function(x, i, j,
+    value) {
   x@plates[i] <- value@plates
-  new(FAMES, plates = close_index_gaps(x@plates)) # checks and unnaming needed
+  new("FAMES", plates = close_index_gaps(x@plates)) # checks and unnaming needed
 }, sealed = SEALED)
 
-setMethod("[<-", c(FAMES, "ANY", "missing", "list"), function(x, i, j, value) {
+setMethod("[<-", c("FAMES", "ANY", "missing", "list"), function(x, i, j,
+    value) {
   x@plates[i] <- value
-  new(FAMES, plates = close_index_gaps(x@plates)) # checks and unnaming needed
+  new("FAMES", plates = close_index_gaps(x@plates)) # checks and unnaming needed
 }, sealed = SEALED)
 
 #= double.bracket.set bracket.set
@@ -65,14 +69,16 @@ setMethod("[<-", c(FAMES, "ANY", "missing", "list"), function(x, i, j, value) {
 #' @rdname bracket.set
 #' @export
 #'
-setMethod("[[<-", c(FAMES, "ANY", "missing", "NULL"), function(x, i, j, value) {
+setMethod("[[<-", c("FAMES", "ANY", "missing", "NULL"), function(x, i, j,
+    value) {
   x@plates[i] <- NULL
   x # no checks necessary here
 }, sealed = SEALED)
 
-setMethod("[[<-", c(FAMES, "ANY", "missing", FAME), function(x, i, j, value) {
+setMethod("[[<-", c("FAMES", "ANY", "missing", "FAME"), function(x, i, j,
+    value) {
   x@plates[i] <- value
-  new(FAMES, plates = close_index_gaps(x@plates)) # checks and unnaming needed
+  new("FAMES", plates = close_index_gaps(x@plates)) # checks and unnaming needed
 }, sealed = SEALED)
 
 
@@ -112,13 +118,13 @@ setMethod("[[<-", c(FAMES, "ANY", "missing", FAME), function(x, i, j, value) {
 #' (x <- c(DSM_44549, letters, recursive = TRUE))
 #' stopifnot(is.list(x), length(x) == 27)
 #'
-setMethod("c", FAME, function(x, ..., recursive = FALSE) {
+setMethod("c", "FAME", function(x, ..., recursive = FALSE) {
   if (missing(..1))
     return(x)
   join_if_possible(callNextMethod(NULL, x, ..., recursive = recursive))
 }, sealed = SEALED)
 
-setMethod("c", FAMES, function(x, ..., recursive = FALSE) {
+setMethod("c", "FAMES", function(x, ..., recursive = FALSE) {
   if (missing(..1))
     return(x)
   join_if_possible(callNextMethod(NULL, x, ..., recursive = recursive))

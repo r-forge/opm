@@ -55,7 +55,7 @@
 #' @family classes
 #' @keywords methods classes
 #'
-setClass(FAME,
+setClass("FAME",
   slots = c(measurements = "data.frame"),
   contains = c("WMD", "YAML_VIA_LIST"),
   validity = function(object) {
@@ -74,7 +74,7 @@ setClass(FAME,
 #' @export
 #' @aliases FAMES-class
 #'
-setClass(FAMES,
+setClass("FAMES",
   contains = c("WMDS", "YAML_VIA_LIST"),
   validity = function(object) {
     if (length(errs <- fame_problems(object@plates)))
@@ -133,7 +133,7 @@ setMethod("fame_problems", "data.frame", function(object) {
 }, sealed = SEALED)
 
 setMethod("fame_problems", "list", function(object) {
-  if (!all(vapply(object, is, NA, FAME)))
+  if (!all(vapply(object, is, NA, "FAME")))
     return("not all elements inherit from the 'FAME' class")
   x <- duplicated.default(vapply(object, plate_type, ""))
   if (!all(x[-1L]))
@@ -141,7 +141,7 @@ setMethod("fame_problems", "list", function(object) {
   NULL
 }, sealed = SEALED)
 
-setMethod("initialize", FAMES, function(.Object, ...) {
+setMethod("initialize", "FAMES", function(.Object, ...) {
   .Object <- callNextMethod()
   names(.Object@plates) <- NULL
   .Object
@@ -158,26 +158,26 @@ setOldClass("midi_entry")
 
 setOldClass("midi_entries")
 
-setAs("midi_entry", FAME, function(from) {
+setAs("midi_entry", "FAME", function(from) {
   pos <- match("Measurements", names(from), 0L)
   if (!pos) # just to provide a more meaningful error message
     stop("object of class 'midi_entry' lacks 'Measurements' element")
   if (is.null(olif <- attr(from, ".file")))
     stop("object of class 'midi_entry' lacks '.file' attribute")
   olif <- structure(list(olif), names = get_for("MIDI", "file.entry"))
-  new(FAME, measurements = as(from[[pos]], "MIDI"),
+  new("FAME", measurements = as(from[[pos]], "MIDI"),
     metadata = c(from[-pos], olif))
 })
 
-setAs("midi_entries", FAMES, function(from) {
-  new(FAMES, plates = lapply(from, as, FAME))
+setAs("midi_entries", "FAMES", function(from) {
+  new("FAMES", plates = lapply(from, as, "FAME"))
 })
 
 
 ################################################################################
 
 
-setAs(FAME, "list", function(from) {
+setAs("FAME", "list", function(from) {
   to_list <- function(x, pt) {
     c(as.list(x),
       structure(list(rownames(x)), names = get_for(pt, "row.names")))
@@ -187,7 +187,7 @@ setAs(FAME, "list", function(from) {
     metadata = from@metadata)
 })
 
-setAs("list", FAME, function(from) {
+setAs("list", "FAME", function(from) {
   from_list <- function(x, pt) {
     x <- as.data.frame(x, stringsAsFactors = FALSE, optional = TRUE)
     rn <- get_for(sub("[\\W_].*", "", pt, FALSE, TRUE), "row.names")
@@ -195,26 +195,23 @@ setAs("list", FAME, function(from) {
     x[, rn] <- NULL
     as(x, pt)
   }
-  #from[["measurements"]] <- from_list(from[["measurements"]],
-  #  from[["plate_type"]])
-  #do.call(new, c(list(Class = FAME), from))
   new("FAME", measurements = from_list(from[["measurements"]],
     from[["plate_type"]]), metadata = from[["metadata"]])
 })
 
-setAs(FAMES, "list", function(from) {
+setAs("FAMES", "list", function(from) {
   lapply(from@plates, as, "list")
 })
 
-setAs("list", FAMES, function(from) {
-  new(FAMES, plates = lapply(from, as, "FAME"))
+setAs("list", "FAMES", function(from) {
+  new("FAMES", plates = lapply(from, as, "FAME"))
 })
 
 
 ################################################################################
 
 
-setAs(FAME, "numeric", function(from) {
+setAs("FAME", "numeric", function(from) {
   x <- from@measurements[, get_for(pt <- plate_type(from), "value.col")]
   names(x) <- rownames(from@measurements)
   x <- x[!is.na(x)]
@@ -228,8 +225,8 @@ setAs(FAME, "numeric", function(from) {
   x
 })
 
-setAs(FAMES, "matrix", function(from) {
-  x <- pkgutils::collect(lapply(from@plates, as, "numeric"), "values")
+setAs("FAMES", "matrix", function(from) {
+  x <- collect(lapply(from@plates, as, "numeric"), "values")
   x[is.na(x)] <- get_for(plate_type(from), "na.yields")
   x
 })
