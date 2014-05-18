@@ -35,7 +35,7 @@
 #' stopifnot(nchar(z) > nchar(y))
 #' write(phylo_data(z), file = "") # create complete HTML document
 #'
-setMethod("listing", FAMES, function(x, as.groups, cutoff = 0, html = FALSE,
+setMethod("listing", "FAMES", function(x, as.groups, cutoff = 0, html = FALSE,
     digits = 1L) {
 
   format_for_single_fa <- function(digits, html) {

@@ -51,7 +51,7 @@ read_rtf <- function(names, include = "*.rtf", ..., demo = FALSE) {
     message(paste0(names, collapse = "\n"))
     return(invisible(names))
   }
-  as(fatty_acids(files = names), FAMES)
+  as(fatty_acids(files = names), "FAMES")
 }
 
 

@@ -113,7 +113,7 @@
 #'
 setGeneric("extract", function(object, ...) standardGeneric("extract"))
 
-setMethod("extract", FAMES, function(object, as.labels, dataframe = FALSE,
+setMethod("extract", "FAMES", function(object, as.labels, dataframe = FALSE,
     as.groups = NULL, sep = " ", dups = "warn", exact = TRUE, strict = TRUE) {
 
   do_extract <- function(what, join, dups) {
@@ -167,7 +167,7 @@ setMethod("extract", FAMES, function(object, as.labels, dataframe = FALSE,
 
 #= phylo_data extract
 
-setMethod("phylo_data", FAMES, function(object, as.labels, sep = " ",
+setMethod("phylo_data", "FAMES", function(object, as.labels, sep = " ",
     exact = TRUE, strict = TRUE, join = TRUE, format = "html",
     html.args = html_args(), digits = 1L, ...) {
   object <- extract(object = object, as.labels = as.labels, dataframe = FALSE,

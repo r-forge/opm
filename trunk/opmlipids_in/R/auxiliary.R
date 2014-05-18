@@ -126,7 +126,7 @@ joinable <- function(x) {
 #'
 join_if_possible <- function(x) {
   if (joinable(x))
-    new(FAMES, plates = unlist(lapply(x, plates), FALSE, FALSE))
+    new("FAMES", plates = unlist(lapply(x, plates), FALSE, FALSE))
   else
     x
 }

@@ -36,7 +36,7 @@
 #'
 setGeneric("summary")
 
-setMethod("summary", FAME, function(object, ...) {
+setMethod("summary", "FAME", function(object, ...) {
   result <- list(Class = class(object), `Plate type` = plate_type(object),
     Measurements = dim(object@measurements),
     Metadata = sum(rapply(object@metadata, function(item) 1L)), ...)
@@ -44,19 +44,19 @@ setMethod("summary", FAME, function(object, ...) {
   result
 }, sealed = SEALED)
 
-setMethod("summary", FAMES, function(object, ...) {
+setMethod("summary", "FAMES", function(object, ...) {
   structure(lapply(X = object@plates, FUN = summary, ...), of = class(object),
     class = "FAMES_Summary")
 }, sealed = SEALED)
 
 #= show summary
 
-setMethod("show", FAME, function(object) {
+setMethod("show", "FAME", function(object) {
   print(summary(object))
   invisible(NULL)
 }, sealed = SEALED)
 
-setMethod("show", FAMES, function(object) {
+setMethod("show", "FAMES", function(object) {
   print(summary(object))
   invisible(NULL)
 }, sealed = SEALED)
@@ -165,7 +165,7 @@ print.FAMES_Summary <- function(x, omit = TRUE, ...) {
 #' ## use re-scaling of the data
 #' heat_map(x, "Cultivation", "Time", asqr = NA, dups = "ignore")
 #'
-setMethod("heat_map", FAMES, function(object, as.labels, as.groups = NULL,
+setMethod("heat_map", "FAMES", function(object, as.labels, as.groups = NULL,
     sep = " ", dups = "warn", exact = TRUE, strict = TRUE, ...) {
   heat_map(extract(object = object, as.labels = as.labels, sep = sep,
     as.groups = as.groups, dups = dups, exact = exact, strict = strict), ...)

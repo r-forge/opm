@@ -37,11 +37,11 @@ NULL
 #' @exportMethod plate_type
 #' @export
 #'
-setMethod("plate_type", FAME, function(object) {
+setMethod("plate_type", "FAME", function(object) {
   sub("[\\W_].*", "", tail(class(object@measurements), 1L), FALSE, TRUE)
 }, sealed = SEALED)
 
-setMethod("plate_type", FAMES, function(object) {
+setMethod("plate_type", "FAMES", function(object) {
   if (length(object@plates))
     plate_type(object@plates[[1L]])
   else
@@ -53,11 +53,11 @@ setMethod("plate_type", FAMES, function(object) {
 #' @exportMethod measurements
 #' @export
 #'
-setMethod("measurements", FAME, function(object) {
+setMethod("measurements", "FAME", function(object) {
   object@measurements
 }, sealed = SEALED)
 
-setMethod("measurements", FAMES, function(object) {
+setMethod("measurements", "FAMES", function(object) {
   lapply(object@plates, slot, "measurements")
 }, sealed = SEALED)
 
@@ -115,12 +115,12 @@ setMethod("measurements", FAMES, function(object) {
 #' (x <- try(DSM_44549[[10]], TRUE)) # beyond the range, doesn't work
 #' stopifnot(inherits(x, "try-error"))
 #'
-setMethod("[", c(FAMES, "missing", "missing", "missing"), function(x, i, j,
+setMethod("[", c("FAMES", "missing", "missing", "missing"), function(x, i, j,
     drop) {
   x
 }, sealed = SEALED)
 
-setMethod("[", c(FAMES, "formula", "missing", "missing"), function(x, i, j,
+setMethod("[", c("FAMES", "formula", "missing", "missing"), function(x, i, j,
     drop) {
   i <- if (length(i) > 2L)
       do.call(sprintf("%%%s%%", all.vars(i[[2L]])), list(i, x))
@@ -129,17 +129,18 @@ setMethod("[", c(FAMES, "formula", "missing", "missing"), function(x, i, j,
   x[i]
 }, sealed = SEALED)
 
-setMethod("[", c(FAMES, "ANY", "missing", "missing"), function(x, i, j, drop) {
+setMethod("[", c("FAMES", "ANY", "missing", "missing"), function(x, i, j,
+    drop) {
   x[i %q% x]
 }, sealed = SEALED)
 
-setMethod("[", c(FAMES, "logical", "missing", "missing"), function(x, i, j,
+setMethod("[", c("FAMES", "logical", "missing", "missing"), function(x, i, j,
     drop) {
   x@plates <- close_index_gaps(x@plates[i])
   x
 }, sealed = SEALED)
 
-setMethod("[", c(FAMES, "numeric", "missing", "missing"), function(x, i, j,
+setMethod("[", c("FAMES", "numeric", "missing", "missing"), function(x, i, j,
     drop) {
   x@plates <- close_index_gaps(x@plates[i])
   x
@@ -151,7 +152,7 @@ setMethod("[", c(FAMES, "numeric", "missing", "missing"), function(x, i, j,
 #' @rdname bracket
 #' @export
 #'
-setMethod("[[", c(FAMES, "ANY", "missing"), function(x, i, exact) {
+setMethod("[[", c("FAMES", "ANY", "missing"), function(x, i, exact) {
   x@plates[[i]]
 }, sealed = SEALED)
 
