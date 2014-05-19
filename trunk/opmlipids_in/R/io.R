@@ -121,11 +121,7 @@ fatty_acids.list <- function(x, ...) {
         TRUE, TRUE)
       value.col <- get_for("MIDI", "value.col")
       x[, value.col] <- ifelse(pos, NA_real_, x[, "Percent"])
-      pos <- !is.na(x[, value.col])
-      if (any(pos)) { # completely empty tables are allowed at this step
-        tolerance <- get_for("MIDI", "tolerance")
-        if (!isTRUE(all.equal(100, sum(x[pos, value.col]), tolerance)))
-          stop("relative frequencies do not sum up to 100%")
+      if (any(pos <- !is.na(x[, value.col]))) {
         rn <- ifelse(grepl("^\\s*Sum\\s*In\\s*Feature\\s*\\d+\\s*$",
           x[, "Peak Name"], TRUE, TRUE), x[, "Comment2"], x[, "Peak Name"])
         rownames(x)[pos] <- make.unique(norm_fa(rn[pos], TRUE), APPENDIX)

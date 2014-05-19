@@ -120,16 +120,20 @@ setGeneric("fame_problems",
 #= fame_problems initialize
 
 setMethod("fame_problems", "data.frame", function(object) {
-  plate.type <- sub("[\\W_].*", "", tail(class(object), 1L), FALSE, TRUE)
-  errs <- NULL
-  value.col <- tryCatch(get_for(plate.type, "value.col"),
-    error = function(e) NA_character_)
-  pos <- match(value.col, colnames(object), 0L)
-  if (!pos)
-    errs <- c(errs, "value column missing")
-  else if (!is.numeric(object[, pos]))
-    errs <- c(errs, "value column contains non-numeric data")
-  errs
+  plate.type <- class_head(object)
+  value.col <- get_for_relaxedly(plate.type, "value.col", NA_character_)
+  if (is.na(value.col))
+    sprintf("no 'value.col' entry for plate type '%s'", plate.type)
+  else if (!(pos <- match(value.col, colnames(object), 0L)))
+    "value column missing"
+  else if (!is.numeric(v <- object[, pos]))
+    "value column contains non-numeric data"
+  else if (is.na(tol <- get_for_relaxedly(plate.type, "tolerance", NA_real_)))
+    sprintf("no 'tolerance' entry for plate type '%s'", plate.type)
+  else if (!all(is.na(v)) && !isTRUE(all.equal(100, sum(v, na.rm = TRUE), tol)))
+    sprintf("sum of relative frequencies not close enough to 100%")
+  else
+    NULL
 }, sealed = SEALED)
 
 setMethod("fame_problems", "list", function(object) {
