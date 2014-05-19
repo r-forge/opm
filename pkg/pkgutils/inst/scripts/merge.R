@@ -112,18 +112,15 @@ process_specially <- function(files, opt) {
     matrix(x, length(x), 1L, FALSE, list(NULL, COLUMN_DEFAULT_NAME))
   }
   merge_vertically <- function(x, opt) {
-    aggregate(x, by = list(x[, opt$xcolumn]), FUN = join_unique,
-      join = opt$join, simplify = TRUE)[, -1L, drop = FALSE]
-  }
-  fill_columns_randomly <- function(x, opt) {
-    fill_randomly(x, opt$all)
+    aggregate(x, by = x[, opt$xcolumn, drop = FALSE], FUN = join_unique,
+      join = opt$join, simplify = TRUE)[, -seq_along(opt$xcolumn), drop = FALSE]
   }
   if (opt$rows)
     do_convert <- merge_horizontally
   else if (opt$vertical)
     do_convert <- merge_vertically
   else if (opt$load)
-    do_convert <- fill_columns_randomly
+    do_convert <- function(x, opt) fill_randomly(x, opt$all)
   else
     stop("invalid combination of options")
   for (file in files)
@@ -347,7 +344,7 @@ if (opt$vertical || opt$rows || opt$load) {
 
 ################################################################################
 #
-# horizontal merge mode (= default)
+# horizontal merging of files (= default)
 #
 
 

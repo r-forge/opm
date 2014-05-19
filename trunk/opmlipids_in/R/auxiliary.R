@@ -80,15 +80,31 @@ setMethod("oli_opt", "missing", function(x) {
 
 #' Get stored plate-type settings
 #'
-#' Get the settings that have been stored for a plate type.
+#' Get the settings that have been stored for a plate type, or determine that
+#' plate type using a simple derivation from the class name.
 #'
 #' @param plate.type Character scalar.
 #' @param what Character scalar. The key whose value is of interest.
-#' @return The value associated with this key and plate type.
+#' @param alternative Alternative value to return.
+#' @param x Any \R object.
+#' @return The value associated with this key and plate type, or just this
+#'   plate type.
 #' @keywords internal
 #'
 get_for <- function(plate.type, what) {
   get(what, get(plate.type, PLATE_TYPE_SETTINGS))
+}
+
+#' @rdname get_for
+#'
+get_for_relaxedly <- function(plate.type, what, alternative) {
+  tryCatch(get_for(plate.type, what), error = function(e) alternative)
+}
+
+#' @rdname get_for
+#'
+class_head <- function(x) {
+  sub("[\\W_].*", "", class(x)[1L], FALSE, TRUE)
 }
 
 

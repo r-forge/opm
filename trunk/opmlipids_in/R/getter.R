@@ -38,7 +38,7 @@ NULL
 #' @export
 #'
 setMethod("plate_type", "FAME", function(object) {
-  sub("[\\W_].*", "", tail(class(object@measurements), 1L), FALSE, TRUE)
+  class_head(object@measurements)
 }, sealed = SEALED)
 
 setMethod("plate_type", "FAMES", function(object) {
