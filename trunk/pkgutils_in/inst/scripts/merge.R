@@ -105,6 +105,20 @@ fill_randomly <- function(x, empty = TRUE) {
 }
 
 
+unnest <- function(x, col, sep = "; ", fixed = TRUE) {
+  result <- lapply(x[, col, drop = FALSE], strsplit, sep, fixed, !fixed)
+  result <- as.data.frame(do.call(cbind, result))
+  result <- cbind(x[, setdiff(colnames(x), col), drop = FALSE], result)
+  col <- colnames(result)
+  args <- list(check.names = FALSE, stringsAsFactors = FALSE)
+  result <- lapply(seq.int(nrow(result)),
+    function(i) do.call(data.frame, c(result[i, , drop = FALSE], args)))
+  for (i in seq_along(result))
+    colnames(result[[i]]) <- col
+  do.call(rbind, result)
+}
+
+
 process_specially <- function(files, opt) {
   merge_horizontally <- function(x, opt) {
     x <- apply(x, 1L, function(x) pkgutils::listing(x[nzchar(x)],
@@ -121,6 +135,8 @@ process_specially <- function(files, opt) {
     do_convert <- merge_vertically
   else if (opt$load)
     do_convert <- function(x, opt) fill_randomly(x, opt$all)
+  else if (opt$widen)
+    do_convert <- function(x, opt) unnest(x, opt$xcolumn, opt$join)
   else
     stop("invalid combination of options")
   for (file in files)
@@ -271,15 +287,17 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Merge vertically, file by file [default: %default]",
     default = FALSE),
 
-  # w
+  optparse::make_option(c("-w", "--widen"), action = "store_true",
+    help = "Widen (unnest) selected column(s) [default: %default]",
+    default = FALSE),
 
   optparse::make_option(c("-x", "--xcolumn"), type = "character",
-    help = "Name of the merge column in file 1 [default: '%default']",
-    default = COLUMN_DEFAULT_NAME, metavar = "COLUMN"),
+    help = "Name of the merge column(s) in file 1 [default: '%default']",
+    default = COLUMN_DEFAULT_NAME, metavar = "COLUMNS"),
 
   optparse::make_option(c("-y", "--ycolumn"), type = "character",
-    help = "Name of the merge column in file 2 [default: like file 1]",
-    default = "", metavar = "COLUMN")
+    help = "Name of the merge column(s) in file 2 [default: like file 1]",
+    default = "", metavar = "COLUMNS")
 
   # z
 
@@ -336,7 +354,7 @@ if (opt$help || !length(files)) {
 # horizontal merging of rows, vertical merging, or random filling
 #
 
-if (opt$vertical || opt$rows || opt$load) {
+if (opt$vertical || opt$rows || opt$load || opt$widen) {
   process_specially(files, opt)
   quit(status = 0L)
 }

@@ -5,7 +5,7 @@
 - the 'docu.R' script now also checks the spelling within the demos, if any
 
 - the 'merge.R' script gets new arguments '--load', '--unique', '--prune',
-  '--threshold'
+  '--threshold', '--widen'
 
 
 2014-01-10 (6th release on CRAN)
