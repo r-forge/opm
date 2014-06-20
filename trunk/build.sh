@@ -75,7 +75,7 @@ WHITELIST_VIGNETTE=$MISC_DIR/whitelist-vignette.txt
 
 # Find the script with the name given as first argument either in the variable
 # $PATH or within the subdirectory (given as second argument) of the R
-# installation directory.
+# installation directory. $HOME/R is also checked if this fails.
 #
 find_R_script()
 {
@@ -88,6 +88,12 @@ find_R_script()
   local subdir
   for subdir in library site-library; do
     result=$r_dir/$subdir/$2/scripts/$1
+    if [ -s "$result" ]; then
+      echo "$result"
+      return 0
+    fi
+  done
+  for result in "$HOME"/R/*/*/"$2"/scripts/"$1"; do
     if [ -s "$result" ]; then
       echo "$result"
       return 0
