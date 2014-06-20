@@ -53,7 +53,7 @@ set -eu
 # 'docu.R' creates a logfile itself, which contains, e.g., information on style
 # checks and according modifications of R source files.
 #
-LOGFILE=$MISC_DIR/docu_opm.log
+LOGFILE=$MISC_DIR/docu.log
 
 # If source packages are built, they will be moved into that directory.
 #
@@ -69,6 +69,7 @@ WHITELIST_MANUAL=$MISC_DIR/whitelist-manual.txt
 WHITELIST_VIGNETTE=$MISC_DIR/whitelist-vignette.txt
 
 
+################################################################################
 ################################################################################
 
 
@@ -419,6 +420,7 @@ correct_num_cpus()
 format_basename()
 {
   local filename=${1##*/}
+  filename=${filename%.[bgx]z}
   printf "$2" ${filename%.*}
 }
 
@@ -495,58 +497,6 @@ do_test()
 ################################################################################
 
 
-# Modify the version entry within opm-generated JSON files.
-#
-change_json_version()
-{
-  local version=$1
-  shift
-  sed -i "v; s/\(\"version\"\):\"[^\"]\+\"/\1:\"$version\"/g" "$@"
-}
-
-
-################################################################################
-
-
-# Modify the version entry within opm-generated YAML files.
-#
-change_yaml_version()
-{
-  local version=$1
-  local tmpfile=`mktemp --tmpdir`
-  shift
-  local infile
-  for infile; do
-    if awk -v version="$version" '
-      $1 == "version:" {sub($2, version)}
-      {print}
-      ' "$infile" > "$tmpfile"
-    then
-      mv "$tmpfile" "$infile"
-    else
-      rm -f "$tmpfile"
-      return 1
-    fi
-  done
-}
-
-
-################################################################################
-
-
-# Modify the version entry within opm-generated CSV files.
-#
-change_csv_version()
-{
-  local version=$1
-  shift
-  sed -i "v; s/\(\"opm\";\"\)[^\"]\+\(\";\)/\1$version\2/g" "$@"
-}
-
-
-################################################################################
-
-
 # Used for showing the failed files.
 #
 show_files_of()
@@ -616,256 +566,6 @@ compare_files_of()
     echo
   done
   rm -f "$tmpfile"
-}
-
-
-################################################################################
-
-
-# For testing the 'run_opm.R' script that comes with the opm package.
-#
-run_external_tests()
-{
-
-  local output_mode=run_tests
-  local help_msg=
-  local np=4 # using more cores yielded only little speedup
-  local run_opm=
-  local testmode=opm
-  local testdir=$EXTERNAL_TEST_DIR
-  local version=opm_in/DESCRIPTION
-  local extension
-  local ignore_ws=
-
-  local opt
-  OPTIND=1
-  while getopts c:d:fhlp:s:v:w: opt; do
-    case $opt in
-      c ) output_mode=compare_failed; extension=$OPTARG;;
-      d ) testdir=$OPTARG;;
-      f ) output_mode=show_failed;;
-      h ) help_msg=yes;;
-      l ) testmode=lipids; testdir=$OPMLIPIDS_TEST_DIR;;
-      p ) np=$(($OPTARG + 0));;
-      s ) run_opm=$OPTARG;;
-      v ) version=$OPTARG;;
-      w ) output_mode=compare_failed; extension=$OPTARG; ignore_ws=yes;;
-      * ) return 1;;
-    esac
-  done
-  shift $(($OPTIND - 1))
-
-  if [ "$help_msg" ] || [ $# -gt 0 ]; then
-    cat >&2 <<-____EOF
-	Test the opm package via its 'run_opm.R' script. For testing the current opm
-	version, it must be installed beforehand.
-
-	As usual, this running mode must be executed in the parent directory of the
-	project's R package source directories.
-
-	Options:
-	  -c x  Ignore tests; show differences for failed files with extension x.
-	  -d x  Use x as test directory (must contain subdirectory 'tests').
-	  -f    Do not run tests; list all failed files (if any).
-	  -h    Print this message.
-	  -l    Test opmlipids instead of opm.
-	  -p x  Use x processors (cores) for running the tests.
-	  -s x  Use x as 'run_opm.R' script for running the tests.
-	  -v x  Insert opm version x (x can also be an R package DESCRIPTION file).
-	  -w x  Like -c, but ignore all whitespace when comparing files.
-
-	The default is to read the version to use during the tests from the opm
-	DESCRIPTION file from the opm code directory within the working directory.
-	So if tests fail but the resulting files show no differences, this usually
-	means an old opm version was used for testing.
-
-____EOF
-    return 1
-  fi
-
-  testfile_dir=$testdir/tests # must not be local variable for use with trap()
-  if ! [ -d "$testfile_dir" ]; then
-    echo "directory '$testfile_dir' does not exist, exiting now" >&2
-    exit 1
-  fi
-  # created if necessary; must not be local variable for use with trap()
-  failedfile_dir=$testdir/failed_files
-  mkdir -p "$failedfile_dir"
-
-  local errfile=$testdir/tests.err
-  local outfile=$testdir/tests.out
-
-  case $output_mode in
-    compare_failed )
-      compare_files_of "$failedfile_dir" "$testfile_dir" "$extension" \
-        "$ignore_ws"
-      exit $?
-    ;;
-    show_failed )
-      show_files_of "$failedfile_dir"
-      exit $?
-    ;;
-    run_tests )
-      :
-    ;;
-    * )
-      echo "unknown \$output_mode '$output_mode'" >&2
-      exit 1
-    ;;
-  esac
-
-  if ! [ "$run_opm" ]; then
-    case $testmode in
-      opm ) run_opm=`find_R_script run_opm.R opm || :`;;
-      lipids ) run_opm=`find_R_script run_opmlipids.R opmlipids || :`;;
-      * ) echo "unknown test mode '$testmode', exiting now"; return 1;;
-    esac
-  fi
-  if [ -s "$run_opm" ]; then
-    echo "Using script '$run_opm' (`stat -c %y "$run_opm"`)..." >&2
-    echo "NOTE: Make sure this is the opm version you want to test!" >&2
-    echo >&2
-  else
-    echo "script 'run_opm.R' not found and not provided, exiting now" >&2
-    return 1
-  fi
-
-  if [ "$version" ]; then
-    [ -s "$version" ] &&
-      version=`awk '$1 == "Version:" {print $2; exit}' "$version"`
-  else
-    echo "opm version to insert not found and not provided, exiting now" >&2
-    return 1
-  fi
-
-  np=`correct_num_cpus "$np"`
-
-  rm -rf "$failedfile_dir"/*
-  rm -f "$errfile" "$outfile"
-  local tmpdir=`mktemp --tmpdir -d`
-  local tmpfile=`mktemp --tmpdir`
-
-  case $testmode in
-  
-  opm )
-
-    # Update the version to let the YAML, JSON and CSV tests pass the test
-    # irrespective of the actual version. This must later on be reversed, see
-    # below.
-    #
-    change_yaml_version "$version" "$testfile_dir"/*.yml
-    change_json_version "$version" "$testfile_dir"/*.json
-    change_csv_version "$version" "$testfile_dir"/*.tab
-
-    # Fix the version in the YAML, JSON and CSV files to avoid SVN updates. Do
-    # this in the quarantined files, too, if any, to avoid annoying reports when
-    # manually calling diff.
-    #
-    trap '
-      change_yaml_version 0.0.0 "$testfile_dir"/*.yml
-      change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
-      change_json_version 0.0.0 "$testfile_dir"/*.json
-      change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
-      change_csv_version 0.0.0 "$testfile_dir"/*.tab
-      change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
-    ' 0
-
-    echo "Testing plot mode..."
-    do_test -i csv -d "$testfile_dir" \
-      -w "$testfile_dir/%s.ps" -l "$tmpfile" \
-      -f "$tmpdir/%s.ps" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -r xyplot -d "$tmpdir" -i '*.csv' \
-      -k 'TIME:Setup Time,ID' >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-    echo "Testing split mode..."
-    # This test only guarantees that if there is nothing to split the original
-    # file results.
-    do_test -i csv -d "$testfile_dir" \
-      -w "$testfile_dir"/%s.csv -l "$tmpfile" \
-      -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -s , -r split -d "$tmpdir" \
-      -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-    echo "Testing template-collection mode with machine ID and normalization..."
-    do_test -i csv -d "$testfile_dir" \
-      -w "$testfile_dir/md.template" -l "$tmpfile" \
-      -f "$tmpdir/md.template" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -r template \
-      -m "$tmpdir/md.template" -i '*.csv' -y 5 -v >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-    echo "Testing template-collection mode with other field separator..."
-    do_test -i csv -d "$testfile_dir" \
-      -w "$testfile_dir/md.template2" -l "$tmpfile" \
-      -f "$tmpdir/md.template2" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -m "$tmpdir/md.template2" \
-      -r template -s , -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-    echo "Testing YAML mode..."
-    do_test -i csv -d "$testfile_dir" \
-      -w "$testfile_dir/%s.yml" -l "$tmpfile" \
-      -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r yaml \
-      -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-    echo "Testing JSON mode..."
-    do_test -i csv -d "$testfile_dir" \
-      -w "$testfile_dir/%s.json" -l "$tmpfile" \
-      -f "$tmpdir/%s.json" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -z -p "$np" -a smooth -b 0 -r json \
-      -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-    echo "Testing CSV mode..."
-    do_test -i csv -d "$testfile_dir" \
-      -w "$testfile_dir/%s.tab" -l "$tmpfile" \
-      -f "$tmpdir/%s.tab" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r csv \
-      -d "$tmpdir" -u ';' -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-        
-  ;;
-
-  lipids )
-  
-    echo "Testing YAML mode..."
-    do_test -i rtf -d "$testfile_dir" \
-      -w "$testfile_dir/%s.yml" -l "$tmpfile" \
-      -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -o yaml \
-      -d "$tmpdir" >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-    echo "Testing CSV mode..."
-    do_test -i rtf -d "$testfile_dir" \
-      -w "$testfile_dir/%s.csv" -l "$tmpfile" \
-      -f "$tmpdir/%s.csv" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -o csv \
-      -d "$tmpdir" >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-  ;;
-
-  * )
-    echo "unknown test mode '$testmode', exiting now"
-    return 1
-  ;;
-
-  esac
-
-  rm -rf "$tmpdir" "$tmpfile"
-
-  echo
-  printf "RESULT: "
-  printf "`grep -F -c '<<<SUCCESS>>>' "$outfile"` successes, "
-  printf "`grep -F -c '<<<FAILURE>>>' "$outfile"` failures, "
-  printf "`grep -F -c '<<<ERROR>>>' "$outfile"` errors, "
-  echo "`ls "$failedfile_dir" | wc -l` quarantined files."
-  echo
 }
 
 
@@ -1223,196 +923,6 @@ remove_R_session_files()
 ################################################################################
 
 
-# Run the R code in the files delivered with a package as demos. Omit the
-# SQL-based ones, if any.
-#
-test_demos()
-{
-  local wdir=`pwd`
-  local tmpdir=`mktemp -d --tmpdir`
-  cd "$tmpdir"
-  if [ "$1" = opm_in ]; then
-    local csv_file
-    for csv_file in "$wdir"/external_tests/tests/*.csv; do
-      case $csv_file in
-        *Multiline* ) continue;;
-      esac
-      ln -s "$csv_file" "${csv_file##*/}"
-    done
-  fi
-  local rscript
-  local errs=0
-  for rscript in "$wdir"/"$1"/demo/*.R; do
-    [ -s "$rscript" ] || continue
-    if [ "$1" = opm_in ] && echo "${rscript##*/}" | grep -q 'SQL\|ODBC' -; then
-      continue
-    fi
-    echo "TESTING ${rscript##*/}..."
-    if R CMD BATCH "$rscript"; then
-      echo "	<<<SUCCESS>>>"
-    else
-      echo "	<<<FAILURE>>>"
-      errs=$((errs + 1))
-      cp "${rscript##*/}out" "$wdir"
-    fi
-    echo
-  done
-  cd "$wdir"
-  rm -rf "$tmpdir"
-  return $errs
-}
-
-
-################################################################################
-
-
-# Run the R code in the SQL-based files delivered with opm as demos.
-#
-test_sql_demos()
-{
-  local wdir=`pwd`
-  local tmpdir=`mktemp -d --tmpdir`
-  cd "$tmpdir"
-  local rscript
-  local errs=0
-  OPM_SQLITE_DB=$wdir/misc/pmdata.db
-  export OPM_SQLITE_DB
-  for rscript in "$wdir"/opm_in/demo/*.R; do
-    [ -s "$rscript" ] || continue
-    echo "${rscript##*/}" | grep -q 'SQL\|ODBC' - || continue
-    echo "TESTING ${rscript##*/}..."
-    if R CMD BATCH "$rscript"; then
-      echo "	<<<SUCCESS>>>"
-    else
-      echo "	<<<FAILURE>>>"
-      errs=$((errs + 1))
-      cp "${rscript##*/}out" "$wdir"
-    fi
-    echo
-  done
-  cd "$wdir"
-  rm -rf "$tmpdir"
-  return $errs
-}
-
-
-################################################################################
-
-
-# Show lines that contain non-printable ASCII (except for space, carriage
-# return and line feed) or non-ASCII.
-#
-show_lines_with_forbidden_characters()
-{
-  if [ $# -eq 0 ]; then
-    echo "No file names given, returning now." >&2
-    return 1
-  fi
-  awk '/[^\r -~]/ {
-    printf "%s:%i\t%s\n", FILENAME, FNR, $0
-  }' "$@"
-}
-
-
-################################################################################
-
-
-# Simple output utility used by test_sql().
-#
-print_test_result()
-{
-  local result
-  [ "$1" -gt 0 ] && result=FAILURE || result=SUCCESS
-  [ $# -gt 1 ] && echo "* $2 TEST: $result ($3)" ||
-    echo "*** TESTS: $result ***"
-  echo
-}
-
-
-################################################################################
-
-
-# Test the SQL coming with opm. Fails unless the test databases are accessible.
-#
-test_sql()
-{
-  local default_dbname=pmdata
-  local sqlite3_dbname=$MISC_DIR/$default_dbname.db
-  local mysql_dbname=$default_dbname
-  local postgresql_dbname=$default_dbname
-  local help_msg=
-
-  local opt
-  OPTIND=1
-  while getopts hm:p:s: opt; do
-    case $opt in
-      h ) help_msg=yes;;
-      m ) mysql_dbname=$OPTARG;;
-      p ) postgresql_dbname=$OPTARG;;
-      s ) sqlite3_dbname=$OPTARG;;
-      * ) return 1;;
-    esac
-  done
-  shift $(($OPTIND - 1))
-
-  if [ "$help_msg" ]; then
-    cat >&2 <<-____EOF
-	Test the SQL files included in a package. Requires access to SQLite, MySQL
-	and/or PostgreSQL databases with read/write access for the current user.
-
-	Options:
-	  -h    Print this message.
-	  -m x  Use MySQL database x.
-	  -p x  Use PostgreSQL database x.
-	  -s x  Use SQLite database x.
-
-	The default database name is 'pmdata'. An empty database name turns off the
-	according test.
-
-____EOF
-    return 1
-  fi
-
-  local errs=0
-  local outcome
-  local infile
-
-  if [ "$sqlite3_dbname" ]; then
-    local dirpart=${sqlite3_dbname%/*}
-    [ "$dirpart" != "$sqlite3_dbname" ] && mkdir -p "$dirpart"
-    for infile; do
-      sqlite3 -bail -batch "$sqlite3_dbname" < "$infile" > /dev/null &&
-        outcome=0 || outcome=1
-      print_test_result $outcome SQLITE3 "$infile"
-      errs=$((errs + outcome))
-    done
-  fi
-
-  if [ "$mysql_dbname" ]; then
-    for infile; do
-      mysql --show-warnings -B -s "$mysql_dbname" < "$infile" > /dev/null &&
-        outcome=0 || outcome=1
-      print_test_result $outcome MYSQL "$infile"
-      errs=$((errs + outcome))
-    done
-  fi
-
-  if [ "$postgresql_dbname" ]; then
-    for infile; do
-      psql -q -o /dev/null -d "$postgresql_dbname" -f "$infile" &&
-        outcome=0 || outcome=1
-      print_test_result $outcome POSTGRESQL "$infile"
-      errs=$((errs + outcome))
-    done
-  fi
-
-  return $errs
-}
-
-
-################################################################################
-
-
 # Crop PDF given files and reduce their size with qpdf. Input files are
 # modified. When using Ubuntu, pdfcrop is available in the texlive-extra-utils
 # package; qpdf is directly available as package.
@@ -1568,6 +1078,500 @@ reduce_vignette_Rnw_files()
 ################################################################################
 
 
+# Show lines that contain non-printable ASCII (except for space, carriage
+# return and line feed) or non-ASCII.
+#
+show_lines_with_forbidden_characters()
+{
+  if [ $# -eq 0 ]; then
+    echo "No file names given, returning now." >&2
+    return 1
+  fi
+  awk '/[^\r -~]/ {
+    printf "%s:%i\t%s\n", FILENAME, FNR, $0
+  }' "$@"
+}
+
+
+################################################################################
+################################################################################
+
+
+# Modify the version entry within opm-generated JSON files.
+#
+change_json_version()
+{
+  local version=$1
+  shift
+  sed -i "v; s/\(\"version\"\):\"[^\"]\+\"/\1:\"$version\"/g" "$@"
+}
+
+
+################################################################################
+
+
+# Modify the version entry within opm-generated YAML files.
+#
+change_yaml_version()
+{
+  local version=$1
+  local tmpfile=`mktemp --tmpdir`
+  shift
+  local infile
+  for infile; do
+    if awk -v version="$version" '
+      $1 == "version:" {sub($2, version)}
+      {print}
+      ' "$infile" > "$tmpfile"
+    then
+      mv "$tmpfile" "$infile"
+    else
+      rm -f "$tmpfile"
+      return 1
+    fi
+  done
+}
+
+
+################################################################################
+
+
+# Modify the version entry within opm-generated CSV files.
+#
+change_csv_version()
+{
+  local version=$1
+  shift
+  sed -i "v; s/\(\"opm\";\"\)[^\"]\+\(\";\)/\1$version\2/g" "$@"
+}
+
+
+################################################################################
+
+
+# For testing the 'run_opm.R' script that comes with the opm package.
+#
+run_external_tests()
+{
+
+  local output_mode=run_tests
+  local help_msg=
+  local np=4 # using more cores yielded only little speedup
+  local run_opm=
+  local testmode=opm
+  local testdir=$EXTERNAL_TEST_DIR
+  local version=opm_in/DESCRIPTION
+  local extension
+  local ignore_ws=
+
+  local opt
+  OPTIND=1
+  while getopts c:d:fhlp:s:v:w: opt; do
+    case $opt in
+      c ) output_mode=compare_failed; extension=$OPTARG;;
+      d ) testdir=$OPTARG;;
+      f ) output_mode=show_failed;;
+      h ) help_msg=yes;;
+      l ) testmode=lipids; testdir=$OPMLIPIDS_TEST_DIR;;
+      p ) np=$(($OPTARG + 0));;
+      s ) run_opm=$OPTARG;;
+      v ) version=$OPTARG;;
+      w ) output_mode=compare_failed; extension=$OPTARG; ignore_ws=yes;;
+      * ) return 1;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+  if [ "$help_msg" ] || [ $# -gt 0 ]; then
+    cat >&2 <<-____EOF
+	Test the opm package via its 'run_opm.R' script. For testing the current opm
+	version, it must be installed beforehand.
+
+	As usual, this running mode must be executed in the parent directory of the
+	project's R package source directories.
+
+	Options:
+	  -c x  Ignore tests; show differences for failed files with extension x.
+	  -d x  Use x as test directory (must contain subdirectory 'tests').
+	  -f    Do not run tests; list all failed files (if any).
+	  -h    Print this message.
+	  -l    Test opmlipids instead of opm.
+	  -p x  Use x processors (cores) for running the tests.
+	  -s x  Use x as 'run_opm.R' script for running the tests.
+	  -v x  Insert opm version x (x can also be an R package DESCRIPTION file).
+	  -w x  Like -c, but ignore all whitespace when comparing files.
+
+	The default is to read the version to use during the tests from the opm
+	DESCRIPTION file from the opm code directory within the working directory.
+	So if tests fail but the resulting files show no differences, this usually
+	means an old opm version was used for testing.
+
+____EOF
+    return 1
+  fi
+
+  testfile_dir=$testdir/tests # must not be local variable for use with trap()
+  if ! [ -d "$testfile_dir" ]; then
+    echo "directory '$testfile_dir' does not exist, exiting now" >&2
+    exit 1
+  fi
+  # created if necessary; must not be local variable for use with trap()
+  failedfile_dir=$testdir/failed_files
+  mkdir -p "$failedfile_dir"
+
+  local errfile=$testdir/tests.err
+  local outfile=$testdir/tests.out
+
+  case $output_mode in
+    compare_failed )
+      compare_files_of "$failedfile_dir" "$testfile_dir" "$extension" \
+        "$ignore_ws"
+      exit $?
+    ;;
+    show_failed )
+      show_files_of "$failedfile_dir"
+      exit $?
+    ;;
+    run_tests )
+      :
+    ;;
+    * )
+      echo "unknown \$output_mode '$output_mode'" >&2
+      exit 1
+    ;;
+  esac
+
+  if ! [ "$run_opm" ]; then
+    case $testmode in
+      opm ) run_opm=`find_R_script run_opm.R opm || :`;;
+      lipids ) run_opm=`find_R_script run_opmlipids.R opmlipids || :`;;
+      * ) echo "unknown test mode '$testmode', exiting now"; return 1;;
+    esac
+  fi
+  if [ -s "$run_opm" ]; then
+    echo "Using script '$run_opm' (`stat -c %y "$run_opm"`)..." >&2
+    echo "NOTE: Make sure this is the opm version you want to test!" >&2
+    echo >&2
+  else
+    echo "script 'run_opm.R' not found and not provided, exiting now" >&2
+    return 1
+  fi
+
+  if [ "$version" ]; then
+    [ -s "$version" ] &&
+      version=`awk '$1 == "Version:" {print $2; exit}' "$version"`
+  else
+    echo "opm version to insert not found and not provided, exiting now" >&2
+    return 1
+  fi
+
+  np=`correct_num_cpus "$np"`
+
+  rm -rf "$failedfile_dir"/*
+  rm -f "$errfile" "$outfile"
+  local tmpdir=`mktemp --tmpdir -d`
+  local tmpfile=`mktemp --tmpdir`
+
+  case $testmode in
+  
+  opm )
+
+    # Update the version to let the YAML, JSON and CSV tests pass the test
+    # irrespective of the actual version. This must later on be reversed, see
+    # below.
+    #
+    change_yaml_version "$version" "$testfile_dir"/*.yml
+    change_json_version "$version" "$testfile_dir"/*.json
+    change_csv_version "$version" "$testfile_dir"/*.tab
+
+    # Fix the version in the YAML, JSON and CSV files to avoid SVN updates. Do
+    # this in the quarantined files, too, if any, to avoid annoying reports when
+    # manually calling diff.
+    #
+    trap '
+      change_yaml_version 0.0.0 "$testfile_dir"/*.yml
+      change_yaml_version 0.0.0 "$failedfile_dir"/*.yml 2> /dev/null || true
+      change_json_version 0.0.0 "$testfile_dir"/*.json
+      change_json_version 0.0.0 "$failedfile_dir"/*.json 2> /dev/null || true
+      change_csv_version 0.0.0 "$testfile_dir"/*.tab
+      change_csv_version 0.0.0 "$failedfile_dir"/*.tab 2> /dev/null || true
+    ' 0
+
+    echo "Testing plot mode..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/%s.ps" -l "$tmpfile" \
+      -f "$tmpdir/%s.ps" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -r xyplot -d "$tmpdir" -i '*.csv' \
+      -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+    echo "Testing split mode..."
+    # This test only guarantees that if there is nothing to split the original
+    # file results.
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir"/%s.csv -l "$tmpfile" \
+      -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -s , -r split -d "$tmpdir" \
+      -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+    echo "Testing template-collection mode with machine ID and normalization..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/md.template" -l "$tmpfile" \
+      -f "$tmpdir/md.template" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -r template \
+      -m "$tmpdir/md.template" -i '*.csv' -y 5 -v >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+    echo "Testing template-collection mode with other field separator..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/md.template2" -l "$tmpfile" \
+      -f "$tmpdir/md.template2" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -m "$tmpdir/md.template2" \
+      -r template -s , -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+    echo "Testing YAML mode..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/%s.yml" -l "$tmpfile" \
+      -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r yaml \
+      -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+    echo "Testing JSON mode..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/%s.json" -l "$tmpfile" \
+      -f "$tmpdir/%s.json" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -z -p "$np" -a smooth -b 0 -r json \
+      -d "$tmpdir" -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+    echo "Testing CSV mode..."
+    do_test -i csv -d "$testfile_dir" \
+      -w "$testfile_dir/%s.tab" -l "$tmpfile" \
+      -f "$tmpdir/%s.tab" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -z -p "$np" -a fast -b 0 -r csv \
+      -d "$tmpdir" -u ';' -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+        
+  ;;
+
+  lipids )
+  
+    echo "Testing YAML mode..."
+    do_test -i rtf -d "$testfile_dir" \
+      -w "$testfile_dir/%s.yml" -l "$tmpfile" \
+      -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -o yaml \
+      -d "$tmpdir" >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+    echo "Testing CSV mode..."
+    do_test -i rtf -d "$testfile_dir" \
+      -w "$testfile_dir/%s.csv" -l "$tmpfile" \
+      -f "$tmpdir/%s.csv" -q "$failedfile_dir" \
+      Rscript --vanilla "$run_opm" -p "$np" -o csv \
+      -d "$tmpdir" >> "$outfile" &&
+        cat "$tmpfile" >> "$errfile"
+
+  ;;
+
+  * )
+    echo "unknown test mode '$testmode', exiting now"
+    return 1
+  ;;
+
+  esac
+
+  rm -rf "$tmpdir" "$tmpfile"
+
+  echo
+  printf "RESULT: "
+  printf "`grep -F -c '<<<SUCCESS>>>' "$outfile"` successes, "
+  printf "`grep -F -c '<<<FAILURE>>>' "$outfile"` failures, "
+  printf "`grep -F -c '<<<ERROR>>>' "$outfile"` errors, "
+  echo "`ls "$failedfile_dir" | wc -l` quarantined files."
+  echo
+}
+
+
+################################################################################
+
+
+# Run the R code in the files delivered with a package as demos. Omit the
+# SQL-based ones, if any.
+#
+test_demos()
+{
+  local wdir=`pwd`
+  local tmpdir=`mktemp -d --tmpdir`
+  cd "$tmpdir"
+  if [ "$1" = opm_in ]; then
+    local csv_file
+    for csv_file in "$wdir"/external_tests/tests/*.csv; do
+      case $csv_file in
+        *Multiline* ) continue;;
+      esac
+      ln -s "$csv_file" "${csv_file##*/}"
+    done
+  fi
+  local rscript
+  local errs=0
+  for rscript in "$wdir"/"$1"/demo/*.R; do
+    [ -s "$rscript" ] || continue
+    if [ "$1" = opm_in ] && echo "${rscript##*/}" | grep -q 'SQL\|ODBC' -; then
+      continue
+    fi
+    echo "TESTING ${rscript##*/}..."
+    if R CMD BATCH "$rscript"; then
+      echo "	<<<SUCCESS>>>"
+    else
+      echo "	<<<FAILURE>>>"
+      errs=$((errs + 1))
+      cp "${rscript##*/}out" "$wdir"
+    fi
+    echo
+  done
+  cd "$wdir"
+  rm -rf "$tmpdir"
+  return $errs
+}
+
+
+################################################################################
+
+
+# Run the R code in the SQL-based files delivered with opm as demos.
+#
+test_sql_demos()
+{
+  local wdir=`pwd`
+  local tmpdir=`mktemp -d --tmpdir`
+  cd "$tmpdir"
+  local rscript
+  local errs=0
+  OPM_SQLITE_DB=$wdir/misc/pmdata.db
+  export OPM_SQLITE_DB
+  for rscript in "$wdir"/opm_in/demo/*.R; do
+    [ -s "$rscript" ] || continue
+    echo "${rscript##*/}" | grep -q 'SQL\|ODBC' - || continue
+    echo "TESTING ${rscript##*/}..."
+    if R CMD BATCH "$rscript"; then
+      echo "	<<<SUCCESS>>>"
+    else
+      echo "	<<<FAILURE>>>"
+      errs=$((errs + 1))
+      cp "${rscript##*/}out" "$wdir"
+    fi
+    echo
+  done
+  cd "$wdir"
+  rm -rf "$tmpdir"
+  return $errs
+}
+
+
+################################################################################
+
+
+# Simple output utility used by test_sql().
+#
+print_test_result()
+{
+  local result
+  [ "$1" -gt 0 ] && result=FAILURE || result=SUCCESS
+  [ $# -gt 1 ] && echo "* $2 TEST: $result ($3)" ||
+    echo "*** TESTS: $result ***"
+  echo
+}
+
+
+################################################################################
+
+
+# Test the SQL coming with opm. Fails unless the test databases are accessible.
+#
+test_sql()
+{
+  local default_dbname=pmdata
+  local sqlite3_dbname=$MISC_DIR/$default_dbname.db
+  local mysql_dbname=$default_dbname
+  local postgresql_dbname=$default_dbname
+  local help_msg=
+
+  local opt
+  OPTIND=1
+  while getopts hm:p:s: opt; do
+    case $opt in
+      h ) help_msg=yes;;
+      m ) mysql_dbname=$OPTARG;;
+      p ) postgresql_dbname=$OPTARG;;
+      s ) sqlite3_dbname=$OPTARG;;
+      * ) return 1;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+  if [ "$help_msg" ]; then
+    cat >&2 <<-____EOF
+	Test the SQL files included in a package. Requires access to SQLite, MySQL
+	and/or PostgreSQL databases with read/write access for the current user.
+
+	Options:
+	  -h    Print this message.
+	  -m x  Use MySQL database x.
+	  -p x  Use PostgreSQL database x.
+	  -s x  Use SQLite database x.
+
+	The default database name is 'pmdata'. An empty database name turns off the
+	according test.
+
+____EOF
+    return 1
+  fi
+
+  local errs=0
+  local outcome
+  local infile
+
+  if [ "$sqlite3_dbname" ]; then
+    local dirpart=${sqlite3_dbname%/*}
+    [ "$dirpart" != "$sqlite3_dbname" ] && mkdir -p "$dirpart"
+    for infile; do
+      sqlite3 -bail -batch "$sqlite3_dbname" < "$infile" > /dev/null &&
+        outcome=0 || outcome=1
+      print_test_result $outcome SQLITE3 "$infile"
+      errs=$((errs + outcome))
+    done
+  fi
+
+  if [ "$mysql_dbname" ]; then
+    for infile; do
+      mysql --show-warnings -B -s "$mysql_dbname" < "$infile" > /dev/null &&
+        outcome=0 || outcome=1
+      print_test_result $outcome MYSQL "$infile"
+      errs=$((errs + outcome))
+    done
+  fi
+
+  if [ "$postgresql_dbname" ]; then
+    for infile; do
+      psql -q -o /dev/null -d "$postgresql_dbname" -f "$infile" &&
+        outcome=0 || outcome=1
+      print_test_result $outcome POSTGRESQL "$infile"
+      errs=$((errs + outcome))
+    done
+  fi
+
+  return $errs
+}
+
+
+################################################################################
+################################################################################
+
+
 # Command-line argument parsing. The issue here is that all arguments for
 # 'docu.R' should remain untouched. We thus only allow for a single running
 # mode indicator as (optional) first argument.
@@ -1642,7 +1646,7 @@ case $RUNNING_MODE in
 	Possible values for 'mode':
 	  ascii   Show lines that contain forbidden characters (such as non-ASCII).
 	  cran    Run in all modes that should be run before a CRAN submission.
-	  demo    Test the demo code that comes with opm.
+	  demo    Test the demo code that comes with some of the packages.
 	  dfull   Full build of the opmdata package.
 	  dnorm   Normal build of the opmdata package.
 	  d2norm  Full build of the opmdata2 package.
