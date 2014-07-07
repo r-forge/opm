@@ -799,18 +799,12 @@ cross-validation. For a detailed hands-on introduction to boosting methods using
 the package \pkg{mboost} \citep{mboost:pkg:2013} we refer to
 \citet{Hofner:mboost:2014}.
 
-<<install.package.mboost, echo = FALSE, results = hide>>=
-if (!require("mboostDevel"))
-    install.packages("mboostDevel", repos = "http://r-forge.r-project.org")
-## set seed (for reproducible results)
-set.seed(1907)
-@
-
-At first, we need to load the package
+At first, we need to load the package:
 <<mboost_model_fitting, results = hide>>=
 ## load package mboost
-## (currently the development version "mboostDevel" from r-forge is used)
-library("mboostDevel")
+library("mboost")
+## set seed (for reproducible results)
+set.seed(1907)
 @
 
 Now we need to extract and restructure the data using custom methods available in
