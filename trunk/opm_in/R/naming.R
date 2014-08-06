@@ -661,7 +661,7 @@ setMethod("register_plate", "missing", function(object, ...) {
 }, sealed = SEALED)
 
 setMethod("register_plate", "list", function(object, ...) {
-  valid_names <- function(n) length(n) && !any(is.na(n)) && all(nzchar(n))
+  valid_names <- function(n) length(n) && !anyNA(n) && all(nzchar(n))
   prepare_names <- function(n) {
     if (!valid_names(n))
       stop("all arguments must be validly named")
@@ -1411,7 +1411,7 @@ setMethod("listing", XOPMX, function(x, as.groups, cutoff = opm_opt("min.mode"),
 #'
 #' # Restrict to  a certain plate
 #' (x <- find_positions(c("D-Glucose", "D-Gloucose"), type = "Gen III"))
-#' stopifnot(is.character(x), any(is.na(x)), !all(is.na(x)))
+#' stopifnot(is.character(x), anyNA(x), !all(is.na(x)))
 #'
 #' # List method
 #' x <- find_positions(find_substrate(c("D-Glucose", "D-Gloucose")))
@@ -1640,7 +1640,7 @@ setMethod("find_positions", OPM, function(object, type = NULL, ...) {
 #'
 #' # Character method; compare correct and misspelled substrate name
 #' (x <- substrate_info(c("D-Glucose", "D-Gloucose")))
-#' stopifnot(any(is.na(x)), !all(is.na(x)))
+#' stopifnot(anyNA(x), !all(is.na(x)))
 #' stopifnot(identical(x, # Factor method yields same result
 #'   substrate_info(as.factor(c("D-Glucose", "D-Gloucose")))))
 #'

@@ -109,7 +109,7 @@ stopifnot(LETTERS[1:4] == colnames(got))
 stopifnot(names(x) == rownames(got))
 stopifnot(is.list(got$A), is.integer(got$B), is.list(got$C),
   is.factor(got$D))
-stopifnot(!is.na(got$A), !is.na(got$B), any(is.na(got$C)), any(is.na(got$D)))
+stopifnot(!is.na(got$A), !is.na(got$B), anyNA(got$C), anyNA(got$D))
 # include the unnamed ones
 got <- collect(x, "values", dataframe = TRUE, keep.unnamed = TRUE)
 stopifnot(dim(got) == c(2, 5))
@@ -142,7 +142,7 @@ m1 <- matrix(1:4, ncol = 2, dimnames = list(c("A", "B"), c("x", "y")))
 m2 <- matrix(1:4, ncol = 2, dimnames = list(c("C", "B"), c("x", "z")))
 (got <- collect(list(m1, m2), "datasets"))
 # values missing in some matrix yield NA
-stopifnot(dim(got) == c(3, 3), any(is.na(got)))
+stopifnot(dim(got) == c(3, 3), anyNA(got))
 }
 \seealso{
   base::unlist base::as.data.frame

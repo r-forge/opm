@@ -1,6 +1,6 @@
 Package: validate
-Version: 0.0.5
-Date: 2014-04-23
+Version: 0.0.6
+Date: 2014-08-06
 Title: validate -- Utilities for checking R objects
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>

@@ -218,7 +218,7 @@ print.DBTABLES_Summary <- function(x, ...) {
 #'
 #' # conduct some checks
 #' stopifnot(fkeys_valid(x), pkeys_valid(x), length(x) == 3)
-#' stopifnot(any(is.na(fkeys(x))), !all(is.na(fkeys(x))))
+#' stopifnot(anyNA(fkeys(x)), !all(is.na(fkeys(x))))
 #'
 #' # originally the primary keys are not in order here
 #' (y <- sort(x))
@@ -463,7 +463,7 @@ setMethod("update", "DBTABLES", function(object, start, drop = TRUE) {
     start <- rep.int(1L, length(pk))
     names(start) <- names(pk)
   } else {
-    if (any(is.na(start)))
+    if (anyNA(start))
       stop("'start' contains missing values")
     if (is.null(names(start)))
       names(start) <- names(pk)[seq_along(start)]

@@ -629,7 +629,7 @@ setMethod("contains", c("list", "list"), function(object, other,
   if (length(query.keys) == 0L && length(other) > 0L)
     return(FALSE)
   found <- match(query.keys, names(object), incomparables = "")
-  if (any(is.na(found)))
+  if (anyNA(found))
     return(FALSE)
   for (idx in seq_along(query.keys)) {
     query.subset <- other[[idx]]
