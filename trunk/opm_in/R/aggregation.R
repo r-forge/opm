@@ -451,6 +451,9 @@ setMethod("do_aggr", OPM, function(object, boot = 0L, verbose = FALSE,
     result
   }
 
+  if (anyDuplicated.default(hours(object, "all")))
+    warning("duplicate time points are present, which makes no sense")
+
   if ((plate_type(object) %in% SPECIAL_PLATES ||
       custom_plate_is(plate_type(object))) && dim(object)[1] < 2L) {
     result <- copy_A_param(well(object))

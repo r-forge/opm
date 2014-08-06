@@ -62,7 +62,7 @@ fit_spline <- function (y, x = "Hour", data, options = set_spline_options(),
     weights <- rep(1, nrow(data))
 
   if (is.null(knots)) {
-    if (type = "smooth.spline") {
+    if (type == "smooth.spline") {
       ## compute number of knots adaptive to the number of unique observations
       ## (equal to behavior of smooth.spline(..., nknots = NULL) )
       knots <- n_knots(length(unique(data[, x])))
