@@ -89,7 +89,7 @@ extract_curve_params.opm_model <- function(x, all = FALSE, ...) {
   x <- get_data(x)[, 1]
   ## quick and dirty
   deriv <- diff(pred) / diff(x)
-  slope <- max(deriv)
+  slope <- max(deriv, na.rm = TRUE)
   ## index of max. slope
   idx <- which.max(deriv):(which.max(deriv) + 1)
   ## x-value of max. slope
