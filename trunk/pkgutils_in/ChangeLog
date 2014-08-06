@@ -1,5 +1,7 @@
 2014-XX-XX (7th release on CRAN)
 
+- dependency on R >= 3.1.0
+
 - new filter option for check_R_code(); the Sweave filter has been improved
 
 - the 'docu.R' script now also checks the spelling within the demos, if any
