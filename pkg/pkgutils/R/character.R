@@ -16,9 +16,9 @@ sections.logical <- function(x, include = TRUE, ...) {
       x <- x[-length(x)]
     x
   }
-  if (!(n <- length(x)))
+  if (!length(x))
     return(structure(factor(ordered = TRUE), names = names(x)))
-  if (any(is.na(x)))
+  if (anyNA(x))
     stop("'x' must not contain NA values")
   result <- integer(length(x))
   true.runs <- x & c(x[-1L] == x[-length(x)], FALSE)

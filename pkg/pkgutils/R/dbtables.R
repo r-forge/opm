@@ -145,7 +145,7 @@ setMethod("update", "DBTABLES", function(object, start, drop = TRUE) {
     start <- rep.int(1L, length(pk))
     names(start) <- names(pk)
   } else {
-    if (any(is.na(start)))
+    if (anyNA(start))
       stop("'start' contains missing values")
     if (is.null(names(start)))
       names(start) <- names(pk)[seq_along(start)]

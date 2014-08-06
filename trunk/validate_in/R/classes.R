@@ -136,7 +136,7 @@ setClass("MAP_VALIDATOR",
       if (is.null(n))
         return("names of 'checks' must not be null")
       errs <- NULL
-      if (any(is.na(n)))
+      if (anyNA(n))
         errs <- c(errs, "names of 'checks' must not be NA")
       if (!all(nzchar(n)))
         errs <- c(errs, "names of 'checks' must not be empty")

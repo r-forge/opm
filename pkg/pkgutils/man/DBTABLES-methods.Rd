@@ -189,7 +189,7 @@ fkeys(x) # NA entries are used for table without foreign keys
 
 # conduct some checks
 stopifnot(fkeys_valid(x), pkeys_valid(x), length(x) == 3)
-stopifnot(any(is.na(fkeys(x))), !all(is.na(fkeys(x))))
+stopifnot(anyNA(fkeys(x)), !all(is.na(fkeys(x))))
 
 # originally the primary keys are not in order here
 (y <- sort(x))
