@@ -82,6 +82,7 @@
 \acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
 \acrodef{HTML}{Hypertext Markup Language}
 \acrodef{ID}{Identifier}
+\acrodef{LIMS}{Laboratory Information Management System}
 \acrodef{NADH}{reduced Nicotinamide Adenine Dinucleotide}
 \acrodef{PM}{Phenotype Microarray}
 \acrodef{RDBMS}{Relational Database Management System}
@@ -394,14 +395,17 @@ For the manual, see \code{help(package = "opm")}; for the code demonstrations th
 
 The proprietary OmniLog\textregistered \ \ac{PM} data analysis software \textit{File Management/Kinetic Analysis} \citep{biologInc} can export the kinetic raw data from single or multiple plates as \ac{CSV} files.
 These contain a small amount of associated run information that has been entered at the interface of the OmniLog\textregistered \ \ac{PM} \textit{Data Collection} software, which controls the OmniLog\textregistered \ reader.
-Currently this generation of \ac{CSV} files involves the creation of intermediary files with the extension \code{"d5e"} from the original ones with the extension \code{"oka"}.
+This generation of \ac{CSV} files used to involve the creation of intermediary files with the extension \code{"d5e"} from the original ones with the extension \code{"oka"}.
 For use with \pkg{opm}, the raw kinetic data should be exported into a single \ac{CSV} file for each measured plate.
+In 2014, support for a \ac{LIMS} plain text format partially identical to a \ac{CSV} format was added to the OmniLog\textregistered \ \ac{PM} software.
+As of version 1.1.8, \pkg{opm} can read this format.
+As it directly yields metadata entries of potential interest to the user, the \ac{LIMS} \ac{CSV} is the recommended way to input data from the OmniLog\textregistered \ \ac{PM} software into \pkg{opm}.
 The \pkg{opm} package currently does not support the input of several plates from \ac{PM}-mode runs stored in a single \ac{CSV} file, but it offers the function \code{split\_files} for splitting old-style \ac{CSV} files containing multiple plates.
 (We refer to the \ac{CSV} exports from the currently distributed OmniLog\textregistered \ \ac{PM} \textit{File Management/Kinetic Analysis} software as ``old style''.
-Forthcoming versions are expected to export the data in a slightly different \ac{CSV} format we call ``new style''.
+Later versions exported the data in a slightly different \ac{CSV} format we call ``new style'', and as of 2014 the \ac{LIMS} style is available.
 Please contact your local representative of the vendor for the latest software version.)
 
-As of version 0.4-0, \pkg{opm} also supports the input of MicroStation\texttrademark \ \ac{CSV} files (frequently used in conjunction with EcoPlate\texttrademark \ assay for microbial community analysis) \citep{Vaas2013}.
+As of version 0.4.0, \pkg{opm} also supports the input of MicroStation\texttrademark \ \ac{CSV} files (frequently used in conjunction with EcoPlate\texttrademark \ assay for microbial community analysis) \citep{Vaas2013}.
 These files contain only end-point measurements but potentially several plates, which can nevertheless be input together with their potentially also rich meta-information.
 
 The easiest way to load the raw kinetic data (as \ac{CSV} files or as \proglang{YAML} or \proglang{JSON}) into \proglang{R} in a single step is using the function \code{read\_opm} (see Figure~\ref{fig:work_flow}).
@@ -882,6 +886,14 @@ summary(example.opm)
 @
 
 After performing this step, the \proglang{OPMS} object contains three plates, as indicated by the \code{summary} function.
+An example for inputting \ac{LIMS}-style \ac{CSV} is here:
+
+<<label=read-opm-lims, results=hide>>=
+example.lims <- read_opm(files, include = "*Example_LIMS_*.EXL.xz")
+summary(example.lims)
+rm(example.lims)
+@
+
 
 Instead of a single file name the user could also provide several file names to \code{read\_opm}, or a mixture of file and directory names.
 If these were contained as subdirectories of the current working directory, \code{read\_opm(".")} or \code{read\_opm(getwd)} would be sufficient to input these files.
