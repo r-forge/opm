@@ -113,9 +113,9 @@ read_lims_opm <- function(filename) {
     stop("missing plate type, position or setup time")
   x[[3L]] <- c(filename, x[[1L]][pos])
   names(x[[3L]]) <- CSV_NAMES
-  x[[1L]] <- lapply(as.list(x[[1L]][-pos]), type.convert, "NA", TRUE)
+  x[[1L]] <- lapply(x[[1L]][-pos], type.convert, "NA", TRUE)
   x[[2L]] <- to_measurements(x[[2L]][-1L])
-  x[[2L]][, 1L] <- x[[2L]][, 1L] * get("read_interval", x[[1L]]) / 60
+  x[[2L]][, 1L] <- (x[[2L]][, 1L] - 1) * get("read_interval", x[[1L]]) / 60
   new(OPM, measurements = x[[2L]], csv_data = x[[3L]], metadata = x[[1L]])
 }
 
@@ -685,10 +685,11 @@ glob_to_regex.factor <- function(object) {
 #' Read multiple \acronym{PM} files at once or read single \acronym{PM} file
 #'
 #' Read OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} or \pkg{opm} data
-#' file(s) in one of three possible formats: either new- or old-style
-#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{CSV} or
+#' file(s) in one of four possible formats: either new- or old-style
+#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{CSV},
+#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{LIMS} format or
 #' \pkg{opm} \acronym{YAML} (including \acronym{JSON}) format.
-#' MicroStation\eqn{\textsuperscript{\texttrademark}}{(TM)} \acronym{CSV} are
+#' MicroStation\eqn{\textsuperscript{\texttrademark}}{(TM)} \acronym{CSV} is
 #' also understood, as well as files compressed  using \command{gzip},
 #' \command{bzip2}, \command{lzma} or \command{xz}. (Files can be specifically
 #' excluded using \code{include} and/or \code{exclude}).
@@ -755,6 +756,10 @@ glob_to_regex.factor <- function(object) {
 #'   distinct \acronym{CSV} settings, are not understood. For this reason, if
 #'   any editing of the files was necessary at all, it is advisable to do this
 #'   in an editor for plain text, not in a spreadsheet program.
+#'
+#'   The same holds for the OmniLog\eqn{\textsuperscript{\textregistered}}{(R)}
+#'   \acronym{LIMS} format, which was introduced in 2014 and uses the file
+#'   extension \code{EXL}.
 #'
 #'   Plates run in ID mode are automatically detected as such (their plate type
 #'   is changed from \acronym{OTH} to the internally used spelling of
