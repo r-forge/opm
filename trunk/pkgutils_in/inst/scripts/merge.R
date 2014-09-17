@@ -105,6 +105,21 @@ fill_randomly <- function(x, empty = TRUE) {
 }
 
 
+fill_downwards <- function(x, ...) {
+  fill_column <- function(x) {
+    do_fill <- function(x) rep.int(x[[1L]], length(x))
+    f <- !is.na(x)
+    if (is.character(x))
+      f <- f & nzchar(x)
+    f <- pkgutils::sections(f, TRUE)
+    x[!is.na(f)] <- unlist(lapply(split.default(x, f), do_fill), FALSE, FALSE)
+    x
+  }
+  x[] <- rapply(x, fill_column, "ANY", NULL, "replace")
+  x
+}
+
+
 unnest <- function(x, col, sep = "; ", fixed = TRUE) {
   result <- lapply(x[, col, drop = FALSE], strsplit, sep, fixed, !fixed)
   result <- as.data.frame(do.call(cbind, result))
@@ -135,6 +150,8 @@ process_specially <- function(files, opt) {
     do_convert <- merge_vertically
   else if (opt$load)
     do_convert <- function(x, opt) fill_randomly(x, opt$all)
+  else if (opt$zack)
+    do_convert <- fill_downwards
   else if (opt$widen)
     do_convert <- function(x, opt) unnest(x, opt$xcolumn, opt$join)
   else
@@ -297,9 +314,11 @@ option.parser <- optparse::OptionParser(option_list = list(
 
   optparse::make_option(c("-y", "--ycolumn"), type = "character",
     help = "Name of the merge column(s) in file 2 [default: like file 1]",
-    default = "", metavar = "COLUMNS")
+    default = "", metavar = "COLUMNS"),
 
-  # z
+  optparse::make_option(c("-z", "--zack"), action = "store_true",
+    help = "Fill (sack) column(s) downwards [default: %default]",
+    default = FALSE)
 
 ), usage = "%prog [options] csv_file_1 csv_file_2 ...", prog = "merge.R",
   add_help_option = FALSE, description = paste("\nMerge CSV files",
@@ -354,7 +373,7 @@ if (opt$help || !length(files)) {
 # horizontal merging of rows, vertical merging, or random filling
 #
 
-if (opt$vertical || opt$rows || opt$load || opt$widen) {
+if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack) {
   process_specially(files, opt)
   quit(status = 0L)
 }
