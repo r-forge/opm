@@ -278,6 +278,7 @@ check_R_tests()
               # this is intended to collect package-wide variables (constants
               # at the user-level)
               sub(/<.*/, "", $1)
+              sub(/\[.*/, "", $1)
               if ($1 !~ /[($]/ && !($1 in items)) {
                 item_names[++fcnt] = $1
                 items[$1] = -1

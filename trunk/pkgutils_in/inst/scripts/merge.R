@@ -77,7 +77,13 @@ make_unique <- function(x) {
 
 
 join_unique <- function(x, join) {
-  paste(unique.default(x[nzchar(x) & !is.na(x)]), collapse = join)
+  paste0(unique.default(x[nzchar(x) & !is.na(x)]), collapse = join)
+}
+
+
+join_most_frequent <- function(x, join) {
+  best <- table(x)
+  paste0(names(best[best == max(best)]), collapse = join)
 }
 
 
@@ -141,7 +147,11 @@ process_specially <- function(files, opt) {
     matrix(x, length(x), 1L, FALSE, list(NULL, COLUMN_DEFAULT_NAME))
   }
   merge_vertically <- function(x, opt) {
-    aggregate(x, by = x[, opt$xcolumn, drop = FALSE], FUN = join_unique,
+    join.fun <- if (opt$good)
+      join_most_frequent
+    else
+      join_unique
+    aggregate(x, by = x[, opt$xcolumn, drop = FALSE], FUN = join.fun,
       join = opt$join, simplify = TRUE)[, -seq_along(opt$xcolumn), drop = FALSE]
   }
   if (opt$rows)
@@ -242,7 +252,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Do not adapt column names of file 1 [default: %default]",
     default = FALSE),
 
-  # g
+  optparse::make_option(c("-G", "--good"), action = "store_true",
+    help = "With -v, keep only the most frequent entries [default: %default]",
+    default = FALSE),
 
   optparse::make_option(c("-h", "--help"), action = "store_true",
     help = "Print help message and exit [default: %default]",
