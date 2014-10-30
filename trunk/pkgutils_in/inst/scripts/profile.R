@@ -46,6 +46,10 @@ option.parser <- OptionParser(option_list = list(
     help = "Output file extension [default: %default]",
     metavar = "STR"),
 
+  make_option(c("-f", "--files"), type = "character", default = "",
+    help = "Comma-separated list of *.rda files to load [default: %default]",
+    metavar = "STR"),
+
   make_option(c("-l", "--libraries"), type = "character", default = "",
     help = "Comma-separated list of R libraries to load [default: %default]",
     metavar = "STR"),
@@ -75,8 +79,11 @@ if (opt$help || !length(infiles)) {
 
 
 opt$libraries <- parse_arg_listing(opt$libraries)
-for (lib in opt$libraries)
-  library(lib, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
+invisible(lapply(X = opt$libraries, FUN = require, quietly = TRUE,
+  warn.conflicts = FALSE, character.only = TRUE))
+
+for (file in opt$files <- parse_arg_listing(opt$files))
+  load(file)
 
 
 ################################################################################
