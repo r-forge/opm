@@ -71,7 +71,6 @@ stopifnot(contains(x, y, exact = TRUE, values = FALSE))
 \alias{contains-methods}
 \alias{contains,list,list-method}
 \usage{
-  \S4method{contains}{list,list}(object, other,
-    values = TRUE, exact = FALSE, ...) 
+  \S4method{contains}{list,list}(object, other, values = TRUE, exact = FALSE, ...)
 }
 %% END INSERTION BY repair_S4_docu.rb

@@ -365,8 +365,7 @@ stopifnot(y == c("a", "b"), names(y) == y)
   \S4method{map_names}{array,function}(object, mapping, ...) 
   \S4method{map_names}{array,missing}(object) 
   \S4method{map_names}{data.frame,character}(object, mapping) 
-  \S4method{map_names}{data.frame,function}(object, mapping,
-    ...) 
+  \S4method{map_names}{data.frame,function}(object, mapping, ...)
   \S4method{map_names}{data.frame,missing}(object) 
   \S4method{map_names}{list,character}(object, mapping) 
   \S4method{map_names}{list,function}(object, mapping, ...) 
@@ -375,40 +374,27 @@ stopifnot(y == c("a", "b"), names(y) == y)
   \S4method{map_values}{NULL,character}(object, mapping) 
   \S4method{map_values}{NULL,function}(object, mapping, ...) 
   \S4method{map_values}{NULL,missing}(object, mapping) 
-  \S4method{map_values}{array,character}(object, mapping,
-    coerce = TRUE) 
+  \S4method{map_values}{array,character}(object, mapping, coerce = TRUE)
   \S4method{map_values}{array,function}(object, mapping, ...) 
   \S4method{map_values}{array,missing}(object, coerce = TRUE) 
   \S4method{map_values}{character,NULL}(object, mapping) 
   \S4method{map_values}{character,character}(object, mapping) 
-  \S4method{map_values}{character,function}(object, mapping,
-    ...) 
+  \S4method{map_values}{character,function}(object, mapping, ...)
   \S4method{map_values}{character,missing}(object) 
-  \S4method{map_values}{data.frame,NULL}(object, mapping,
-    coerce = character(), ...) 
-  \S4method{map_values}{data.frame,character}(object, mapping,
-    coerce = character()) 
-  \S4method{map_values}{data.frame,function}(object, mapping,
-    coerce = character(), ...) 
-  \S4method{map_values}{data.frame,missing}(object,
-    coerce = character()) 
+  \S4method{map_values}{data.frame,NULL}(object, mapping, coerce = character(), ...)
+  \S4method{map_values}{data.frame,character}(object, mapping, coerce = character())
+  \S4method{map_values}{data.frame,function}(object, mapping, coerce = character(), ...)
+  \S4method{map_values}{data.frame,missing}(object, coerce = character())
   \S4method{map_values}{factor,character}(object, mapping) 
-  \S4method{map_values}{factor,function}(object, mapping,
-    ...) 
+  \S4method{map_values}{factor,function}(object, mapping, ...)
   \S4method{map_values}{factor,missing}(object) 
-  \S4method{map_values}{list,NULL}(object, mapping,
-    coerce = character()) 
-  \S4method{map_values}{list,character}(object, mapping,
-    coerce = character()) 
-  \S4method{map_values}{list,expression}(object, mapping,
-    coerce = parent.frame()) 
-  \S4method{map_values}{list,function}(object, mapping,
-    coerce = character(), ...) 
-  \S4method{map_values}{list,missing}(object, mapping,
-    coerce = character()) 
+  \S4method{map_values}{list,NULL}(object, mapping, coerce = character())
+  \S4method{map_values}{list,character}(object, mapping, coerce = character())
+  \S4method{map_values}{list,expression}(object, mapping, coerce = parent.frame())
+  \S4method{map_values}{list,function}(object, mapping, coerce = character(), ...)
+  \S4method{map_values}{list,missing}(object, mapping, coerce = character())
   \S4method{map_values}{logical,NULL}(object, mapping) 
-  \S4method{map_values}{logical,function}(object, mapping,
-    ...) 
+  \S4method{map_values}{logical,function}(object, mapping, ...)
   \S4method{map_values}{logical,missing}(object) 
   \S4method{map_values}{logical,vector}(object, mapping) 
 }

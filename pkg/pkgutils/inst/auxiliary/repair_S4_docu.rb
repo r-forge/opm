@@ -154,7 +154,7 @@ class S4_Method
     end
     @name, @s4_class = name.sub(/^`([^`]+)`$/, "\\1"), s4_class
     @s4_class = @s4_class.scan(/[\w.]+/).select { |x| x != 'c' }.join(",")
-    @args = args.sub(/\{\s*$/m, '').sub(/\s*\w+@.*/m, '')
+    @args = reformat args.sub(/\{\s*$/m, '').sub(/\s*\w+@.*/m, '')
     @filename, @rdfile = filename.to_s, nil
   end
 
@@ -171,6 +171,23 @@ class S4_Method
 
 
   private
+
+
+  def reformat str, n = 60 # :nodoc:
+    x = str.split(/(?<=,)[ \t]*[\n\r]+/m)
+    x.each_index do |i|
+      next if i == 0
+      j = i - 1
+      j -= 1 while j >= 0 and x[j].nil?
+      next if x[j].nil?
+      if x[j].length + x[i].length < n
+        x[j] << ' ' 
+        x[j] << x[i].strip
+        x[i] = nil
+      end
+    end
+    x.compact.join "\n"
+  end
 
 
   def special_method? # :nodoc:
