@@ -92,7 +92,7 @@ case(opt$output,
 )
 
 opm::batch_process(names = infiles, out.ext = opt$out.ext, in.ext = "any",
-  io.fun = opt$ io.fun, wildcard = TRUE, outdir = opt$dir,
+  io.fun = opt$io.fun, wildcard = TRUE, outdir = opt$dir,
     compressed = TRUE, literally = FALSE, overwrite = if (opt$newer)
     "older"
   else
