@@ -114,7 +114,7 @@
 #' ## pkg_files()
 #' pkg <- find.package(c("tools", "utils"), quiet = TRUE)
 #' (x <- pkg_files(pkg, "R"))
-#' stopifnot(is.character(x), length(x) == 6)
+#' stopifnot(is.character(x), length(x) > 0)
 #'
 #' ## is_pkg_dir()
 #' (x <- is_pkg_dir(c("foo", "bar", "baz")))
