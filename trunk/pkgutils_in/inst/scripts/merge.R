@@ -22,18 +22,18 @@ COLUMN_DEFAULT_NAME <- "Object"
 #
 
 
-do_write <- function(x, options) {
-  write.table(x, sep = options$separator, row.names = FALSE,
-    quote = !options$unquoted, col.names = !opt$bald || opt$`make-header`)
+do_write <- function(x, opt) {
+  write.table(x, sep = opt$separator, row.names = FALSE, na = opt$prune,
+    quote = !opt$unquoted, col.names = !opt$bald || opt$`make-header`)
 }
 
 
-do_read <- function(infile, options) {
+do_read <- function(infile, opt) {
   if (infile == "-")
     infile <- file("stdin")
-  read.delim(infile, sep = options$separator, check.names = options$names,
-    strip.white = !options$keep, header = !options$bald, na.strings = opt$prune,
-    stringsAsFactors = FALSE, fileEncoding = options$encoding)
+  read.delim(infile, sep = opt$separator, check.names = opt$names,
+    strip.white = !opt$keep, header = !opt$bald, na.strings = opt$prune,
+    stringsAsFactors = FALSE, fileEncoding = opt$encoding)
 }
 
 
@@ -43,7 +43,7 @@ truncate <- function(files) {
 
 
 read_and_create_unique_column_names <- function(files, options) {
-  data <- lapply(X = files, FUN = do_read, options = options)
+  data <- lapply(X = files, FUN = do_read, opt = options)
   change.first <- !options$first
   suffixes <- if (options$indices)
       seq_along(files)
@@ -214,7 +214,7 @@ include_approximate_matches <- function(x, y, options, idx) {
   ncol <- paste(ycol, c("ORIG", "DIST"), options$threshold, idx, sep = "_")
   colnames(y)[colnames(y) == ycol] <- ncol[1L]
   y[, c(ycol, ncol[2L])] <- m[, c("X", "D")]
-  if (opt$all && any(isna <- is.na(y[, ycol])))
+  if (options$all && any(isna <- is.na(y[, ycol])))
     y[isna, ycol] <- y[isna, ncol[1L]]
   y
 }
@@ -398,6 +398,12 @@ if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack) {
 
 
 data <- read_and_create_unique_column_names(files, opt)
+
+if (opt$good) {
+  data[[1L]][, opt$xcolumn] <- toupper(data[[1L]][, opt$xcolumn])
+  for (i in seq_along(data)[-1L])
+    data[[i]][, opt$ycolumn] <- toupper(data[[i]][, opt$ycolumn])
+}
 
 if (opt$unique) {
   data[[1L]][, opt$xcolumn] <- make_unique(data[[1L]][, opt$xcolumn])
