@@ -77,12 +77,13 @@ make_unique <- function(x) {
 
 
 join_unique <- function(x, join) {
+  x <- unlist(strsplit(as.character(x), join, TRUE), FALSE, FALSE)
   paste0(unique.default(x[nzchar(x) & !is.na(x)]), collapse = join)
 }
 
 
 join_most_frequent <- function(x, join) {
-  best <- table(x)
+  best <- table(unlist(strsplit(as.character(x), join, TRUE), FALSE, FALSE))
   paste0(names(best[best == max(best)]), collapse = join)
 }
 
