@@ -1576,6 +1576,45 @@ ____EOF
 
 
 ################################################################################
+
+
+# Create HTML documentation using specialized script based on knitr.
+#
+generate_html_docu()
+{
+  local need_htmldoc=
+  local htmldoc=${0%/*}/misc/helpers/htmldoc.R
+  local pkg
+  for pkg; do
+    if ! [ -d "${pkg}_doc" ]; then
+      need_htmldoc=yes
+      break
+    fi
+  done
+  [ "$need_htmldoc" ] && "$htmldoc" "$@" ||
+    echo "all HTML documentation already exists" >&2
+}
+
+
+################################################################################
+
+
+# Will not work unless this ncftp connection is defined.
+#
+upload_html_docu()
+{
+  local indir
+  for indir; do
+    if [ -d "$indir" ]; then
+      ncftpput -f jpb -R opm "$indir"
+    else
+      echo "directory '$indir' does not exist -- skipped" >&2
+    fi
+  done
+}
+
+
+################################################################################
 ################################################################################
 
 
@@ -1663,6 +1702,7 @@ case $RUNNING_MODE in
 	  forget  Remove all .RData, .Rhistory and *.Rout files found.
 	  full    Full build of the opm package.
 	  help    Print this message.
+	  html    Generate HTML documentation (to be uploaded to some website).
 	  lnorm   Normal build of the opmlipids package.
 	  ltest   Test the 'run_opmlipids.R' script. Call '$0 test -h' for details.
 	  norm    [DEFAULT] Normal build of the opm package.
@@ -1709,6 +1749,16 @@ case $RUNNING_MODE in
 
 ____EOF
     exit 1
+  ;;
+  html )
+    if generate_html_docu pkgutils opm opmdata; then
+      if [ "$USER" = goeker ]; then
+        upload_html_docu pkgutils_doc opm_doc opmdata_doc
+      else
+        echo "please upload the documentation yourself" >&2
+      fi
+    fi
+    exit $?
   ;;
   lnorm )
     PKG_DIR=opmlipids_in

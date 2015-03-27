@@ -476,8 +476,8 @@ setMethod("map_values", c("character", "function"), function(object, mapping,
 }, sealed = SEALED)
 
 setMethod("map_values", c("character", "character"), function(object, mapping) {
-  mapped <- match(object, names(mapping))
-  object[found] <- mapping[mapped[found <- !is.na(mapped)]]
+  mapped <- match(object, names(mapping), 0L)
+  object[found] <- mapping[mapped[found <- mapped > 0L]]
   object
 }, sealed = SEALED)
 

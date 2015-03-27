@@ -246,7 +246,7 @@ option.parser <- OptionParser(option_list = list(
   make_option(c("-N", "--no-internal"), action = "store_true", default = FALSE,
     help = "Remove Rd files with 'internal' as keyword [default: %default]"),
 
-  make_option(c("-o", "--options"), type = "character", default = "as-cran",
+  make_option(c("-o", "--options"), type = "character", default = "timings",
     help = "'R CMD check' options, comma-separated list [default: %default]",
     metavar = "LIST"),
 

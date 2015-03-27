@@ -1,4 +1,10 @@
-2014-XX-XX (7th release on CRAN)
+2014-XX-XX
+
+- modified example that failed with R-devel
+
+- more consistent behaviour of 'merge.R -v'
+
+- default option of 'docu.R -o' changed
 
 - dependency on R >= 3.1.0
 
