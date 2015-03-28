@@ -1601,14 +1601,18 @@ generate_html_docu()
 
 # Will not work unless this ncftp connection is defined.
 #
-upload_html_docu()
+upload_to_server()
 {
-  local indir
-  for indir; do
-    if [ -d "$indir" ]; then
-      ncftpput -f jpb -R opm "$indir"
+  if [ "$USER" != goeker ]; then
+    echo "please upload the files manually" >&2
+    return 1
+  fi
+  local item
+  for item; do
+    if [ -s "$item" ]; then
+      ncftpput -f jpb -R opm "$item"
     else
-      echo "directory '$indir' does not exist -- skipped" >&2
+      echo "file or directory '$item' does not exist -- skipped" >&2
     fi
   done
 }
@@ -1702,7 +1706,7 @@ case $RUNNING_MODE in
 	  forget  Remove all .RData, .Rhistory and *.Rout files found.
 	  full    Full build of the opm package.
 	  help    Print this message.
-	  html    Generate HTML documentation (to be uploaded to some website).
+	  html    Generate HTML documentation und upload to the opm website.
 	  lnorm   Normal build of the opmlipids package.
 	  ltest   Test the 'run_opmlipids.R' script. Call '$0 test -h' for details.
 	  norm    [DEFAULT] Normal build of the opm package.
@@ -1720,6 +1724,7 @@ case $RUNNING_MODE in
 	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
 	  time    Show the timings of the last examples, if any, in order.
 	  todo    Show TODO entries (literally!) in all R source files found.
+	  www     Upload the latest package archives to the opm website.
 
 	In contrast to a normal build, a full build includes copying to the local
 	copy of the pkg directory. Other details of the build process depend on the
@@ -1751,13 +1756,8 @@ ____EOF
     exit 1
   ;;
   html )
-    if generate_html_docu pkgutils opm opmdata; then
-      if [ "$USER" = goeker ]; then
-        upload_html_docu pkgutils_doc opm_doc opmdata_doc
-      else
-        echo "please upload the documentation yourself" >&2
-      fi
-    fi
+    generate_html_docu pkgutils opm opmdata &&
+      upload_to_server pkgutils_doc opm_doc opmdata_doc
     exit $?
   ;;
   lnorm )
@@ -1830,6 +1830,10 @@ ____EOF
     PKG_DIR=validate_in
     RUNNING_MODE=${RUNNING_MODE#v}
     CHECK_R_TESTS=yes
+  ;;
+  www )
+    upload_to_server "$BUILT_PACKAGES"/*_latest.tar.gz
+    exit $?
   ;;
   * )
     echo "unknown running mode '$RUNNING_MODE', exiting now" >&2
@@ -1934,7 +1938,8 @@ fi
 #
 for file in "$OUT_DIR"_*.tar.gz; do
   [ -e "$file" ] || break
-  mkdir -p "$BUILT_PACKAGES" && mv -v "$file" "$BUILT_PACKAGES"
+  mkdir -p "$BUILT_PACKAGES" && mv -v "$file" "$BUILT_PACKAGES" &&
+    ln -fsv "$file" "$BUILT_PACKAGES/${file%_*}_latest.tar.gz"
 done
 
 
