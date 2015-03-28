@@ -59,6 +59,10 @@ LOGFILE=$MISC_DIR/docu.log
 #
 BUILT_PACKAGES=$MISC_DIR/built_packages
 
+# Where some auxiliary R scripts reside.
+#
+HELPER_SCRIPTS=$MISC_DIR/helpers
+
 # Manuals (PDF files) rescued from the check directories.
 #
 RESCUED_MANUALS=$MISC_DIR/manuals
@@ -1583,7 +1587,7 @@ ____EOF
 generate_html_docu()
 {
   local need_htmldoc=
-  local htmldoc=${0%/*}/misc/helpers/htmldoc.R
+  local htmldoc=$HELPER_SCRIPTS/htmldoc.R
   local pkg
   for pkg; do
     if ! [ -d "${pkg}_doc" ]; then
@@ -1832,7 +1836,8 @@ ____EOF
     CHECK_R_TESTS=yes
   ;;
   www )
-    upload_to_server "$BUILT_PACKAGES"/*_latest.tar.gz
+    upload_to_server "$HELPER_SCRIPTS/install_opm.R" \
+      "$BUILT_PACKAGES"/*_latest.tar.gz
     exit $?
   ;;
   * )
