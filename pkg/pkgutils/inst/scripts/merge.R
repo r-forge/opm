@@ -42,6 +42,11 @@ truncate <- function(files) {
 }
 
 
+trunc_zeros <- function(x) {
+  gsub("(?<!\\d)0+(?=\\d)", "", x, FALSE, TRUE)
+}
+
+
 read_and_create_unique_column_names <- function(files, options) {
   data <- lapply(X = files, FUN = do_read, opt = options)
   change.first <- !options$first
@@ -254,7 +259,8 @@ option.parser <- optparse::OptionParser(option_list = list(
     default = FALSE),
 
   optparse::make_option(c("-G", "--good"), action = "store_true",
-    help = "With -v, keep only the most frequent entries [default: %default]",
+    help = paste0("Use case-insensitive matching; with -v, keep only most ",
+      "frequent entries [default: %default]"),
     default = FALSE),
 
   optparse::make_option(c("-h", "--help"), action = "store_true",
@@ -401,9 +407,9 @@ if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack) {
 data <- read_and_create_unique_column_names(files, opt)
 
 if (opt$good) {
-  data[[1L]][, opt$xcolumn] <- toupper(data[[1L]][, opt$xcolumn])
+  data[[1L]][, opt$xcolumn] <- toupper(trunc_zeros(data[[1L]][, opt$xcolumn]))
   for (i in seq_along(data)[-1L])
-    data[[i]][, opt$ycolumn] <- toupper(data[[i]][, opt$ycolumn])
+    data[[i]][, opt$ycolumn] <- toupper(trunc_zeros(data[[i]][, opt$ycolumn]))
 }
 
 if (opt$unique) {
