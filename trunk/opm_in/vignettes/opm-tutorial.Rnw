@@ -397,6 +397,29 @@ The proprietary OmniLog\textregistered \ \ac{PM} data analysis software \textit{
 These contain a small amount of associated run information that has been entered at the interface of the OmniLog\textregistered \ \ac{PM} \textit{Data Collection} software, which controls the OmniLog\textregistered \ reader.
 This generation of \ac{CSV} files used to involve the creation of intermediary files with the extension \code{"d5e"} from the original ones with the extension \code{"oka"}.
 For use with \pkg{opm}, the raw kinetic data should be exported into a single \ac{CSV} file for each measured plate.
+With version 1.6.0.107 of the \textit{File Management/Kinetic Analysis} software, this works as follows:
+
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics{opm_fig_3}
+}
+\caption{\label{fig:omnilog-export}
+Screenshot of the export module of the OmniLog\textregistered \ \ac{PM} data analysis software \textit{File Management/Kinetic Analysis}, illustrating how \ac{CSV} files have to be batch exported for use with \pkg{opm}, with one plate per file.
+}
+\end{figure}
+
+\begin{enumerate}
+\item Change the \textit{Windows} software language settings to American English.
+\item Start the software \code{PMM_Kinetic.exe}.
+\item Import \code{"d5e"} files by using \textit{Load $\rightarrow$ Import $\rightarrow$ Select Data Folder $\rightarrow$ Populate Filters $\rightarrow$ Import $\rightarrow$ Close}.
+\item Add all plates or selected plates from the \textit{Worksheet List} to the \textit{Data List}.
+\item Export the data by using \textit{Export $\rightarrow$ Export Data} as shown in Figure~\ref{fig:omnilog-export}. You may either choose \textit{One-line Header} or \textit{Multi-line Header}, but you must choose \textit{Every Plate (Individual Files)}.
+\item Enter a directory name in the pop-up window that now opens.
+\item Press the \textit{Save} button.
+\end{enumerate}
+
+The resulting files can then directly be imported into \pkg{opm} as described in section Section~\ref{application import}.
+
 In 2014, support for a \ac{LIMS} plain text format partially identical to a \ac{CSV} format was added to the OmniLog\textregistered \ \ac{PM} software.
 As of version 1.1.8, \pkg{opm} can read this format.
 As it directly yields metadata entries of potential interest to the user, the \ac{LIMS} \ac{CSV} is the recommended way to input data from the OmniLog\textregistered \ \ac{PM} software into \pkg{opm}.
@@ -464,7 +487,7 @@ Thereby, the amount of meta-information added (and plates analysed) is only limi
 % Make sure it remains mentioned there.
 \begin{figure}
 \scalebox{1.225}{
-\includegraphics{opm_fig_3}
+\includegraphics{opm_fig_4}
 }
 \caption{\label{fig:class_hierarchy}
 This picture shows the \proglang{S4} class hierarchy used by \pkg{opm}.
@@ -519,7 +542,7 @@ Attaching the aggregated data to an \proglang{OPM} object yields an object of th
 \begin{figure}
 \centering
 \scalebox{1.0}{
-\includegraphics{opm_fig_4}
+\includegraphics{opm_fig_5}
 }
 \caption{\label{fig:parameters}
 A schematic depiction of a typical respiration curve and the parameters estimated by \pkg{opm}.
@@ -554,7 +577,7 @@ But export in some useful file formats is also possible.
 
 \begin{figure}
 \scalebox{1.225}{
-\includegraphics{opm_fig_5}
+\includegraphics{opm_fig_6}
 }
 \caption{\label{fig:overview}
 Overview of the possible strategies and appropriate functions for data analysis using the \pkg{opm} package.
