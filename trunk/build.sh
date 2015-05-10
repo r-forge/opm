@@ -1904,7 +1904,7 @@ fi
 #
 delete_pat="[.](aux|bbl|blg|bst|cls|css|epf|gz|html|log|out|png|R|tex|yml|xml)"
 # 'jss.cls' and 'jss.bst' are in R and cause a NOTE during checking
-delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.]pdf)\$"
+delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.](?!pdf|eps))\$"
 [ "${LOGFILE##*/}" = "$LOGFILE" ] || mkdir -p "${LOGFILE%/*}"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --no-internal --modify --preprocess --S4methods --junk "$delete_pat" \
