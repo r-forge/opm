@@ -101,7 +101,7 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
   store_description <- function(pkg, outdir, installed) {
     files <- pkgutils::pkg_files(pkg, ".", installed, I("DESCRIPTION"))
     # TODO: we might render this in HTML, too
-    file.copy(files, outdir, TRUE)
+    file.copy(files, outdir, TRUE, FALSE, TRUE, TRUE)
   }
 
   store_news <- function(pkg, outdir, installed) {
@@ -158,7 +158,8 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
       return(FALSE)
     # 'demo' is hardcoded because this is the name used in the knitr HTML
     dir.create(outdir <- file.path(outdir, "demo"), FALSE, TRUE)
-    file.copy(pkgutils::pkg_files(pkg, "demo", installed), outdir, TRUE)
+    file.copy(pkgutils::pkg_files(pkg, "demo", installed), outdir, TRUE,
+      FALSE, TRUE, TRUE)
     current.dir <- getwd()
     on.exit(setwd(current.dir))
     setwd(outdir)
@@ -191,7 +192,7 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
     if (!length(files))
       return(FALSE)
     dir.create(outdir <- file.path(outdir, "doc"), FALSE, TRUE)
-    file.copy(files, outdir, TRUE)
+    file.copy(files, outdir, TRUE, FALSE, TRUE, TRUE)
     pkgutils::map_files(file.path(outdir, "index.html"), fix_hrefs, mdir)
     TRUE
   }

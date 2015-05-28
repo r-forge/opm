@@ -203,7 +203,7 @@ check_vignettes()
         built_pdf_file=${sweave_file%.*}.pdf
         if [ "$built_pdf_file" -nt "$pdf_file" ] ||
             [ -e "$built_pdf_file" -a ! -e "$pdf_file" ]; then
-          cp -v "$built_pdf_file" "$pdf_file" 1>&2
+          cp -pv "$built_pdf_file" "$pdf_file" 1>&2
           echo >&2
         else
           echo "WARNING: '$pdf_file' missing or older than '$sweave_file'" >&2
@@ -1440,7 +1440,7 @@ test_demos()
     else
       echo "	<<<FAILURE>>>"
       errs=$((errs + 1))
-      cp "${rscript##*/}out" "$wdir"
+      cp -p "${rscript##*/}out" "$wdir"
     fi
     echo
   done
@@ -1473,7 +1473,7 @@ test_sql_demos()
     else
       echo "	<<<FAILURE>>>"
       errs=$((errs + 1))
-      cp "${rscript##*/}out" "$wdir"
+      cp -p "${rscript##*/}out" "$wdir"
     fi
     echo
   done
@@ -1930,7 +1930,7 @@ if [ "$RUNNING_MODE" = full ]; then
     target=../pkg/$OUT_DIR
     if mkdir -p "$target"; then
       reduce_vignette_Rnw_files "$OUT_DIR"
-      cp -ru "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
+      cp -pur "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
     fi
   fi
 else
