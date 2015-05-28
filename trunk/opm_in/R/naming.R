@@ -360,7 +360,9 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #'
 #'   A character vector of length greater than one can be passed to the
 #'   \code{\link{MOPMX}} method, which recycles its \code{to} argument.
-#'
+#' @param force Logical scalar allowing for changes to essentially all plate
+#'   types already know to \pkg{opm}, not only the special plate types listed
+#'   above. Should be used with care, of course.
 #' @param ... Optional arguments passed between the methods. For
 #'   \code{register_plate}, named arguments to be used if \code{object} is
 #'   missing.
@@ -617,12 +619,17 @@ setMethod("plate_type", "logical", function(object, ...) {
 #'
 setGeneric("gen_iii", function(object, ...) standardGeneric("gen_iii"))
 
-setMethod("gen_iii", OPM, function(object, to = "gen.iii") {
+setMethod("gen_iii", OPM, function(object, to = "gen.iii", force = FALSE) {
+  get <- function(name, map) map[[match.arg(tolower(name), names(map))]]
   if (custom_plate_is(L(to))) {
     to <- custom_plate_normalize(to)
     custom_plate_assert(to, colnames(object@measurements)[-1L])
-  } else
-    to <- SPECIAL_PLATES[[match.arg(tolower(to), names(SPECIAL_PLATES))]]
+  } else {
+    to <- get(to, if (L(force))
+      structure(names(PLATE_MAP), names = make.names(tolower(names(PLATE_MAP))))
+    else
+      SPECIAL_PLATES)
+  }
   object@csv_data[[CSV_NAMES[["PLATE_TYPE"]]]] <- to
   object
 }, sealed = SEALED)
