@@ -1264,11 +1264,11 @@ summary(aggregated(vaas_1.reaggr))
 The default settings of \code{do\_aggr} includes 100-fold bootstrapping of the data to obtain confidence intervals.
 As this is a time-consuming intensive process (particularly if \pkg{grofit} is used), it may be split over several cores on a multiple-core machine if \code{mclapply} from the \pkg{parallel} \proglang{R} package can be run with more than one core, which is possible on all operating systems except for Windows.
 
-One can also specify different spline fitting methods using \code{method = "spline"}, which is the recommended setting (for historical reasons, it is not the default) \citep{Vaas2013}.
-Options such as the spline type, the number of knots used for the spline and other options for the splines can be easily set using the function \code{set\_spline\_options} (which can only be used in conjunction with \code{method = "spline"}).
+One can also specify different spline fitting methods using \code{method = "spline"}, which is the recommended setting (and now the default) \citep{Vaas2013}.
+Options such as the spline type and the number of knots used for the spline can easily be set using the function \code{set\_spline\_options} (which can only be used in conjunction with \code{method = "spline"}).
 To essentially reproduce the results from \code{method = "grofit"} we could use smoothing splines (and for the sake of computing time in this vignette we only use 10 bootstrap replicates to compute confidence intervals for the parameter estimates):
 <<label=smoothing-splines, results=hide>>=
-op <- set_spline_options(type = "smooth.spline")
+op <- set_spline_options(type = "smooth.spline") # not recommended
 vaas_1.aggr2 <- do_aggr(vaas_1, boot = 10, method = "spline", options = op)
 @
 Other spline types can be specified \textit{via} the \code{type} argument in the function \code{set\_spline\_options}.
