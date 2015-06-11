@@ -1701,7 +1701,8 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #' Split files or clean file names.
 #'
 #' @param files Character vector or convertible to such. Names of the files to
-#'   be split.
+#'   be split. In contrast to functions such as \code{\link{read_opm}}, names of
+#'   directories are not supported (will not be expanded to lists of files).
 #' @param pattern Regular expression or shell globbing pattern for matching the
 #'   separator lines if \code{invert} is \code{FALSE} (the default) or matching
 #'   the non-separator lines if otherwise.
@@ -1751,7 +1752,8 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
 #'   matching the separator lines. See also \code{invert} listed above.
 #'
 #' @param x Character vector or convertible to such. Names of the files to be
-#'   modified.
+#'   modified. In contrast to functions such as \code{\link{read_opm}}, names of
+#'   directories are not supported (will not be expanded to lists of files).
 #' @param overwrite Logical scalar. Overwrite already existing files, and do not
 #'   care for duplicate names created by cleaning the file names?
 #' @param empty.tmpl Character scalar. The template to use for file names that

@@ -591,6 +591,21 @@ setMethod("metadata<-", c(MOPMX, "ANY", "data.frame"), function(object, key,
 #' all plates in turn and returns an \code{\link{WMDS}} object with accordingly
 #' modified metadata.
 #'
+#' Two kinds of errors can occur when attempting to identify a data-frame row
+#' using the given combination of keys and values. \itemize{
+#'   \item{The combination results in more than a single row.}
+#'   \item{The combination results in now rows at all.}
+#' } The according error message puts the failed values in single quotes,
+#' doubling all contained single quotes, if any. This eases recognising leading
+#' and trailing spaces, which are frequent cause of mismatches between
+#' data-frame fields and \code{\link{csv_data}} within \code{\link{WMD}}
+#' objects. This in turn is often due to leading or trailing spaces being lost
+#' when inputting \acronym{CSV} files again. Consider setting \code{strip.white}
+#' to \code{FALSE} in such cases. A potential cause of mismatches is the
+#' reformatting of setup time entries by spreadsheet software. This could be
+#' prevented by forcing that software to treat the setup time as character
+#' strings.
+#'
 #' Calling \code{edit} will only work if \code{\link{to_metadata}} yields a data
 #' frame suitable for the \code{edit} method from the \pkg{utils} package. This
 #' usually means that the \code{\link{metadata}} must be rectangular, even
@@ -732,9 +747,9 @@ setMethod("include_metadata", WMD, function(object, md, keys, replace = FALSE,
 
   # Try to select the necessary information from the metadata.
   found <- pick_from(md, selection)
-  msg <- case(nrow(found), listing(selection,
+  msg <- case(nrow(found), listing(lapply(selection, safe_labels, "nexus"),
       header = "could not find this key/value combination in 'metadata':"),
-    NULL, listing(selection,
+    NULL, listing(lapply(selection, safe_labels, "nexus"),
       header = "the selection resulted in more than one row for:"))
 
   # Failures.
@@ -937,9 +952,6 @@ setMethod("edit", MOPMX, function(name, ...) {
 #'   Original \code{names} attributes, if any, are dropped and replaced by the
 #'   character vector itself. (This might be convenient regarding its use with
 #'   \code{\link{map_metadata}}.)
-#' @details The result of \code{metadata_chars} can be used to create a mapping
-#'   for \code{\link{map_metadata}}. The \code{\link{WMDS}} method just applies
-#'   the \code{\link{WMD}} method to all contained plates in turn.
 #'
 #' @export
 #' @family metadata-functions
@@ -950,12 +962,17 @@ setMethod("edit", MOPMX, function(name, ...) {
 #'   be used by all functions that call \code{metadata} indirectly, usually via
 #'   an \code{as.labels} or \code{as.groups} argument.
 #'
-#'   Even though it is not technically impossible per se, it is usually a bad
-#'   idea to select metadata entries using numeric (positional) or logical keys.
-#'   The problem is that, in contrast to, e.g., data frames, their is no
-#'   guarantee that metadata entries with the same name occur in the same
-#'   position, even if they belong to \code{\link{WMD}} objects within a single
+#'   Even though it is not technically impossible, it is usually a bad idea to
+#'   select metadata entries using numeric (positional) or logical keys. The
+#'   problem is that, in contrast to, e.g., data frames, their is no guarantee
+#'   that metadata entries with the same name occur in the same position, even
+#'   if they belong to \code{\link{WMD}} objects within a single
 #'   \code{\link{WMDS}} object.
+#'
+#'   Note that \code{key = c("a", "b")} would search for an element named
+#'   \code{b} \emph{within} the element named \code{a}. To extract two elements
+#'   at the same (highest) level, \code{key = list("a", "b")} should be used.
+#'   This prevents many \sQuote{subscript out of bounds} errors.
 #'
 #'   Formulae passed as \code{key} argument are treated by ignoring the left
 #'   side (if any) and converting the right side to a list or other vector. Code
@@ -970,6 +987,10 @@ setMethod("edit", MOPMX, function(name, ...) {
 #'
 #'   Additional options when using formulae are described under
 #'   \code{\link{extract}}.
+#'
+#'   The result of \code{metadata_chars} can be used to create a mapping for
+#'   \code{\link{map_metadata}}. The \code{\link{WMDS}} method just applies the
+#'   \code{\link{WMD}} method to all contained plates in turn.
 #'
 #' @examples
 #'
