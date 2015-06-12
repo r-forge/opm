@@ -143,9 +143,12 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
   function.names <- new.env(parent = emptyenv())
   removed <- FALSE
   do_repair <- function(x, parent.tags) {
+    if (is.null(attr(x, "Rd_tag")))
+      stop(sprintf("missing Rd tag in file '%s' (parent tags: %s)", infile,
+        paste0(parent.tags, collapse = " -> ")))
     case(attr(x, "Rd_tag"),
       TEXT = {
-        switch(parent.tags[1L],
+        switch(parent.tags[[1L]],
           `\\keyword` = x[x == "dataset"] <- "datasets",
           `\\link` = if (remove.dups && "\\seealso" %in% parent.tags[-1L]) {
             for (part in cum_parts(x))
@@ -174,7 +177,7 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
       COMMENT =,
       VERB = x,
       RCODE = {
-        switch(parent.tags[1L],
+        switch(parent.tags[[1L]],
           `\\usage` = {
             if (grepl("\\s*<-\\s*value\\s*$", x, FALSE, TRUE))
             # Repair duplicate 'value' entries of replacement functions
@@ -201,7 +204,7 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
     attributes(y) <- attributes(x)
     y
   }
-  LL(remove.dups, text.dups)
+  LL(remove.dups, text.dups, infile)
   repair_recursively(x, ".toplevel")
 }
 
