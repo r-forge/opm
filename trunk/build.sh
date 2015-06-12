@@ -17,10 +17,12 @@
 # Call this script with 'help' as first argument to get an overview of its
 # usage.
 #
+# Known incompatibilities:: roxgen2 > 2.2.2, stringr > 0.6.2 (must downgrade).
+#
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
 #
-# (C) 2012-2014 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
+# (C) 2012-2015 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
 #
 ################################################################################
 
@@ -136,7 +138,7 @@ export_gs_location()
   local exe
   local suffix
   for bindir in /usr/bin /usr/local/bin "$HOME"/bin; do
-    for exe in gs-910 gs-906; do
+    for exe in gs-916 gs-910 gs-906; do
       for suffix in '' -linux_x86_64; do
         if [ -x "$bindir/${exe}$suffix" ]; then
           R_GSCMD=$bindir/${exe}$suffix
