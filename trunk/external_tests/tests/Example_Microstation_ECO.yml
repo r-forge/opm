@@ -169,7 +169,7 @@
     'E  9: 1/.5/0 Color Reactions': 0
     'E 10: 1/.5/0 Color Reactions': 1
     'E 11: 1/.5/0 Color Reactions': 0
-    'E 12: 1/.5/0 Color Reactions': 0.0
+    'E 12: 1/.5/0 Color Reactions': 0.0e+00
     'F  1: 1/.5/0 Color Reactions': 0
     'F  2: 1/.5/0 Color Reactions': 1
     'F  3: 1/.5/0 Color Reactions': 0
@@ -205,7 +205,7 @@
     'H  9: 1/.5/0 Color Reactions': 0
     'H 10: 1/.5/0 Color Reactions': 0.5
     'H 11: 1/.5/0 Color Reactions': 0.5
-    'H 12: 1/.5/0 Color Reactions': 0.0
+    'H 12: 1/.5/0 Color Reactions': 0.0e+00
     'A  1: Color Data': 0
     'A  2: Color Data': 18
     'A  3: Color Data': 184
@@ -600,10 +600,10 @@
     'ID #1 SIM': 0.769
     'ID #1 DIST': 3.49
     'ID #2 Name': Psd.aeruginosa
-    'ID #2 SIM': 0.0
+    'ID #2 SIM': 0.0e+00
     'ID #2 DIST': 15.17
     'ID #3 Name': Prv.stuartii
-    'ID #3 SIM': 0.0
+    'ID #3 SIM': 0.0e+00
     'ID #3 DIST': 23.0
     Empty Field: .na
     N.N.: .na
@@ -2672,10 +2672,10 @@
     'ID #1 SIM': 0.839
     'ID #1 DIST': 2.4
     'ID #2 Name': Psd.aeruginosa
-    'ID #2 SIM': 0.0
+    'ID #2 SIM': 0.0e+00
     'ID #2 DIST': 13.56
     'ID #3 Name': Prv.stuartii
-    'ID #3 SIM': 0.0
+    'ID #3 SIM': 0.0e+00
     'ID #3 DIST': 22.0
     Empty Field: .na
     N.N.: .na
@@ -4256,7 +4256,7 @@
     'H 12: +/b/- Color Reactions': '-'
     'A  1: 1/.5/0 Color Reactions': 0
     'A  2: 1/.5/0 Color Reactions': 0
-    'A  3: 1/.5/0 Color Reactions': 0.0
+    'A  3: 1/.5/0 Color Reactions': 0.0e+00
     'A  4: 1/.5/0 Color Reactions': 0
     'A  5: 1/.5/0 Color Reactions': 0
     'A  6: 1/.5/0 Color Reactions': 0
@@ -4264,7 +4264,7 @@
     'A  8: 1/.5/0 Color Reactions': 0
     'A  9: 1/.5/0 Color Reactions': 0
     'A 10: 1/.5/0 Color Reactions': 0
-    'A 11: 1/.5/0 Color Reactions': 0.0
+    'A 11: 1/.5/0 Color Reactions': 0.0e+00
     'A 12: 1/.5/0 Color Reactions': 0
     'B  1: 1/.5/0 Color Reactions': 0
     'B  2: 1/.5/0 Color Reactions': 0
@@ -4281,18 +4281,18 @@
     'C  1: 1/.5/0 Color Reactions': 1.0
     'C  2: 1/.5/0 Color Reactions': 0
     'C  3: 1/.5/0 Color Reactions': 0
-    'C  4: 1/.5/0 Color Reactions': 0.0
+    'C  4: 1/.5/0 Color Reactions': 0.0e+00
     'C  5: 1/.5/0 Color Reactions': 1
     'C  6: 1/.5/0 Color Reactions': 0
     'C  7: 1/.5/0 Color Reactions': 0
-    'C  8: 1/.5/0 Color Reactions': 0.0
+    'C  8: 1/.5/0 Color Reactions': 0.0e+00
     'C  9: 1/.5/0 Color Reactions': 1.0
     'C 10: 1/.5/0 Color Reactions': 0
     'C 11: 1/.5/0 Color Reactions': 0
     'C 12: 1/.5/0 Color Reactions': 0
     'D  1: 1/.5/0 Color Reactions': 1.0
     'D  2: 1/.5/0 Color Reactions': 0
-    'D  3: 1/.5/0 Color Reactions': 0.0
+    'D  3: 1/.5/0 Color Reactions': 0.0e+00
     'D  4: 1/.5/0 Color Reactions': 0
     'D  5: 1/.5/0 Color Reactions': 1.0
     'D  6: 1/.5/0 Color Reactions': 0
@@ -4337,19 +4337,19 @@
     'G  9: 1/.5/0 Color Reactions': 0
     'G 10: 1/.5/0 Color Reactions': 0
     'G 11: 1/.5/0 Color Reactions': 1.0
-    'G 12: 1/.5/0 Color Reactions': 0.0
+    'G 12: 1/.5/0 Color Reactions': 0.0e+00
     'H  1: 1/.5/0 Color Reactions': 0
-    'H  2: 1/.5/0 Color Reactions': 0.0
-    'H  3: 1/.5/0 Color Reactions': 0.0
-    'H  4: 1/.5/0 Color Reactions': 0.0
+    'H  2: 1/.5/0 Color Reactions': 0.0e+00
+    'H  3: 1/.5/0 Color Reactions': 0.0e+00
+    'H  4: 1/.5/0 Color Reactions': 0.0e+00
     'H  5: 1/.5/0 Color Reactions': 0
-    'H  6: 1/.5/0 Color Reactions': 0.0
-    'H  7: 1/.5/0 Color Reactions': 0.0
-    'H  8: 1/.5/0 Color Reactions': 0.0
+    'H  6: 1/.5/0 Color Reactions': 0.0e+00
+    'H  7: 1/.5/0 Color Reactions': 0.0e+00
+    'H  8: 1/.5/0 Color Reactions': 0.0e+00
     'H  9: 1/.5/0 Color Reactions': 0
-    'H 10: 1/.5/0 Color Reactions': 0.0
-    'H 11: 1/.5/0 Color Reactions': 0.0
-    'H 12: 1/.5/0 Color Reactions': 0.0
+    'H 10: 1/.5/0 Color Reactions': 0.0e+00
+    'H 11: 1/.5/0 Color Reactions': 0.0e+00
+    'H 12: 1/.5/0 Color Reactions': 0.0e+00
     'A  1: Color Data': 0
     'A  2: Color Data': 4
     'A  3: Color Data': 19
@@ -4744,10 +4744,10 @@
     'ID #1 SIM': 0.434
     'ID #1 DIST': 9.27
     'ID #2 Name': Flv.mizutaii-like(CDC II I)
-    'ID #2 SIM': 0.0
+    'ID #2 SIM': 0.0e+00
     'ID #2 DIST': 21.5
     'ID #3 Name': Psd.pseudoalcaligenes
-    'ID #3 SIM': 0.0
+    'ID #3 SIM': 0.0e+00
     'ID #3 DIST': 24.0
     Empty Field: .na
     N.N.: .na
@@ -6328,7 +6328,7 @@
     'H 12: +/b/- Color Reactions': '-'
     'A  1: 1/.5/0 Color Reactions': 0
     'A  2: 1/.5/0 Color Reactions': 0
-    'A  3: 1/.5/0 Color Reactions': 0.0
+    'A  3: 1/.5/0 Color Reactions': 0.0e+00
     'A  4: 1/.5/0 Color Reactions': 0
     'A  5: 1/.5/0 Color Reactions': 0
     'A  6: 1/.5/0 Color Reactions': 0
@@ -6336,7 +6336,7 @@
     'A  8: 1/.5/0 Color Reactions': 0
     'A  9: 1/.5/0 Color Reactions': 0
     'A 10: 1/.5/0 Color Reactions': 0
-    'A 11: 1/.5/0 Color Reactions': 0.0
+    'A 11: 1/.5/0 Color Reactions': 0.0e+00
     'A 12: 1/.5/0 Color Reactions': 0
     'B  1: 1/.5/0 Color Reactions': 0
     'B  2: 1/.5/0 Color Reactions': 0
@@ -6353,18 +6353,18 @@
     'C  1: 1/.5/0 Color Reactions': 1.0
     'C  2: 1/.5/0 Color Reactions': 0
     'C  3: 1/.5/0 Color Reactions': 0
-    'C  4: 1/.5/0 Color Reactions': 0.0
+    'C  4: 1/.5/0 Color Reactions': 0.0e+00
     'C  5: 1/.5/0 Color Reactions': 1
     'C  6: 1/.5/0 Color Reactions': 0
     'C  7: 1/.5/0 Color Reactions': 0
-    'C  8: 1/.5/0 Color Reactions': 0.0
+    'C  8: 1/.5/0 Color Reactions': 0.0e+00
     'C  9: 1/.5/0 Color Reactions': 1.0
     'C 10: 1/.5/0 Color Reactions': 0
     'C 11: 1/.5/0 Color Reactions': 0
     'C 12: 1/.5/0 Color Reactions': 0
     'D  1: 1/.5/0 Color Reactions': 1.0
     'D  2: 1/.5/0 Color Reactions': 0
-    'D  3: 1/.5/0 Color Reactions': 0.0
+    'D  3: 1/.5/0 Color Reactions': 0.0e+00
     'D  4: 1/.5/0 Color Reactions': 0
     'D  5: 1/.5/0 Color Reactions': 1.0
     'D  6: 1/.5/0 Color Reactions': 0
@@ -6409,19 +6409,19 @@
     'G  9: 1/.5/0 Color Reactions': 0
     'G 10: 1/.5/0 Color Reactions': 0
     'G 11: 1/.5/0 Color Reactions': 0.5
-    'G 12: 1/.5/0 Color Reactions': 0.0
+    'G 12: 1/.5/0 Color Reactions': 0.0e+00
     'H  1: 1/.5/0 Color Reactions': 0
-    'H  2: 1/.5/0 Color Reactions': 0.0
-    'H  3: 1/.5/0 Color Reactions': 0.0
-    'H  4: 1/.5/0 Color Reactions': 0.0
+    'H  2: 1/.5/0 Color Reactions': 0.0e+00
+    'H  3: 1/.5/0 Color Reactions': 0.0e+00
+    'H  4: 1/.5/0 Color Reactions': 0.0e+00
     'H  5: 1/.5/0 Color Reactions': 0
-    'H  6: 1/.5/0 Color Reactions': 0.0
-    'H  7: 1/.5/0 Color Reactions': 0.0
-    'H  8: 1/.5/0 Color Reactions': 0.0
+    'H  6: 1/.5/0 Color Reactions': 0.0e+00
+    'H  7: 1/.5/0 Color Reactions': 0.0e+00
+    'H  8: 1/.5/0 Color Reactions': 0.0e+00
     'H  9: 1/.5/0 Color Reactions': 0
-    'H 10: 1/.5/0 Color Reactions': 0.0
-    'H 11: 1/.5/0 Color Reactions': 0.0
-    'H 12: 1/.5/0 Color Reactions': 0.0
+    'H 10: 1/.5/0 Color Reactions': 0.0e+00
+    'H 11: 1/.5/0 Color Reactions': 0.0e+00
+    'H 12: 1/.5/0 Color Reactions': 0.0e+00
     'A  1: Color Data': 0
     'A  2: Color Data': 4
     'A  3: Color Data': 19
@@ -6816,10 +6816,10 @@
     'ID #1 SIM': 0.684
     'ID #1 DIST': 4.83
     'ID #2 Name': Flv.mizutaii-like(CDC II I)
-    'ID #2 SIM': 0.0
+    'ID #2 SIM': 0.0e+00
     'ID #2 DIST': 19.86
     'ID #3 Name': Psd.pseudoalcaligenes
-    'ID #3 SIM': 0.0
+    'ID #3 SIM': 0.0e+00
     'ID #3 DIST': 25.0
     Empty Field: .na
     N.N.: .na
@@ -8400,7 +8400,7 @@
     'H 12: +/b/- Color Reactions': '-'
     'A  1: 1/.5/0 Color Reactions': 0
     'A  2: 1/.5/0 Color Reactions': 1
-    'A  3: 1/.5/0 Color Reactions': 0.0
+    'A  3: 1/.5/0 Color Reactions': 0.0e+00
     'A  4: 1/.5/0 Color Reactions': 0
     'A  5: 1/.5/0 Color Reactions': 0
     'A  6: 1/.5/0 Color Reactions': 1
@@ -8408,7 +8408,7 @@
     'A  8: 1/.5/0 Color Reactions': 0
     'A  9: 1/.5/0 Color Reactions': 0
     'A 10: 1/.5/0 Color Reactions': 1
-    'A 11: 1/.5/0 Color Reactions': 0.0
+    'A 11: 1/.5/0 Color Reactions': 0.0e+00
     'A 12: 1/.5/0 Color Reactions': 0
     'B  1: 1/.5/0 Color Reactions': 0
     'B  2: 1/.5/0 Color Reactions': 0
@@ -8422,21 +8422,21 @@
     'B 10: 1/.5/0 Color Reactions': 0
     'B 11: 1/.5/0 Color Reactions': 0
     'B 12: 1/.5/0 Color Reactions': 1.0
-    'C  1: 1/.5/0 Color Reactions': 0.0
+    'C  1: 1/.5/0 Color Reactions': 0.0e+00
     'C  2: 1/.5/0 Color Reactions': 0
     'C  3: 1/.5/0 Color Reactions': 0
-    'C  4: 1/.5/0 Color Reactions': 0.0
+    'C  4: 1/.5/0 Color Reactions': 0.0e+00
     'C  5: 1/.5/0 Color Reactions': 1
     'C  6: 1/.5/0 Color Reactions': 0
     'C  7: 1/.5/0 Color Reactions': 0
-    'C  8: 1/.5/0 Color Reactions': 0.0
-    'C  9: 1/.5/0 Color Reactions': 0.0
+    'C  8: 1/.5/0 Color Reactions': 0.0e+00
+    'C  9: 1/.5/0 Color Reactions': 0.0e+00
     'C 10: 1/.5/0 Color Reactions': 0
     'C 11: 1/.5/0 Color Reactions': 0
     'C 12: 1/.5/0 Color Reactions': 0
-    'D  1: 1/.5/0 Color Reactions': 0.0
+    'D  1: 1/.5/0 Color Reactions': 0.0e+00
     'D  2: 1/.5/0 Color Reactions': 0
-    'D  3: 1/.5/0 Color Reactions': 0.0
+    'D  3: 1/.5/0 Color Reactions': 0.0e+00
     'D  4: 1/.5/0 Color Reactions': 1
     'D  5: 1/.5/0 Color Reactions': 1.0
     'D  6: 1/.5/0 Color Reactions': 0
@@ -8481,19 +8481,19 @@
     'G  9: 1/.5/0 Color Reactions': 1
     'G 10: 1/.5/0 Color Reactions': 0
     'G 11: 1/.5/0 Color Reactions': 1.0
-    'G 12: 1/.5/0 Color Reactions': 0.0
+    'G 12: 1/.5/0 Color Reactions': 0.0e+00
     'H  1: 1/.5/0 Color Reactions': 1
-    'H  2: 1/.5/0 Color Reactions': 0.0
-    'H  3: 1/.5/0 Color Reactions': 0.0
-    'H  4: 1/.5/0 Color Reactions': 0.0
+    'H  2: 1/.5/0 Color Reactions': 0.0e+00
+    'H  3: 1/.5/0 Color Reactions': 0.0e+00
+    'H  4: 1/.5/0 Color Reactions': 0.0e+00
     'H  5: 1/.5/0 Color Reactions': 1
-    'H  6: 1/.5/0 Color Reactions': 0.0
-    'H  7: 1/.5/0 Color Reactions': 0.0
-    'H  8: 1/.5/0 Color Reactions': 0.0
+    'H  6: 1/.5/0 Color Reactions': 0.0e+00
+    'H  7: 1/.5/0 Color Reactions': 0.0e+00
+    'H  8: 1/.5/0 Color Reactions': 0.0e+00
     'H  9: 1/.5/0 Color Reactions': 1
-    'H 10: 1/.5/0 Color Reactions': 0.0
-    'H 11: 1/.5/0 Color Reactions': 0.0
-    'H 12: 1/.5/0 Color Reactions': 0.0
+    'H 10: 1/.5/0 Color Reactions': 0.0e+00
+    'H 11: 1/.5/0 Color Reactions': 0.0e+00
+    'H 12: 1/.5/0 Color Reactions': 0.0e+00
     'A  1: Color Data': 0
     'A  2: Color Data': 660
     'A  3: Color Data': 0
@@ -8888,10 +8888,10 @@
     'ID #1 SIM': 0.751
     'ID #1 DIST': 3.77
     'ID #2 Name': CDC II H
-    'ID #2 SIM': 0.0
+    'ID #2 SIM': 0.0e+00
     'ID #2 DIST': 24.95
     'ID #3 Name': Agr.rhizobium
-    'ID #3 SIM': 0.0
+    'ID #3 SIM': 0.0e+00
     'ID #3 DIST': 28.67
     Empty Field: .na
     N.N.: .na
@@ -10472,7 +10472,7 @@
     'H 12: +/b/- Color Reactions': '-'
     'A  1: 1/.5/0 Color Reactions': 0
     'A  2: 1/.5/0 Color Reactions': 1
-    'A  3: 1/.5/0 Color Reactions': 0.0
+    'A  3: 1/.5/0 Color Reactions': 0.0e+00
     'A  4: 1/.5/0 Color Reactions': 0
     'A  5: 1/.5/0 Color Reactions': 0
     'A  6: 1/.5/0 Color Reactions': 1
@@ -10480,7 +10480,7 @@
     'A  8: 1/.5/0 Color Reactions': 0
     'A  9: 1/.5/0 Color Reactions': 0
     'A 10: 1/.5/0 Color Reactions': 1
-    'A 11: 1/.5/0 Color Reactions': 0.0
+    'A 11: 1/.5/0 Color Reactions': 0.0e+00
     'A 12: 1/.5/0 Color Reactions': 0
     'B  1: 1/.5/0 Color Reactions': 0
     'B  2: 1/.5/0 Color Reactions': 0
@@ -10494,21 +10494,21 @@
     'B 10: 1/.5/0 Color Reactions': 0
     'B 11: 1/.5/0 Color Reactions': 0
     'B 12: 1/.5/0 Color Reactions': 1.0
-    'C  1: 1/.5/0 Color Reactions': 0.0
+    'C  1: 1/.5/0 Color Reactions': 0.0e+00
     'C  2: 1/.5/0 Color Reactions': 0
     'C  3: 1/.5/0 Color Reactions': 0
-    'C  4: 1/.5/0 Color Reactions': 0.0
+    'C  4: 1/.5/0 Color Reactions': 0.0e+00
     'C  5: 1/.5/0 Color Reactions': 1
     'C  6: 1/.5/0 Color Reactions': 0
     'C  7: 1/.5/0 Color Reactions': 0
-    'C  8: 1/.5/0 Color Reactions': 0.0
-    'C  9: 1/.5/0 Color Reactions': 0.0
+    'C  8: 1/.5/0 Color Reactions': 0.0e+00
+    'C  9: 1/.5/0 Color Reactions': 0.0e+00
     'C 10: 1/.5/0 Color Reactions': 0
     'C 11: 1/.5/0 Color Reactions': 0
     'C 12: 1/.5/0 Color Reactions': 0
-    'D  1: 1/.5/0 Color Reactions': 0.0
+    'D  1: 1/.5/0 Color Reactions': 0.0e+00
     'D  2: 1/.5/0 Color Reactions': 0
-    'D  3: 1/.5/0 Color Reactions': 0.0
+    'D  3: 1/.5/0 Color Reactions': 0.0e+00
     'D  4: 1/.5/0 Color Reactions': 1
     'D  5: 1/.5/0 Color Reactions': 1.0
     'D  6: 1/.5/0 Color Reactions': 0
@@ -10552,20 +10552,20 @@
     'G  8: 1/.5/0 Color Reactions': 0
     'G  9: 1/.5/0 Color Reactions': 1
     'G 10: 1/.5/0 Color Reactions': 0
-    'G 11: 1/.5/0 Color Reactions': 0.0
-    'G 12: 1/.5/0 Color Reactions': 0.0
+    'G 11: 1/.5/0 Color Reactions': 0.0e+00
+    'G 12: 1/.5/0 Color Reactions': 0.0e+00
     'H  1: 1/.5/0 Color Reactions': 1
-    'H  2: 1/.5/0 Color Reactions': 0.0
-    'H  3: 1/.5/0 Color Reactions': 0.0
-    'H  4: 1/.5/0 Color Reactions': 0.0
+    'H  2: 1/.5/0 Color Reactions': 0.0e+00
+    'H  3: 1/.5/0 Color Reactions': 0.0e+00
+    'H  4: 1/.5/0 Color Reactions': 0.0e+00
     'H  5: 1/.5/0 Color Reactions': 1
-    'H  6: 1/.5/0 Color Reactions': 0.0
-    'H  7: 1/.5/0 Color Reactions': 0.0
-    'H  8: 1/.5/0 Color Reactions': 0.0
+    'H  6: 1/.5/0 Color Reactions': 0.0e+00
+    'H  7: 1/.5/0 Color Reactions': 0.0e+00
+    'H  8: 1/.5/0 Color Reactions': 0.0e+00
     'H  9: 1/.5/0 Color Reactions': 1
-    'H 10: 1/.5/0 Color Reactions': 0.0
-    'H 11: 1/.5/0 Color Reactions': 0.0
-    'H 12: 1/.5/0 Color Reactions': 0.0
+    'H 10: 1/.5/0 Color Reactions': 0.0e+00
+    'H 11: 1/.5/0 Color Reactions': 0.0e+00
+    'H 12: 1/.5/0 Color Reactions': 0.0e+00
     'A  1: Color Data': 0
     'A  2: Color Data': 661
     'A  3: Color Data': 1
@@ -10960,10 +10960,10 @@
     'ID #1 SIM': 0.872
     'ID #1 DIST': 1.91
     'ID #2 Name': CDC II H
-    'ID #2 SIM': 0.0
+    'ID #2 SIM': 0.0e+00
     'ID #2 DIST': 25.04
     'ID #3 Name': Agr.rhizobium
-    'ID #3 SIM': 0.0
+    'ID #3 SIM': 0.0e+00
     'ID #3 DIST': 28.38
     Empty Field: .na
     N.N.: .na
