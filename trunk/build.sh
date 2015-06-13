@@ -1540,6 +1540,20 @@ test_sql()
 	The default database name is 'pmdata'. An empty database name turns off the
 	according test.
 
+	On Ubuntu, the commands for creating an according PostgreSQL database are:
+	  sudo -u postgres createdb pmdata
+	  sudo -u postgres createuser $USER
+	  
+	On Ubuntu, the commands for creating an according MySQL database are:
+	  mysqladmin -u root -p create pmdata
+	  mysql -u root -p pmdata
+
+	At the mysql prompt, enter:
+	  CREATE USER $USER@localhost;
+	  GRANT USAGE ON *.* TO $USER@localhost; 
+	  GRANT ALL PRIVILEGES ON pmdata.* TO $USER@localhost;
+	  FLUSH PRIVILEGES;
+
 ____EOF
     return 1
   fi
@@ -1724,7 +1738,7 @@ case $RUNNING_MODE in
 	  rout    Show results of the examples, if any, for given function names.
 	  space   Remove trailing whitespace from all R and Rnw code files found.
 	  spell   Check spelling in the vignette files (see below for the Rd files).
-	  sql1    SQL-based tests. Call '$0 sql -h' for a description.
+	  sql1    SQL-based tests. Call '$0 sql1 -h' for a description.
 	  sql2    Like sql1, but not only the SQL code, also the associated R code.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
 	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
