@@ -1541,18 +1541,22 @@ test_sql()
 	according test.
 
 	On Ubuntu, the commands for creating an according PostgreSQL database are:
+	  sudo aptitude install postgresql
 	  sudo -u postgres createdb pmdata
 	  sudo -u postgres createuser $USER
 	  
 	On Ubuntu, the commands for creating an according MySQL database are:
+	  sudo aptitude install mysql-server
+	  sudo aptitude install libmysqlclient-dev
 	  mysqladmin -u root -p create pmdata
 	  mysql -u root -p pmdata
 
-	At the mysql prompt, enter:
+	Then, at the mysql prompt, enter:
 	  CREATE USER $USER@localhost;
 	  GRANT USAGE ON *.* TO $USER@localhost; 
 	  GRANT ALL PRIVILEGES ON pmdata.* TO $USER@localhost;
 	  FLUSH PRIVILEGES;
+	  QUIT;
 
 ____EOF
     return 1
