@@ -954,7 +954,7 @@ if (!file.exists("cvrisk_mod.Rda")) {
 @
 
 Now, we subset the model to the optimal number of stopping iterations:
-<<cvrisk_mod_shown>>=
+<<cvrisk_mod_shown, eval = FALSE>>=
 ## optimal number of iterations
 mstop(cvr)
 ## plot the cross-validation results
