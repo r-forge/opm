@@ -1558,6 +1558,10 @@ test_sql()
 	  FLUSH PRIVILEGES;
 	  QUIT;
 
+	For using ODBC in conjunction with PostgreSQL, odbc-postgresql must be
+	installed on Ubuntu. If unixodbc-bin has been installed, setting up the
+	~/.odbc.ini file can be done with the ODBCManageDataSourcesQ4 tool.
+
 ____EOF
     return 1
   fi
