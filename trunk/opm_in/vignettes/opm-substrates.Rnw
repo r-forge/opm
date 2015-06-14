@@ -87,7 +87,7 @@
 % authors, first page
 \author{Lea A.I. \Surname{Vaas}\\Leibniz Institute \acs{DSMZ} \And
         Benjamin \Surname{Hofner}\\\acs{IMBE}, \acs{FAU} \German{Erlangen-N\"{u}rnberg} \And
-        Markus \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
+        \German{Markus} \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
 
 
 % title, first page
@@ -109,7 +109,7 @@
 \Abstract{
 
 This is the substrate-information tutorial of \pkg{opm} in the version of \today{}.
-The precomputed information on the known \ac{PM} substrates is explained, as well as the methods available to query this information.
+The stored information on the known \ac{PM} substrates is explained, as well as the methods available to query this information.
 IDs for a variety of databases are stored within \pkg{opm} and can be used to conduct web queries to obtain comprehensive information on the substrates of interest.
 We show how these data can be used to visualise results from \ac{PM} experiments, including the outcome from advanced multiple-comparison statistics, within biochemical pathway maps.
 Visually comparing genome annotation and \ac{PM} results is easily possible in that manner.
@@ -123,7 +123,7 @@ The final chapters of this tutorial provide examples for the powerful feature-se
 \Plainkeywords{respiration kinetics, pathways, feature selection, boosting, CAS, MeSH, ChEBI, MetaCyc, KEGG, SEED, pathview, mboost}
 
 \Address{
-  Markus \Surname{G\"{o}ker}\\
+  \German{Markus} \Surname{G\"{o}ker}\\
   Leibniz Institute \acs{DSMZ} -- German Collection of Microorganisms and Cell Cultures\\
   \German{Braunschweig}\\
   \\
@@ -192,7 +192,7 @@ data(vaas_et_al, package = "opmdata")
 
 \section{Accessing plate and substrate information}\label{plate-substrate-information}
 
-The \pkg{opm} package contains a number of functions suitable for accessing precomputed information on entire plates and on the substrates within certain wells.
+The \pkg{opm} package contains a number of functions suitable for accessing stored information on entire plates and on the substrates within certain wells.
 
 \subsection{Available plate information}\label{plate-information}
 

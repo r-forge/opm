@@ -137,7 +137,7 @@ Lea A.I. \Surname{Vaas}\\
 Benjamin \Surname{Hofner}\\
   \German{Universit\"{a}t}\\
   \German{Erlangen-N\"{u}rnberg} \And
-Markus \Surname{G\"{o}ker}\\
+\German{Markus} \Surname{G\"{o}ker}\\
   Leibniz Institute \acs{DSMZ}
 }
 
@@ -183,7 +183,7 @@ This is the tutorial of \pkg{opm} in the version of \today{}.
 \Plainkeywords{bootstrap, cell lines, grofit, growth curves, lattice, metadata, microbiology, respiration kinetics, splines, YAML, JSON, CSV, RDBMS}
 
 \Address{
-  Markus \Surname{G\"{o}ker}\\
+  \German{Markus} \Surname{G\"{o}ker}\\
   Leibniz Institute \acs{DSMZ} -- German Collection of Microorganisms and Cell Cultures\\
   \German{Braunschweig}\\
   \\
@@ -2268,7 +2268,7 @@ Let $A_1$ and $A_2$ be the \ac{A} parameters from two curves $C_1$ and $C_2$, re
 The algorithm then guarantees that if $C_2$ is judged as positive reaction then $C_1$ is also judged as positive; if $C_2$ is weak then $C_1$ is not negative; if $C_1$ is negative then $C_2$ is negative; and if $C_1$ is weak then $C_2$ is not positive.
 In this sense, the results will be consistent, but there are not many other things the algorithm guarantees.
 Note particularly that always three clusters result by default (one can omit the middle cluster, i.e. the ``weak'' reactions), irrespective of the input data.
-This is usually unproblematic if the data contain both really negative and really positive reactions, but data that in reality are negative throughout, or uniformly positive, would nevertheless be split into three (or two) clusters.
+This is usually without difficulty if the data contain both really negative and really positive reactions, but data that in reality are negative throughout, or uniformly positive, would nevertheless be split into three (or two) clusters.
 That is, additionally checking the curve heights and particularly the ``cutoffs'' entry obtained \textit{via} \code{disc\_settings} should initially be mandatory.
 
 It is also possible to make the reactions uniform within metadata-defined groups.
@@ -2414,7 +2414,7 @@ To summarise, we are convinced that the \pkg{opm} package already enables the us
 
 The help of Nora \Surname{Buddruhs} (\ac{DSMZ}) and Anne \Surname{Fiebig} (\ac{DSMZ}), who contributed a lot to the stored substrate information and to examples in earlier versions of this tutorial, is gratefully acknowledged.
 We owe very much to Hans-Peter \Surname{Klenk} (\ac{DSMZ}), who brought the OmniLog\textregistered \ instrument to the \ac{DSMZ} and supported this project in numerous ways.
-We thank Barry \Surname{Bochner} (BIOLOG Inc.), John \Surname{Kirkish} (BIOLOG Inc.), Andre \Surname{Chouankam} (BIOLOG Inc.), Jan \Surname{Meier-Kolthoff} (\ac{DSMZ}), Pia \Surname{W\"{u}st} (\ac{DSMZ}), Stefan \Surname{Ehrentraut} (\ac{DSMZ}) and \German{J\"{o}rn} \Surname{Petersen} (\ac{DSMZ}) for helpful advice, as well as Victoria \Surname{Michael} (\ac{DSMZ}) for technical support.
+We thank Barry \Surname{Bochner} (BIOLOG Inc.), John \Surname{Kirkish} (BIOLOG Inc.), Andre \Surname{Chouankam} (BIOLOG Inc.), Jan \Surname{Meier-Kolthoff} (\ac{DSMZ}), \German{Pia} \Surname{W\"{u}st} (\ac{DSMZ}), Stefan \Surname{Ehrentraut} (\ac{DSMZ}) and \German{J\"{o}rn} \Surname{Petersen} (\ac{DSMZ}) for helpful advice, as well as Victoria \Surname{Michael} (\ac{DSMZ}) for technical support.
 We are also grateful to the maintainers of \proglang{R}-Forge and the \ac{CRAN} for providing the on-line resources used by this project.
 This work was supported by the \ac{DFG} \ac{SFB}/\ac{TRR} 51 and by the \proglang{Microme} project within the Framework 7 programme of the European Commission, which is gratefully acknowledged.
 Johannes \Surname{Sikorski} gratefully acknowledges his support by \ac{DFG} grant SI 1352/1-2.

@@ -78,7 +78,7 @@
 
 
 % authors, first page
-\author{Markus \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
+\author{\German{Markus} \Surname{G\"{o}ker}\\Leibniz Institute \acs{DSMZ}}
 
 
 % title, first page
@@ -114,7 +114,7 @@ All these practically relevant issues are explained in detail.
 \Plainkeywords{respiration kinetics, pathways, CAS, MeSH, ChEBI, MetaCyc, KEGG, pathview}
 
 \Address{
-  Markus \Surname{G\"{o}ker}\\
+  \German{Markus} \Surname{G\"{o}ker}\\
   Leibniz Institute \acs{DSMZ} -- German Collection of Microorganisms and Cell Cultures\\
   \German{Braunschweig}\\
   \\
