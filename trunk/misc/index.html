@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Start page of the HTML documentation of opm and its helper packages -->
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 25 March 2009), see www.w3.org">
+
+  <title>opm</title>
+  <meta http-equiv="Content-Type" content=
+  "text/html; charset=us-ascii">
+  <link rel="stylesheet" type="text/css" href=
+  "opm_doc/manual/R.css">
+</head>
+
+<body>
+  <h1>OPM and its Helper Packages</h1>
+
+  <h2>Background</h2>
+
+  <p>The <code>opm</code> package for <code>R</code> is a
+  comprehensive software for analysing phenotype microarray and
+  growth-curve data. For more information, see the <a href=
+  "http://opm.dsmz.de/"><code>opm</code> page</a> at DSMZ or the
+  <a href="opm_doc/doc/opm-tutorial.pdf">main tutorial</a> for
+  <code>opm</code>.</p>
+
+  <h2>Installation</h2>
+
+  <p>As a prerequisite, one needs to obtain the statistical
+  computing environment <a href=
+  "http://www.r-project.org/"><code>R</code></a>. We also recommend
+  a graphical user interface such as <a href=
+  "http://www.rstudio.com/">RStudio</a>. Both are freely available;
+  instructions for installation are given on their websites.</p>
+
+  <p>There are two recommended installation options for
+  <code>opm</code> and its dependencies. The first way is to visit
+  the <a href=
+  "https://r-forge.r-project.org/R/?group_id=1573"><code>opm</code>
+  R-Forge site</a>, download the source files or binaries and
+  install them locally. Ready-to-install Windows binaries are
+  usually available there.</p>
+
+  <p>Alternatively, at the <code>R</code> prompt, enter:</p>
+  <pre>
+<code class="r">
+  source("http://www.goeker.org/opm/install_opm.R")
+  </code>
+</pre>
+
+  <p>You will then be asked for what exactly to install. The
+  packages can, of course, also be downloaded as described below
+  and installed manually (and optionally checked beforehand).</p>
+
+  <p>Documentation comes with the packages but is also linked
+  below. Occasional error messages found in the
+  <acronym>HTML</acronym> documentation, if any, are specific to
+  applying <code>knitr</code> to the packages. We would not
+  normally upload packages that failed any of the checks.</p>
+
+  <h2>Tutorials</h2>
+
+  <table summary="listing of tutorials" width="100%">
+    <tbody>
+      <tr>
+        <td width="25%"><a href=
+        "opm_doc/doc/opm-tutorial.pdf">Using
+        <code>opm</code></a></td>
+
+        <td>the main tutorial for <code>opm</code>, the best
+        starting point for new users</td>
+      </tr>
+
+      <tr>
+        <td width="25%"><a href=
+        "opm_doc/doc/opm-substrates.pdf">Substrate information in
+        <code>opm</code></a></td>
+
+        <td>availability and use of data on phenotype microarray
+        substrates in <code>opm</code></td>
+      </tr>
+
+      <tr>
+        <td width="25%"><a href=
+        "opm_doc/doc/opm-growth-curves.pdf">Growth curves in
+        <code>opm</code></a></td>
+
+        <td>applying <code>opm</code> not to phenotype microarray
+        data but to growth curves</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>All Documentation</h2>
+
+  <table summary="package documentation listing" width="100%">
+    <tbody>
+      <tr>
+        <td width="25%"><a href=
+        "http://www.goeker.org/opm/pkgutils_doc/manual/index.html">pkgutils</a></td>
+
+        <td>comprehensive online documentation of the latest
+        <code>pkgutils</code> version</td>
+      </tr>
+
+      <tr>
+        <td width="25%"><a href=
+        "http://www.goeker.org/opm/opm_doc/manual/index.html">opm</a></td>
+
+        <td>comprehensive online documentation of the latest
+        <code>opm</code> version</td>
+      </tr>
+
+      <tr>
+        <td width="25%"><a href=
+        "http://www.goeker.org/opm/opmdata_doc/manual/index.html">opmdata</a></td>
+
+        <td>comprehensive online documentation of the latest
+        <code>opmdata</code> version</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Download</h2>
+
+  <table summary="package archive listing" width="100%">
+    <tbody>
+      <tr>
+        <td width="25%"><a href=
+        "http://www.goeker.org/opm/pkgutils_latest.tar.gz">pkgutils</a></td>
+
+        <td>built and checked <code>R</code> source-code archive of
+        the latest <code>pkgutils</code> version</td>
+      </tr>
+
+      <tr>
+        <td width="25%"><a href=
+        "http://www.goeker.org/opm/opm_latest.tar.gz">opm</a></td>
+
+        <td>built and checked <code>R</code> source-code archive of
+        the latest <code>opm</code> version</td>
+      </tr>
+
+      <tr>
+        <td width="25%"><a href=
+        "http://www.goeker.org/opm/opmdata_latest.tar.gz">opmdata</a></td>
+
+        <td>built and checked <code>R</code> source-code archive of
+        the latest <code>opmdata</code> version</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Acknowledgments</h2>
+
+  <p>We thank the maintainers of the <code>R</code> packages on
+  which <code>pkgutils</code>, <code>opm</code> and
+  <code>opmdata</code> depend and of those packages used to
+  generate this documentation.</p>
+
+  <h2>Disclaimer</h2>
+
+  <p>The <code>pkgutils</code>, <code>opm</code> and
+  <code>opmdata</code> packages are free software published under
+  the <a href="http://www.gnu.org/licenses/gpl.html">GPL</a> and
+  come with absolutely no warranty. This holds even though a lot of
+  effort was invested into getting the packages as bug-free as
+  possible.</p>
+</body>
+</html>

@@ -1701,6 +1701,9 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #' @author Lea A.I. Vaas
 #' @examples
 #'
+#' if ("package:lattice" %in% search())
+#'   detach("package:lattice") # only necessary for knitr
+#'
 #' ## OPM objects
 #'
 #' parallelplot(vaas_1)
