@@ -43,6 +43,11 @@ OPMLIPIDS_TEST_DIR=external_opmlipids_tests
 MISC_DIR=misc
 
 
+# If another database name shall be used.
+#
+DEFAULT_DBNAME=pmdata
+
+
 ################################################################################
 #
 # It should not be necessary to change anything below this line. Negotiate with
@@ -64,6 +69,10 @@ BUILT_PACKAGES=$MISC_DIR/built_packages
 # Where some auxiliary R scripts reside.
 #
 HELPER_SCRIPTS=$MISC_DIR/helpers
+
+# Start page of the HTML documentation.
+#
+HTML_STARTPAGE=$MISC_DIR/index.html
 
 # Manuals (PDF files) rescued from the check directories.
 #
@@ -1464,7 +1473,7 @@ test_sql_demos()
   cd "$tmpdir"
   local rscript
   local errs=0
-  OPM_SQLITE_DB=$wdir/misc/pmdata.db
+  OPM_SQLITE_DB=$wdir/$MISC_DIR/$DEFAULT_DBNAME.db
   export OPM_SQLITE_DB
   for rscript in "$wdir"/opm_in/demo/*.R; do
     [ -s "$rscript" ] || continue
@@ -1507,10 +1516,9 @@ print_test_result()
 #
 test_sql()
 {
-  local default_dbname=pmdata
-  local sqlite3_dbname=$MISC_DIR/$default_dbname.db
-  local mysql_dbname=$default_dbname
-  local postgresql_dbname=$default_dbname
+  local sqlite3_dbname=$MISC_DIR/$DEFAULT_DBNAME.db
+  local mysql_dbname=$DEFAULT_DBNAME
+  local postgresql_dbname=$DEFAULT_DBNAME
   local help_msg=
 
   local opt
@@ -1537,24 +1545,24 @@ test_sql()
 	  -p x  Use PostgreSQL database x.
 	  -s x  Use SQLite database x.
 
-	The default database name is 'pmdata'. An empty database name turns off the
-	according test.
+	The default database name is '$DEFAULT_DBNAME'. An empty database name turns
+	off the according test.
 
 	On Ubuntu, the commands for creating an according PostgreSQL database are:
 	  sudo aptitude install postgresql
-	  sudo -u postgres createdb pmdata
-	  sudo -u postgres createuser $USER
+	  sudo -u postgres createdb "$DEFAULT_DBNAME"
+	  sudo -u postgres createuser "$USER"
 	  
 	On Ubuntu, the commands for creating an according MySQL database are:
 	  sudo aptitude install mysql-server
 	  sudo aptitude install libmysqlclient-dev
-	  mysqladmin -u root -p create pmdata
-	  mysql -u root -p pmdata
+	  mysqladmin -u root -p create "$DEFAULT_DBNAME"
+	  mysql -u root -p "$DEFAULT_DBNAME"
 
 	Then, at the mysql prompt, enter:
-	  CREATE USER $USER@localhost;
-	  GRANT USAGE ON *.* TO $USER@localhost; 
-	  GRANT ALL PRIVILEGES ON pmdata.* TO $USER@localhost;
+	  CREATE USER '$USER'@localhost;
+	  GRANT USAGE ON *.* TO '$USER'@localhost; 
+	  GRANT ALL PRIVILEGES ON '$DEFAULT_DBNAME'.* TO '$USER'@localhost;
 	  FLUSH PRIVILEGES;
 	  QUIT;
 
@@ -1784,8 +1792,11 @@ ____EOF
     exit 1
   ;;
   html )
-    generate_html_docu pkgutils opm opmdata &&
-      upload_to_server pkgutils_doc opm_doc opmdata_doc
+    OPM_SQLITE_DB=`pwd`/$MISC_DIR/$DEFAULT_DBNAME.db
+    export OPM_SQLITE_DB
+    tidy -quiet -indent -modify "$HTML_STARTPAGE" &&
+      generate_html_docu pkgutils opm opmdata &&
+        upload_to_server "$HTML_STARTPAGE" pkgutils_doc opm_doc opmdata_doc
     exit $?
   ;;
   lnorm )
