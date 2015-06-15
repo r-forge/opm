@@ -208,7 +208,7 @@ Using other values for \code{full}, or additional arguments, distinct spelling v
 
 \subsection{Available substrate information}\label{subsub-information}
 
-In the manual and help pages these functions are explained within the family ``naming-functions'' with according cross-references.
+In the manual these functions are assigned to the family ``naming-functions'' with according cross-references.
 
 One usually would start a search by determining the exact spelling of an internally used name with \code{find\_substrate}:
 
@@ -235,7 +235,7 @@ substrates
 @
 
 This fetches all terms that end in either query character string, and does so case-insensitively.
-Advanced users can apply the much more powerful \code{regex} and \code{approx} search modes; see the manual for details, entry \code{?find\_substrate}.
+Advanced users can apply the much more powerful \code{regex} and \code{approx} search modes, which are described in the manual.
 
 Note that \pkg{opm} appends a concentration (or just repetition) indicator as a number after a hash sign (``\#'') to the substrate names wherever necessary.
 Thus a wild-card ``*'' at the end of a name might often by the most useful search pattern.
@@ -266,8 +266,7 @@ subst.info <- substrate_info(substrates, "all")
 subst.info
 @
 
-Another use of \code{substrate\_info} is to convert substrate names to lower case but protecting name components such as abbreviations or chemical symbols.
-See the manual for further details, help page \code{?substrate\_info}.
+Another use of \code{substrate\_info} is to convert substrate names to lower case but protecting name components such as abbreviations or chemical symbols, as described in the manual.
 
 
 \section[Visualisation of PM information within pathway maps]{Visualisation of \ac{PM} information within pathway maps}\label{vis-pathway}
@@ -495,7 +494,7 @@ The substrates (circles) in the maps get standard compound names, which are auto
 The data for the two strains can be shown analogously using the categorical output of \code{annotated}, see Figure~\ref{fig:pathview-cat-sep-strains-1a} and \ref{fig:pathview-cat-sep-strains-1b}.
 This works because the underlying \proglang{OPMX} object contains discretised data.
 Whereas \code{annotated} would by default return a logical vector in that case, the \code{lmap} argument can be used to create a numeric vector on the fly.
-See the manual for its usage, entry \code{?annotated}.
+See the manual for applications of \code{lmap}.
 
 <<label=pathview-wrapper-plot-bin>>=
 anno.k12.bin <- annotated(coli.k12, output = param_names("disc.name"),

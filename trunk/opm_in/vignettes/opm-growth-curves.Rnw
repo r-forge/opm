@@ -193,7 +193,6 @@ data("potato")
 head(potato)
 @
 
-For details on this data set, enter \code{?potato} at the \proglang{R} prompt.
 The measurements are in ``long'' format and must be reshaped using the eponymous function into ``wide'' format.
 The ``long'' format was deliberately chosen for demonstrating the use of the \code{reshape} function.
 We reshape separately for the \ac{DM} and \ac{FM} measurements within the data set:
