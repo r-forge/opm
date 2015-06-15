@@ -18,6 +18,7 @@
 # usage.
 #
 # Known incompatibilities:: roxgen2 > 2.2.2, stringr > 0.6.2 (must downgrade).
+# For all other packages (and R itself) the newest versions are suggested.
 #
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
@@ -1640,25 +1641,33 @@ generate_html_docu()
 check_html_docu()
 {
   local docdir
-  local rfile
-  local rnwfile
+  local infile
   local ext
+  local errs=0
   for docdir; do
+    # show errors in R code (might be knitr-specific)
     find "$docdir" -name '*.html' -exec grep -F '## Error' \{\} + || true
-    for rfile in `find "$docdir" -name '*.R'`; do
-      [ -s "${rfile%.*}.Rnw" ] && continue
+    # check for output generated from the demo R files
+    for infile in `find "$docdir" -name '*.R'`; do
+      [ -e "${infile%.*}.Rnw" ] && continue # not a demo file
       for ext in Rmd md html; do
-        [ -s "${rfile%.*}.$ext" ] ||
-          echo "WARNING: file '${rfile%.*}.$ext' does not exist"
+        if ! [ -s "${infile%.*}.$ext" ]; then
+          echo "ERROR: file '${infile%.*}.$ext' is empty or missing" >&2
+          errs=$(($errs + 1))
+        fi
       done
     done
-    for rnwfile in `find "$docdir" -name '*.Rnw'`; do
+    # check for output generated from the vignette Rnw files
+    for infile in `find "$docdir" -name '*.Rnw'`; do
       for ext in R pdf; do
-        [ -s "${rnwfile%.*}.$ext" ] ||
-          echo "WARNING: file '${rnwfile%.*}.$ext' does not exist"
+        if ! [ -s "${infile%.*}.$ext" ]; then
+          echo "ERROR: file '${infile%.*}.$ext' is empty or missing" >&2
+          errs=$(($errs + 1))
+        fi
       done
     done
   done
+  return $errs
 }
 
 
@@ -1827,7 +1836,7 @@ ____EOF
     tidy -quiet -indent -modify "$HTML_STARTPAGE" &&
       generate_html_docu pkgutils opm opmdata &&
         check_html_docu pkgutils_doc opm_doc opmdata_doc &&
-          upload_to_server "$HTML_STARTPAGE" #pkgutils_doc opm_doc opmdata_doc
+          upload_to_server "$HTML_STARTPAGE" pkgutils_doc opm_doc opmdata_doc
     exit $?
   ;;
   lnorm )

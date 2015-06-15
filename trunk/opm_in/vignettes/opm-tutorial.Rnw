@@ -84,10 +84,12 @@
 \acrodef{ID}{Identifier}
 \acrodef{LIMS}{Laboratory Information Management System}
 \acrodef{NADH}{reduced Nicotinamide Adenine Dinucleotide}
+\acrodef{PDF}{Portable Document Format}
 \acrodef{PM}{Phenotype Microarray}
 \acrodef{RDBMS}{Relational Database Management System}
 \acrodef{SFB}{\German{Sonderforschungsbereich}}
 \acrodef{TRR}{\German{Transregio}}
+\acrodef{WWW}{World Wide Web}
 
 %% Add Revision Control System (RCS) Markups
 \usepackage{ulem}      % use this for sout
@@ -245,7 +247,7 @@ All web resources regarding \pkg{opm} are linked on its main website \url{http:/
 How substrate information can be processed by \pkg{opm} is described in a separate vignette, ``Working with substrate information in \pkg{opm}'', also available together with the package.
 How to process growth-curve data and user-defined \ac{PM} plates is described in the package vignette ``Analysing growth curves and other user-defined data in \pkg{opm}''.
 
-Do not overlook that there is an \pkg{opm} manual that describes all functions and arguments in much greater detail than possible in any if the vignettes.
+Do not overlook that there is an \pkg{opm} manual, easily accessible from within \proglang{R}, that describes all functions and arguments in much greater detail than possible in any if the vignettes.
 
 Neither basic \proglang{R} syntax nor details of basic data structures (except for a few examples) will be discussed in this tutorial.
 To this end, we refer to the manuals given on the \proglang{R} homepage (\url{http://cran.r-project.org/manuals.html}).
@@ -319,6 +321,7 @@ For further specific graphical or statistical analysis according to the needs of
 
 The work flows described below include the input of raw kinetic data and integration of corresponding metadata, conversion into suitable storage formats, the computation of a set of four parameters (aggregated data) sufficient for comprehensively describing the curves' shape, manipulating and querying the constructed objects, visualising both raw kinetics and aggregated data, statistical comparison of group means, discretisation of the curve parameters and corresponding export methods, obtaining additional information the substrates and setting global options.
 
+
 \section[Methods]{Methods}\label{methods}
 
 
@@ -385,8 +388,17 @@ Database interaction for storing and receiving \ac{PM} data is described in the 
 Finally, it is possible to modify settings that have an effect on multiple functions and/or on frequently used arguments.
 See Section~\ref{methods settings} and then Section~\ref{application discrete-table} for a code example.
 
-After a successful installation of \pkg{opm}, the complete \proglang{R} code extracted from this vignette (as well as all other vignette files) can be found \textit{via} \code{opm\_files("doc")}.
-For the manual, see \code{help(package = "opm")}; for the code demonstrations that come with \pkg{opm}, enter \code{demo(package = "opm")}.
+\subsubsection[Additional information]{Additional information}\label{methods additional}
+
+Many additional resources on \pkg{opm} are available:
+
+\begin{itemize}
+\item After a successful installation of \pkg{opm}, the complete \proglang{R} code extracted from this vignette as well as all \textbf{vignettes} can be found \textit{via} \code{opm\_files("doc")}.
+\item The \textbf{manual} is available as a \ac{PDF} file.
+\item The \textbf{help pages} for each topic \code{some\_topic} in the manual can easily be looked up by entering \code{?some\_topic} at the \proglang{R} prompt; for listing all topics of the \pkg{opm} manual, enter \code{help(package = "opm")}.
+\item For the \textbf{code presentations} that come with \pkg{opm}, enter \code{demo(package = "opm")}.
+\end{itemize}
+
 
 \subsection[Data import]{Data import}\label{methods import}
 
@@ -498,7 +510,7 @@ Note particularly that \proglang{OPM}, which only contains raw data, \ac{CSV} da
 \proglang{OPMD} inherits from \proglang{OPMA} and stores discretised curve parameters in addition to aggregated values.
 \proglang{OPMS} is a container class that holds \proglang{OPM}, \proglang{OPMA} and/or \proglang{OPMD} objects.
 These can usually co-occur in a single \proglang{OPMS} object but for some calculations the additional information in \proglang{OPMA} or \proglang{OPMD} objects is strictly required.
-The query functions \code{has\_aggr} and \code{has\_disc} are available for checking from which kinds of objects an \proglang{OPMS} is composed; see their help pages (e.g., \code{?has\_aggr}) and Section~\ref{application}.
+The query functions \code{has\_aggr} and \code{has\_disc} are available for checking from which kinds of objects an \proglang{OPMS} is composed; see the manual and Section~\ref{application}.
 \proglang{MOPMX} objects are less tightly controlled collections.
 \proglang{MOPMX} objects are lists restricted to objects of the previously listed classes as elements, which may or may not have the same plate type.
 The non-virtual auxiliary classes shown in the figure are either well-known in \proglang{R} (e.g., matrices) or not directly manipulated by the user (\proglang{CMAT}).
@@ -831,7 +843,7 @@ For each growth duration four technical replicates were performed except for t9 
 All biological and experimental details of this data set have been described previously \citep{vaas}.
 
 Two subsets of the data, \code{vaas\_1} and \code{vaas\_4}, are included in \pkg{opm}.
-Use \code{?vaas\_1} and \code{?vaas\_4} to view their help pages, and have a look at the objects as follows:
+See their description in the manual, and have a look at the objects as follows:
 
 <<label=example-data, results=hide>>=
 vaas_1
@@ -844,9 +856,7 @@ The entire data set, stored in the object \code{vaas\_et\_al}, comes with the su
 data(vaas_et_al, package = "opmdata")
 @
 
-To view its help page, use \code{?opmdata::vaas\_et\_al}.
-
-The metadata included in these objects comprise seven entries.
+The metadata included in these objects comprise seven entries, as described in the \pkg{opmdata} manual.
 The entry \textit{Experiment} denotes the biological replicate or the affiliation to the time-series experiments.
 The keys \textit{Species} and \textit{Strain} refer to the organism used for the respective experiment (see above), and \textit{Slot} (either \textit{A} or \textit{B}) indicates whether the plate was placed in the left or the right half of the OmniLog\textregistered \ reader.
 (Note that for an assessment of the reproducibility of the curves the slot is occasionally of relevance.)
@@ -962,7 +972,7 @@ batch_opm(files, include = "*Example_?.CSV.xz",
 @
 
 The arguments \code{aggr.args}, \code{disc.args} and \code{md.args} control aggregation, discretisation and metadata incorporation, respectively.
-Details on all three processes are given in the according sections, and for the exact use of these arguments see the \pkg{opm} manual, entering \code{?batch\_opm}.
+Details on all three processes are given in the according sections, and for the exact use of these arguments see the \pkg{opm} manual.
 
 The following command would read three of the seven example input files, estimate two of the four curve parameters using the fast native method including 100 rounds of bootstrapping, and store the resulting \proglang{YAML} files (one per plate) in the current working directory (given by ``.''):
 
@@ -982,7 +992,7 @@ Its location in the file system can be obtained using
 opm_files("scripts")
 @
 
-Regarding its use, see the documentation of \proglang{Rscript} (enter \code{?Rscript} at the \proglang{R} prompt) and watch the help output of this script (try \code{system(opm_files("scripts"))}).
+Regarding its use, see the documentation of \proglang{Rscript} (the \proglang{R} manual contains an according entry) and watch the help output of this script (try \code{system(opm_files("scripts"))}).
 
 
 \subsection[Integration and manipulation of metadata]{Integration and manipulation of metadata}\label{application metadata}
@@ -1299,7 +1309,7 @@ dim(vaas.small)
 Like the \code{dim} function, the first index refers to the plates, the second to the time points, and the third to the wells.
 Moreover, as second index lists could be used, and as third index a formula.
 A formula allows for creating sequences of well coordinates as, e.g., in \code{vaas\_et\_al[, , ~c(A08:B02, B05)]}, which would select eight wells.
-Metadata added to \proglang{OPM} and \proglang{OPMS} objects (see Section~\ref{application metadata}) can be queried for their content with the specialised infix operators \code{\%k\%} and \code{\%q\%} (for \code{\%K\%} and \code{\%Q\%} see \code{?`\%K\%`} and \code{?`\%Q\%`}, respectively) in analogy to \proglang{R}'s \code{\%in\%} operator.
+Metadata added to \proglang{OPM} and \proglang{OPMS} objects (see Section~\ref{application metadata}) can be queried for their content with the specialised infix operators \code{\%k\%} and \code{\%q\%} (for \code{\%K\%} and \code{\%Q\%} see the manual) in analogy to \proglang{R}'s \code{\%in\%} operator.
 This reveals whether an \proglang{OPM} or \proglang{OPMS} object contains a specific value associated with a specific metadata key, or the key associated with any value, or combinations of keys and/or values.
 \code{\%k\%} searches in the metadata keys; it detects whether all given keys are present as names of the metadata.
 \code{\%q\%} tests whether all given query keys are present as names of the metadata and refer to the same query elements.
@@ -1398,7 +1408,7 @@ Providing the desired combination of metadata keys and values as a list was more
 The selection of plates could be based on the presence of keys only (like \code{\%k\%} described above; it makes not much sense for \code{vaas\_et\_al} whose plates are uniform regarding the keys), and/or use nested queries (like \code{\%q\%} with a list described above; makes of course more sense if the metadata contain nested entries).
 
 The \code{subset} function also has a ``time'' argument that allows one to create a subset containing only the time points that were common to all plates.
-This is useful because deviations regarding the overall measurement hours might exist; see \code{help(`[`, package = "opm")}.
+This is useful because deviations regarding the overall measurement hours might exist; look up \code{opm::`[`} in the manual.
 
 In addition to plate-wise querying and subset creation of \proglang{OPMS} objects, functions for converting selected content of all plates have been implemented.
 The \pkg{opm} manual and help pages list them in the family ``conversion-functions'' with according cross-references.
@@ -1422,7 +1432,7 @@ vaas.mu <- extract(vaas_et_al, dataframe = TRUE,
 
 This only works if this meta-information is present for the plates under study.
 Once a data frame is exported, these metadata will be contained in additional columns; once a matrix is exported, they will be used to construct the row names.
-The metadata could also be selected using a formula; see the help pages, particularly \code{?metadata}.
+The metadata could also be selected using a formula; see the manual, particularly the entry on \code{metadata}.
 A peculiarity of \code{extract} is that formulae can be used to trigger the joining of selected metadata entries (converted to data-frame columns) into new ones, using the pseudo-function \code{J} within the formula.
 For instance, the following code would create a new entry called ``Species.Strain'':
 
@@ -1438,8 +1448,8 @@ The default curve parameter returned by \code{extract} can be set with \code{opm
 Finally, note that methods for a variety of generic \proglang{R} functions such as \code{unique}, \code{sort}, \code{duplicated}, \code{anyDuplicated} and \code{merge} are available for \proglang{OPMS} objects.
 As specified using \code{sort(by = ...)}, sorting can be done based on selected metadata or on \code{csv_data} entries such as the setup time.
 The latter is of use in conjunction with the \code{merge} method, which is able to concatenate \proglang{OPM} objects from subsequent runs of the same plate.
-See \code{help(sort, package = "opm")} and \code{help(merge, package = "opm")}.
-A usage example (and entire exemplar data set) is given under \code{?opmdata::montero_et_al}.
+See the manual entries for \code{opm::sort} and \code{opm::merge} for further information.
+For a usage example (and entire exemplar data set) see \code{opmdata::montero_et_al}.
 
 
 \subsection[Plotting functions for raw data]{Plotting functions for raw data}\label{application plotting}
@@ -1476,7 +1486,7 @@ The content of the legend (mainly a description of the assignment of the colours
 
 The argument \code{include} refers to the metadata and allows the user to choose which entries should be used for assigning curve colours and accordingly be included in the legend.
 Character vectors, lists and formulae are allowed as \code{include} argument.
-See Section~\ref{application metadata} and \code{?metadata} in the help pages.
+See Section~\ref{application metadata} and the \code{metadata} entry in the manual.
 Note particularly the difference between, say, \code{list("Species", "Strain")} and \code{c("Species", "Strain")}.
 As the metadata can be nested, the latter would search for an element called \code{"Strain"} \textit{within} an element called \code{"Species"}.
 
@@ -1888,7 +1898,7 @@ opm_mcp(vaas.G06, model = ~ Strain, m.type = "aov",
 @
 
 For the computation of the tests itself, \code{opm\_mcp} uses \code{glht} from the package \pkg{multcomp} and returns an object of class \code{opm_glht} (which inherits from \code{glht}).
-As shown in Figure~\ref{fig:ci_plot_mcp}, the results of the performed statistical test can be plotted using the methods available for objects of that class (see \code{?multcomp::glht}).
+As shown in Figure~\ref{fig:ci_plot_mcp}, the results of the performed statistical test can be plotted using the methods available for objects of that class (see \code{multcomp::glht} in the manual).
 
 <<label=plot-mcp-linfct-figure-code, eval=FALSE>>=
 library(multcomp) # now needed
@@ -2047,7 +2057,7 @@ contrMat(n, type = "Tukey")
 
 In each line, a pair of group-wise comparisons is defined by the locations of the non-zero values.
 For instance, in the first line, the 1 and -1 values indicate that the means of \code{group1} are subtracted from the means of \code{group2}.
-The function \code{contrMat} from \pkg{multcomp} (see \code{?multcomp::contrMat}) provides an overview of the predefined contrast types that can be used in the \code{opm\_mcp} argument \code{linfct}.
+The function \code{multcomp::contrMat} provides an overview of the predefined contrast types that can be used in the \code{opm\_mcp} argument \code{linfct}.
 
 In the example from above (see Figure~\ref{fig:ci_plot_mcp}), a ``Tukey''-type contrast was used to trigger the comparison of all groups against all others in the data set.
 The underlying contrast matrix used to set up the contrasts can be viewed by entering
@@ -2220,7 +2230,7 @@ This works much like \code{aggregated} and \code{aggr\_settings} explained above
 The \code{subset} function has a \code{positive} argument that allows one to create a subset containing only the wells that were positive in at least one plate or in all plates, as well as a corresponding \code{negative} argument.
 The effect of either could be modified with \code{subset(invert = TRUE)}.
 For example, the command \code{xy\_plot(subset(vaas_4, positive = "all"), neg.ctrl = NULL)} would plot only those wells in which all curves have been classified by k-means partitioning to yield a positive reaction.
-See \code{help(subset, package = "opm")}.
+Look up \code{opm::subset} in the manual for further information.
 
 
 \subsubsection[Discretisation and export of text]{Discretisation and export of text}\label{application discrete-text}
@@ -2234,8 +2244,7 @@ listing(vaas.repl, as.groups = list("Species"))
 
 As usual, the results can be grouped according to specified metadata entries using the ``as.groups'' argument.
 If this yields ambiguities (such as a negative reaction of the same well on one plate and a positive reaction on another plate), the result is accordingly renamed.
-The ``cutoff'' argument can be used to define filters, keeping only those values that occur in a specified minimum proportion of wells.
-See \code{help(listing, package = "opm")}.
+The ``cutoff'' argument can be used to define filters, keeping only those values that occur in a specified minimum proportion of wells, as described in the \code{opm::listing} entry in the manual.
 
 The \code{listing} function returns a character vector or matrix with the \proglang{S3} class \proglang{OPMD\_listing} or \proglang{OPMS\_listing}, allowing for a special \code{phylo\_data} function that further formats these objects. Accordingly, the following code snippets
 
@@ -2271,8 +2280,7 @@ Thus there are two distinct meanings of ``ambiguous'' reactions, as ambiguity ei
 It is unnecessary and perhaps not preferable to use both approaches together, i.e. to cluster into three groups only and then also unify.
 Note that \code{listing} and \code{phylo\_data} would use the same unification approach, if requested.
 
-The manual describes the other discretisation approaches available in \pkg{opm}, such as using \code{best\_cutoff} instead of k-means partitioning, and using subsets of the plates, specified using stored metainformation.
-See \code{?do\_disc}.
+The manual of \code{do\_disc} describes the other discretisation approaches available in \pkg{opm}, such as using \code{best\_cutoff} instead of k-means partitioning, and using subsets of the plates, specified using stored metainformation.
 
 
 \subsubsection[Discretisation and export of tables]{Discretisation and export of tables}\label{application discrete-table}
@@ -2310,11 +2318,11 @@ vaas.html <- phylo_data(vaas.repl, format = "html",
 
 The generated \ac{HTML} would subsequently be linked to this file, and the two files could be distributed together, or the \ac{CSS} from the file would directly be embedded in the \ac{HTML}.
 The same mechanism works for text generation using \code{listing} (see \ref{application discrete-text}).
-In addition to the default \ac{CSS} file, a complete list of the settings that can be modified with this function is available \textit{via} \code{?opm\_opt}.
+In addition to the default \ac{CSS} file, a complete list of the settings that can be modified with this function is available in the \code{opm\_opt} entry of the manual.
 
 Users who want to define their own \ac{CSS} files can start with modifying the file shipped with \pkg{opm}.
 Microsoft Windows users should consider that the path to the linked file must be provided in \proglang{UNIX} style, as obtained, e.g., using \code{normalizePath(x, winslash = "/")} if \code{x} is the path to the file.
-This is according to World Wide Web standards and not determined by \pkg{opm}.
+This is according to \ac{WWW} standards and not determined by \pkg{opm}.
 
 By default columns with measurement repetitions as specified using \code{as.labels} are joined together.
 The \code{delete} argument specifies how to reduce the table: either not at all or keeping only the variable, parsimony-informative or non-ambiguous characters.
@@ -2322,7 +2330,7 @@ The legend of the table is as used in taxonomic journals such as the \textit{Int
 Users can modify the headline, add sections before the table legend, or before or after the table.
 The title and the ``meta'' entries of the resulting \ac{HTML} can also be modified.
 The \code{phylo\_data} methods have an auxiliary function, \code{html\_args}, which assists in putting together the arguments that determine the shape and content of the \ac{HTML} output.
-See \code{?html\_args}.
+Look up the manual for further information on \code{html\_args}.
 
 \subsubsection[Fine-tuning the discretisation]{Fine-tuning the discretisation}\label{application discrete-finetuning}
 

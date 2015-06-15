@@ -164,7 +164,7 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
     on.exit(setwd(current.dir))
     setwd(outdir)
     for (file in list.files(pattern = "\\.R$", ignore.case = TRUE))
-      knitr::spin(file)
+      knitr::spin(file, precious = TRUE)
     write(demo2html(demo.obj, mdir, url), "index.html")
     TRUE
   }
