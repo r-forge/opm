@@ -490,7 +490,7 @@ The function \code{collect\_template} by default automatically includes the \tex
 The user can subsequently add further columns describing any metadata of interest on any \ac{PM} plate of interest.
 The resulting data frame can then be queried for the information specific to each plate, and the corresponding row integrated into \proglang{OPM} or \proglang{OPMS} objects using \code{include\_metadata}.
 Whereas this function will usually result in non-nested metadata entries, \pkg{opm} allows one, in principle, to deal with arbitrarily nested meta-information.
-This holds because Within \proglang{OPM} or \proglang{OPMS} objects metadata are not stored as data frames and not organized into rows and columns.
+This holds because Within \proglang{OPM} or \proglang{OPMS} objects metadata are not stored as data frames and not organised into rows and columns.
 The amount of meta-information added (and the number plates simultaneously analysed) is only limited by the available computer memory.
 Functions for generating and modifying plate meta-information are listed in Figure~\ref{fig:overview}.
 
