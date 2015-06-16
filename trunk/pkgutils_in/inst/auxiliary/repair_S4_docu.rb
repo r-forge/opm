@@ -435,7 +435,7 @@ end
 ################################################################################
 
 
-help_msg, verbose, ignore, empty_line = false, true, [], false
+help_msg, verbose, ignore = false, true, []
 
 opts = OptionParser.new
 opts.on('-h', '--help', 'Print help message and exit') { |v| help_msg = true }

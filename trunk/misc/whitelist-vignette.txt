@@ -19,6 +19,7 @@ OMICS
 Oligosaccharides
 OmniLog
 Orthology
+PerkinElmer
 Pseudomonas
 PubMed
 Raffinose
@@ -32,6 +33,7 @@ Tryptophan
 Tukey
 aeruginosa
 analytical
+anonymised
 bimodal
 bioinformaticians
 bioinformatics

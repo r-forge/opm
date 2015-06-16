@@ -105,6 +105,7 @@ It is explained how any kinds of growth or respiration measurements can be input
 Data without a real structuring into plates and wells can nevertheless be studied with \pkg{opm} by using a \textit{virtual} arrangement into plates and wells.
 This convention is not an oddity but rather the appropriate means to enable the visual and statistical comparisons of interest and to disable those that make no sense for the data.
 We also show how \ac{PM} data with user-defined plate types can be analysed.
+These include plates suitable for an OmniLog\textregistered \ \ac{PM} system but measured with another instrument.
 Analysing such data visually and statistically requires in some cases adaptations of function arguments whose defaults are targeting \ac{PM} data.
 All these practically relevant issues are explained in detail.
 }
@@ -161,6 +162,9 @@ Note that some defaults of the plotting functions are only suitable for \ac{PM} 
 Hence, the functions should be called slightly distinctly.
 
 Besides these slight restrictions, which are illustrated with examples below, non-\ac{PM} data can be analysed with \pkg{opm} almost like \ac{PM} data.
+
+Plates suitable for an OmniLog\textregistered \ \ac{PM} system but measured with another instrument also need special care when inputting, even though it is obvious that they are structured into plates and wells.
+An according example is also included in this tutorial.
 
 
 \section{Preparation}\label{preparation}
@@ -376,6 +380,107 @@ metadata(tecan) <- data.frame(Replicate = c(1, 2, 1, 2),
   stringsAsFactors = FALSE)
 dim(tecan)
 @
+
+\subsection{Input of PerkinElmer data}\label{perkin-elmer-input}
+
+An example file for an EcoPlate\texttrademark \ analysis not conducted with an  but measured with a PerkinElmer, Inc., plate reader is included in \pkg{opm}.
+It contains 	anonymised end-point measurements sent to us by an \pkg{opm} user who asked for a data-conversion approach.
+The output of that reader is regular but contains a tab-separated part as well as bottom part with the same measurement in a different layout and technical information on the run:
+
+<<label=look-at-perkin-elmer>>=
+pe.file <- opm_files("growth")
+pe.file <- grep("perkin_elmer", pe.file, ignore.case = TRUE, value = TRUE)
+pe <- readLines(pe.file)
+cat(head(pe), sep = "\n")
+cat(tail(pe), sep = "\n")
+@
+
+Moreover, the comma has been used decimal separator (the data were probably measured with the language set to German).
+Special care is need to input such data, but as we know that two measurements of a 96-well-plate are contained, we can actually use the \code{read.table} function that comes with \proglang{R}.
+
+<<label=input-perkin-elmer>>=
+pe <- read.table(pe.file, strip.white = TRUE, sep = "\t",
+  # fix the column data types and skip some columns
+  colClasses = c("integer", "integer", "character", "NULL", "NULL", "numeric"),
+  # re-use names but adapt last column to opmx()
+  col.names = c("Plate", "Repeat", "Well", "Skip", "Skip", "T_1"),
+  # skip all irregular rows after the tab-separated part
+  nrows = 192L, header = TRUE,
+  # use ',' as decimal separator
+  dec = ",")
+head(pe)
+@
+
+Before the conversion to an \code{OPMS} objects, we register the plate type as a user-defined plate type even though EcoPlate\texttrademark \ is identical to it.
+This makes sense because the scale is distinct from an OmniLog\textregistered \ instrument and the distinct plate types prevent comparing apples and oranges.
+
+<<label=convert-perkin-elmer, results=hide>>=
+# copy the plate type
+register_plate(myeco = wells(plate = "eco"))
+# convert to OPMS
+pe <- opmx(pe, "horizontal", full.name = c("custom:myeco" = "Ecoplate"),
+  position = "Repeat", well = "Well", file = pe.file)
+pe <- do_aggr(pe)
+@
+
+It it useful to add the file name to the \code{csv\_data} to ease the identification of the plates.
+Because we have only end-point measurements here, aggregating means copying, but it needs to be done to enable the application of the methods that work on aggregated data.
+
+The code specific to irregular input formats ends here.
+The next steps is typical for all EcoPlate\texttrademark \ data.
+As this plate type contain repetitions of substrates, it is often used to measure distinct organisms or experimental conditions, or distinct replicates of the same organism or experimental condition, in one run.
+The \code{split} function for \code{OPMX} objects is designed for separating such plates into their individual components, allowing for their subsequent comparison.
+The effect can be illustrated with heat maps drawn before and after the split.
+
+<<label=plot-perkin-elmer-code, eval=FALSE>>=
+heat_map(pe, NULL) # no metadata available
+@
+
+\begin{figure}
+\centering
+<<label=plot-perkin-elmer, echo=FALSE, fig=TRUE, width=9, height=6>>=
+<<plot-perkin-elmer-code>>
+@
+\caption{
+\label{fig:perkin-elmer}
+Heat map of the EcoPlate\texttrademark \ well measured using a PerkinElmer, Inc., plate reader and not yet split into the within-plate repetitions.
+This is not an annotated plot, as no metadata have been added (the data are anonymous anyway).
+}
+\end{figure}
+
+And now the split:
+
+<<label=plot-perkin-elmer-split-code, eval=FALSE>>=
+pe.sep <- split(pe)
+heat_map(pe.sep, NULL, extract.args = list(rm.num = TRUE))
+@
+
+\begin{figure}
+\centering
+<<label=plot-perkin-elmer-split, echo=FALSE, fig=TRUE, width=9, height=6>>=
+<<plot-perkin-elmer-split-code>>
+@
+\caption{
+\label{fig:perkin-elmer-split}
+Heat map of the EcoPlate\texttrademark \ well measured using a PerkinElmer, Inc., plate reader and split into the within-plate repetitions.
+This makes sense if the three are independent repetitions of the samples, or distinct samples.
+Again, this is not an annotated plot, as no metadata can be added (except for those that indicate the split structure).
+}
+\end{figure}
+
+The \code{rm.num} argument is necessary to strip the numbers from the end of the substrate names.
+These numbers are used in \pkg{opm} for indicating the within-plate repetitions and are the basis for the \code{split} operation.
+
+The next step in a real analysis would be to add metadata.
+To better identify each plate, the file name should be added to the keys within \code{csv\_data} for finding metadata:
+
+<<label=add-file-to-keys, eval=FALSE>>=
+opm_opt(csv.keys = c(opm_opt("csv.keys"), "File"))
+@
+
+This works because of the use of the \code{file} argument in the call of \code{opmx} conducted above.
+Apart from that, the processing of metadata is as usual.
+Note that after the application of \code{split} the \code{csv\_data} entries for several plates, i.e. those that come from the same original plate, are identical.
 
 
 \section{Visualisation of growth curves}\label{visualisation}
