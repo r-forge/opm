@@ -215,7 +215,7 @@ check_vignettes()
         built_pdf_file=${sweave_file%.*}.pdf
         if [ "$built_pdf_file" -nt "$pdf_file" ] ||
             [ -e "$built_pdf_file" -a ! -e "$pdf_file" ]; then
-          cp -pv "$built_pdf_file" "$pdf_file" 1>&2
+          cp -pv "$built_pdf_file" "$pdf_file" 1>&2 && touch "$pdf_file"
           echo >&2
         else
           echo "WARNING: '$pdf_file' missing or older than '$sweave_file'" >&2

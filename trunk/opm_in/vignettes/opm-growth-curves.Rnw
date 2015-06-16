@@ -385,7 +385,7 @@ dim(tecan)
 
 An example file for an EcoPlate\texttrademark \ analysis not conducted with an  but measured with a PerkinElmer, Inc., plate reader is included in \pkg{opm}.
 It contains 	anonymised end-point measurements sent to us by an \pkg{opm} user who asked for a data-conversion approach.
-The output of that reader is regular but contains a tab-separated part as well as bottom part with the same measurement in a different layout and technical information on the run:
+The output of that reader is regular but contains a tab-separated part as well as bottom part with the same measurements in a different layout as well as technical information on the run:
 
 <<label=look-at-perkin-elmer>>=
 pe.file <- opm_files("growth")
@@ -411,7 +411,7 @@ pe <- read.table(pe.file, strip.white = TRUE, sep = "\t",
 head(pe)
 @
 
-Before the conversion to an \code{OPMS} objects, we register the plate type as a user-defined plate type even though EcoPlate\texttrademark \ is identical to it.
+Before the conversion to an \code{OPMS} object, we register the plate type as a user-defined plate type even though EcoPlate\texttrademark \ is identical to it.
 This makes sense because the scale is distinct from an OmniLog\textregistered \ instrument and the distinct plate types prevent comparing apples and oranges.
 
 <<label=convert-perkin-elmer, results=hide>>=
@@ -427,8 +427,8 @@ It it useful to add the file name to the \code{csv\_data} to ease the identifica
 Because we have only end-point measurements here, aggregating means copying, but it needs to be done to enable the application of the methods that work on aggregated data.
 
 The code specific to irregular input formats ends here.
-The next steps is typical for all EcoPlate\texttrademark \ data.
-As this plate type contain repetitions of substrates, it is often used to measure distinct organisms or experimental conditions, or distinct replicates of the same organism or experimental condition, in one run.
+The next step is typical for all EcoPlate\texttrademark \ data.
+As this plate type contains repetitions of substrates, it is often used to measure distinct organisms or experimental conditions, or distinct replicates of the same organism or experimental condition, in one run.
 The \code{split} function for \code{OPMX} objects is designed for separating such plates into their individual components, allowing for their subsequent comparison.
 The effect can be illustrated with heat maps drawn before and after the split.
 
