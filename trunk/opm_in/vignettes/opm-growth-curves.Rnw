@@ -371,7 +371,7 @@ If \code{interval} is stated explicitly, ideally, it is provided in hours.
 Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
 See the manual for further details on the usage of this argument.
 
-The generated \proglang{OPM} object can now be split according to the repetition structure of the wells, and metadata can be added that describe each resulting plate:
+The generated \proglang{OPM} object can now be split according to the repetition structure of the wells (as apparent from the substrate names we have stored by calling \code{register\_plate}), and metadata can be added that describe each resulting plate:
 
 <<label=split-tecan>>=
 tecan <- split(tecan)
@@ -396,7 +396,7 @@ cat(tail(pe), sep = "\n")
 @
 
 Moreover, the comma has been used decimal separator (the data were probably measured with the language set to German).
-Special care is need to input such data, but as we know that two measurements of a 96-well-plate are contained, we can actually use the \code{read.table} function that comes with \proglang{R}.
+Special care is needed when inputting such data, but as we know that two measurements of a 96-well-plate are contained, we can actually use the \code{read.table} function that comes with \proglang{R}.
 
 <<label=input-perkin-elmer>>=
 pe <- read.table(pe.file, strip.white = TRUE, sep = "\t",
