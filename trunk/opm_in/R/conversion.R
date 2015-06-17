@@ -2009,7 +2009,10 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   constructed from \code{interval}. Ideally, \code{interval} is given in
 #'   hours (because this corresponds to the default axis labelling of some
 #'   plotting functions).
-#'
+#' @param na.strings Character vector passed to \code{type.convert} from the
+#'   \pkg{utils} package. Currently only relevant for the \sQuote{rectangular}
+#'   format.
+#' @param dec Likewise.
 #' @export
 #' @return \code{\link{OPMX}} or \code{\link{MOPMX}} object or \code{NULL},
 #'   depending on how many distinct plate types are encountered within
@@ -2130,8 +2133,9 @@ setGeneric("opmx", function(object, ...) standardGeneric("opmx"))
 
 setMethod("opmx", "data.frame", function(object,
     format = c("horizontal", "rectangular", "vertical"), plate.type = NULL,
-    position = NULL, well = NULL, prefix = "T_", sep = "<>", full.name = NULL,
-    setup.time = date(), filename = "", interval = NULL) {
+    position = NULL, well = NULL, prefix = "T_", sep = object[1L, 1L],
+    full.name = NULL, setup.time = date(), filename = "", interval = NULL,
+    na.strings = "NA", dec = ".") {
 
   try_numeric <- function(x, na.strings, dec) {
     if (is.numeric(x))
@@ -2141,30 +2145,39 @@ setMethod("opmx", "data.frame", function(object,
 
   # Create a matrix acceptable as 'measurements' entry.
   #
-  convert_rectangular_matrix <- function(x, sep, interval,
-      na.strings = "NA", dec = ".") {
+  convert_rectangular_matrix <- function(x, sep, interval, na.strings, dec) {
+
     convert_time_point <- function(x, na.strings, dec) {
-      n <- try_numeric(unlist(x[1L, -1L], FALSE, FALSE), na.strings, dec)
-      if (is.numeric(n)) {
-        n <- vapply(x[-1L, 1L], sprintf, character(length(n)),
-          fmt = "%s%02i", n)
+      make_coords <- function(left, right) vapply(toupper(left), sprintf,
+        character(length(right)), fmt = "%s%02i", right)
+      coords <- try_numeric(unlist(x[1L, -1L], FALSE, FALSE), na.strings, dec)
+      if (is.numeric(coords)) {
+        coords <- make_coords(x[-1L, 1L], coords)
         x <- t(as.matrix(x[-1L, -1L, drop = FALSE]))
       } else {
-        n <- vapply(n, sprintf, character(length(n)),
-          fmt = "%s%02i", try_numeric(x[-1L, 1L], na.strings, dec))
+        coords <- make_coords(coords, try_numeric(x[-1L, 1L], na.strings, dec))
         x <- as.matrix(x[-1L, -1L, drop = FALSE])
       }
-      if (!is.numeric(x <- try_numeric(x)))
+      if (!is.numeric(x <- try_numeric(x))) {
+        warning("skipping uninterpretable (non-numeric) alleged time point")
         return(NULL)
-      x <- structure(c(x), names = toupper(c(n)))
-      storage.mode(x) <- "double"
+      }
+      dim(x) <- NULL
+      if (is.integer(x))
+        storage.mode(x) <- "double"
+      names(x) <- coords
       if (is.unsorted(names(x)))
         return(x[order(names(x))])
       x
     }
+
+    empty <- function(x) is.character(x) && !any(nzchar(x)) || all(is.na(x))
+
+    if (any(pos <- vapply(x, empty, NA))) # remove all-NA columns
+      x <- x[, !pos, drop = FALSE]
     pos <- logical(nrow(x))
     for (i in seq_along(x))
-      if (any(pos <- x[, i] == sep)) {
+      if (any(pos <- x[, i] %in% sep)) {
         x <- x[, c(i, setdiff(seq_along(x), i)), drop = FALSE]
         break
       }
@@ -2172,8 +2185,10 @@ setMethod("opmx", "data.frame", function(object,
       stop("'sep' neither found in some column nor in the row names")
     x <- split.data.frame(x, sections(pos, TRUE))
     x <- do.call(rbind, lapply(x, convert_time_point, na.strings, dec))
+
     if (any(bad <- apply(is.na(x), 2L, all)))
       x <- x[, !bad, drop = FALSE] # removal of all-NA columns
+
     if (length(interval) == 1L)
       times <- interval * (seq_len(nrow(x)) - 1L)
     else if (length(interval) == nrow(x))
@@ -2183,6 +2198,7 @@ setMethod("opmx", "data.frame", function(object,
     else
       times <- seq_len(nrow(x)) - 1L
     x <- cbind(times, x)
+
     colnames(x)[1L] <- HOUR
     rownames(x) <- NULL
     x
@@ -2405,7 +2421,8 @@ setMethod("opmx", "data.frame", function(object,
       plate.type, position, well), prefix, full.name, setup.time, filename),
 
     rectangular = create_opm_object(convert_rectangular_matrix(object, sep,
-      interval), position, plate.type, full.name, setup.time, filename),
+      interval, na.strings, dec), position, plate.type, full.name,
+      setup.time, filename),
 
     vertical = create_opm_object(convert_vertical_matrix(object, interval),
       position, plate.type, full.name, setup.time, filename)
