@@ -17,6 +17,7 @@
 #'   object.
 #' @param ... Optional arguments to be included in the output.
 #' @export
+#' @exportMethod str
 #' @return For the \code{\link{OPM}} method, a named list of the class
 #'   \code{OPM_Summary}, returned invisibly. The \sQuote{Metadata} entry is
 #'   the number of non-list elements in \code{\link{metadata}}. For the
@@ -109,6 +110,28 @@ setMethod("show", CMAT, function(object) {
     storage.mode(object) <- "character"
   }
   callNextMethod()
+}, sealed = SEALED)
+
+#= str summary
+
+setGeneric("str")
+
+setMethod("str", WMDX, function(object, ...) {
+  callNextMethod(object, ...)
+  cat(STR_NOTE)
+  invisible(NULL)
+}, sealed = SEALED)
+
+setMethod("str", MOPMX, function(object, ...) {
+  callNextMethod(object, ...)
+  cat(STR_NOTE)
+  invisible(NULL)
+}, sealed = SEALED)
+
+setMethod("str", CMAT, function(object, ...) {
+  callNextMethod(object, ...)
+  cat(STR_NOTE)
+  invisible(NULL)
 }, sealed = SEALED)
 
 
