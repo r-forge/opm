@@ -130,6 +130,13 @@ HTML_DOCTYPE <- paste('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"',
   '"http://www.w3.org/TR/html4/strict.dtd">', collapse = " ")
 
 
+# Printed by the str() methods.
+STR_NOTE <- paste0("\n",
+  "IMPORTANT NOTE: DO NOT RELY ON THE INTERNAL STRUCTURE OF THIS KIND OF\n",
+  "OBJECT, WHICH MIGHT CHANGE IN FUTURE VERSIONS OF THE PACKAGE. USE THE\n",
+  "ACCESSOR METHODS FOR THIS KIND OF OBJECT INSTEAD OF THE `@` OPERATOR.\n")
+
+
 ################################################################################
 ################################################################################
 #
