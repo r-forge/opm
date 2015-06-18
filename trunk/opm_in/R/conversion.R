@@ -1922,10 +1922,11 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'     numeric data (the time points, ideally given in hours). Several plates
 #'     and even several plate types can be contained within \code{object}.}
 #'     \item{rectangular}{Several rows and columns per time point, yielding a
-#'     set of rectangles per plate. Only a single plate, and only measurements
-#'     are contained within \code{object}, thus some of the other arguments
-#'     cannot be empty. See the \code{interval} argument for setting time
-#'     points.}
+#'     set of (potentially incomplete) rectangles per plate. Empty columns are
+#'     skipped; empty rows are skipped or act as separator. Only a single plate,
+#'     and only measurements are contained within \code{object}, thus some of
+#'     the other arguments cannot be empty. See the \code{interval} argument for
+#'     setting time points and see \code{sep} for details of the format.}
 #'     \item{vertical}{One column per well. Only a single plate, and only
 #'     measurements and time points are contained within \code{object}, thus
 #'     some of the other arguments cannot be empty. The time points are either
@@ -1981,12 +1982,23 @@ setMethod("to_yaml", MOPMX, function(object, ...) {
 #'   present).
 #' @param prefix Character scalar. In \sQuote{horizontal} format, used for
 #'   identifying the measurements columns.
-#' @param sep Character scalar. In \sQuote{rectangular} format, used for
-#'   identifying the rows and column with time-points and well coordinates.
-#' @param full.name Named character vector indicating the full plate
-#'   names. Ignored if empty. Names should be names of the plate types found
-#'   within \code{object}, if any, but normalisation will be done. Values should
-#'   be the respective full names. Missing ones are silently ignored.
+#' @param sep Character vector, numeric scalar, or empty. In
+#'   \sQuote{rectangular} format, used for identifying the rows and column with
+#'   time-points and well coordinates. If empty, \code{object} is split at rows
+#'   containing only \code{NA} values or empty strings. If a positive number,
+#'   \code{object} is split into section with that many rows. If a non-empty
+#'   character vector, rows harbouring values contained in \code{sep} are
+#'   regarded as the first row of each section.
+#'
+#'   Well coordinates can be missing from each rectangle unless \code{sep} is a
+#'   non-empty character vector. If present, they must comprise single letters
+#'   in one column and values interpretable as integers in the first row, or
+#'   otherwise around. If missing, in the case of more rows than columns letters
+#'   are assigned to the columns, numbers to the rows, else otherwise around.
+#' @param full.name Named character vector indicating the full plate names.
+#'   Ignored if empty. Names should be names of the plate types found within
+#'   \code{object}, if any, but normalisation will be done. Values should be the
+#'   respective full names. Missing ones are silently ignored.
 #'
 #'   If the plate type is not found within \code{object}, then it is taken from
 #'   the name of \code{full.name}, assuming a uniform plate type throughout
@@ -2143,62 +2155,101 @@ setMethod("opmx", "data.frame", function(object,
     type.convert(x, na.strings, TRUE, dec)
   }
 
+  convert_interval <- function(x, y) {
+    if (length(x) == 1L)
+      return(x * (seq_len(y) - 1L))
+    if (length(x) != y)
+      stop(sprintf("expected 1 or %i as length of non-empty 'interval', got %i",
+        y, length(x)))
+    if (!is.numeric(x))
+      stop("non-empty 'interval' must be numeric")
+    x
+  }
+
   # Create a matrix acceptable as 'measurements' entry.
   #
   convert_rectangular_matrix <- function(x, sep, interval, na.strings, dec) {
 
-    convert_time_point <- function(x, na.strings, dec) {
-      make_coords <- function(left, right) vapply(toupper(left), sprintf,
-        character(length(right)), fmt = "%s%02i", right)
-      coords <- try_numeric(unlist(x[1L, -1L], FALSE, FALSE), na.strings, dec)
-      if (is.numeric(coords)) {
-        coords <- make_coords(x[-1L, 1L], coords)
-        x <- t(as.matrix(x[-1L, -1L, drop = FALSE]))
-      } else {
-        coords <- make_coords(coords, try_numeric(x[-1L, 1L], na.strings, dec))
-        x <- as.matrix(x[-1L, -1L, drop = FALSE])
+    empty <- function(x) {
+      if (is.character(x))
+        !nzchar(x) | is.na(x)
+      else
+        is.na(x)
+    }
+
+    convert_time_point <- function(x, header, na.strings, dec) {
+      make_coords <- function(left, right, na.strings, dec) {
+        vapply(toupper(left), sprintf, character(length(right)),
+          fmt = "%s%02i", try_numeric(right, na.strings, dec))
       }
+      if (all(x[-1L, 1L] %in% c(LETTERS, letters))) {
+        coords <- make_coords(x[-1L, 1L], unlist(x[1L, -1L], FALSE, FALSE),
+          na.strings, dec)
+        x <- t(as.matrix(x[-1L, -1L, drop = FALSE]))
+      } else if (all(x[1L, -1L] %in% c(LETTERS, letters))) {
+        coords <- make_coords(x[1L, -1L], x[-1L, 1L], na.strings, dec)
+        x <- as.matrix(x[-1L, -1L, drop = FALSE])
+      } else if (header) {
+        stop("expected row and column names comprising letters or integers")
+      } else if (nrow(x) > ncol(x)) {
+        coords <- make_coords(LETTERS[seq_len(ncol(x))], seq_len(nrow(x)),
+          na.strings, dec)
+        x <- as.matrix(x)
+      } else {
+        coords <- make_coords(LETTERS[seq_len(nrow(x))], seq_len(ncol(x)),
+          na.strings, dec)
+        x <- t(as.matrix(x))
+      }
+      dim(x) <- NULL
       if (!is.numeric(x <- try_numeric(x))) {
         warning("skipping uninterpretable (non-numeric) alleged time point")
         return(NULL)
       }
-      dim(x) <- NULL
-      if (is.integer(x))
-        storage.mode(x) <- "double"
       names(x) <- coords
       if (is.unsorted(names(x)))
         return(x[order(names(x))])
       x
     }
 
-    empty <- function(x) is.character(x) && !any(nzchar(x)) || all(is.na(x))
+    if (any(pos <- vapply(x, function(x) all(empty(x)), NA)))
+      x <- x[, !pos, drop = FALSE] # remove all-NA columns
 
-    if (any(pos <- vapply(x, empty, NA))) # remove all-NA columns
-      x <- x[, !pos, drop = FALSE]
-    pos <- logical(nrow(x))
-    for (i in seq_along(x))
-      if (any(pos <- x[, i] %in% sep)) {
-        x <- x[, c(i, setdiff(seq_along(x), i)), drop = FALSE]
-        break
-      }
-    if (!any(pos))
-      stop("'sep' neither found in some column nor in the row names")
-    x <- split.data.frame(x, sections(pos, TRUE))
-    x <- do.call(rbind, lapply(x, convert_time_point, na.strings, dec))
+    if (!length(sep)) {
+      pos <- Reduce(`&`, lapply(x, empty)) # split at empty rows
+      pos <- sections(pos, FALSE)
+      header <- FALSE
+    } else if (is.character(sep)) {
+      pos <- logical(nrow(x))
+      for (i in seq_along(x))
+        if (any(pos <- x[, i] %in% sep)) {
+          x <- x[, c(i, setdiff(seq_along(x), i)), drop = FALSE]
+          break
+        }
+      if (!any(pos))
+        stop("'sep' found in none of the columns")
+      pos <- sections(pos, TRUE)
+      header <- TRUE
+    } else if (is.numeric(sep) && length(sep) == 1L && !is.na(sep) && sep > 0) {
+      if (nrow(x) %% sep > 0L)
+        stop("number of rows must be a multiple of any number given as 'sep'")
+      pos <- factor(rep(seq.int(nrow(x) / sep), each = sep))
+      header <- FALSE
+    } else {
+      stop("'sep' must be empty or character vector or positive number")
+    }
+
+    x <- split.data.frame(x, pos)
+    x <- do.call(rbind, lapply(x, convert_time_point, header, na.strings, dec))
 
     if (any(bad <- apply(is.na(x), 2L, all)))
       x <- x[, !bad, drop = FALSE] # removal of all-NA columns
+    if (is.integer(x))
+      storage.mode(x) <- "double"
 
-    if (length(interval) == 1L)
-      times <- interval * (seq_len(nrow(x)) - 1L)
-    else if (length(interval) == nrow(x))
-      stopifnot(is.numeric(interval))
-    else if (length(interval))
-      stop("length of 'interval' must be 0, 1, or nrow(x)")
-    else
-      times <- seq_len(nrow(x)) - 1L
-    x <- cbind(times, x)
-
+    x <- cbind(if (length(interval))
+        convert_interval(interval, nrow(x))
+      else
+        seq_len(nrow(x)) - 1L, x)
     colnames(x)[1L] <- HOUR
     rownames(x) <- NULL
     x
@@ -2206,7 +2257,7 @@ setMethod("opmx", "data.frame", function(object,
 
   # Create a matrix acceptable as 'measurements' entry.
   #
-  convert_vertical_matrix <- function(x, interval) {
+  convert_vertical_matrix <- function(x, interval, na.strings, dec) {
     select_columns <- function(x) {
       n <- clean_coords(colnames(x))
       if (any(ok <- grepl("^[A-H]\\d{2}$", n, FALSE, TRUE))) {
@@ -2222,21 +2273,18 @@ setMethod("opmx", "data.frame", function(object,
           ok[1L] <- FALSE # first column contains time points
         colnames(x)[ok] <- rownames(WELL_MAP)[seq_along(which(ok))]
       }
-      if (length(interval))
-        if (length(interval) == 1L)
-          hour <- interval * (seq_len(nrow(x)) - 1L)
-        else if (length(interval) == nrow(x))
-          hour <- must(as.double(interval))
+      cbind(if (length(interval))
+          convert_interval(interval, nrow(x))
+        else if (any(!ok))
+          x[, !ok, drop = FALSE][, 1L]
         else
-          stop("length of 'interval' must be 0, 1, or nrow(x)")
-      else if (any(!ok))
-        hour <- x[, !ok, drop = FALSE][, 1L]
-      else
-        hour <- rownames(x)
-      cbind(hour, x[, ok, drop = FALSE])
+          rownames(x), x[, ok, drop = FALSE])
     }
-    x <- as.matrix(select_columns(x))
-    must(storage.mode(x) <- "double")
+    x <- try_numeric(as.matrix(select_columns(x)), na.strings, dec)
+    if (is.integer(x))
+      storage.mode(x) <- "double"
+    else if (!is.double(x))
+      stop("could not convert mesurements to numeric type")
     rownames(x) <- NULL
     colnames(x)[1L] <- HOUR
     x
@@ -2260,7 +2308,7 @@ setMethod("opmx", "data.frame", function(object,
       filename) {
     L(plate.type, .msg = "plate type missing or non-unique")
     L(position, .msg = "'position' missing or non-unique")
-    if (inherits(plate.type, "AsIs")) {
+    if (inherits(plate.type, "AsIs")) { # undocumented behaviour
       plate.type <- unclass(plate.type)
     } else {
       plate.type <- custom_plate_normalize_all(plate.type)
@@ -2424,8 +2472,8 @@ setMethod("opmx", "data.frame", function(object,
       interval, na.strings, dec), position, plate.type, full.name,
       setup.time, filename),
 
-    vertical = create_opm_object(convert_vertical_matrix(object, interval),
-      position, plate.type, full.name, setup.time, filename)
+    vertical = create_opm_object(convert_vertical_matrix(object, interval,
+      na.strings, dec), position, plate.type, full.name, setup.time, filename)
 
   )
 }, sealed = SEALED)

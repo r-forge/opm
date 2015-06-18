@@ -365,11 +365,15 @@ tecan
 Note that we have to refer to the previously registered plate type, ``growth''.
 If several plates of this plate type are to be dealt with, the \code{position} argument is important for identifying each plate.
 The format of the \code{position} entry can, in principle, be arbitrarily selected by the user, but the shown format is the recommended one, i.e. an integer followed by a single letter.
+
 The optional \code{interval} argument provides the time interval between two consecutive measurements.
 In the given example one measurement per hour was recorded, thus the default fits perfectly when assigning increasing integers starting at 0.
 If \code{interval} is stated explicitly, ideally, it is provided in hours.
 Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
 See the manual for further details on the usage of this argument.
+
+The ``rectangular'' formats also comprise time points separated by rows containing only \code{NA} values or empty strings, time points defined as a given number of rows, and measurements without indicators of well coordinates.
+Again, see the manual for more information.
 
 The generated \proglang{OPM} object can now be split according to the repetition structure of the wells (as apparent from the substrate names we have stored by calling \code{register\_plate}), and metadata can be added that describe each resulting plate:
 

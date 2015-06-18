@@ -1227,7 +1227,7 @@ metadata.example$Colour.Position <- as.character(interaction(
   metadata.example$Position, drop = TRUE))
 @
 
-This is not advisable, however, unless all statistical comparisons of interest, or at least the group definitions of interest, were already known before at that early stage. 
+This is not advisable, however, unless all statistical comparisons of interest, or at least the group definitions of interest, were already known before at that early stage.
 (Even more tedious would be to go back to the initial metadata compilation in a \ac{CSV} file.)
 Using the metadata mapping functions, metadata entries can instead by merged at any time \textit{after} including them into an \proglang{OPM} or \proglang{OPMS} object with \code{include_metadata}.
 For instance, the following code operates directly in the \proglang{OPMS} object, merging the . ``Colony colour'' (which had previously been renamed from ``Colour'', see above) and ``Integer'' entries into a new one:
