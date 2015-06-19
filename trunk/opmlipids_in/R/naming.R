@@ -152,13 +152,80 @@ norm_fa.matrix <- function(x, ...) {
   x
 }
 
-#' @rdname norm_fa
+
+################################################################################
+
+
+#' Get or enter plate-type settings
 #'
-fs_to_html <- function(x) {
-  x <- safe_labels(x, "html")
-  gsub("(?<=\\bC)(\\d+:\\d+\\b[^/]*)", "<sub>\\1</sub>", x, FALSE, TRUE)
-}
+#' Set or retrieve settings for a given plate type.
+#'
+#' @param x Character vector, named list, or missing. If a character vector,
+#'   the names of the plates types for which settings should be stored (if
+#'   \code{...} is non-empty) or retrieved (if \code{...} is empty). If a list,
+#'   then the list must be named with plate types and contain named lists which
+#'   are supposed to contain the settings for each plate type.
+#' @param ... Optional arguments used for determining the settings for each
+#'   plate type contained in \code{x}. Missing settings are replaced by default
+#'   ones. If \code{...} is totally missing, nothing is set, but the already
+#'   stored settings for the plate types given in \code{x} are returned.
+#' @return This returns a named nested lists, with the names corresponding to
+#'   plate-type names after normalisation.
+#' @details The \pkg{opmlipids} package uses various settings for customising
+#'   the behaviour of \code{\link{FAMES}} objects depending on their plate type.
+#'   \describe{
+#'   \item{char.group}{The name used in textual output for the kind of
+#'   characters stored in this plate type. Used by \code{\link{listing}}.}
+#'   \item{file.entry}{How to name input-file entries within the metadata.}
+#'   \item{na.yields}{When converting \code{\link{FAMES}} objects to matrices
+#'   some values might be missing from some of the contained \code{\link{FAME}}
+#'   objects, which are replaced by this default value.}
+#'   \item{row.names}{How to name the \code{rownames} entry of the
+#'   \code{\link{measurements}} slot when converting to a list.}
+#'   \item{sum.up}{Logical scalar indicating whether or not duplicate row names
+#'   should be summed up. (The alternative is to make them unique, but this is
+#'   not guaranteed to work across distinct plates.)}
+#'   \item{tolerance}{How much deviation from a sum of 100 percent to accept in
+#'   percentage input.}
+#'   \item{value.col}{The name of the column in the \code{\link{measurements}}
+#'   data frame that stores the numeric measurements (all other columns, if any,
+#'   should contain additional information on the respective measurements.)}
+#'   }
+#' @family naming-functions
+#' @keywords utilities
+#' @seealso \link{plate_type}
+#' @seealso base::options base::getOption opm::opm_opt
+#' @export
+#' @examples
+#' oli_opt("MIDI") # this one is already defined
+#'
+setGeneric("oli_opt", function(x, ...) standardGeneric("oli_opt"))
+
+setMethod("oli_opt", "character", function(x, ...) {
+  x <- make.names(x)
+  if (missing(...))
+    return(mget(x, PLATE_TYPE_SETTINGS))
+  oli_opt(structure(rep.int(list(list(...)), length(x)), names = x))
+}, sealed = SEALED)
+
+setMethod("oli_opt", "list", function(x) {
+  add_defaults <- function(x) {
+    lacking <- setdiff(names(DEFAULT_PLATE_TYPE_SETTINGS), names(x))
+    x[lacking] <- DEFAULT_PLATE_TYPE_SETTINGS[lacking]
+    x
+  }
+  if (is.null(names(x)) || !all(vapply(x, is.list, NA)))
+    stop("'x' must be a named list of lists")
+  x <- structure(lapply(x, add_defaults), names = make.names(names(x)))
+  list2env(x, PLATE_TYPE_SETTINGS)
+  invisible(x)
+}, sealed = SEALED)
+
+setMethod("oli_opt", "missing", function(x) {
+  as.list(PLATE_TYPE_SETTINGS)
+}, sealed = SEALED)
 
 
 ################################################################################
+
 

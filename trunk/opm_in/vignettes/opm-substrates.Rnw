@@ -988,7 +988,10 @@ Stability selection \citep{Meinshausen:2010} is an additional screening tool
 that allows the user to determine which of the selected variables are ``stable''
 variables, i.e. which are variables that always ``pop-up'' in random subsets of
 the data. Additionally, stability selection has a built-in error control
-\citep[for the per-family error rate, see][]{Dudoit2003}. In our example the
+\citep[for the per-family error rate, see][]{Dudoit2003}.
+The application of boosting with stability selection to \ac{PM} data has been explored in \citep{Hofner2015}.
+
+In our example the
 maximum acceptable error is set to 1.5, i.e. we accept at maximum 1.5 noise
 variables to be chosen by stability selection by chance. The cut-off value
 determines which inclusion frequency is at least required to term a variable

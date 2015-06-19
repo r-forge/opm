@@ -38,7 +38,7 @@ NULL
 #' @export
 #'
 setMethod("plate_type", "FAME", function(object) {
-  class_head(object@measurements)
+  str_head(class(object@measurements))
 }, sealed = SEALED)
 
 setMethod("plate_type", "FAMES", function(object) {
