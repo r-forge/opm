@@ -551,7 +551,7 @@ The next step is the estimation of curve parameters using \code{do_aggr}.
 See Section~\ref*{tutorial-methods aggregating} and Section~\ref*{tutorial-application aggregating} in the main tutorial for details on aggregation methods.
 The main difference with respect to user-entered growth-curve data is that these may contain much fewer time points than \ac{PM} measurements.
 So the question arises which spline estimation is optimal for such measurements, because all spline-fitting procedures have been optimised for estimating parameters from \ac{PM} data.
-The following (informal) comparison, however, shows little differences between the methods.
+The following (informal) comparison, however, illustrates the differences, if any, between the methods.
 We first define a helper function for plotting parameters obtained with distinct approaches:
 
 <<label=spline-helper-function, echo=TRUE>>=
@@ -559,13 +559,15 @@ plot_param_diff <- function(...) {
   x <- list(...)
   if (is.null(names(x)))
     names(x) <- seq_along(x)
-  for (param in param_names()) {
+  for (param in rev(param_names())) {
     y <- lapply(lapply(x, aggregated, param, ci = FALSE), unlist)
-    for (name in names(y)[-1]) {
-      plot(y[[1]], y[[name]], xlab = names(y)[1], ylab = name,
-        main = param, pch = 19, col = "darkgrey")
-      abline(line(y[[1]], y[[name]]), lty = "dashed")
-    }
+    n <- names(y)
+    for (i in seq_along(y)[-1L])
+      for (j in seq.int(1L, i - 1L)) {
+        plot(y[[i]], y[[j]], pch = 19, col = "darkgrey",
+          main = sprintf("%s, %s/%s", param, n[[i]], n[[j]]))
+        abline(line(y[[i]], y[[j]]), lty = "dashed")
+      }
   }
   invisible(NULL)
 }
@@ -574,19 +576,19 @@ plot_param_diff <- function(...) {
 In the next step, the distinct spline-fitting approaches have to be applied.
 
 <<label=agg-opm-spline>>=
-sm.tecan <- do_aggr(tecan, method = "splines", boot = 0,
-  options = set_spline_options(type = "smooth.spline"))
-tp.tecan <- do_aggr(tecan, method = "splines", boot = 0,
+tp.tecan <- do_aggr(tecan, method = "splines",
   options = set_spline_options(type = "tp.spline"))
-p.tecan <- do_aggr(tecan, method = "splines", boot = 0,
+p.tecan <- do_aggr(tecan, method = "splines",
   options = set_spline_options(type = "p.spline"))
+sm.tecan <- do_aggr(tecan, method = "splines",
+  options = set_spline_options(type = "smooth.spline"))
 @
 
 After these preparations the methods can be visually compared as follows.
 
 <<label=plot-opm-spline-code, eval=FALSE>>=
-old.par <- par(mfrow = c(2, 4))
-plot_param_diff(Sm = sm.tecan, Tp = tp.tecan, P = p.tecan)
+old.par <- par(mfrow = c(4, 3), mar = c(2, 2, 3, 2))
+plot_param_diff(Tp = tp.tecan, P = p.tecan, Sm = sm.tecan)
 par(old.par)
 @
 
@@ -597,22 +599,25 @@ par(old.par)
 @
 \caption{
 \label{fig:correlation}
-Correlation of curve parameters estimated using different spline-fitting options.
-There are obviously quite high correlations for all parameters, hence spline fitting appears to be robust even when dealing with comparatively few data points.
+Comparison of curve parameters estimated using different spline-fitting options.
+There are obviously quite high correlations between the \ac{AUC} values and comparatively high correlations for \ac{A}.
+In the case of \ac{lambda} and \ac{mu} the correlations are lower, with thin-plate and P-splines corresponding somewhat more strongly to each other than to smoothing splines.
 Negative \ac{lambda} values can occur in the case of negative reactions.
 }
 \end{figure}
 
-Apparently the distinct spline-fitting methods yield approximately the same estimates for all parameters.
-Thus even in the case of comparatively few data points it seems that spline fitting as implemented in \pkg{opm} can robustly be applied.
-For the forthcoming analyses we restrict ourselves to the results obtained with smoothing splines.
+Apparently the distinct spline-fitting methods yield approximately the same estimates for \ac{AUC} and \ac{A} but not necessarily for the other parameters.
+A closer investigation of the deviations in the smoothing-spline results for \ac{lambda} and \ac{mu} indicated that these are due to overfitting.
+The same issue has been observed with \ac{PM} data, see Section~\ref*{tutorial-methods aggregating} in the main tutorial.
+We conclude that in the case of comparatively few data points the same method preferences should be applied as for \ac{PM} data.
+For the forthcoming analyses we accordingly restrict ourselves to the results obtained with thin-plate splines.
 
 <<label=select-splines>>=
-tecan <- sm.tecan
+tecan <- tp.tecan
 rm(tp.tecan, p.tecan, sm.tecan) # tidy up
-potato.fm <- do_aggr(potato.fm, method = "splines", boot = 0,
+potato.fm <- do_aggr(potato.fm, method = "splines",
   options = set_spline_options(type = "smooth.spline"))
-potato.dm <- do_aggr(potato.dm, method = "splines", boot = 0,
+potato.dm <- do_aggr(potato.dm, method = "splines",
   options = set_spline_options(type = "smooth.spline"))
 @
 
