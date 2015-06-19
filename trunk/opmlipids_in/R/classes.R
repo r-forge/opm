@@ -59,8 +59,23 @@ setClass("FAME",
   slots = c(measurements = "data.frame"),
   contains = c("WMD", "YAML_VIA_LIST"),
   validity = function(object) {
-    errs <- fame_problems(object@measurements)
-    if (length(errs))
+    fame_problems <- function(x) {
+      ptype <- str_head(class(x))
+      if (is.null(opt <- get0(ptype, PLATE_TYPE_SETTINGS)))
+        return(sprintf("no stored settings for plate type '%s'", ptype))
+      if (is.null(vcol <- opt$value.col))
+        return(sprintf("no 'value.col' entry for plate type '%s'", ptype))
+      if (!(pos <- match(vcol, colnames(x), 0L)))
+        return(sprintf("no column named '%s'", vcol))
+      if (!is.numeric(v <- x[, pos]))
+        return(sprintf("column '%s' contains non-numeric data", vcol))
+      if (is.null(tol <- opt$tolerance))
+        return(sprintf("no 'tolerance' entry for plate type '%s'", ptype))
+      if (!all(is.na(v)) && !isTRUE(all.equal(100, sum(v, na.rm = TRUE), tol)))
+        return("sum of relative frequencies not close enough to 100%")
+      NULL
+    }
+    if (length(errs <- fame_problems(object@measurements)))
       errs
     else
       TRUE
@@ -77,7 +92,15 @@ setClass("FAME",
 setClass("FAMES",
   contains = c("WMDS", "YAML_VIA_LIST"),
   validity = function(object) {
-    if (length(errs <- fame_problems(object@plates)))
+    fames_problems <- function(x) {
+      if (!all(vapply(x, is, NA, "FAME")))
+        return("not all elements inherit from the 'FAME' class")
+      x <- duplicated.default(vapply(x, plate_type, ""))
+      if (!all(x[-1L]))
+        return("non-uniform plate types")
+      NULL
+    }
+    if (length(errs <- fames_problems(object@plates)))
       errs
     else
       TRUE
@@ -101,50 +124,16 @@ setClass("MIDI", contains = "data.frame", sealed = SEALED)
 #
 
 
-#' Check or initialise \acronym{FAME} or \acronym{FAMES} object
+#' Initialise \acronym{FAME} or \acronym{FAMES} object
 #'
 #' Called when constructing an object of one of these classes.
 #'
-#' @param object Object potentially suitable for one of the slots of these
-#'   classes
 #' @param .Object \code{\link{FAME}} or \code{\link{FAME}} object.
 #' @param ... Additional arguments.
-#' @return Character vector with description of problems (empty if there are
-#'   none) or \code{\link{FAME}} or \code{\link{FAME}} object.
+#' @return \code{\link{FAME}} or \code{\link{FAME}} object.
 #' @keywords internal
 #' @rdname initialize
 #'
-setGeneric("fame_problems",
-  function(object, ...) standardGeneric("fame_problems"))
-
-#= fame_problems initialize
-
-setMethod("fame_problems", "data.frame", function(object) {
-  plate.type <- class_head(object)
-  value.col <- get_for_relaxedly(plate.type, "value.col", NA_character_)
-  if (is.na(value.col))
-    sprintf("no 'value.col' entry for plate type '%s'", plate.type)
-  else if (!(pos <- match(value.col, colnames(object), 0L)))
-    "value column missing"
-  else if (!is.numeric(v <- object[, pos]))
-    "value column contains non-numeric data"
-  else if (is.na(tol <- get_for_relaxedly(plate.type, "tolerance", NA_real_)))
-    sprintf("no 'tolerance' entry for plate type '%s'", plate.type)
-  else if (!all(is.na(v)) && !isTRUE(all.equal(100, sum(v, na.rm = TRUE), tol)))
-    sprintf("sum of relative frequencies not close enough to 100%")
-  else
-    NULL
-}, sealed = SEALED)
-
-setMethod("fame_problems", "list", function(object) {
-  if (!all(vapply(object, is, NA, "FAME")))
-    return("not all elements inherit from the 'FAME' class")
-  x <- duplicated.default(vapply(object, plate_type, ""))
-  if (!all(x[-1L]))
-    return("non-uniform plate types")
-  NULL
-}, sealed = SEALED)
-
 setMethod("initialize", "FAMES", function(.Object, ...) {
   .Object <- callNextMethod()
   names(.Object@plates) <- NULL
@@ -160,7 +149,6 @@ setMethod("initialize", "FAMES", function(.Object, ...) {
 
 setOldClass("midi_entry")
 
-setOldClass("midi_entries")
 
 setAs("midi_entry", "FAME", function(from) {
   pos <- match("Measurements", names(from), 0L)
@@ -173,39 +161,47 @@ setAs("midi_entry", "FAME", function(from) {
     metadata = c(from[-pos], olif))
 })
 
+
+setOldClass("midi_entries")
+
+
 setAs("midi_entries", "FAMES", function(from) {
   new("FAMES", plates = lapply(from, as, "FAME"))
 })
 
 
 ################################################################################
+#
+# Conversion to and from lists (mainly for YAML I/O)
+#
 
 
 setAs("FAME", "list", function(from) {
-  to_list <- function(x, pt) {
-    c(as.list(x),
-      structure(list(rownames(x)), names = get_for(pt, "row.names")))
-  }
-  list(plate_type = tail(class(from@measurements), 1L),
+  to_list <- function(x, ptype) c(as.list(x),
+      structure(list(rownames(x)), names = get_for(ptype, "row.names")))
+  list(plate_type = class(from@measurements)[[1L]],
     measurements = to_list(from@measurements, plate_type(from)),
     metadata = from@metadata)
 })
 
+
 setAs("list", "FAME", function(from) {
-  from_list <- function(x, pt) {
+  from_list <- function(x, ptype) {
     x <- as.data.frame(x, stringsAsFactors = FALSE, optional = TRUE)
-    rn <- get_for(sub("[\\W_].*", "", pt, FALSE, TRUE), "row.names")
+    rn <- get_for(str_head(ptype), "row.names")
     rownames(x) <- x[, rn]
     x[, rn] <- NULL
-    as(x, pt)
+    as(x, ptype)
   }
   new("FAME", measurements = from_list(from[["measurements"]],
     from[["plate_type"]]), metadata = from[["metadata"]])
 })
 
+
 setAs("FAMES", "list", function(from) {
   lapply(from@plates, as, "list")
 })
+
 
 setAs("list", "FAMES", function(from) {
   new("FAMES", plates = lapply(from, as, "FAME"))
@@ -213,21 +209,25 @@ setAs("list", "FAMES", function(from) {
 
 
 ################################################################################
+#
+# Conversion to numeric vectors/matrices
+#
 
 
 setAs("FAME", "numeric", function(from) {
-  x <- from@measurements[, get_for(pt <- plate_type(from), "value.col")]
+  x <- from@measurements[, get_for(ptype <- plate_type(from), "value.col")]
   names(x) <- rownames(from@measurements)
   x <- x[!is.na(x)]
-  if (get_for(pt, "sum.dup")) {
+  if (get_for(ptype, "sum.dup")) {
     n <- vapply(strsplit(names(x), APPENDIX, TRUE), `[[`, "", 1L)
-    if (anyDuplicated(n)) {
+    if (anyDuplicated.default(n)) {
       warning("summing up duplicates")
       x <- vapply(split.default(x, n), sum, 0)
     }
   }
   x
 })
+
 
 setAs("FAMES", "matrix", function(from) {
   x <- collect(lapply(from@plates, as, "numeric"), "values")
