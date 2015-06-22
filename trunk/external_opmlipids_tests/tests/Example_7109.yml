@@ -1,5 +1,5 @@
 ---
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.726
@@ -211,7 +211,7 @@
       Sim Index: 0.078
       Entry Name: Arcanobacterium-haemolyticum*
     OLIF: external_opmlipids_tests/tests/Example_7109.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.692

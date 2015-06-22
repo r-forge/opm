@@ -1,5 +1,5 @@
 ---
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.76
@@ -179,7 +179,7 @@
       - Corynebacterium-afermentans-afermentans (48h)**
       - Corynebacterium-pilosum
     OLIF: external_opmlipids_tests/tests/Example_44549.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.761
@@ -345,7 +345,7 @@
       - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
       - Corynebacterium-afermentans-afermentans (48h)**
     OLIF: external_opmlipids_tests/tests/Example_44549.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.84
@@ -519,7 +519,7 @@
       - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
       - Corynebacterium-pseudodiphtheriticum*
     OLIF: external_opmlipids_tests/tests/Example_44549.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.84
@@ -671,7 +671,7 @@
       - Corynebacterium-striatum*
       - Gordona-sputi** (Rhodococcus)
     OLIF: external_opmlipids_tests/tests/Example_44549.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.84
@@ -882,7 +882,7 @@
       Sim Index: 0.146
       Entry Name: Corynebacterium-pseudodiphtheriticum*
     OLIF: external_opmlipids_tests/tests/Example_44549.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.589
@@ -1093,7 +1093,7 @@
       Sim Index: 0.156
       Entry Name: Corynebacterium-pseudodiphtheriticum*
     OLIF: external_opmlipids_tests/tests/Example_44549.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.622
@@ -1260,7 +1260,7 @@
       Sim Index: 0.135
       Entry Name: Corynebacterium-pseudodiphtheriticum*
     OLIF: external_opmlipids_tests/tests/Example_44549.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.584
@@ -1439,7 +1439,7 @@
       Sim Index: 0.675
       Entry Name: Corynebacterium-striatum*
     OLIF: external_opmlipids_tests/tests/Example_44549.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.622

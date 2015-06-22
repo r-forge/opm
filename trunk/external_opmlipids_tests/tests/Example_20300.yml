@@ -1,5 +1,5 @@
 ---
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.762
@@ -146,7 +146,7 @@
       - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
       - Corynebacterium-afermentans-afermentans (48h)**
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.762
@@ -305,7 +305,7 @@
       - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
       - Corynebacterium-afermentans-afermentans (48h)**
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.84
@@ -489,7 +489,7 @@
       - Corynebacterium-striatum*
       - Gordona-sputi** (Rhodococcus)
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.84
@@ -733,7 +733,7 @@
       Sim Index: 0.08
       Entry Name: Corynebacterium-pseudodiphtheriticum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.839
@@ -951,7 +951,7 @@
       - Brevibacterium-stationis* (unlike other brevibacteria)
       - Corynebacterium-striatum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.839
@@ -1129,7 +1129,7 @@
       Sim Index: 0.047
       Entry Name: Corynebacterium-callunae-GC subgroup A
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.838
@@ -1352,7 +1352,7 @@
       Sim Index: 0.19
       Entry Name: Corynebacterium-pseudodiphtheriticum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.838
@@ -1597,7 +1597,7 @@
       Sim Index: 0.17
       Entry Name: Corynebacterium-pseudodiphtheriticum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.618
@@ -1727,7 +1727,7 @@
       - Corynebacterium-striatum*
       - Gordona-sputi** (Rhodococcus)
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.582
@@ -1895,7 +1895,7 @@
       Sim Index: 0.818
       Entry Name: Corynebacterium-striatum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.616
@@ -2068,7 +2068,7 @@
       - Corynebacterium-striatum*
       - Gordona-sputi** (Rhodococcus)
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.624
@@ -2247,7 +2247,7 @@
       Sim Index: 0.579
       Entry Name: Corynebacterium-striatum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.59
@@ -2404,7 +2404,7 @@
       Sim Index: 0.566
       Entry Name: Corynebacterium-striatum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.625
@@ -2589,7 +2589,7 @@
       - Corynebacterium-striatum*
       - Gordona-sputi** (Rhodococcus)
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.624
@@ -2785,7 +2785,7 @@
       - Corynebacterium-striatum*
       - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.624
@@ -2931,7 +2931,7 @@
       Sim Index: 0.679
       Entry Name: Corynebacterium-striatum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.624
@@ -3083,7 +3083,7 @@
       - Corynebacterium-glutamicum (Brevibacterium divaricatum=synonm
       - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 0.0e+00
@@ -3261,7 +3261,7 @@
       - Corynebacterium-ammoniagenes* (Brevibacterium ammoniagenes)
       - Corynebacterium-afermentans-afermentans (48h)**
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.669
@@ -3352,7 +3352,7 @@
       Sim Index: 0.717
       Entry Name: Corynebacterium-striatum*
     OLIF: external_opmlipids_tests/tests/Example_20300.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.669
