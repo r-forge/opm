@@ -1,5 +1,5 @@
 ---
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -292,7 +292,7 @@
     Total Amount: '1442104'
     Profile Comment: Good peak matching.  Peak position matching error (RMS) is 0.0025.
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -585,7 +585,7 @@
     Total Amount: '1429990'
     Profile Comment: Good peak matching.  Peak position matching error (RMS) is 0.0022.
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -1155,7 +1155,7 @@
     Percent Named: '97.46'
     Total Amount: '779113'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -1406,7 +1406,7 @@
     Percent Named: '100.00'
     Total Amount: '309404'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -1591,7 +1591,7 @@
     Percent Named: '100.00'
     Total Amount: '114495'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -1842,7 +1842,7 @@
     Percent Named: '100.00'
     Total Amount: '454354'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -2049,7 +2049,7 @@
     Percent Named: '100.00'
     Total Amount: '234525'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -2311,7 +2311,7 @@
     Percent Named: '100.00'
     Total Amount: '358277'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -2562,7 +2562,7 @@
     Percent Named: '100.00'
     Total Amount: '326659'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -2780,7 +2780,7 @@
     Percent Named: '100.00'
     Total Amount: '207264'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -2965,7 +2965,7 @@
     Percent Named: '100.00'
     Total Amount: '159992'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -3216,7 +3216,7 @@
     Percent Named: '100.00'
     Total Amount: '270018'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -3445,7 +3445,7 @@
     Percent Named: '100.00'
     Total Amount: '132511'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -3727,7 +3727,7 @@
     Total Amount: '1515071'
     Profile Comment: Good peak matching.  Peak position matching error (RMS) is 0.0023.
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -3978,7 +3978,7 @@
     Percent Named: '100.00'
     Total Amount: '388723'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -4185,7 +4185,7 @@
     Percent Named: '100.00'
     Total Amount: '169190'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -4436,7 +4436,7 @@
     Percent Named: '100.00'
     Total Amount: '471620'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -4665,7 +4665,7 @@
     Percent Named: '100.00'
     Total Amount: '341761'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -4861,7 +4861,7 @@
     Percent Named: '100.00'
     Total Amount: '184515'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -5101,7 +5101,7 @@
     Percent Named: '100.00'
     Total Amount: '268902'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -5374,7 +5374,7 @@
     Percent Named: '100.00'
     Total Amount: '393899'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -5592,7 +5592,7 @@
     Percent Named: '100.00'
     Total Amount: '132332'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -5887,7 +5887,7 @@
     Percent Named: '99.90'
     Total Amount: '597648'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -6171,7 +6171,7 @@
     Percent Named: '99.83'
     Total Amount: '320403'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -6411,7 +6411,7 @@
     Percent Named: '100.00'
     Total Amount: '292920'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -6737,7 +6737,7 @@
     Total Amount: '1708931'
     Profile Comment: Good peak matching.  Peak position matching error (RMS) is 0.0023.
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -7010,7 +7010,7 @@
     Percent Named: '100.00'
     Total Amount: '383403'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -7283,7 +7283,7 @@
     Percent Named: '100.00'
     Total Amount: '251926'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -7501,7 +7501,7 @@
     Percent Named: '100.00'
     Total Amount: '198079'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.625
@@ -7752,7 +7752,7 @@
     Percent Named: '100.00'
     Total Amount: '264181'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -7937,7 +7937,7 @@
     Percent Named: '100.00'
     Total Amount: '89345'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -8199,7 +8199,7 @@
     Percent Named: '100.00'
     Total Amount: '316113'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -8395,7 +8395,7 @@
     Percent Named: '100.00'
     Total Amount: '125167'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -8657,7 +8657,7 @@
     Percent Named: '100.00'
     Total Amount: '335911'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -8886,7 +8886,7 @@
     Percent Named: '100.00'
     Total Amount: '353229'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -9093,7 +9093,7 @@
     Percent Named: '100.00'
     Total Amount: '191389'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.625
@@ -9333,7 +9333,7 @@
     Percent Named: '99.92'
     Total Amount: '246896'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -9670,7 +9670,7 @@
     Total Amount: '2024280'
     Profile Comment: Good peak matching.  Peak position matching error (RMS) is 0.0022.
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -9932,7 +9932,7 @@
     Percent Named: '100.00'
     Total Amount: '480943'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.627
@@ -10150,7 +10150,7 @@
     Percent Named: '99.80'
     Total Amount: '123155'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.625
@@ -10412,7 +10412,7 @@
     Percent Named: '100.00'
     Total Amount: '556847'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.625
@@ -10619,7 +10619,7 @@
     Percent Named: '100.00'
     Total Amount: '215382'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -10859,7 +10859,7 @@
     Percent Named: '100.00'
     Total Amount: '445191'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -11088,7 +11088,7 @@
     Percent Named: '100.00'
     Total Amount: '449376'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -11306,7 +11306,7 @@
     Percent Named: '100.00'
     Total Amount: '319812'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.625
@@ -11535,7 +11535,7 @@
     Percent Named: '100.00'
     Total Amount: '265585'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.625
@@ -11775,7 +11775,7 @@
     Percent Named: '100.00'
     Total Amount: '251782'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -11971,7 +11971,7 @@
     Percent Named: '100.00'
     Total Amount: '110128'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.626
@@ -12222,7 +12222,7 @@
     Percent Named: '100.00'
     Total Amount: '390071'
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT: 1.644
     Response: 1545000.0
@@ -12251,7 +12251,7 @@
     Total Amount: '0'
     Profile Comment: NOT ENOUGH GOOD PEAKS TO MATCH EXPECTED CALIBRATION MIX
     OLIF: external_opmlipids_tests/tests/Example_Sikorski.rtf
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT: 1.643
     Response: 699585.0

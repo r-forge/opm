@@ -6,7 +6,7 @@
 #' Classes of the \pkg{opmlipids} package
 #'
 #' Classes whose members can be generated and manipulated by an \pkg{opmlipids}
-#' user.
+#' user, as well as auxiliary classes a user not normally manipulates directly.
 #'
 #' @details
 #' \acronym{FAME} is an acronym for \sQuote{Fatty Acids with Metadata} (even
@@ -38,6 +38,10 @@
 #' \code{\link{plate_type}} can be specified in detail by the user, see
 #' \code{\link{oli_opt}}.
 #'
+#' The other classes referring to this page are auxiliary (they are used for
+#' generating or displaying \acronym{FAME} or \acronym{FAMES} objects) and not
+#' normally directly modified by a user.
+#'
 #' @examples
 #'
 #' ## overview on the classes
@@ -61,14 +65,16 @@ setClass("FAME",
   validity = function(object) {
     fame_problems <- function(x) {
       ptype <- str_head(class(x))
-      if (is.null(opt <- get0(ptype, PLATE_TYPE_SETTINGS)))
+      if (!exists(ptype, PLATE_TYPE_SETTINGS, , , "list", FALSE))
         return(sprintf("no stored settings for plate type '%s'", ptype))
+      opt <- get(ptype, PLATE_TYPE_SETTINGS, , "list", FALSE)
       if (is.null(vcol <- opt$value.col))
         return(sprintf("no 'value.col' entry for plate type '%s'", ptype))
       if (!(pos <- match(vcol, colnames(x), 0L)))
         return(sprintf("no column named '%s'", vcol))
       if (!is.numeric(v <- x[, pos]))
-        return(sprintf("column '%s' contains non-numeric data", vcol))
+        return(sprintf("column '%s' contains non-numeric data: %s", vcol,
+          paste0(x[, pos], collapse = "/")))
       if (is.null(tol <- opt$tolerance))
         return(sprintf("no 'tolerance' entry for plate type '%s'", ptype))
       if (!all(is.na(v)) && !isTRUE(all.equal(100, sum(v, na.rm = TRUE), tol)))
@@ -114,7 +120,27 @@ setClass("FAMES",
 #' @export
 #' @aliases MIDI-class
 #'
-setClass("MIDI", contains = "data.frame", sealed = SEALED)
+setClass("MIDI", contains = "data.frame", validity = function(object) {
+    errs <- assert_elements(object, c(RT = "numeric", Response = "numeric",
+      `Ar/Ht` = "numeric", RFact = "numeric", ECL = "numeric",
+      Percent = "numeric", `Peak Name` = "character",
+      Comment1 = "character", Comment2 = "character"))
+    if (length(errs))
+      errs
+    else
+      TRUE
+  },
+  sealed = SEALED
+)
+
+#' @docType class
+#' @rdname FAME
+#' @name FAMES_Summary
+#' @export
+#' @aliases FAMES_Summary-class
+#'
+setClass("FAMES_Summary", contains = "data.frame", slots = c(Of = "character"),
+  sealed = SEALED)
 
 
 ################################################################################
@@ -143,30 +169,67 @@ setMethod("initialize", "FAMES", function(.Object, ...) {
 
 ################################################################################
 #
-# Conversion to and from FAME/FAMES objects
+# Conversion to and from data frames
 #
 
 
-setOldClass("midi_entry")
-
-
-setAs("midi_entry", "FAME", function(from) {
-  pos <- match("Measurements", names(from), 0L)
-  if (!pos) # just to provide a more meaningful error message
-    stop("object of class 'midi_entry' lacks 'Measurements' element")
-  if (is.null(olif <- attr(from, ".file")))
-    stop("object of class 'midi_entry' lacks '.file' attribute")
-  olif <- structure(list(olif), names = get_for("MIDI", "file.entry"))
-  new("FAME", measurements = as(from[[pos]], "MIDI"),
-    metadata = c(from[-pos], olif))
+setAs("data.frame", "MIDI", function(from) {
+  for (name in c("RT", "Response", "Ar/Ht", "RFact", "ECL", "Percent"))
+    if (!is.double(from[, name]))
+      from[, name] <- as.double(chartr(",", ".", from[, name]))
+  for (name in c("Peak Name", "Comment1", "Comment2"))
+    from[, name] <- trim_whitespace(from[, name])
+  pos <- grepl("^Summed\\s+Feature\\s+\\d+$", from[, "Peak Name"],
+    TRUE, TRUE) | is.na(from[, "Percent"]) | from[, "Percent"] == 0
+  value.col <- get_for("MIDI", "value.col")
+  from[, value.col] <- ifelse(pos, NA_real_, from[, "Percent"])
+  if (any(pos <- !is.na(from[, value.col]))) {
+    rn <- ifelse(grepl("^Sum\\s*In\\s*Feature\\s*\\d+$",
+      from[, "Peak Name"], TRUE, TRUE), from[, "Comment2"], from[, "Peak Name"])
+    rownames(from)[pos] <- make.unique(norm_fa(rn[pos], TRUE), APPENDIX)
+  }
+  new("MIDI", from)
 })
 
 
-setOldClass("midi_entries")
-
-
-setAs("midi_entries", "FAMES", function(from) {
-  new("FAMES", plates = lapply(from, as, "FAME"))
+setAs("data.frame", "FAME", function(from) {
+  drop_empty_columns <- function(x) {
+    if (any(empty <- vapply(lapply(lapply(x, nzchar), `!`), all, NA)))
+      x <- x[, !empty, drop = FALSE]
+    x
+  }
+  convert_part <- function(x) {
+    if (nrow(x) < 2L)
+      stop("less than two rows")
+    if (!all(nzchar(cn <- x[1L, ])))
+      stop("empty column names")
+    x <- x[-1L, , drop = FALSE]
+    colnames(x) <- cn
+    rownames(x) <- NULL
+    x
+  }
+  for (i in which(vapply(from, is.factor, NA)))
+    from[, i] <- as.character(from[, i])
+  if (!all(vapply(from, is.character, NA)))
+    stop("unsupported kind of data frame")
+  f <- Reduce(`&`, lapply(lapply(from, nzchar), `!`))
+  from <- lapply(split.data.frame(from, sections(f, FALSE)), drop_empty_columns)
+  measurements <- as(convert_part(from[[3L]]), "MIDI")
+  # entries absolutely needed are: Method, Sample ID, ID Number, Type
+  metadata <- list()
+  # irregular parts, must address fields individually
+  metadata[c("Volume", "File")] <- from[[1L]][1L, ]
+  metadata[c("ID Number", "Bottle")] <- from[[2L]][, 2L]
+  metadata$`Sample ID` <- from[[2L]][1L, 3L]
+  metadata[c("Type", "Method", "Created")] <- from[[2L]][2L, c(4L, 5L, 6L)]
+  # more regularly structured
+  metadata[from[[4L]][, 1L]] <- from[[4L]][, 2L]
+  metadata[from[[4L]][, 3L]] <- from[[4L]][, 4L]
+  # expect variable number of matches, but at least 'NO MATCH'
+  metadata$Matches <- convert_part(from[[5L]])
+  if (anyNA(metadata))
+    stop("metadata selection yielded NA values")
+  new("FAME", measurements = measurements, metadata = metadata)
 })
 
 
@@ -178,23 +241,28 @@ setAs("midi_entries", "FAMES", function(from) {
 
 setAs("FAME", "list", function(from) {
   to_list <- function(x, ptype) c(as.list(x),
-      structure(list(rownames(x)), names = get_for(ptype, "row.names")))
-  list(plate_type = class(from@measurements)[[1L]],
-    measurements = to_list(from@measurements, plate_type(from)),
-    metadata = from@metadata)
+    structure(list(rownames(x)), names = get_for(ptype, "row.names")))
+  klass <- class(from@measurements) # must be in sync with plate_type()
+  list(plate_subtype = klass, measurements = to_list(from@measurements,
+    str_head(klass)), metadata = from@metadata)
 })
 
 
 setAs("list", "FAME", function(from) {
-  from_list <- function(x, ptype) {
+  from_list <- function(x, klass) {
+    if (!length(x))
+      stop("missing or empty 'measurements' entry")
+    if (!length(klass))
+      stop("missing or empty 'plate_subtype' entry")
     x <- as.data.frame(x, stringsAsFactors = FALSE, optional = TRUE)
-    rn <- get_for(str_head(ptype), "row.names")
+    # mechanism must be in sync with plate_type()
+    rn <- get_for(str_head(klass), "row.names")
     rownames(x) <- x[, rn]
     x[, rn] <- NULL
-    as(x, ptype)
+    as(x, klass)
   }
-  new("FAME", measurements = from_list(from[["measurements"]],
-    from[["plate_type"]]), metadata = from[["metadata"]])
+  new("FAME", metadata = from[["metadata"]],
+    measurements = from_list(from[["measurements"]], from[["plate_subtype"]]))
 })
 
 

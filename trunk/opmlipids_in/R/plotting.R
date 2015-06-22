@@ -37,16 +37,14 @@
 setGeneric("summary")
 
 setMethod("summary", "FAME", function(object, ...) {
-  result <- list(Class = class(object), `Plate type` = plate_type(object),
-    Measurements = dim(object@measurements),
+  data.frame(Class = class(object), Plate.type = plate_type(object),
+    Measurements = nrow(object@measurements), stringsAsFactors = FALSE,
     Metadata = sum(rapply(object@metadata, function(item) 1L)), ...)
-  class(result) <- "FAME_Summary"
-  result
 }, sealed = SEALED)
 
 setMethod("summary", "FAMES", function(object, ...) {
-  structure(lapply(X = object@plates, FUN = summary, ...), of = class(object),
-    class = "FAMES_Summary")
+  x <- do.call(rbind, lapply(X = object@plates, FUN = summary, ...))
+  new("FAMES_Summary", .Data = x, Of = class(object))
 }, sealed = SEALED)
 
 #= show summary
@@ -61,59 +59,12 @@ setMethod("show", "FAMES", function(object) {
   invisible(NULL)
 }, sealed = SEALED)
 
-
-################################################################################
-
-
-#' Print
-#'
-#' Print \code{\link{FAME}} or \code{\link{FAMES}} summaries to the screen.
-#'
-#' @param x Object of class \sQuote{FAME_Summary} or \sQuote{FAMES_Summary}.
-#' @param omit Logical scalar indicating whether printing of \code{\link{FAME}}
-#'   class and \code{\link{plate_type}} shall be omitted.
-#' @param ... Optional arguments passed to \code{formatDL}.
-#' @return \code{x} is returned invisibly.
-#' @keywords internal
-#' @name print
-#'
-NULL
-
-#' @rdname print
-#' @method print FAME_Summary
-#' @export
-#'
-print.FAME_Summary <- function(x, omit = FALSE, ...) {
-  do_print <- function(x, ...) {
-    x <- formatDL(x = names(x), y = vapply(x, paste0, "", collapse = "/"), ...)
-    lapply(x, cat, sep = "\n")
-  }
-  do_print(if (omit)
-      x[setdiff(names(x), c("Class", "Plate type"))]
-    else
-      x)
-  invisible(x)
-}
-
-#' @rdname print
-#' @method print FAMES_Summary
-#' @export
-#'
-print.FAMES_Summary <- function(x, omit = TRUE, ...) {
-  if (size <- length(x)) {
-    plate.type <- sprintf("'%s'", x[[1L]][["Plate type"]])
-    for (i in seq_along(x)) {
-      cat(i, sep = "\n")
-      print(x[[i]], omit, ...)
-      cat("\n")
-    }
-  } else {
-    plate.type <- "unknown"
-  }
-  cat(sprintf("=> %s object with %i plates of %s type.", attr(x, "of"), size,
-    plate.type), sep = "\n")
-  invisible(x)
-}
+setMethod("show", "FAMES_Summary", function(object) {
+  callNextMethod()
+  cat(sprintf("=> %s object with %i plates.", object@Of, nrow(object)),
+    sep = "\n")
+  invisible(NULL)
+}, sealed = SEALED)
 
 
 ################################################################################

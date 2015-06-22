@@ -1,5 +1,5 @@
 ---
-- plate_type: MIDI
+- plate_subtype: MIDI
   measurements:
     RT:
     - 1.574
