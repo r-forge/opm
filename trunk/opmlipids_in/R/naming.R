@@ -112,8 +112,20 @@ setMethod("listing", "FAMES", function(x, as.groups, cutoff = 0, html = FALSE,
 #'   stored settings for the plate types given in \code{x} are returned.
 #' @return This returns a named nested lists, with the names corresponding to
 #'   plate-type names after normalisation.
-#' @details The \pkg{opmlipids} package uses various settings for customising
-#'   the behaviour of \code{\link{FAMES}} objects depending on their plate type.
+#' @details The \pkg{opmlipids} package defines as plate type the first part of
+#'   the name of the class of the \code{\link{measurements}} entry of a
+#'   \code{\link{FAME}} object after splitting this class name at characters
+#'   that are neither letters nor digits. Several \code{\link{FAME}} objects
+#'   stored in a \code{\link{FAMES}} object must be uniform regarding their
+#'   plate type. This allows for treating the class of the
+#'   \code{\link{measurements}} entries as plate subtype and thus a
+#'   \code{\link{FAMES}} object to contain distinct classes of
+#'   \code{\link{measurements}} objects. Another reason for not storing these
+#'   entries in S4 methods (which could then be specific for each class) is that
+#'   some of them must be known before creating on object of such a class.
+#'
+#'   The package uses various settings for customising the behaviour of
+#'   \code{\link{FAMES}} objects depending on their plate type.
 #'   \describe{
 #'   \item{char.group}{The name used in textual output for the kind of
 #'   characters stored in this plate type. Used by \code{\link{listing}}.}
@@ -132,6 +144,11 @@ setMethod("listing", "FAMES", function(x, as.groups, cutoff = 0, html = FALSE,
 #'   data frame that stores the numeric measurements (all other columns, if any,
 #'   should contain additional information on the respective measurements.)}
 #'   }
+#'
+#'   These settings are defined by \pkg{opmlipids} for the \code{\link{MIDI}}
+#'   class but users can accordingly defined settings for arbitrary S4 classes
+#'   and store them in \code{\link{FAME}} and \code{\link{FAMES}} objects
+#'   provided these S4 classes are derived from data frames.
 #' @family naming-functions
 #' @keywords utilities
 #' @seealso \link{plate_type}

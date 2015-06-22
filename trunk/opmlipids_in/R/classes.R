@@ -173,6 +173,7 @@ setMethod("initialize", "FAMES", function(.Object, ...) {
 #
 
 
+# Where 'from' must already contain the relevant columns.
 setAs("data.frame", "MIDI", function(from) {
   for (name in c("RT", "Response", "Ar/Ht", "RFact", "ECL", "Percent"))
     if (!is.double(from[, name]))
@@ -192,9 +193,12 @@ setAs("data.frame", "MIDI", function(from) {
 })
 
 
+# This can be used to read from MIDI-generated Excel files. It converts a single
+# worksheet.
 setAs("data.frame", "FAME", function(from) {
+  is_empty <- function(x) is.na(x) | !nzchar(x)
   drop_empty_columns <- function(x) {
-    if (any(empty <- vapply(lapply(lapply(x, nzchar), `!`), all, NA)))
+    if (any(empty <- vapply(lapply(x, is_empty), all, NA)))
       x <- x[, !empty, drop = FALSE]
     x
   }
@@ -212,8 +216,12 @@ setAs("data.frame", "FAME", function(from) {
     from[, i] <- as.character(from[, i])
   if (!all(vapply(from, is.character, NA)))
     stop("unsupported kind of data frame")
-  f <- Reduce(`&`, lapply(lapply(from, nzchar), `!`))
-  from <- lapply(split.data.frame(from, sections(f, FALSE)), drop_empty_columns)
+  f <- Reduce(`&`, lapply(from, is_empty))
+  from <- split.data.frame(from, sections(f, FALSE))
+  if (length(from) < 5L)
+    from <- c(from[1L], split.data.frame(from[[2L]],
+      sections(is_empty(from[[2L]][, 1L]), FALSE)), from[c(3L, 4L)])
+  from <- lapply(from, drop_empty_columns)
   measurements <- as(convert_part(from[[3L]]), "MIDI")
   # entries absolutely needed are: Method, Sample ID, ID Number, Type
   metadata <- list()
