@@ -135,35 +135,6 @@ nearest <- function(x, table) {
 ################################################################################
 
 
-# Find unnamed fatty acids and accordingly re-calculate all percentages. 'x' is
-# a data frame as stored in the 'measurements' slot of a FAME object.
-recalculate_percents <- function(x) {
-  interpolate_rfact <- function(x) {
-    if (any(x[, "Interpol"] <- is.na(x[, "RFact"]) & !is.na(x[, "RT"]))) {
-      m <- lm(log(x[, "RFact"]) ~ log(x[, "RT"]))
-      x[, "RFact"] <- ifelse(x[, "Interpol"], exp(predict(m, x)), x[, "RFact"])
-    }
-    x
-  }
-  x <- interpolate_rfact(x)
-  skip <- grepl("^\\s*(<\\s+min|>\\s+max)\\s+rt\\s*$", x[, "Comment1"], TRUE,
-    TRUE) | grepl("^\\s*Summed\\s+Feature\\s+\\d+\\s*$", x[, "Peak Name"],
-    TRUE, TRUE)
-  val <- ifelse(skip, NA_real_, x[, "Response"] * x[, "RFact"])
-  val <- 100 * val / sum(val, na.rm = TRUE)
-  x[, "VALUE2"] <- val
-  is.nn <- is.na(x[, "VALUE"]) & !is.na(x[, "VALUE2"])
-  nn <- ifelse(nzchar(x[, "Peak Name"]), x[, "Peak Name"],
-    sprintf("unknown %0.2f", x[, "ECL"]))
-  nn[is.nn] <- norm_fa(nn[is.nn], TRUE)
-  rownames(x) <- make.unique(ifelse(is.nn, nn, rownames(x)), APPENDIX)
-  x
-}
-
-
-################################################################################
-
-
 # Read a single RTF file and return a list of FAME objects if 'level' is 6. For
 # lower levels, return according intermediary objects. 'delete'
 read_midi_rtf <- function(con, level = 6L,
@@ -210,71 +181,67 @@ read_midi_rtf <- function(con, level = 6L,
       stop("malformatted RTF object: not as many tags as elements")
     if (length(bad <- setdiff(tags, c("MACRO", "TEXT"))))
       stop("malformatted RTF object: unknown tag ", bad[1L])
-    structure(x, macro = tags == "MACRO", .file = attr(object, ".file"))
+    attr(x, "macro") <- tags == "MACRO"
+    x
   }
 
   # Create a list of 'flat RTF' objects.
   cut_flat_rtf <- function(x, breaks) {
     breaks <- sections(x %in% to_macro(breaks) & macro(x), FALSE)
     mapply(structure, .Data = split.default(x, breaks), SIMPLIFY = FALSE,
-      macro = split.default(macro(x), breaks), USE.NAMES = FALSE,
-      MoreArgs = list(.file = attr(x, ".file")))
-  }
-
-  # Reduce non-table paragraphs to the informative content in a named character
-  # vector.
-  simplify_nontable_paragraph <- function(x) {
-    x <- paste0(x[!macro(x)], collapse = "\n")
-    x <- strsplit(x, " {5,}|\n", FALSE, TRUE)
-    x <- trim_whitespace(unlist(x, FALSE, FALSE))
-    if (!length(x <- x[nzchar(x)]))
-      return(character())
-    x <- strsplit(x, "\\s*:\\s*", FALSE, TRUE)
-    len <- vapply(x, length, 0L)
-    x[pos] <- lapply(x[pos <- len == 1L], c, NA_character_)
-    x[pos] <- lapply(x[pos <- len > 2L], function(y)
-      c(y[1L], paste0(y[-1L], collapse = ":")))
-    x <- do.call(rbind, x)
-    structure(x[, 2L], names = x[, 1L])
-  }
-
-  # Table rows are located between \\trowd and \\trow, cell content is located
-  # before \\cell. We assume there is only one table per paragraph.
-  simplify_table_paragraph <- function(x) {
-    simplify_row <- function(x) trim_whitespace(ifelse(macro(x), "", x)[
-      which(x == "\\cell") - 1L]) # add empty strings in place of empty cells
-    x <- lapply(cut_flat_rtf(x, breaks = c("trowd", "row")), simplify_row)
-    must(do.call(rbind, x)) # zero-length rows disappear at this step
+      macro = split.default(macro(x), breaks), USE.NAMES = FALSE)
   }
 
   # Simplify elements of x, which is a list of RTF paragraphs, depending on
   # whether or not the element holds an RTF table.
   simplify_paragraphs <- function(x) {
+    # Reduce non-table paragraphs to the informative content in a named
+    # character vector.
+    simplify_nontable_paragraph <- function(x) {
+      x <- paste0(x[!macro(x)], collapse = "\n")
+      x <- strsplit(x, " {5,}|\n", FALSE, TRUE)
+      x <- trim_whitespace(unlist(x, FALSE, FALSE))
+      if (!length(x <- x[nzchar(x)]))
+        return(character())
+      x <- strsplit(x, "\\s*:\\s*", FALSE, TRUE)
+      len <- vapply(x, length, 0L)
+      x[pos] <- lapply(x[pos <- len == 1L], c, NA_character_)
+      x[pos] <- lapply(x[pos <- len > 2L], function(y)
+        c(y[1L], paste0(y[-1L], collapse = ":")))
+      x <- do.call(rbind, x)
+      structure(x[, 2L], names = x[, 1L])
+    }
+    # Table rows are located between \\trowd and \\trow, cell content is located
+    # before \\cell. We assume there is only one table per paragraph. Empty
+    # strings are added in place of empty cells.
+    simplify_table_paragraph <- function(x) {
+      x <- lapply(cut_flat_rtf(x, c("trowd", "row")), function(x)
+        trim_whitespace(ifelse(macro(x), "", x)[which(x == "\\cell") - 1L]))
+      do.call(rbind, x) # zero-length rows disappear at this step
+    }
     is.table <- vapply(x, function(y) "\\trowd" %in% y[macro(y)], NA)
     x[is.table] <- lapply(x[is.table], simplify_table_paragraph)
     x[!is.table] <- lapply(x[!is.table], simplify_nontable_paragraph)
     x[vapply(x, length, 0L) > 0L]
   }
 
-  # Convert MIDI matrix to data frame.
-  parse_table <- function(x) {
-    x[grepl("^-+$", x, FALSE, TRUE)] <- NA_character_
-    headers <- x[1L, ]
-    x <- as.data.frame(x[-1L, , drop = FALSE], stringsAsFactors = FALSE)
-    colnames(x) <- headers
-    rownames(x) <- NULL
-    if (all(c("Library", "Sim Index", "Entry Name") %in% headers)) {
-      x[, "Sim Index"] <- as.double(chartr(",", ".", x[, "Sim Index"]))
-      attr(x, "kind") <- "Matches"
-    } else {
-      attr(x, "kind") <- "Measurements"
-    }
-    x
-  }
-
   # Interpret elements of x, which is a list of simplified RTF paragraphs,
   # depending on whether or not the element is a matrix.
   interpret_paragraphs <- function(x) {
+    parse_table <- function(x) { # Convert MIDI matrix to data frame.
+      x[grepl("^-+$", x, FALSE, TRUE)] <- NA_character_
+      headers <- x[1L, ]
+      x <- as.data.frame(x[-1L, , drop = FALSE], stringsAsFactors = FALSE)
+      colnames(x) <- headers
+      rownames(x) <- NULL
+      if (all(c("Library", "Sim Index", "Entry Name") %in% headers)) {
+        x[, "Sim Index"] <- as.double(chartr(",", ".", x[, "Sim Index"]))
+        attr(x, "kind") <- "Matches"
+      } else {
+        attr(x, "kind") <- "Measurements"
+      }
+      x
+    }
     tables <- lapply(x[is.mat <- vapply(x, is.matrix, NA)], parse_table)
     x <- unlist(lapply(x[!is.mat], as.list), FALSE, TRUE)
     for (table in tables) {
@@ -328,7 +295,7 @@ read_midi_rtf <- function(con, level = 6L,
 
 # Convert names of fatty acids from the MIDI system to a standardized way to
 # express them. 'x' is a character vector.
-norm_fa <- function(x, warn = FALSE, ...) {
+norm_fa <- function(x, warn) {
   y <- FA_MAP[x]
   if (any(isna <- is.na(y))) {
     ok <- x[isna] %in% FA_MAP

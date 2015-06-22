@@ -9,7 +9,6 @@
 #' \code{\link{FAME}} or \code{\link{FAMES}} object on screen.
 #'
 #' @param object \code{\link{FAME}} or \code{\link{FAMES}} object.
-#' @param ... Optional arguments to be included in the output.
 #' @export
 #' @return For the \code{\link{FAME}} method, a named list of the class
 #'   \code{FAME_Summary}, returned invisibly. The \sQuote{Metadata} entry is
@@ -26,41 +25,45 @@
 #'
 #' # FAME method
 #' (x <- summary(DSM_44549[[1]]))
-#' stopifnot(is.list(x))
+#' stopifnot(is.data.frame(x), nrow(x) == 1L)
 #' DSM_44549[[1]] # calls show()
 #'
 #' # FAMES method
 #' (x <- summary(DSM_44549))
-#' stopifnot(is.list(x))
+#' stopifnot(is.data.frame(x), nrow(x) == length(DSM_44549))
 #' DSM_44549 # calls show()
 #'
 setGeneric("summary")
 
-setMethod("summary", "FAME", function(object, ...) {
+setMethod("summary", "FAME", function(object) {
   data.frame(Class = class(object), Plate.type = plate_type(object),
     Measurements = nrow(object@measurements), stringsAsFactors = FALSE,
-    Metadata = sum(rapply(object@metadata, function(item) 1L)), ...)
+    Metadata = sum(rapply(object@metadata, function(item) 1L)))
 }, sealed = SEALED)
 
-setMethod("summary", "FAMES", function(object, ...) {
-  x <- do.call(rbind, lapply(X = object@plates, FUN = summary, ...))
-  new("FAMES_Summary", .Data = x, Of = class(object))
+setMethod("summary", "FAMES", function(object) {
+  if (length(object@plates))
+    x <- do.call(rbind, lapply(X = object@plates, FUN = summary))
+  else
+    x <- data.frame(stringsAsFactors = FALSE, Class = character(),
+      Plate.type = character(), Measurements = integer(), Metadata = integer())
+  new("FAMES_Summary", x, Of = class(object))
 }, sealed = SEALED)
 
 #= show summary
 
 setMethod("show", "FAME", function(object) {
-  print(summary(object))
+  show(summary(object))
   invisible(NULL)
 }, sealed = SEALED)
 
 setMethod("show", "FAMES", function(object) {
-  print(summary(object))
+  show(summary(object))
   invisible(NULL)
 }, sealed = SEALED)
 
 setMethod("show", "FAMES_Summary", function(object) {
-  callNextMethod()
+  print(object)
   cat(sprintf("=> %s object with %i plates.", object@Of, nrow(object)),
     sep = "\n")
   invisible(NULL)

@@ -555,6 +555,7 @@ The following (informal) comparison, however, illustrates the differences, if an
 We first define a helper function for plotting parameters obtained with distinct approaches:
 
 <<label=spline-helper-function, echo=TRUE>>=
+# A function not normally needed by the user!
 plot_param_diff <- function(...) {
   x <- list(...)
   if (is.null(names(x)))
@@ -609,6 +610,15 @@ Negative \ac{lambda} values can occur in the case of negative reactions.
 Apparently the distinct spline-fitting methods yield approximately the same estimates for \ac{AUC} and \ac{A} but not necessarily for the other parameters.
 A closer investigation of the deviations in the smoothing-spline results for \ac{lambda} and \ac{mu} indicated that these are due to overfitting.
 The same issue has been observed with \ac{PM} data, see Section~\ref*{tutorial-methods aggregating} in the main tutorial.
+
+Other differences between the methods might reflect biological issues that render it difficult to interpret the curves in terms of the four parameters.
+For instance, Figure~\ref{fig:growth_xy_plot} shows curves with two positive shifts instead of a single one.
+Such curves might better be described by two \ac{lambda} and two \ac{mu} values instead of single ones.
+We have observed, however, that thin-plate splines usually pick the stronger of the two shifts, which is plausible.
+Note also that neither \ac{AUC} nor \ac{A} suffer from that problem.
+Selecting a \ac{A} value that makes sense is hampered by an increase followed by a decrease again, as also visible in Figure~\ref{fig:growth_xy_plot}.
+Thin-plate splines usually pick the actual maximum within a smoothed curve, which is biologically reasonable.
+
 We conclude that in the case of comparatively few data points the same method preferences should be applied as for \ac{PM} data.
 For the forthcoming analyses we accordingly restrict ourselves to the results obtained with thin-plate splines.
 

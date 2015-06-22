@@ -202,3 +202,72 @@ setMethod("phylo_data", "FAMES_Listing", function(object,
 
 ################################################################################
 
+
+#' Update the measurements
+#'
+#' Update the \code{\link{measurements}} stored within a \code{\link{FAME}} or
+#' \code{\link{FAME}} object.
+#'
+#' @param object \code{\link{FAMES}} or \code{\link{FAME}} object or object
+#'   suitable for the \code{\link{measurements}} entry of a \code{\link{FAME}}
+#'   object.
+#' @param unnamed Logical scalar indicating whether unnamed fatty acids, if any,
+#'   should be named and the percentages accordingly recalculated.
+#' @param ... Optional parameters passed between the methods.
+#' @return Object of the same class as \code{object}.
+#' @note For manipulating the metadata, see the methods for \code{WMDS} and
+#'   \code{WMDS} objects described in the \pkg{opm} manual.
+#' @export
+#' @keywords attribute character
+#' @family conversion-functions
+#' @examples
+#' (x <- update(DSM_7109))
+#' stopifnot(!identical(DSM_7109, x))
+#'
+setGeneric("update")
+
+setMethod("update", "FAMES", function(object, ...) {
+  for (i in seq_along(object@plates))
+    object@plates[[i]] <- update(object@plates[[i]], ...)
+  object
+}, sealed = SEALED)
+
+setMethod("update", "FAME", function(object, ...) {
+  object@measurements <- update(object@measurements, ...)
+  object
+}, sealed = SEALED)
+
+setMethod("update", "MIDI", function(object, unnamed = TRUE, ...) {
+  recalculate_percents <- function(x, klass) {
+    interpolate_rfact <- function(x) {
+      if (any(x[, "Interpol"] <- is.na(x[, "RFact"]) & !is.na(x[, "RT"]))) {
+        m <- lm(log(x[, "RFact"]) ~ log(x[, "RT"]))
+        x[, "RFact"] <- ifelse(x[, "Interpol"], exp(predict(m, x)),
+          x[, "RFact"])
+      }
+      x
+    }
+    x <- interpolate_rfact(x)
+    skip <- grepl("^(<\\s+min|>\\s+max)\\s+rt$", x[, "Comment1"], TRUE, TRUE) |
+      grepl("^Summed\\s+Feature\\s+\\d+$", x[, "Peak Name"], TRUE, TRUE)
+    val <- ifelse(skip, NA_real_, x[, "Response"] * x[, "RFact"])
+    val <- 100 * val / sum(val, na.rm = TRUE)
+    val.col <- get_for(str_head(klass), "value.col")
+    is.nn <- is.na(x[, val.col]) & !is.na(val)
+    x[, val.col] <- val
+    nn <- ifelse(nzchar(x[, "Peak Name"]), x[, "Peak Name"],
+      sprintf("unknown %0.2f", x[, "ECL"]))
+    nn[is.nn] <- norm_fa(nn[is.nn], TRUE)
+    rownames(x) <- make.unique(ifelse(is.nn, nn, rownames(x)), APPENDIX)
+    x
+  }
+  klass <- class(object)
+  object <- data.frame(object, check.names = FALSE)
+  if (unnamed)
+    object <- recalculate_percents(object, klass)
+  new(klass, object)
+}, sealed = SEALED)
+
+
+################################################################################
+
