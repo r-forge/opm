@@ -34,7 +34,6 @@
 # changed only if great care is taken.
 #
 EXTERNAL_TEST_DIR=external_tests
-OPMLIPIDS_TEST_DIR=external_opmlipids_tests
 
 
 # The folder in which a variety of 'miscellaneous' files are placed. Some of
@@ -1195,7 +1194,6 @@ run_external_tests()
       d ) testdir=$OPTARG;;
       f ) output_mode=show_failed;;
       h ) help_msg=yes;;
-      l ) testmode=lipids; testdir=$OPMLIPIDS_TEST_DIR;;
       p ) np=$(($OPTARG + 0));;
       s ) run_opm=$OPTARG;;
       v ) version=$OPTARG;;
@@ -1218,7 +1216,6 @@ run_external_tests()
 	  -d x  Use x as test directory (must contain subdirectory 'tests').
 	  -f    Do not run tests; list all failed files (if any).
 	  -h    Print this message.
-	  -l    Test opmlipids instead of opm.
 	  -p x  Use x processors (cores) for running the tests.
 	  -s x  Use x as 'run_opm.R' script for running the tests.
 	  -v x  Insert opm version x (x can also be an R package DESCRIPTION file).
@@ -1267,7 +1264,6 @@ ____EOF
   if ! [ "$run_opm" ]; then
     case $testmode in
       opm ) run_opm=`find_R_script run_opm.R opm || :`;;
-      lipids ) run_opm=`find_R_script run_opmlipids.R opmlipids || :`;;
       * ) echo "unknown test mode '$testmode', exiting now"; return 1;;
     esac
   fi
@@ -1380,26 +1376,6 @@ ____EOF
         
   ;;
 
-  lipids )
-  
-    echo "Testing YAML mode..."
-    do_test -i rtf -d "$testfile_dir" \
-      -w "$testfile_dir/%s.yml" -l "$tmpfile" \
-      -f "$tmpdir/%s.yml" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -o yaml \
-      -d "$tmpdir" >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-    echo "Testing CSV mode..."
-    do_test -i rtf -d "$testfile_dir" \
-      -w "$testfile_dir/%s.csv" -l "$tmpfile" \
-      -f "$tmpdir/%s.csv" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -o csv \
-      -d "$tmpdir" >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
-
-  ;;
-
   * )
     echo "unknown test mode '$testmode', exiting now"
     return 1
@@ -1430,6 +1406,7 @@ test_demos()
   local wdir=`pwd`
   local tmpdir=`mktemp -d --tmpdir`
   cd "$tmpdir"
+  # BEGIN specific for opm
   if [ "$1" = opm_in ]; then
     local csv_file
     for csv_file in "$wdir"/external_tests/tests/*.csv; do
@@ -1439,13 +1416,16 @@ test_demos()
       ln -s "$csv_file" "${csv_file##*/}"
     done
   fi
+  # END specific for opm
   local rscript
   local errs=0
   for rscript in "$wdir"/"$1"/demo/*.R; do
     [ -s "$rscript" ] || continue
+    # BEGIN specific for opm
     if [ "$1" = opm_in ] && echo "${rscript##*/}" | grep -q 'SQL\|ODBC' -; then
       continue
     fi
+    # END specific for opm
     echo "TESTING ${rscript##*/}..."
     if R CMD BATCH "$rscript"; then
       echo "	<<<SUCCESS>>>"
@@ -1723,7 +1703,7 @@ case $RUNNING_MODE in
     exit $?
   ;;
   demo )
-    test_demos opmlipids_in && test_demos opm_in
+    test_demos opm_in
     exit $?
   ;;
   dfull|dnorm )
@@ -1741,9 +1721,9 @@ case $RUNNING_MODE in
   ;;
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
-      remove_dirs_carefully pkgutils opm opmdata opmdata2 opmlipids validate &&
+      remove_dirs_carefully pkgutils opm opmdata opmdata2 validate &&
       remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmdata2_doc \
-        opmlipids_doc validate_doc
+        validate_doc
     exit $?
   ;;
   example )
@@ -1782,8 +1762,6 @@ case $RUNNING_MODE in
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  html    Generate HTML documentation und upload to the opm website.
-	  lnorm   Normal build of the opmlipids package.
-	  ltest   Test the 'run_opmlipids.R' script. Call '$0 test -h' for details.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  plex    Open the PDF files with plots produced from the examples, if any.
 	  pdf     Reduce size of PDF files either in ./graphics or given as arguments.
@@ -1839,15 +1817,6 @@ ____EOF
           upload_to_server "$HTML_STARTPAGE" pkgutils_doc opm_doc opmdata_doc
     exit $?
   ;;
-  lnorm )
-    PKG_DIR=opmlipids_in
-    RUNNING_MODE=${RUNNING_MODE#l}
-    CHECK_R_TESTS=
-  ;;
-  ltest )
-    run_external_tests -l "$@"
-    exit $?
-  ;;
   pdf )
     [ $# -eq 0 ] && set -- `find graphics -type f -iname '*.pdf'`
     reduce_pdf_size "$@"
@@ -1863,7 +1832,7 @@ ____EOF
     exit $?
   ;;
   rnw )
-    run_Stangle opm_in opmdata_in opmdata2_in pkgutils_in opmlipids_in
+    run_Stangle opm_in opmdata_in opmdata2_in pkgutils_in
     exit $?
   ;;
   rout )
@@ -1898,7 +1867,7 @@ ____EOF
     exit $?
   ;;
   time )
-    show_example_timings opm opmdata opmdata2 pkgutils opmlipids
+    show_example_timings opm opmdata opmdata2 pkgutils
     exit $?
   ;;
   todo )
@@ -1984,7 +1953,7 @@ delete_pat="vignettes/.*($delete_pat|(?<!opm_fig_[0-9])[.](?!pdf|eps))\$"
 Rscript --vanilla "$DOCU" "$@" --logfile "$LOGFILE" --lines-reduce \
   --no-internal --modify --preprocess --S4methods --junk "$delete_pat" \
   --mark-duplicates --whitelist "$WHITELIST_MANUAL" --quality ebook \
-  --good 00Index,well-map.R,substrate-info.R,plate-map.R,fatty-acid-map.R \
+  --good 00Index,well-map.R,substrate-info.R,plate-map.R \
   "$PKG_DIR"
 
 

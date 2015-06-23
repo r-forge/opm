@@ -29,6 +29,7 @@
 \acrodef{DM}{Dry Mass}
 \acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
 \acrodef{DSMZ}{\German{Deutsche Sammlung von Mikroorganismen und Zellkulturen}}
+\acrodef{FAU}{\German{Friedrich-Alexander-Universit\"{a}t Erlangen-N\"{u}rnberg}}
 \acrodef{FM}{Fresh Mass}
 \acrodef{PM}{Phenotype Microarray}
 
@@ -100,7 +101,7 @@
 %% BEGIN FROZEN SECTION
 
 \Abstract{
-This is tutorial about the analysis of growth curves and other user defined kinetics with the \pkg{opm} package in the version of \today{}.
+This is the tutorial on the analysis of growth curves and other user-defined kinetics with the \pkg{opm} package in the version of \today{}.
 It is explained how any kinds of growth or respiration measurements can be input into \pkg{opm}.
 Data without a real structuring into plates and wells can nevertheless be studied with \pkg{opm} by using a \textit{virtual} arrangement into plates and wells.
 This convention is not an oddity but rather the appropriate means to enable the visual and statistical comparisons of interest and to disable those that make no sense for the data.
@@ -157,7 +158,7 @@ The analysis of data other than \ac{PM} data, such as growth curves, additionall
 If these data are not really structured into plates and wells, a \textit{virtual} arrangement into plates and wells must be established, as well as a virtual positioning of the plates in a reader, which is used for identifying each plate.
 This nomenclature may be unusual for data that have not been measured in plate readers, but presents no problems in practice.
 Users should be aware, however, which kinds of comparisons can be made within and between plates of the same plate type.
-Indeed, the arrangement into virtual plates and wells is the appropriate means to ensure that the visual and statistical comparisons of interest for the data are possible and that those that make no sense are disabled.
+Indeed, the arrangement into virtual plates and wells is the appropriate means to ensure that the visual and statistical comparisons of interest for the data are enabled and those that make no sense are disabled.
 Note that some defaults of the plotting functions are only suitable for \ac{PM} data.
 Hence, the functions should be called slightly distinctly.
 
@@ -174,15 +175,15 @@ options(width = 90)
 options(prompt = "R> ")
 options(continue = "   ")
 options(useFancyQuotes = FALSE)
-library("methods")
+library(methods)
 @
 
 As usual, \pkg{opm} must be loaded before any analysis can begin:
 
 <<label=load-library>>=
 if ("package:opm" %in% search())
-  detach("package:opm", unload = TRUE)
-library("opm")
+  detach(package:opm, unload = TRUE)
+library(opm)
 @
 
 \section{Growth-curve data input}\label{data-input}
@@ -193,7 +194,7 @@ In the following we will use the growth-measurements data set from \citet{ijms14
 These data have been entered by hand and then input into \proglang{R} with one of the functions for reading \ac{CSV}, yielding a data frame that comes with \pkg{opm}:
 
 <<label=load-potatoes>>=
-data("potato")
+data(potato)
 head(potato)
 @
 
@@ -219,7 +220,7 @@ head(potato.fm)
 Thus the dimensions of the data dwindled to \Sexpr{nrow(potato.fm)} rows in \Sexpr{ncol(potato.fm)} columns.
 Now the data are in the right arrangement for the next step, the conversion into \proglang{OPMX} or \proglang{MOPMX} objects.
 When entering data manually, users who directly choose a format analogous to the ``wide'' format can, of course, skip the conversion with \code{reshape}.
-Thus directly using the ``horizontal'' input format of \code{opmx} is \textit{recommended} for manually entering data.
+Thus directly using the ``horizontal'' input format of \code{opmx} is recommended for manually entering data.
 
 The main function for converting user-defined data frames to \proglang{OPMX} or \proglang{MOPMX} objects is \code{opmx}, which can directly be applied to the objects created in the last step.
 This works because the ``horizontal'' input format of \code{opmx} corresponds to the ``wide'' format of \code{reshape}.
@@ -246,7 +247,7 @@ The \code{prefix} argument helps identifying the columns with measurements over 
 In the case of \ac{PM} data, this is done using the position of the plate within the OmniLog\textregistered \ reader.
 Thus the relevant argument here is \code{position}, which must be supplied unless there is a column of that name.
 If so, its content is used literally, otherwise it is newly constructed from the columns explicitly given in the \code{position} argument, yielding a grouping of plates equivalent to the combination of factor levels in these columns.
-So the ``plate position'' is usually also virtual, but just acts as an identifier of the plate.
+Hence the ``plate position'' is usually also virtual, but just acts as an identifier of the plate.
 
 The registered plate type can be queried as follows:
 
@@ -261,18 +262,19 @@ Indeed, please keep in mind that the definition of plate types is only available
 The definitions will be lost once the session is terminated.
 This can be circumvented by placing code for loading \pkg{opm} and for registering the plates of interest in an \code{.Rprofile} file or in the global \code{Rprofile.site} file.
 See the \proglang{R} documentation on how such files are used.
-Of course, registering of plates can always be done within the \proglang{R} file that makes use of these plates, too.
+Of course, registering of plates can always be done at the beginning of an \proglang{R} file that makes use of these plates.
 
 With the resulting \code{potato.dm} and \code{potato.fm} objects the user can now follow the \pkg{opm} work flow for processing \ac{PM} data.
 Please continue in Section~\ref{visualisation} and the following sections for plotting and statistical analysis of the estimated curve parameters.
 
 It is possible to first register the plate, as shown in Section~\ref{register-plate-type}, and then convert the data \textit{via} \code{opmx}.
-This makes most sense if another ordering of wells should be enforced.
+This makes sense in conjunction with the ``horizontal'' format if another ordering of wells should be enforced.
 Otherwise \code{opmx} takes the substrate names directly from the data frame in ``horizontal'' format and registers them after sorting.
+
 
 \subsection{Direct registration of plate types}\label{register-plate-type}
 
-An example input file comes with \pkg{opm} containing growth-curve data derived from an experiment with two \textit{Escherichia coli} strains (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) on increasing Glucose concentrations.
+An example input file that comes with \pkg{opm} contains growth-curve data derived from an experiment with two \textit{Escherichia coli} strains (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) on increasing Glucose concentrations.
 Here we are dealing with a real plate with real wells, but the registering procedure would be the same for virtual plates with virtual wells.
 Thus, it will here be shown how to prepare a plate map and register it as a new plate type.
 Section~\ref{register-plate-type} then shows how to import the data and subsequently convert them to an \proglang{OPMX} or \proglang{MOPMX} object.
@@ -284,7 +286,7 @@ The function \code{register_plate} is useful for both customised \ac{PM} plates 
 
 For small data sets it might be feasible to type the substrate allocation manually into a character vector, as done in the following.
 The short name of the plate type will be ``growth'', as simply given by the named function argument.
-Here two arguments of the same name are passed to the function for registering the full name and the well mapping in a single call:
+Here two arguments of the same name are passed to the function for registering the full plate name on the one hand and the well mapping on the other hand in a single call:
 
 <<label=register_plate, results=hide>>=
 register_plate(
@@ -310,7 +312,7 @@ listing(wells(plate = "custom:growth"))
 However, manually entering the well mapping is error prone and not efficient when dealing with data sets containing more than a few wells.
 Alternatively, a user-designed plate can also be registered with a plate map given as matrix.
 The matrix then directly represents the allocation of the used substrates on the plate.
-Because of the repetitions in the substrate names (note the numbering, which is necessary here to generate unique substrate names, and later on important to split the plate), the texts can also be generated with less code:
+Because of the repetitions in the substrate names (note the numbering, which is necessary here to generate unique substrate names, and later on important to split the plate), the texts can be generated with fewer lines of code than above:
 
 <<label=register-plate-via-matrix, results=hide>>=
 # create constant part of the substrate names
@@ -326,10 +328,10 @@ register_plate(growth = growth, growth = "Growth on Glucose")
 listing(wells(plate = "custom:growth"))
 @
 
-Plates with other layouts can be put together in the same way but using other more or fewer row and/or column names.
-Plates with other repetition structure, or no repetitions of substrates at all, can be put together in the same way, too, but modifying or omitting the way a substrate numbering is introduced.
+Plates with other layouts can be put together in the same way but using other or more or fewer row or column names.
+Plates with a distinct repetition structure, or no repetitions of substrates at all, can be put together in the same way, if the way a substrate numbering is introduced is either modified or omitted.
 Instead of a matrix, a data frame could be used as well.
-We will try this here after showing how to delete a plate type again by providing a \code{NULL} argument:
+We will try this here after showing how to delete a plate type by providing a \code{NULL} argument:
 
 <<label=register-plate-via-data-frame, results=hide>>=
 register_plate(growth = NULL)
@@ -341,7 +343,7 @@ listing(wells(plate = "CUSTOM:GROWTH"))
 
 \subsection{Input of TECAN data}\label{tecan-input}
 
-The data for which we have registered a full plate name and a mapping from well coordinates to substrate names in Section~\ref{register-plate-type} are contained in an exemplar input file that comes with \pkg{opm}.
+The \textit{E. coli} data for which we have registered a full plate name and a mapping from well coordinates to substrate names in Section~\ref{register-plate-type} are contained in an exemplar input file that comes with \pkg{opm}.
 It can be found, and input into \proglang{R}, as follows:
 
 <<label=input-tecan>>=
@@ -352,7 +354,7 @@ head(tecan)
 @
 
 This file was output by an Infinite\textregistered \ F200 PRO instrument as distributed by the TECAN corporation.
-After data recording, the Magellan\textsuperscript{TM} software generates such as file \textit{via} the ``save as \code{.asc}'' option in the ``edit'' menu.
+After recording the data, the Magellan\textsuperscript{TM} software generates such a file \textit{via} the ``save as \code{.asc}'' option in the ``edit'' menu.
 
 The resulting format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}:
 
@@ -367,10 +369,10 @@ If several plates of this plate type are to be dealt with, the \code{position} a
 The format of the \code{position} entry can, in principle, be arbitrarily selected by the user, but the shown format is the recommended one, i.e. an integer followed by a single letter.
 
 The optional \code{interval} argument provides the time interval between two consecutive measurements.
-In the given example one measurement per hour was recorded, thus the default fits perfectly when assigning increasing integers starting at 0.
-If \code{interval} is stated explicitly, ideally, it is provided in hours.
+In the given example one measurement per hour was recorded, thus the default fits perfectly when assigning integers in increasing order, starting at 0.
+If \code{interval} is stated explicitly, it is ideally provided in hours.
 Time series with irregular intervals can be entered with the same argument (by directly providing each time point).
-See the manual for further details on the usage of this argument.
+See the manual for further details on the usage of the \code{interval} argument.
 
 The ``rectangular'' formats also comprise time points separated by rows containing only \code{NA} values or empty strings, time points defined as a given number of rows, and measurements without indicators of well coordinates.
 Again, see the manual for more information.
@@ -385,9 +387,10 @@ metadata(tecan) <- data.frame(Replicate = c(1, 2, 1, 2),
 dim(tecan)
 @
 
+
 \subsection{Input of PerkinElmer data}\label{perkin-elmer-input}
 
-An example file for an EcoPlate\texttrademark \ analysis not conducted with an  but measured with a PerkinElmer, Inc., plate reader is included in \pkg{opm}.
+An example file for an EcoPlate\texttrademark \ analysis not conducted with an OmniLog\textregistered \ \ac{PM} system but measured with a PerkinElmer, Inc., plate reader is included in \pkg{opm}.
 It contains 	anonymised end-point measurements sent to us by an \pkg{opm} user who asked for a data-conversion approach.
 The output of that reader is regular but contains a tab-separated part as well as bottom part with the same measurements in a different layout as well as technical information on the run:
 
@@ -399,7 +402,7 @@ cat(head(pe), sep = "\n")
 cat(tail(pe), sep = "\n")
 @
 
-Moreover, the comma has been used decimal separator (the data were probably measured with the language set to German).
+Moreover, the comma has been used decimal separator (the data were probably measured with the language of the operating system set to German).
 Special care is needed when inputting such data, but as we know that two measurements of a 96-well-plate are contained, we can actually use the \code{read.table} function that comes with \proglang{R}.
 
 <<label=input-perkin-elmer>>=
@@ -410,13 +413,13 @@ pe <- read.table(pe.file, strip.white = TRUE, sep = "\t",
   col.names = c("Plate", "Repeat", "Well", "Skip", "Skip", "T_1"),
   # skip all irregular rows after the tab-separated part
   nrows = 192L, header = TRUE,
-  # use ',' as decimal separator
+  # use comma as decimal separator
   dec = ",")
 head(pe)
 @
 
 Before the conversion to an \code{OPMS} object, we register the plate type as a user-defined plate type even though EcoPlate\texttrademark \ is identical to it.
-This makes sense because the scale is distinct from an OmniLog\textregistered \ instrument and the distinct plate types prevent comparing apples and oranges.
+This makes sense because the scale is distinct from an OmniLog\textregistered \ instrument, and the distinct plate types prevent comparing apples and oranges.
 
 <<label=convert-perkin-elmer, results=hide>>=
 # copy the plate type
@@ -490,7 +493,7 @@ Note that after the application of \code{split} the \code{csv\_data} entries for
 \section{Visualisation of growth curves}\label{visualisation}
 
 Visualising raw measurements of growth curves with the methods intended for \ac{PM} data is straightforward, but some adaptations are necessary due to the deviations between the distinct kinds of data.
-For instance, the expected maximum for \ac{PM} data can seldom be used for delimiting the y axes, and the data are not measured in OmniLog\textregistered \ units, and a negative control might not be present:
+For instance, the expected maximum for \ac{PM} data can seldom be used for delimiting the \code{y} axes, the data are not measured in OmniLog\textregistered \ units, and a negative control might not be present:
 
 <<label=potato-growth-code, eval=FALSE>>=
 library(gridExtra)
@@ -512,7 +515,7 @@ grid.arrange(plot.fm, plot.dm, ncol = 2)
 }
 \caption{
 \label{fig:potato_xy_plot}
-Potato cell line growth measurements, recorded as fresh mass (left) and dry mass (right), visualised using the \code{xy\_plot} method.
+Potato cell-line growth measurements, recorded as fresh mass (left) and dry mass (right), visualised using the \code{xy\_plot} method.
 See Section~\ref*{tutorial-methods plotting} and Section~\ref*{tutorial-application plotting} in the main tutorial for details on this kind of plotting.
 Considering the fresh weight, the plot indicates that the wild type grows better than the genetically modified cell lines under non-stress (control) conditions.
 It also indicates that the stresses impair growth but that the genetically modified cells grow better then the wild type under moderate stress conditions.
@@ -550,7 +553,7 @@ The plot indicates that one of the strains outgrows the other unless high concen
 The next step is the estimation of curve parameters using \code{do_aggr}.
 See Section~\ref*{tutorial-methods aggregating} and Section~\ref*{tutorial-application aggregating} in the main tutorial for details on aggregation methods.
 The main difference with respect to user-entered growth-curve data is that these may contain much fewer time points than \ac{PM} measurements.
-So the question arises which spline estimation is optimal for such measurements, because all spline-fitting procedures have been optimised for estimating parameters from \ac{PM} data.
+Hence the question arises which spline estimation is optimal for such measurements, because all spline-fitting procedures have been optimised for estimating parameters from \ac{PM} data.
 The following (informal) comparison, however, illustrates the differences, if any, between the methods.
 We first define a helper function for plotting parameters obtained with distinct approaches:
 
@@ -565,7 +568,7 @@ plot_param_diff <- function(...) {
     n <- names(y)
     for (i in seq_along(y)[-1L])
       for (j in seq.int(1L, i - 1L)) {
-        plot(y[[i]], y[[j]], pch = 19, col = "darkgrey",
+        plot(y[[i]], y[[j]], pch = 19L, col = "darkgrey",
           main = sprintf("%s, %s/%s", param, n[[i]], n[[j]]))
         abline(line(y[[i]], y[[j]]), lty = "dashed")
       }
@@ -585,7 +588,7 @@ sm.tecan <- do_aggr(tecan, method = "splines",
   options = set_spline_options(type = "smooth.spline"))
 @
 
-After these preparations the methods can be visually compared as follows.
+After these preparations the methods can visually be compared as follows.
 
 <<label=plot-opm-spline-code, eval=FALSE>>=
 old.par <- par(mfrow = c(4, 3), mar = c(2, 2, 3, 2))
@@ -615,9 +618,9 @@ Other differences between the methods might reflect biological issues that rende
 For instance, Figure~\ref{fig:growth_xy_plot} shows curves with two positive shifts instead of a single one.
 Such curves might better be described by two \ac{lambda} and two \ac{mu} values instead of single ones.
 We have observed, however, that thin-plate splines usually pick the stronger of the two shifts, which is plausible.
-Note also that neither \ac{AUC} nor \ac{A} suffer from that problem.
-Selecting a \ac{A} value that makes sense is hampered by an increase followed by a decrease again, as also visible in Figure~\ref{fig:growth_xy_plot}.
-Thin-plate splines usually pick the actual maximum within a smoothed curve, which is biologically reasonable.
+Note also that neither the interpretation of \ac{AUC} nor the one of \ac{A} suffer from that kind of problem.
+Selecting an \ac{A} value that makes sense is hampered by an increase in intensity followed by a decrease again, as also visible in Figure~\ref{fig:growth_xy_plot}.
+Thin-plate splines usually pick the actual maximum (of a smoothed curve), which is biologically reasonable.
 
 We conclude that in the case of comparatively few data points the same method preferences should be applied as for \ac{PM} data.
 For the forthcoming analyses we accordingly restrict ourselves to the results obtained with thin-plate splines.
@@ -636,7 +639,6 @@ As there is no difference to plotting \ac{PM} data, we refer to Section~\ref*{tu
 
 
 \section{Statistical analysis of growth curves}\label{statistics}
-
 
 In the following we will use \code{opm\_mcp} to assess whether the conclusions from the graphical analysis (Figure~\ref{fig:growth_xy_plot} and Figure~\ref{fig:potato_xy_plot}) can be confirmed for the example data.
 The \code{opm\_mcp} method is extensively documented in Section~\ref*{tutorial-methods group-means} and particularly Section~\ref*{tutorial-application group-means} of the main tutorial, hence we here restrict ourselves to just the necessary function calls.
@@ -709,14 +711,16 @@ Compare the outcome with Figure~\ref{fig:growth_xy_plot} and see the main text f
 \end{figure}
 
 
-The plot in Figure~\ref{fig:growth_xy_plot} indicated that one of the strains outgrows the other unless high concentrations of Glucose are applied.
+The plot in Figure~\ref{fig:growth_xy_plot} indicated that one of the \textit{E. coli} strains outgrows the other unless high concentrations of Glucose are applied.
 This can be confirmed with the \code{opm\_mcp} analysis (Figure~\ref{fig:tecan-mcp}), as significant differences between the two strains only occur for moderate Glucose concentrations (wells ``A02'' and ``A03'') but neither in the control treatment nor for high concentrations of the sugar.
 
 \clearpage
 
+
 \section{Acknowledgements}
 The author is grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves measured with a TECAN instrument.
 Cordial thanks are addressed to Lea A.I. \German{Vaas} (\ac{DSMZ}) for providing the potato growth measurements and background information on these data, as well as for clarifying some technical issues related to the TECAN data.
+This tutorial did benefit from discussions on the application of spline-fitting with Benjamin \German{Hofner} (\ac{FAU}) and Johannes \German{Sikorski} (\ac{DSMZ}).
 
 
 \bibliography{opm}
