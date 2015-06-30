@@ -82,6 +82,7 @@
 \acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
 \acrodef{HTML}{Hypertext Markup Language}
 \acrodef{ID}{Identifier}
+\acrodef{LB}{Lysogeny Broth}
 \acrodef{LIMS}{Laboratory Information Management System}
 \acrodef{NADH}{reduced Nicotinamide Adenine Dinucleotide}
 \acrodef{PDF}{Portable Document Format}
@@ -490,7 +491,7 @@ The function \code{collect\_template} by default automatically includes the \tex
 The user can subsequently add further columns describing any metadata of interest on any \ac{PM} plate of interest.
 The resulting data frame can then be queried for the information specific to each plate, and the corresponding row integrated into \proglang{OPM} or \proglang{OPMS} objects using \code{include\_metadata}.
 Whereas this function will usually result in non-nested metadata entries, \pkg{opm} allows one, in principle, to deal with arbitrarily nested meta-information.
-This holds because Within \proglang{OPM} or \proglang{OPMS} objects metadata are not stored as data frames and not organised into rows and columns.
+This holds because within \proglang{OPM} or \proglang{OPMS} objects metadata are not stored as data frames and not organised into rows and columns.
 The amount of meta-information added (and the number plates simultaneously analysed) is only limited by the available computer memory.
 Functions for generating and modifying plate meta-information are listed in Figure~\ref{fig:overview}.
 
@@ -806,10 +807,6 @@ It also displays the set of names that are used by some methods that have to com
 It is thus not impossible, but discouraged, to use these names as metadata keys.
 The same holds for (non-syntactical) names starting with an underscore and followed by capital letters, as such names are temporarily used by some methods in intermediary objects together with the metadata.
 
-%% CHECK BY MG, JUNE 2015
-%% STOP 1 (start at the beginning of the document)
-
-
 \section[Program application]{Program application}\label{application}
 
 
@@ -817,7 +814,7 @@ The same holds for (non-syntactical) names starting with an underscore and follo
 
 % Set some stuff up that makes the output nicer and guarantees that everything runs.
 % Think carefully before modifying anything here.
-% For instance, code-chunks are determined to fixed size.
+% For instance, code-chunks are set to a fixed width.
 <<label=chunk-setup, echo=FALSE>>=
 options(width = 90)
 options(prompt = "R> ")
@@ -836,11 +833,11 @@ library(opm)
 
 The example data set distributed with the package \citep{vaas} comprises the results from running 114 GEN-III plates (BIOLOG Inc.) in the \ac{PM} mode of the OmniLog\textregistered \ reader.
 The organisms used were two strains of \textit{Escherichia coli} (\ac{DSM} 18039 $=$ K12 and the type strain \ac{DSM} 30083\textsuperscript{T}) and two strains of \textit{Pseudomonas aeruginosa} (\ac{DSM} 1707 and 429SC \citep{Selezska2012}).
-The strains with a \ac{DSM} number could be ordered from the Leibniz Institute \ac{DSMZ} -- German Collection of Microorganisms and Cell Cultures (\url{http://www.dsmz.de/}).
+The strains with a \ac{DSM} number could be ordered from the Leibniz Institute \ac{DSMZ} (\url{http://www.dsmz.de/}).
 
 Each strain was measured in two biological replicates, each comprising ten technical replicates, yielding a total of 80 plates.
-To additionally investigate the impact of the growth age of cultures on the technical and biological reproducibility of the \ac{PM} respiration kinetics, strain \textit{E. coli} \ac{DSM} 18039 was grown on solid LB medium for nine different durations, from 16.75 h (t1) to 40.33 h (t9), respectively.
-For each growth duration four technical replicates were performed except for t9 (which was repeated only twice), yielding 34 plates for this time-series experiment.
+To additionally investigate the impact of the growth age of the cultures on the technical and biological reproducibility of the \ac{PM} respiration kinetics, strain \textit{E. coli} \ac{DSM} 18039 was grown on solid \ac{LB} medium for nine different durations, from 16.75 h (\textit{t1}) to 40.33 h (\textit{t9}), respectively.
+For each growth duration four technical replicates were performed except for \textit{t9} (which was repeated only twice), yielding 34 plates for this time-series experiment.
 All biological and experimental details of this data set have been described previously \citep{vaas}.
 
 Two subsets of the data, \code{vaas\_1} and \code{vaas\_4}, are included in \pkg{opm}.
@@ -868,7 +865,7 @@ The combination of the keys \textit{Strains}, \textit{Species}, \textit{Experime
 
 \subsection[Data import]{Data import}\label{application import}
 
-The following code describes the import of the OmniLog\textregistered \ \ac{CSV} file(s) into the \pkg{opm} package.
+The following code illustrates the import of the OmniLog\textregistered \ \ac{CSV} file(s) into the \pkg{opm} package.
 In the \pkg{opm} manual and all help pages, all data import functions are contained in the family ``IO-functions'' with according cross-references.
 
 The \ac{CSV} files with the OmniLog\textregistered \ raw data should be stored in one to several user-defined folders.
@@ -885,10 +882,10 @@ files
 @
 Afterwards check whether this returned a vector of nine file names, including the full path to their location in the file system.
 (It might fail in very unusual \proglang{R} installation situations; in that case, the files must be found manually.)
-For demonstration purposes, the test data contain data from EcoPlate\textregistered \, Gen-III, PM01 and PM20 plate types.
-One of these files contains multiple plates and acts as an example for \code{split\_files}; the other ones can be read directly.
+For demonstration purposes, the test data contain EcoPlate\textregistered \, Gen-III, PM01 and PM20 plate types.
+One of these files contains multiple plates and acts as an example for \code{split\_files}; the other ones can directly be read.
 
-As a demonstration of file splitting, consider the following code, which creates single-plate \ac{CSV} files from the multiple-plate file that comes with \pkg{opm}:
+The following code creates single-plate \ac{CSV} files from the multiple-plate file that comes with \pkg{opm}:
 
 <<label=file-splitting, results=hide>>=
 multi.plate.file <- grep("Multiple", files,
@@ -899,7 +896,7 @@ split_files(multi.plate.file, '^("Data File",|Data File)', getwd())
 list.files()
 @
 
-Three additional files should be visible in the working directory, consecutively numbered but using the base name of the input file.
+Three additional files should now be visible in the working directory, consecutively numbered and using the base name of the input file.
 These could now be read with \code{read\_opm}, but we will use other files in the next paragraph and tidy up now:
 
 <<label=tidy-split-files-up, results=hide>>=
@@ -928,17 +925,17 @@ summary(example.lims)
 rm(example.lims)
 @
 
-
 Instead of a single file name the user could also provide several file names to \code{read\_opm}, or a mixture of file and directory names.
 If these were contained as subdirectories of the current working directory, \code{read\_opm(".")} or \code{read\_opm(getwd)} would be sufficient to input these files.
 To filter the files with patterns, the arguments \code{exclude} and \code{include} are available.
 There is also a \textit{demo} mode allowing the user to check the effect of each argument before actually reading files.
 One can use the \code{gen.iii} argument to trigger the automated conversion of the plate type to, e.g., GEN-III or ``ECO'' plates run in ``\ac{PM}'' mode, or convert later on using the \code{gen\_iii} function itself.
-Plate-type conversions to one of the ``\ac{PM}'' modes are disallowed (and are, to the best of our knowledge, not relevant in practice anyway).
+Plate-type conversions to one of the ``\ac{PM}'' modes are disallowed by default and are, to the best of our knowledge, hardly relevant in practice anyway.
+(They would only be necessary if the wrong plate type was entered into the OmniLog\textregistered \ instrument.)
 The plate type is crucial, as it is disallowed to integrate distinct plate types into a single \proglang{OPMS} objects.
 The reason is that comparing the same well positions from distinct plate types would be almost always equivalent to comparing apples and oranges.
 
-If more than one plate of the same plate type is read, however, data from all files are automatically integrated into a single \proglang{OPMS} object.
+If more than one plate of the same plate type was read, however, data from all files would automatically be integrated into a single \proglang{OPMS} object.
 To read plates from several types at once, the \code{convert} argument is useful.
 If one uses \code{read\_opm(..., convert = "grp")}, a named list is created with, as each list element, one \proglang{OPM} or \proglang{OPMS} object per plate type, depending on whether only a single plate of that plate type, or several such plates, have been found.
 For instance, for inputting all example files (except for the one with multiple plates), consider the following code:
@@ -975,7 +972,7 @@ batch_opm(files, include = "*Example_?.CSV.xz",
 The arguments \code{aggr.args}, \code{disc.args} and \code{md.args} control aggregation, discretisation and metadata incorporation, respectively.
 Details on all three processes are given in the according sections, and for the exact use of these arguments see the \pkg{opm} manual.
 
-The following command would read three of the seven example input files, estimate two of the four curve parameters using the fast native method including 100 rounds of bootstrapping, and store the resulting \proglang{YAML} files (one per plate) in the current working directory (given by ``.''):
+The following command reads three of the seven example input files, estimates two of the four curve parameters using the fast native method including 100 rounds of bootstrapping, and stores the resulting \proglang{YAML} files (one per plate) in the current working directory (indicated by \code{"."}):
 
 <<label=batch-opm-real,results=hide>>=
 batch.result <- batch_opm(files, include = "*Example_?.CSV.xz",
@@ -993,7 +990,7 @@ Its location in the file system can be obtained using
 opm_files("scripts")
 @
 
-Regarding its use, see the documentation of \proglang{Rscript} (the \proglang{R} manual contains an according entry) and watch the help output of this script (try \code{system(opm_files("scripts"))}).
+Regarding the use of the script, see the documentation of \proglang{Rscript} (the \proglang{R} manual contains an according entry) and watch the help output of this script (try \code{system(opm_files("scripts"))}).
 
 
 \subsection[Integration and manipulation of metadata]{Integration and manipulation of metadata}\label{application metadata}
@@ -1002,7 +999,7 @@ Several ways for linking metadata to \proglang{OPM} or \proglang{OPMS} objects a
 The easiest one is probably the batch-inclusion after creating a template with plate \acs{ID} associating it with metadata.
 In the first step, either a data frame to be manipulated within \proglang{R} or a \ac{CSV} file to be modified with a suitable editor are created.
 The \pkg{opm} package supports metadata integration by creating a template for such a table from an \proglang{OPM} or \proglang{OPMS} objects that contains plate \acs{ID} in the first columns; by default the keys \textit{Setup Time}, \textit{Position} and \textit{File}.
-These data must not be changed, ensuring that the package can later on link the metadata to the dedicated plates according to these \acs{ID}.
+These entries must not be changed, ensuring that the package can later on link the metadata to the dedicated plates according to these \acs{ID}.
 
 In the \pkg{opm} manual and help pages, most metadata-manipulation functions are contained in the family ``metadata-functions'' with according cross-references.
 For the collection of a metadata template in a data frame to be manipulated in \proglang{R}, use this command:
@@ -1011,13 +1008,15 @@ metadata.example <- collect_template(files, include = "*Example_?.CSV.xz")
 @
 
 For the generation of a metadata template file, the following command can be used:
+
 <<label=collect-template-with-file>>=
 collect_template(files, include = "*Example_?.CSV.xz",
   outfile = "example_metadata.CSV")
 @
+
 This will result in a file \code{"example_metadata.CSV"} in the current working directory (whose name is accessible using \code{getwd}).
 If other metadata have previously been collected, by default an already existing file with the same name will be reused.
-The already defined columns will be respected, novel rows be added, old metadata will be kept and \acs{ID} for novel files will be included and their so far empty metadata columns are set to missing data (NA).
+The already defined columns will be respected, novel rows will be added, old metadata will be kept, \acs{ID} for novel files will be included and their so far empty metadata entries will be set to missing data (\code{NA}).
 You can also provide the location of another previously created metadata file with the \code{collect\_template} argument \code{previous}.
 An \ac{ID} for the OmniLog\textregistered \ instrument in use can also be added.
 This makes sense if plates from several such machines are analysed.
@@ -1025,9 +1024,11 @@ A further option is to normalise the plate-position and setup-time entries, as d
 
 The generated \ac{CSV} file could then be edited using external software; for the purpose of this tutorial, we load it directly and manipulate it in \proglang{R}.
 To avoid the usual changes in data format and header of the table during the import a customised import function was implemented as a wrapper for \code{read.delim}:
+
 <<label=to-metadata-read>>=
 metadata.example <- to_metadata("example_metadata.CSV")
 @
+
 Per default, this expects \ac{CSV} columns separated by tabulators, with the fields protected by quotes.
 To input other formats, consider the \code{sep} argument for defining an alternative column separator, as well as the \code{strip.white} argument for turning the removal of whitespace at the beginning and end of the fields on or off (which is relevant if a spreadsheet program exports \ac{CSV} \textit{without} quotes).
 
@@ -1048,6 +1049,7 @@ example.opm <- include_metadata(example.opm, md = metadata.example)
 @
 
 The metadata could then be received as follows:
+
 <<label=get-metadata, results=hide>>=
 metadata(example.opm)
 @
@@ -1055,13 +1057,18 @@ metadata(example.opm)
 This returns the entire metadata entries as a list (for just displaying them, \code{to\_metadata(example.opm)} is often more convenient, as described below).
 By default only the added metadata are included in the object, but not the \acs{ID} used for assigning data-frame rows to plates.
 
-One might want to remove the file as it is not needed any more:
+One might want to remove the metadata \ac{CSV} file as it is not needed any more:
+
 <<label=tidy-metadata-file-up>>=
 unlink("example_metadata.CSV")
 @
 
 If \code{include\_metadata} complains about a missing key/value pair, watch carefully whether the shown value contains leading (or trailing) spaces.
 If so, consider using \code{strip.white = FALSE} when calling \code{include\_metadata} or \code{to\_metadata}.
+
+%% CHECK BY MG, JUNE 2015
+%% STOP 1 (start at the beginning of the document)
+
 
 A couple of other functions have been implemented for manipulating metadata included in \proglang{OPM} and \proglang{OPMS} objects.
 For instance, the entire meta-information, or specific entries, can be set using the replacement function \code{metadata<-}.
