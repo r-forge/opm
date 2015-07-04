@@ -1691,6 +1691,11 @@ fi
 remind_of_external_tests=
 
 case $RUNNING_MODE in
+  all ) 
+    "$0" full -i -y && "$0" cran && "$0" sql1 && "$0" www && "$0" html &&
+      "$0" forget && "$0" erase
+    exit $?
+  ;;
   ascii )
     [ $# -eq 0 ] && set -- `find . -type f -iname '*.Rnw'`
     show_lines_with_forbidden_characters "$@"
@@ -1749,6 +1754,7 @@ case $RUNNING_MODE in
 	Usage: $0 [mode] [options]
 
 	Possible values for 'mode':
+	  all     Combine full, cran, sql1, www, html, forgat and erase.
 	  ascii   Show lines that contain forbidden characters (such as non-ASCII).
 	  cran    Run in all modes that should be run before a CRAN submission.
 	  demo    Test the demo code that comes with some of the packages.
