@@ -1066,15 +1066,11 @@ unlink("example_metadata.CSV")
 If \code{include\_metadata} complains about a missing key/value pair, watch carefully whether the shown value contains leading (or trailing) spaces.
 If so, consider using \code{strip.white = FALSE} when calling \code{include\_metadata} or \code{to\_metadata}.
 
-%% CHECK BY MG, JUNE 2015
-%% STOP 1 (start at the beginning of the document)
-
-
 A couple of other functions have been implemented for manipulating metadata included in \proglang{OPM} and \proglang{OPMS} objects.
 For instance, the entire meta-information, or specific entries, can be set using the replacement function \code{metadata<-}.
-Setting a specific entry named \code{key} to a specific value \code{value} in all plates would be accomplished by \code{metadata(example.opm, key) <- value}.
-If the right side of the assignment is a data frame with the same length as the \proglang{OPMS} object, each row would be specifically assigned to the \proglang{OPM} object with the same index.
-This comes handy for adding the \code{CSV\_data} selected or all information from the OmniLog\textregistered \ \ac{CSV} files to the metadata:
+Setting a specific entry named \code{key} to a specific value \code{value} in all plates is accomplished with \code{metadata(example.opm, key) <- value}.
+If the right side of the assignment is a data frame with the same length as the \proglang{OPMS} object, each row would specifically be assigned to the \proglang{OPM} object with the same index.
+This makes it easy to add the selected \code{CSV\_data}, or all information from the OmniLog\textregistered \ \ac{CSV} files, to the metadata:
 
 <<label=to-metadata-convert, results=hide>>=
 metadata(example.opm)
@@ -1085,9 +1081,9 @@ metadata(example.opm)
 
 You might note that ``Sample Number'' is a misnomer in these data sets.
 (One of the fields in the interface of the \textit{Data Collection} software of the OmniLog\textregistered \ reader had been defined as ``Sample Number'', but the operator entered species and strain designations into this field.)
-In this and similar cases, modifying metadata in-place is of interest, which can be accomplished using \code{map\_metadata}.
-This function would return a novel \proglang{OPMS} (or \proglang{OPM}) object.
-Its formula method is particularly powerful.
+In such cases, modifying the metadata in-place is of use, which is accomplished with \code{map\_metadata}.
+This function returns a novel \proglang{OPMS} (or \proglang{OPM}) object.
+Its formula method is particularly powerful:
 
 <<label=map-metadata-with-formula, results=hide>>=
 metadata(example.opm)
@@ -1098,11 +1094,11 @@ This works by converting the left side of the formula into a metadata key and ev
 As result, a new metadata entry is created, with ``Organism'' as key and the entry from ``Sample Number'' as value.
 ``Sample Number'' must be quoted because it contains a special character (the blank).
 
-But we have not yet removed the aptly named ``Sample Number'' entries.
-Here, it is useful that all operators (except for \code{\$} and other high-precedence operators, which can be used for defining nested keys) on the left side, if present, would be changed by \code{map_metadata} into a call to \code{list}.
-The resulting list would be flattened and treated as a list of metadata keys.
+But we have not yet removed the 	inadequately named ``Sample Number'' entries.
+Here, it is useful that all operators (except for \code{\$} and other high-precedence operators, which can be used for defining nested keys) on the left side, if present, are changed by \code{map_metadata} into a call to \code{list}.
+The resulting list is flattened and treated as a list of metadata keys.
 Hence it is possible to define several keys at once.
-The right side, once evaluated, would be recycled accordingly.
+The right side, once evaluated, is recycled accordingly.
 Thus we can clean up our metadata in a single line of code:
 
 <<label=clean-metadata-with-formula, results=hide>>=
@@ -1110,7 +1106,7 @@ metadata(map_metadata(example.opm,
   Organism + `Sample Number` ~ list(`Sample Number`, NULL)))
 @
 
-The deletion of ``Sample Number'' is accomplished by the assignment of \code{NULL}, as usual in lists.
+The deletion of ``Sample Number'' is accomplished by the assignment of \code{NULL}, as usual in \proglang{R} lists.
 Instead of \code{+} almost all other operators could be used, and one could also write \code{c(Organism, `Sample Number`)} on the left side, which might be more intuitive.
 If \code{map\_metadata} is called without a mapping, it ``cleans'' the metadata by removing empty entries (by default including those that only contain \code{NA} values) and converting factors to character vectors.
 
@@ -1137,9 +1133,9 @@ metadata(example.opm)
 @
 
 Here, the assignment targets (names within the metadata) are specified directly using just the \code{<-} operator.
-Apparently, arbitrarily complex code could be put in such a metadata-modifying expression.
+Apparently, arbitrarily complex code can be put in such a metadata-modifying expression.
 
-All metadata would be cleared by assigning an empty list, without specifying a key:
+All metadata are cleared by assigning an empty list, without specifying a key:
 
 <<label=empty-metadata, results=hide>>=
 metadata(example.opm, "Organism") <- NULL
@@ -1149,7 +1145,7 @@ metadata(example.opm)
 @
 
 So keep in mind that formulae and expressions are very flexible for modifying metadata entries.
-They would allow for any other operation (such as numerical calculations) provided it can be applied to the selected predefined metadata content.
+They allow for any other operation (such as numerical calculations) if it can be applied to the selected predefined metadata content.
 The replacement function can also be used to copy metadata between \proglang{OPM} and/or \proglang{OPMS} objects.
 
 Metadata can also be assigned specifically for subsets of \proglang{OPMS} objects, using the indexed assignment available for those objects:
@@ -1163,7 +1159,7 @@ metadata(example.opm)
 @
 
 
-Readers may have noted that \code{metadata} always returns a list, not a data frame.
+You may have noted that \code{metadata} always returns a list, not a data frame.
 This is because metadata need not contain the same entries, even within a single \proglang{OPMS} object, and can be nested.
 It is possible, however, to get the metadata as data frame by using \code{to\_metadata}.
 Missing entries would then be filled with \code{NA} values, and nested metadata entries would yield data-frame columns of the mode ``list''.
@@ -1171,10 +1167,10 @@ This might or might not be suitable for further processing.
 For statistical analysis, the appropriate way is to extract only those metadata entries that are present in \textit{all} \proglang{OPMS} elements, and usually also only those that are not themselves lists.
 Methods such as \code{extract} are based on this principle.
 
-For manual editing, an \code{edit} method can be directly applied to \proglang{OPMX} objects, provided that \code{to\_metadata} yields a suitable data frame.
+For manual editing, an \code{edit} method can directly be applied to \proglang{OPMX} objects, provided that \code{to\_metadata} yields a suitable data frame.
 This is not normally the case unless the metadata are rectangular (in a relaxed sense, as missing values would not matter), which is not enforced by the way \proglang{OPMX} objects are implemented.
 So whereas \code{edit} might be handy in many situations, one should not expect it to work with all kinds of \proglang{OPMX} objects.
-With unsuitable metadata, it will stop with an error message before any editing by hand can be conducted; otherwise it will (of course) modify the metadata in the intended way.
+If the metadata were unsuitable, it would stop with an error message before any editing by hand can be conducted; otherwise it would (of course) modify the metadata in the intended way.
 
 The following code, making use of the \code{metadata.example} data frame generated above, adds a new metadata entry with the key ``Character'' containing the integer values from the metadata entry called ``Integer'' converted to character mode.
 It then includes a new metadata entry with the key ``Times 10'' containing the entry ``Integer'' multiplied by 10.
@@ -1189,7 +1185,7 @@ metadata(example.opm)
 @
 
 Note that \code{map\_metadata} can also be used with character vectors as mapping objects.
-Making use again of the exemplar generated above, the key \textit{Colour} could be changed to \textit{Colony colour} as follows:
+Making use again of the exemplar generated above, the key \textit{Colour} can be changed to \textit{Colony colour} as follows:
 
 <<label=metadata-chars, results=hide>>=
 example.opm <- include_metadata(example.opm, md = metadata.example)
@@ -1198,7 +1194,7 @@ md.map
 @
 
 This yields a character vector including itself as \code{names} attribute, thus implying an identity mapping.
-Next the new labels will be defined and will then be exchanged with the old ones using \code{map\_metadata}.
+In the next step the new labels are defined and then exchanged with the old ones using \code{map\_metadata}:
 
 <<label=map-metadata-names-with-vector, results=hide>>=
 md.map["Colour"] <- "Colony colour"
@@ -1206,8 +1202,8 @@ example.opm <- map_metadata(example.opm, md.map, values = FALSE)
 metadata(example.opm)
 @
 
-The keys should have been changed to \textit{Colony colour} now but the values should have remained unaffected.
-In addition to mapping based on character vectors, a mapping function could also have been used.
+The keys have been changed to \textit{Colony colour} now but the values have remained unaffected.
+In addition to mapping based on character vectors, a mapping function can also be used.
 By setting their argument \code{values} to \code{TRUE}, the functions \code{metadata\_chars} and \code{map\_metadata} could be used as well to modify values instead of key.
 For instance, assume any entries ``red'' in the field denoted \textit{Colony colour} should be changed to ``green'':
 
@@ -1219,23 +1215,24 @@ example.opm <- map_metadata(example.opm, md.map, values = TRUE)
 metadata(example.opm)
 @
 
-This command will transform all entries in the table with the value "red" to "green".
-Other values, as well as the keys, should be unaffected.
+This command transforms all entries in the table with the value "red" to "green".
+Other values, as well as the keys, are unaffected.
 
-Frequently metadata entries will be used as factors in statistical models.
-This always requires that the chosen metadata entry is present in all considered \proglang{OPM} object and sometimes requires that entries have to be combined.
+Frequently, metadata entries will be used as factors in statistical models.
+This always requires that the chosen metadata entry is present in all considered \proglang{OPM} object and sometimes requires that entries are combined.
 For instance, for setting up a \textit{cell-means model} (see Section~\ref{methods group-means} and Section~\ref{application group-means}), factors used for defining the groups of interest have to be merged.
 This might already be done during the initial step when setting up the metadata data frame \textit{before} including the metadata into an \proglang{OPM} or \proglang{OPMS} object using \code{include_metadata}.
 Here, the function \code{interaction} could be used to concatenate columns (but it should be taken into account that metadata entries should better not be represented as factors).
 As a result, two metadata entries would be merged into a single one:
 
 <<label=merge-metadata-by-hand, results=hide>>=
-metadata.example$Colour.Position <- as.character(interaction(
-  metadata.example$Colour, # not recommended
-  metadata.example$Position, drop = TRUE))
+# not recommended
+metadata.example$Colour.Position <-
+  as.character(interaction(metadata.example$Colour,
+    metadata.example$Position, drop = TRUE))
 @
 
-This is not advisable, however, unless all statistical comparisons of interest, or at least the group definitions of interest, were already known before at that early stage.
+This is not advisable, however, unless all statistical comparisons of interest, or at least the group definitions of interest, were already known at that early stage.
 (Even more tedious would be to go back to the initial metadata compilation in a \ac{CSV} file.)
 Using the metadata mapping functions, metadata entries can instead by merged at any time \textit{after} including them into an \proglang{OPM} or \proglang{OPMS} object with \code{include_metadata}.
 For instance, the following code operates directly in the \proglang{OPMS} object, merging the . ``Colony colour'' (which had previously been renamed from ``Colour'', see above) and ``Integer'' entries into a new one:
@@ -1245,11 +1242,9 @@ metadata(example.opm) <- Col.Int ~ paste(`Colony colour`, Integer, sep = ".")
 metadata(example.opm)
 @
 
-As result, a new metadata entry named ``Col.Int'' is created with the general string concatenation tool \code{paste}.
+As result, a new metadata entry named ``Col.Int'' is created with the general string-concatenation tool \code{paste}.
 Note that metadata should not normally contain factors but rather generate them on-the-fly from selected entries, and keep in mind that metadata are not organised in rows.
 
-%% CHECK BY MG, JUNE 2015
-%% START 2
 
 \subsection[Aggregating data by estimating curve parameters]{Aggregating data by estimating curve parameters}\label{application aggregating}
 
@@ -1397,8 +1392,9 @@ metadata(vaas_et_al, "Species")
 
 The resulting vector could be used for mapping old metadata keys, or values, to novel ones (see Section~\ref{application metadata}).
 
-%% CHECK BY MG, JUNE 2015
-%% STOP 2
+
+%% CHECK BY MG, JUNE/JULY 2015
+%% STOP 1 (start at the beginning of the document)
 
 The presented plotting results of \code{xy\_plot} and \code{level\_plot} (see Section~\ref{application plotting}) show selected subsets of \code{vaas\_et\_al}.
 In our example below, the function \code{subset} extracts the plates which contain the value \textit{First replicate} in the metadata key \textit{Experiment} and the value \textit{6} in the key \textit{Plate number}, resulting in one representative technical repetition and thus four plates (because four strains were involved) from the data set \code{vaas\_et\_al}:
