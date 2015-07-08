@@ -34,7 +34,7 @@ copy_dir <- function(from, to, delete) {
   files <- c(files, list.files(pattern = "\\.Rbuildignore", full.names = TRUE,
     all.files = TRUE, recursive = TRUE))
   if (nzchar(delete))
-    files <- files[!grepl(delete, files, perl = TRUE, ignore.case = TRUE)]
+    files <- files[!grepl(delete, files, TRUE, TRUE)]
   dirs <- sub(from, to, unique.default(dirname(files)), fixed = TRUE)
   unlink(to, recursive = TRUE)
   vapply(dirs[order(nchar(dirs))], dir.create, NA, recursive = TRUE)
@@ -76,6 +76,25 @@ do_compact <- function(dirs, opt) {
   message("GS command is ", Sys.getenv("R_GSCMD", "<empty>"))
   print(tools::compactPDF(pdf.files, gs_quality = opt$quality))
   0
+}
+
+
+check_S4_method_ambiguity <- function(pkg) {
+  test_carefully <- function(name) tryCatch(expr = testInheritedMethods(name),
+    error = function (e) NULL) # otherwise errors from non-S4 methods
+  pkg2 <- sprintf("package:%s", pkg)
+  if (!pkg2 %in% search()) {
+    library(pkg, character.only = TRUE)
+    on.exit(detach(pkg2, unload = TRUE, character.only = TRUE))
+  }
+  n <- getNamespaceExports(pkg)
+  n <- n[!grepl("^\\.__", n, FALSE, TRUE)]
+  result <- lapply(n, test_carefully)
+  result <- result[!vapply(result, is.null, NA)]
+  cat(sprintf("--- PACKAGE %s ---\n", pkg))
+  lapply(result, print)
+  cat("\n")
+  invisible(result)
 }
 
 
@@ -203,7 +222,8 @@ option.parser <- OptionParser(option_list = list(
 
   # h is reserved for help!
 
-  # H
+  make_option(c("-H", "--inheritance"), action = "store_true", default = FALSE,
+    help = "Check ambiguity of S4 method selection [default: %default]"),
 
   make_option(c("-i", "--install"), action = "store_true", default = FALSE,
     help = "Also run 'R CMD INSTALL' after documenting [default: %default]"),
@@ -348,6 +368,18 @@ opt$whitelist <- textfile2rds(opt$whitelist)
 ################################################################################
 
 
+if (opt$inheritance) {
+  package.dirs <- basename(package.dirs)
+  if (!opt$verbatim)
+    package.dirs <- sub("_in$", "", package.dirs, FALSE, TRUE)
+  invisible(lapply(package.dirs, check_S4_method_ambiguity))
+  quit(status = 0L)
+}
+
+
+################################################################################
+
+
 if (opt$Sweave) { # Sweave running mode
   quit(status = run_sweave(package.dirs, opt))
 }
@@ -382,7 +414,7 @@ if (length(package.dirs)) {
 if (opt$verbatim) {
   out.dirs <- package.dirs
 } else {
-  out.dirs <- sub("_in$", "", package.dirs, perl = TRUE)
+  out.dirs <- sub("_in$", "", package.dirs, FALSE, TRUE)
   ok <- package.dirs != out.dirs
   ok[!ok][!package.dirs[!ok] %in% out.dirs[ok]] <- TRUE
   package.dirs <- package.dirs[ok]
