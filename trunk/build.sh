@@ -1768,6 +1768,7 @@ case $RUNNING_MODE in
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  html    Generate HTML documentation und upload to the opm website.
+	  method  Check for ambiguities in S4 method selection.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  plex    Open the PDF files with plots produced from the examples, if any.
 	  pdf     Reduce size of PDF files either in ./graphics or given as arguments.
@@ -1822,6 +1823,9 @@ ____EOF
         check_html_docu pkgutils_doc opm_doc opmdata_doc &&
           upload_to_server "$HTML_STARTPAGE" pkgutils_doc opm_doc opmdata_doc
     exit $?
+  ;;
+  method )
+    :
   ;;
   pdf )
     [ $# -eq 0 ] && set -- `find graphics -type f -iname '*.pdf'`
@@ -1911,6 +1915,17 @@ else
   echo "script 'docu.R' not found, exiting now" >&2
   echo "call '$0 help' for help" >&2
   exit 1
+fi
+
+
+################################################################################
+
+
+if [ "$RUNNING_MODE" = method ]; then
+  [ $# -eq 0 ] && set -- opmdata opm pkgutils
+  Rscript --vanilla "$DOCU" --inheritance "$@" |
+    awk '{print; err += $2} END {exit (err > 0)}'
+  exit $?
 fi
 
 
