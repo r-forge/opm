@@ -42,10 +42,10 @@ NULL
 ################################################################################
 
 
-# We cannot change this to TRUE as long as pkgutils is used to document, check
-# and install itself.
+# Special measures in 'docu.R' are necessary if we change this to TRUE as long
+# as pkgutils is used to document, check and install itself.
 #
-SEALED <- FALSE
+SEALED <- FALSE #|| SEALED <- TRUE
 
 
 # See check_keywords() for the use of this environment.
