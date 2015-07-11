@@ -1,6 +1,6 @@
 NULL
 
-SEALED <- FALSE
+SEALED <- TRUE #|| SEALED <- FALSE
 
 PKGUTILS_OPTIONS <- new.env(parent = emptyenv())
 PKGUTILS_OPTIONS$logfile <- ""
