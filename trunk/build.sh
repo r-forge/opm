@@ -1704,9 +1704,6 @@ case $RUNNING_MODE in
   cran )
     "$0" test && "$0" demo && "$0" sql2 && "$0" method && "$0" time &&
       "$0" plex &&  "$0" spell
-    #for mode in test demo sql2 time plex spell; do
-    #  "$0" "$mode" || :
-    #done
     exit $?
   ;;
   demo )
