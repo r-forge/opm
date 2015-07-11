@@ -11,6 +11,7 @@ Glutamic
 Glutamine
 Glutaric
 Keto
+Lysogeny
 MetaCyc
 MicroStation
 Multi
