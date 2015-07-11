@@ -2134,9 +2134,10 @@ lapply(c(
   }, sealed = SEALED)
 })
 
-
 ################################################################################
-
+#
+# Repetitions are necessary here to avouid ambiguity in method dispatch.
+#
 
 lapply(c(
     #+
@@ -2151,6 +2152,31 @@ lapply(c(
   }, sealed = SEALED)
 })
 
+lapply(c(
+    #+
+    `%k%`,
+    `%K%`,
+    `%q%`,
+    `%Q%`
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, c(MOPMX, WMD), function(x, table) {
+    func_(table, x)
+  }, sealed = SEALED)
+})
+
+lapply(c(
+    #+
+    `%k%`,
+    `%K%`,
+    `%q%`,
+    `%Q%`
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, c(MOPMX, WMDS), function(x, table) {
+    func_(table, x)
+  }, sealed = SEALED)
+})
 
 lapply(c(
     #+
@@ -2161,6 +2187,45 @@ lapply(c(
     #-
   ), FUN = function(func_) {
   setMethod(func_, c("ANY", MOPMX), function(x, table) {
+    lapply(table@.Data, func_, x = x)
+  }, sealed = SEALED)
+})
+
+lapply(c(
+    #+
+    `%k%`,
+    `%K%`,
+    `%q%`,
+    `%Q%`
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, c(WMD, MOPMX), function(x, table) {
+    lapply(table@.Data, func_, x = x)
+  }, sealed = SEALED)
+})
+
+lapply(c(
+    #+
+    `%k%`,
+    `%K%`,
+    `%q%`,
+    `%Q%`
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, c(WMDS, MOPMX), function(x, table) {
+    lapply(table@.Data, func_, x = x)
+  }, sealed = SEALED)
+})
+
+lapply(c(
+    #+
+    `%k%`,
+    `%K%`,
+    `%q%`,
+    `%Q%`
+    #-
+  ), FUN = function(func_) {
+  setMethod(func_, c(MOPMX, MOPMX), function(x, table) {
     lapply(table@.Data, func_, x = x)
   }, sealed = SEALED)
 })
