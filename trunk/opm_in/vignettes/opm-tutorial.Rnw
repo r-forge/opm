@@ -1392,12 +1392,8 @@ metadata(vaas_et_al, "Species")
 
 The resulting vector could be used for mapping old metadata keys, or values, to novel ones (see Section~\ref{application metadata}).
 
-
-%% CHECK BY MG, JUNE/JULY 2015
-%% STOP 1 (start at the beginning of the document)
-
 The presented plotting results of \code{xy\_plot} and \code{level\_plot} (see Section~\ref{application plotting}) show selected subsets of \code{vaas\_et\_al}.
-In our example below, the function \code{subset} extracts the plates which contain the value \textit{First replicate} in the metadata key \textit{Experiment} and the value \textit{6} in the key \textit{Plate number}, resulting in one representative technical repetition and thus four plates (because four strains were involved) from the data set \code{vaas\_et\_al}:
+In our example below, the function \code{subset} extracts the plates that contain the value \textit{First replicate} in the metadata key \textit{Experiment} and the value \textit{6} in the key \textit{Plate number}, resulting in a single, representative technical repetition and thus four plates (because four strains were involved) from the data set \code{vaas\_et\_al}:
 
 <<label=subset, results=hide>>=
 vaas.1.6 <- subset(vaas_et_al,
@@ -1405,20 +1401,30 @@ vaas.1.6 <- subset(vaas_et_al,
 summary(vaas.1.6)
 @
 
-Note that the object \code{vaas.1.6} is equal to the data object \code{vaas_4} coming along with \pkg{opm}.
-% TODO Lea: if it is equal, why is the other one generated?
+(Note that the resulting object \code{vaas.1.6} is equal to the data object \code{vaas_4} coming along with \pkg{opm}.)
 
-Providing the desired combination of metadata keys and values as a list was more flexible, and using a formula was maximally flexible, but other approaches are also implemented.
-The selection of plates could be based on the presence of keys only (like \code{\%k\%} described above; it makes not much sense for \code{vaas\_et\_al} whose plates are uniform regarding the keys), and/or use nested queries (like \code{\%q\%} with a list described above; makes of course more sense if the metadata contain nested entries).
+Providing the desired combination of metadata keys and values as a list is more flexible, and using a formula is maximally flexible, but other approaches are also implemented.
+The selection of plates can be based on the presence of keys only, using \code{\%k\%} described above (this makes not much sense for \code{vaas\_et\_al} whose plates are uniform regarding the keys).
+Plate selection with \code{\%q\%} can conduct nested queries with a list as described above; this makes, of course, more sense if the metadata contain nested entries.
 
 The \code{subset} function also has a ``time'' argument that allows one to create a subset containing only the time points that were common to all plates.
 This is useful because deviations regarding the overall measurement hours might exist; look up \code{opm::`[`} in the manual.
 
-In addition to plate-wise querying and subset creation of \proglang{OPMS} objects, functions for converting selected content of all plates have been implemented.
-The \pkg{opm} manual and help pages list them in the family ``conversion-functions'' with according cross-references.
+In addition to plate-wise querying and subdividing \proglang{OPMS} objects, methods for a variety of generic \proglang{R} functions such as \code{unique}, \code{sort}, \code{duplicated}, \code{anyDuplicated} and \code{merge} are available for \proglang{OPMS} objects.
+As specified using \code{sort(by = ...)}, sorting can be done based on selected metadata or on \code{csv_data} entries such as the setup time.
+The latter is of use in conjunction with the \code{merge} method, which is able to concatenate \proglang{OPM} objects from subsequent runs of the same plate.
+See the manual entries for \code{opm::sort} and \code{opm::merge} for further information.
+For a usage example (and entire exemplar data set) see \code{opmdata::montero_et_al}.
 
-For instance, the user may wish to explore the aggregated curve parameters (\ac{lambda}, \ac{mu}, \ac{A} and \ac{AUC}).
-These may be exported either as matrix or data frame using \code{extract}:
+
+\subsubsection[Converting to data frames or matrices]{Converting to data frames or matrices}\label{application extraction}
+
+Finally, functions for converting selected content of all plates to other classes of objects are available.
+These other classes are not directly supported by \pkg{opm} and thus not necessarily suitable for beginners.
+The \pkg{opm} manual and help pages list the necessary methods in the family ``conversion-functions'' with according cross-references.
+
+For instance, an advanced user may wish to explore the aggregated curve parameters (\ac{lambda}, \ac{mu}, \ac{A} and \ac{AUC}) with functions other than those defined in \pkg{opm}.
+These may be exported either as a matrix or a data frame using \code{extract}:
 
 <<label=extract-simple, results=hide>>=
 vaas.mu <- extract(vaas_et_al, dataframe = TRUE,
@@ -1435,7 +1441,7 @@ vaas.mu <- extract(vaas_et_al, dataframe = TRUE,
 @
 
 This only works if this meta-information is present for the plates under study.
-Once a data frame is exported, these metadata will be contained in additional columns; once a matrix is exported, they will be used to construct the row names.
+When a data frame is exported, the chosen metadata will be contained in additional columns; when a matrix is exported, they will be used to construct the row names.
 The metadata could also be selected using a formula; see the manual, particularly the entry on \code{metadata}.
 A peculiarity of \code{extract} is that formulae can be used to trigger the joining of selected metadata entries (converted to data-frame columns) into new ones, using the pseudo-function \code{J} within the formula.
 For instance, the following code would create a new entry called ``Species.Strain'':
@@ -1449,18 +1455,13 @@ This is applied by \code{opm\_mcp}, see Section~\ref{application group-means}.
 The behaviour during joining of factors is modified using \code{opm\_opt(comb.key.join = ...)} and \code{opm\_opt(comb.value.join = ...)}.
 The default curve parameter returned by \code{extract} can be set with \code{opm\_opt(curve.param = ...)}.
 
-Finally, note that methods for a variety of generic \proglang{R} functions such as \code{unique}, \code{sort}, \code{duplicated}, \code{anyDuplicated} and \code{merge} are available for \proglang{OPMS} objects.
-As specified using \code{sort(by = ...)}, sorting can be done based on selected metadata or on \code{csv_data} entries such as the setup time.
-The latter is of use in conjunction with the \code{merge} method, which is able to concatenate \proglang{OPM} objects from subsequent runs of the same plate.
-See the manual entries for \code{opm::sort} and \code{opm::merge} for further information.
-For a usage example (and entire exemplar data set) see \code{opmdata::montero_et_al}.
-
 
 \subsection[Plotting functions for raw data]{Plotting functions for raw data}\label{application plotting}
 
 In the \pkg{opm} manual and help pages, the plotting functions are contained in the family ``plotting-functions'' with according cross-references.
+
 The function \code{xy\_plot} displays the respiration curves as such (see Figure~\ref{fig:xy_plot}).
-In our example the selected \proglang{OPMS} object \code{vaas.1.6} is the subset of the data set \code{vaas\_et\_al} constructed in Section~\ref{application manipulation}, additionally reduced to the firs 24 wells:
+In our example the selected \proglang{OPMS} object \code{vaas.1.6} is the subset of the data set \code{vaas\_et\_al} constructed in Section~\ref{application manipulation}, additionally reduced to the first 24 wells:
 
 <<label=xy-plot-figure-code, eval=FALSE>>=
 xy_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
@@ -1479,16 +1480,20 @@ xy_plot(vaas.1.6[, , 1:24], main = "E. coli vs. P. aeruginosa",
 \ac{PM} curves from the sixth technical repetition of the first biological repetition and the first 24 wells plotted using \code{xy\_plot} corresponding to Figure 2 in \citep{vaas}.
 (See \citep{vaas} for the difference between technical and biological repetitions.)
 The respective curves from all four strains are superimposed; the affiliation to each strain is indicated by colour (see the legend).
-The x-axes show the measurement time in hours, the y-axes the measured colour intensities in OmniLog\textregistered \ units.
+The x-axes show the measurement times in hours, the y-axes the measured colour intensities in OmniLog\textregistered \ units.
 Compare Figure~\ref{fig:level_plot}, which depicts exactly the same wells.
 }
 \end{figure}
 
-Using the argument \code{main}, the user can include a main title in the plot; if it is omitted, by default the title is automatically constructed from the plate type.
-Likewise, the well coordinates are automatically converted to substrate names (how can specified with additional arguments).
-The content of the legend (mainly a description of the assignment of the colours to the curves) is also determined automatically.
+With the argument \code{main} the user can include a main title in the plot; if it is omitted, by default the title is automatically constructed from the plate type.
+Likewise, the well coordinates are automatically converted to substrate names (details of how this is done can specified with additional arguments).
+The content of the legend, which is mainly a description of the assignment of the colours to the curves, is also determined automatically.
 
-The argument \code{include} refers to the metadata and allows the user to choose which entries should be used for assigning curve colours and accordingly be included in the legend.
+
+%% CHECK BY MG JULY 2015 END (start at beginning of document)
+
+
+The argument \code{include} refers to the metadata and allows the user to choose which entries to be used for assigning curve colours and accordingly be included in the legend.
 Character vectors, lists and formulae are allowed as \code{include} argument.
 See Section~\ref{application metadata} and the \code{metadata} entry in the manual.
 Note particularly the difference between, say, \code{list("Species", "Strain")} and \code{c("Species", "Strain")}.

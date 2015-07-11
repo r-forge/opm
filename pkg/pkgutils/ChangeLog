@@ -1,4 +1,4 @@
-2014-XX-XX
+2015-XX-XX
 
 - modified example that failed with R-devel
 
@@ -8,9 +8,13 @@
 
 - dependency on R >= 3.1.0
 
+- all S4 methods are now sealed
+
 - new filter option for check_R_code(); the Sweave filter has been improved
 
 - the 'docu.R' script now also checks the spelling within the demos, if any
+
+- the 'docu.R' gets the new argument '-H'
 
 - the 'merge.R' script gets new arguments '--load', '--unique', '--prune',
   '--threshold', '--widen', '--zack'

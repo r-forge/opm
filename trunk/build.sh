@@ -1702,9 +1702,11 @@ case $RUNNING_MODE in
     exit $?
   ;;
   cran )
-    for mode in test demo sql2 time plex spell; do
-      "$0" "$mode" || :
-    done
+    "$0" test && "$0" demo && "$0" sql2 && "$0" method && "$0" time &&
+      "$0" plex &&  "$0" spell
+    #for mode in test demo sql2 time plex spell; do
+    #  "$0" "$mode" || :
+    #done
     exit $?
   ;;
   demo )
@@ -1924,7 +1926,27 @@ fi
 if [ "$RUNNING_MODE" = method ]; then
   [ $# -eq 0 ] && set -- opmdata opm pkgutils
   Rscript --vanilla "$DOCU" --inheritance "$@" |
-    awk '{print; err += $2} END {exit (err > 0)}'
+    awk '
+      BEGIN {
+        # method signatures from other packages should be entered here to
+        # avoid having them reported as errors of our own packages
+        foreign["CHMfactor"]++
+        foreign["DBIObject"]++
+        foreign["diagonalMatrix"]++
+        foreign["sparseMatrix"]++
+      }
+      $7 in foreign {
+        print "(" $0 ")"
+        next
+      }
+      {
+        print
+        err += $2
+      }
+      END {
+        printf "Found %i S4-method related error(s).\n\n", err > "/dev/stderr"
+        exit (err > 0)
+      }' -
   exit $?
 fi
 
