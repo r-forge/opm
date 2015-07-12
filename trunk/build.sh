@@ -1654,6 +1654,18 @@ check_html_docu()
 ################################################################################
 
 
+# This sets a new date and runs HTML tidy.
+#
+update_html_startpage()
+{
+  sed -i "s%\(<span id=\"date\">\).*\(</span>\)%\1$(date)\2%" "$@" &&
+    tidy -quiet -indent -modify "$@"
+}
+
+
+################################################################################
+
+
 # Will not work unless this ncftp connection is defined.
 #
 upload_to_server()
@@ -1817,7 +1829,7 @@ ____EOF
   html )
     OPM_SQLITE_DB=`pwd`/$MISC_DIR/$DEFAULT_DBNAME.db
     export OPM_SQLITE_DB
-    tidy -quiet -indent -modify "$HTML_STARTPAGE" &&
+    update_html_startpage "$HTML_STARTPAGE" &&
       generate_html_docu pkgutils opm opmdata &&
         check_html_docu pkgutils_doc opm_doc opmdata_doc &&
           upload_to_server "$HTML_STARTPAGE" pkgutils_doc opm_doc opmdata_doc
