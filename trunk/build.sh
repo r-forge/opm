@@ -1658,7 +1658,7 @@ check_html_docu()
 #
 update_html_startpage()
 {
-  sed -i "s%\(<span id=\"date\">\).*\(</span>\)%\1$(date)\2%" "$@" &&
+  sed -i "v; s%\(<span id=\"date\">\).*\(</span>\)%\1$(date)\2%" "$@" &&
     tidy -quiet -indent -modify "$@"
 }
 
@@ -1666,18 +1666,29 @@ update_html_startpage()
 ################################################################################
 
 
-# Will not work unless this ncftp connection is defined.
+# Will not work unless an ncftp connection is defined for the current user.
 #
 upload_to_server()
 {
-  if [ "$USER" != goeker ]; then
-    echo "please upload the files manually" >&2
+  local user
+  local ncftp_alias
+  local remote_folder
+  local have=
+  while read user ncftp_alias remote_folder; do
+    if [ "$user" = "$USER" ]; then
+      have=yes
+      break
+    fi
+  done < "$MISC_DIR"/ncftp_aliases.txt
+  if [ -z "$have" ]; then
+    echo "ncftp connection information for user $USER missing" >&2
+    echo "please enter it in '$MISC_DIR/ncftp_aliases.txt'" >&2
     return 1
   fi
   local item
   for item; do
     if [ -s "$item" ]; then
-      ncftpput -f jpb -R opm "$item"
+      ncftpput -f "$ncftp_alias" -R "$remote_folder" "$item"
     else
       echo "file or directory '$item' does not exist -- skipped" >&2
     fi
@@ -1823,6 +1834,10 @@ case $RUNNING_MODE in
 	this build script that refer to novel command-line options of the 'docu.R'
 	script.
 
+	For uploading packages and documentation to your own opm mirror, enter (1)
+	your UNIX/LINUX user name, (2) the name of your ncftp alias and (3) the name
+	of your remote directory in the file '$MISC_DIR/ncftp_aliases.txt'. The ncftp
+	alias must be defined, of course, and store all connection information.
 ____EOF
     exit 1
   ;;
