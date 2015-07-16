@@ -1697,6 +1697,30 @@ upload_to_server()
 
 
 ################################################################################
+
+
+# This relies on the presence of links to the newest package archive files.
+#
+cleanup_archive_files()
+{
+  set -- `find "$BUILT_PACKAGES" -type l -exec readlink -e \{\} +`
+  local infile
+  local linked
+  local have
+  for infile in `find "$BUILT_PACKAGES" -type f -exec readlink -e \{\} +`; do
+    have=
+    for linked; do
+      if [ "$linked" = "$infile" ]; then
+        have=yes
+        break
+      fi
+    done
+    [ "$have" ] || rm -fv "$infile"
+  done
+}
+
+
+################################################################################
 ################################################################################
 
 
@@ -1722,6 +1746,10 @@ case $RUNNING_MODE in
   ascii )
     [ $# -eq 0 ] && set -- `find . -type f -iname '*.Rnw'`
     show_lines_with_forbidden_characters "$@"
+    exit $?
+  ;;
+  clean )
+    cleanup_archive_files
     exit $?
   ;;
   cran )
@@ -1778,6 +1806,7 @@ case $RUNNING_MODE in
 	Possible values for 'mode':
 	  all     Combine full, cran, sql1, www, html, forgat and erase.
 	  ascii   Show lines that contain forbidden characters (such as non-ASCII).
+	  clean   Remove old, unused package archive files.
 	  cran    Run in all modes that should be run before a CRAN submission.
 	  demo    Test the demo code that comes with some of the packages.
 	  dfull   Full build of the opmdata package.

@@ -238,8 +238,9 @@ But the most recent versions of the OmniLog\textregistered \ software can batch-
 See Section~\ref{methods import} and then Section~\ref{application import} for a usage example.
 
 For troubleshooting when including metadata, see Section~\ref{application metadata}.
-For instance, leading spaces in plate identifiers might be missing after input, causing errors due to mismatches.
+For instance, leading spaces in plate identifiers might be missing after input, causing errors due to mismatches; moreover, some spreadsheet software might reformat the setup time, which would need to be prevented by reading this date-time entry as plain text. 
 When selecting metadata, the selection by, say \code{c("a", "b")} might be mixed up with the selection using \code{list("a", "b")}; see Section~\ref{application plotting}.
+If a plotting function complains about having more groups than colours available, consider using \code{opm\_opt(colors = "brewer")}.
 
 The scientific background in Section~\ref{scientific introduction}, including references for important methods, could well be skipped during a first reading.
 
@@ -1031,6 +1032,8 @@ metadata.example <- to_metadata("example_metadata.CSV")
 
 Per default, this expects \ac{CSV} columns separated by tabulators, with the fields protected by quotes.
 To input other formats, consider the \code{sep} argument for defining an alternative column separator, as well as the \code{strip.white} argument for turning the removal of whitespace at the beginning and end of the fields on or off (which is relevant if a spreadsheet program exports \ac{CSV} \textit{without} quotes).
+Some spreadsheet software might also interpret and reformat the setup time.
+This needs to be avoided by declaring the according column to be input as plain text into the spreadsheet, thus preventing any interpretation of its content.
 
 Now the user could add information to the data frame by calling \code{edit}, which would open the \proglang{R} editor, or by any other way of manipulating data frames in \proglang{R}.
 New columns could be defined, or the existing metadata modified.
