@@ -1404,40 +1404,42 @@ ____EOF
 test_demos()
 {
   local wdir=`pwd`
-  local tmpdir=`mktemp -d --tmpdir`
-  cd "$tmpdir"
-  # BEGIN specific for opm
-  if [ "$1" = opm_in ]; then
-    local csv_file
-    for csv_file in "$wdir"/external_tests/tests/*.csv; do
-      case $csv_file in
-        *Multiline* ) continue;;
-      esac
-      ln -s "$csv_file" "${csv_file##*/}"
-    done
-  fi
-  # END specific for opm
-  local rscript
+  local pkgdir
   local errs=0
-  for rscript in "$wdir"/"$1"/demo/*.R; do
-    [ -s "$rscript" ] || continue
+  for pkgdir; do
+    local tmpdir=`mktemp -d --tmpdir`
+    cd "$tmpdir"
     # BEGIN specific for opm
-    if [ "$1" = opm_in ] && echo "${rscript##*/}" | grep -q 'SQL\|ODBC' -; then
-      continue
+    if [ "$pkgdir" = opm_in ]; then
+      local csv_file
+      for csv_file in "$wdir"/external_tests/tests/*.csv; do
+        case $csv_file in
+          *Multiline* ) continue;;
+        esac
+        ln -s "$csv_file" "${csv_file##*/}"
+      done
     fi
     # END specific for opm
-    echo "TESTING ${rscript##*/}..."
-    if R CMD BATCH "$rscript"; then
-      echo "	<<<SUCCESS>>>"
-    else
-      echo "	<<<FAILURE>>>"
-      errs=$((errs + 1))
-      cp -p "${rscript##*/}out" "$wdir"
-    fi
-    echo
+    local rscript
+    for rscript in "$wdir"/"$pkgdir"/demo/*.R; do
+      [ -s "$rscript" ] || continue
+      # BEGIN specific for opm
+      [ "$pkgdir" = opm_in ] && echo "${rscript##*/}" | grep -q 'SQL\|ODBC' &&
+        continue || true
+      # END specific for opm
+      echo "TESTING ${rscript##*/}..."
+      if R CMD BATCH "$rscript"; then
+        echo "	<<<SUCCESS>>>"
+      else
+        echo "	<<<FAILURE>>>"
+        errs=$((errs + 1))
+        cp -p "${rscript##*/}out" "$wdir"
+      fi
+      echo
+    done
+    cd "$wdir"
+    rm -rf "$tmpdir"
   done
-  cd "$wdir"
-  rm -rf "$tmpdir"
   return $errs
 }
 
@@ -1819,6 +1821,7 @@ case $RUNNING_MODE in
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  html    Generate HTML documentation und upload to the opm website.
+	  index   Only upload the HTML start page, without updating it.
 	  method  Check for ambiguities in S4 method selection.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  plex    Open the PDF files with plots produced from the examples, if any.
@@ -1877,6 +1880,10 @@ ____EOF
       generate_html_docu pkgutils opm opmdata &&
         check_html_docu pkgutils_doc opm_doc opmdata_doc &&
           upload_to_server "$HTML_STARTPAGE" pkgutils_doc opm_doc opmdata_doc
+    exit $?
+  ;;
+  index )
+    upload_to_server "$HTML_STARTPAGE"
     exit $?
   ;;
   method )
@@ -1945,8 +1952,9 @@ ____EOF
     CHECK_R_TESTS=yes
   ;;
   www )
-    upload_to_server "$HELPER_SCRIPTS/install_opm.R" \
-      "$BUILT_PACKAGES"/*_latest.tar.gz
+    update_html_startpage "$HTML_STARTPAGE" &&
+      upload_to_server "$HTML_STARTPAGE" "$HELPER_SCRIPTS/install_opm.R" \
+        "$BUILT_PACKAGES"/*_latest.tar.gz
     exit $?
   ;;
   * )
