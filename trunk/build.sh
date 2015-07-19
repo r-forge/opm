@@ -1027,9 +1027,9 @@ spellcheck_vignettes()
 	saveRDS(words[nzchar(words)], tmpfile <- tempfile(fileext = ".rds"))
 	ctrl <- c("ac", "acf", "acs", "acl")
 	ctrl <- c(ctrl, paste0(ctrl, "p"))
-	ctrl <- c(ctrl, "bibliography", "code", "citep", "citet", "pkg", "proglang",
-	  "texttt", "German", "Plainauthor", "Plainkeywords", "Plaintitle", "Sexpr",
-	  "Surname")
+	#ctrl <- c(ctrl, "bibliography", "code", "citep", "citet", "pkg", "proglang",
+	#  "texttt", "German", "Plainauthor", "Plainkeywords", "Plaintitle", "Sexpr",
+	#  "Surname")
 	ctrl <- c("DefineVerbatimEnvironment oppp", "acrodef op", "subsection o",
 	  "subsubsection o", "pdfbookmark opp", "item o", "externaldocument p",
 	  sprintf("%s op", ctrl))
@@ -1039,10 +1039,18 @@ spellcheck_vignettes()
 	if (nrow(x)) {
 	  x <- x[order(x[, "Original"]), c("Original", "File", "Line", "Column")]
 	  names(x) <- sprintf(".%s.", names(x))
-	  write.table(x, "", sep = "\t", quote = FALSE, row.names = FALSE)
+	  write.table(x = x, file = "", sep = "\t", quote = FALSE, row.names = FALSE)
 	}
 ____EOF
-  done | awk -v FS="\t" 'NF > 1' -
+  done | awk -v FS="\t" '
+    NF > 1 {
+      print
+      err++
+    }
+    END {
+      exit (err > 0)
+    }
+  ' -
 }
 
 
@@ -1656,12 +1664,23 @@ check_html_docu()
 ################################################################################
 
 
+# Modifies HTML files in-place.
+#
+run_tidy()
+{
+  tidy -quiet -indent -asxml -modify "$@"
+}
+
+
+################################################################################
+
+
 # This sets a new date and runs HTML tidy.
 #
 update_html_startpage()
 {
   sed -i "v; s%\(<span id=\"date\">\).*\(</span>\)%\1$(date)\2%" "$@" &&
-    tidy -quiet -indent -modify "$@"
+    run_tidy "$@"
 }
 
 
@@ -1756,7 +1775,7 @@ case $RUNNING_MODE in
   ;;
   cran )
     "$0" test && "$0" demo && "$0" sql2 && "$0" method && "$0" time &&
-      "$0" plex &&  "$0" spell
+      "$0" plex && "$0" spell
     exit $?
   ;;
   demo )
@@ -1821,7 +1840,7 @@ case $RUNNING_MODE in
 	  full    Full build of the opm package.
 	  help    Print this message.
 	  html    Generate HTML documentation und upload to the opm website.
-	  index   Only upload the HTML start page, without updating it.
+	  index   Clean and/or upload the HTML start page, not necessarily update it.
 	  method  Check for ambiguities in S4 method selection.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  plex    Open the PDF files with plots produced from the examples, if any.
@@ -1870,6 +1889,10 @@ case $RUNNING_MODE in
 	your UNIX/LINUX user name, (2) the name of your ncftp alias and (3) the name
 	of your remote directory in the file '$MISC_DIR/ncftp_aliases.txt'. The ncftp
 	alias must be defined, of course, and store all connection information.
+
+	The first argument determines what is done in 'index' running mode. '1' means
+	cleaning the file, '2' means uploading, '3' means cleaning and uploading, '4'
+	means updating and cleaning, '5' means updating, cleaning and uploading.
 ____EOF
     exit 1
   ;;
@@ -1883,7 +1906,15 @@ ____EOF
     exit $?
   ;;
   index )
-    upload_to_server "$HTML_STARTPAGE"
+    case ${1-1} in
+      1 ) run_tidy "$HTML_STARTPAGE";;
+      2 ) upload_to_server "$HTML_STARTPAGE";;
+      3 ) run_tidy "$HTML_STARTPAGE" && upload_to_server "$HTML_STARTPAGE";;
+      4 ) update_html_startpage "$HTML_STARTPAGE";;
+      5 ) update_html_startpage "$HTML_STARTPAGE" &&
+        upload_to_server "$HTML_STARTPAGE";;
+      * ) echo "expected 1-5 as first argument, exiting now" >&2 && false;;
+    esac
     exit $?
   ;;
   method )
