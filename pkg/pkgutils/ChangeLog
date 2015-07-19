@@ -1,8 +1,13 @@
 2015-XX-XX
 
-- modified example that failed with R-devel
+- modified example that failed with 'R-devel'
+
+- fixed bug in spell checking of NEWS files by 'docu.R'
 
 - more consistent behaviour of 'merge.R -v'
+
+- the 'docu.R' script can now check 'pkgutils' itself, even though its S4
+  methods are now all sealed
 
 - default option of 'docu.R -o' changed
 
@@ -37,7 +42,7 @@
 - repair_docu() gets new arguments 'drop.interal', 'text.dups' and 'infile'
 
 - the 'merge.R' script gets new options -i, -f and -m; by default column names
-  are not output any mpore if the -b option is used
+  are not output any more if the -b option is used
 
 - the 'docu.R' scripts gets new options -L, -M, -N, -Q and -W
 
@@ -69,14 +74,14 @@
   when running 'R CMD check')
 
 - repair_S4_docu() now includes an optional mapping of Rd file names (much like
-  the @rdname mechanism in Roxygen2, but based on a distinct annotation)
+  the '@rdname' mechanism in 'Roxygen2', but based on a distinct annotation)
 
 - the package documentation has been streamlined (related functions are now
   documented together)
 
 - the documentation of repair_S4_docu() has been completed
 
-- swap_code() now ignores (does not modify) Roxygen2 comment lines
+- swap_code() now ignores (does not modify) 'Roxygen2' comment lines
 
 - 'merge.R' gets an option for joining rows and deals now with duplicated
   join-column entries in conjunction with -c
@@ -94,7 +99,7 @@
 - fixed bug in 'merge.R' that affected the '-c' argument if the merge column
   was numeric
 
-- syntax highlighting for gedit now correctly displays indexing with '$' after
+- syntax highlighting for 'gedit' now correctly displays indexing with '$' after
   indexing with brackets
 
 - 'merge.R' now repairs empty column names (which would cause merge() to 
@@ -102,7 +107,7 @@
 
 - the first argument of mypdf() was renamed
 
-- pack_desc(..., "source") now suppresses package startup messages
+- pack_desc(..., "source") now suppresses package start-up messages
 
 - check_R_code() gets a 'three.dots' argument, and the 'docu.R' script an
   according '--dotsok/-D' switch
@@ -119,11 +124,11 @@
 2012-12-19 (3rd release on CRAN)
 
 - more robust approach in check_keywords() to find the KEYWORDS.db file (bug
-  submitted by Benjamin Hofner)
+  submitted by Benjamin *Hofner*)
 
 - pack_desc() now requires all dependencies in 'source' mode
 
-- list method of flatten() moved from opm package to pkgutils
+- list method of flatten() moved from 'opm' package to 'pkgutils'
 
 - pack_desc() gets an 'envir' argument
 
@@ -142,8 +147,9 @@
 - 'docu.R' now updates the DESCRIPTION of an input directory, too, if it is 
   distinct from the output directory
 
-- the '-g' argument of 'docu.R' is replaced by '-G' to omit Rscript's buggy
-  warning message; the '--s4methods' argument is renamed to '--S4methods'
+- the '-g' argument of 'docu.R' is replaced by '-G' to omit the buggy warning
+  message issued by 'Rscript'; the '--s4methods' argument is renamed to
+  '--S4methods'
 
 - 'docu.R' gets new switches '-B'/'--buildopts', '-I'/'--installopts',
   '-F'/'--folder', '-E'/'--encoding', '-T'/'--tabs' and '-S'/'--Sweave'; the
@@ -156,17 +162,17 @@
 
 - 'merge.R' gets a '-e'/'--encoding' argument
 
-- syntax highlighting for gedit now matches dollar operators followed or
-  preceded by backquoted names
+- syntax highlighting for 'gedit' now matches dollar operators followed or
+  preceded by back-quoted names
 
 
 2012-10-12 (2nd release on CRAN)
 
-- novel listing() function (moved here from opm to pkgutils and made
+- novel listing() function (moved here from 'opm' to 'pkgutils' and made
   generic)
 
-- novel max_rgb_contrast() function (moved here from opm to pkgutils and made
-  generic)
+- novel max_rgb_contrast() function (moved here from 'opm' to 'pkgutils' and
+  made generic)
 
 - mypdf() made generic
 
@@ -176,8 +182,8 @@
 
 - expanded command-line arguments of 'docu.R' script
 
-- removed duplicate example dataset ("xyplot_docu" in addition to 
-  "xyplot.docu")
+- removed duplicate example data set ('xyplot_docu' in addition to 
+  'xyplot.docu')
 
 - included check for '=' at end of line in check_R_code(), as well as
   checks for closing parentheses or brackets preceded by space; result now 

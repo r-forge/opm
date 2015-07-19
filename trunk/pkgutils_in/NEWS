@@ -1,5 +1,5 @@
-pkgutils 0.6-0
----------------
+Changes in version 0.6-0
+------------------------
 
 Bug fixes:
 
@@ -16,8 +16,8 @@ New features:
 - new options/features for the 'merge.R', 'docu.R' and 'repair_docu.rb' scripts
 
 
-pkgutils 0.5-0
----------------
+Changes in version 0.5-0
+------------------------
 
 Bug fixes:
 
@@ -44,8 +44,8 @@ Other user-visible changes:
 - improved package documentation
 
 
-pkgutils 0.4-0
----------------
+Changes in version 0.4-0
+------------------------
 
 Bug fixes:
 
@@ -55,7 +55,7 @@ Bug fixes:
 
 - fixed bug in 'merge.R' script
 
-- fixed bug in syntax highlighting for gedit
+- fixed bug in syntax highlighting for 'gedit'
 
 Significant user-visible changes:
 
@@ -65,15 +65,16 @@ New features:
 
 - 'merge.R' now deals with empty column names
 
-- sourceing files with pack_desc() now suppresses package startup messages
+- loading R source files with pack_desc() now suppresses package start-up
+  messages
 
 - check_R_code() and the 'docu.R' make checking for ':::' optional
 
 - listing() is extended in several ways
 
 
-pkgutils 0.3-0
----------------
+Changes in version 0.3-0
+------------------------
 
 Bug fixes:
 
@@ -91,7 +92,7 @@ New features:
 
 - more command-line switches for 'docu.R' and 'merge.R' scripts
 
-- improved syntax highlighting for gedit
+- improved syntax highlighting for 'gedit'
 
 Other user-visible changes:
 
@@ -100,8 +101,8 @@ Other user-visible changes:
 - renamed some switches of 'docu.R' script
 
 
-pkgutils 0.2-0
----------------
+Changes in version 0.2-0
+------------------------
 
 New features:
 
@@ -109,11 +110,11 @@ New features:
 
 - more checks in check_R_code()
 
-- more options for scripts docu.R and merge.R
+- more options for scripts 'docu.R' and 'merge.R'
 
 
-pkgutils 0.1-56
----------------
+Changes in version 0.1-56
+------------------------
 
 - initial release on CRAN
 

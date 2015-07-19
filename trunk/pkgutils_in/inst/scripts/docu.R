@@ -163,10 +163,16 @@ remove_comments_and_reduce_empty_lines <- function(x) {
 }
 
 
-textfile2rds <- function(file) {
+################################################################################
+#
+# Spellcheck functions
+#
+
+
+textfile2rds <- function(file, ...) {
   if (!nzchar(file) || grepl("\\.rds$", file, TRUE, TRUE))
     return(file)
-  x <- readLines(file)
+  x <- readLines(con = file, ...)
   saveRDS(x[nzchar(x)], file <- tempfile(fileext = ".rds"))
   file
 }
@@ -178,22 +184,25 @@ show_spellcheck_result <- function(x) {
   x[, "File"] <- basename(x[, "File"])
   x <- x[order(x[, "Original"]), c("Original", "File", "Line", "Column")]
   names(x) <- sprintf(".%s.", names(x))
-  write.table(x, "", sep = "\t", quote = FALSE, row.names = FALSE)
-  invisible(NULL)
+  write.table(x = x, sep = "\t", quote = FALSE, row.names = FALSE)
+  invisible(x)
 }
 
 
-news_filter <- function(ifile, encoding = "unknown") {
-  x <- readLines(ifile, encoding = encoding, warn = FALSE)
-  x <- gsub("([\\w.]+|`[^`]+`)\\([^)]*\\)", "FUNCTION", FALSE, TRUE)
-  x <- gsub("'[^']+'", "ARGUMENT", FALSE, TRUE)
-  x <- gsub("[*][^*]+[*]", "SURNAME", FALSE, TRUE)
+news_filter <- function(ifile, encoding) {
+  x <- readLines(con = ifile, encoding = encoding, warn = FALSE)
+  x <- gsub("(([A-Za-z]+:::?)?[A-Za-z.][\\w.]*|`[^`]+`)\\([^)]*\\)",
+    "FUNCTION", x, FALSE, TRUE)
+  x <- gsub("'[^']+'", "ARGUMENT", x, FALSE, TRUE)
+  x <- gsub("[*][^*]+[*]", "SURNAME", x, FALSE, TRUE)
+  x <- gsub("\\b[A-Z]{3,}(_[A-Z]+)*\\b", "ABBREVIATION", x, FALSE, TRUE)
+  x <- gsub("\\b(\\d+th|3rd|2nd|1st)\\b", "NUMBERING", x, FALSE, TRUE)
   x
 }
 
 
-demo_filter <- function(ifile, encoding = "unknown") {
-  x <- readLines(ifile, encoding = encoding, warn = FALSE)
+demo_filter <- function(ifile, encoding) {
+  x <- readLines(con = ifile, encoding = encoding, warn = FALSE)
   x[!grepl("^\\s*#", x, FALSE, TRUE)] <- ""
   x <- gsub("`[^`]+`", "CODE", x, FALSE, TRUE)
   x <- gsub("\\*{2}(?!\\s)[^*]+\\*{2}", "STRONG", x, FALSE, TRUE)
