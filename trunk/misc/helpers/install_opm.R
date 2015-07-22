@@ -19,18 +19,17 @@ install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
     www = "http://www.goeker.org/opm/%s_latest.tar.gz",
     confirm = interactive(), ...) {
 
-  install.all <- !confirm
   choices <- "Please enter 'all', 'yes' or 'no': "
 
   ask <- function(question) {
-    if (install.all)
+    if (!confirm)
       return(TRUE)
-    while (TRUE) {
+    repeat {
       answer <- tolower(substr(readline(question), 1L, 1L))
       if (answer %in% c("y", "n"))
         return(answer == "y")
       if (answer == "a") {
-        install.all <<- TRUE
+        confirm <<- FALSE
         return(TRUE)
       }
     }
@@ -39,9 +38,14 @@ install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
   if (!length(pkg))
     return(invisible(NULL))
 
+  if (confirm)
+    cat("In the following, enter 'all' to install all packages without",
+      "further questions, 'yes' to confirm a single package, and 'no'",
+      "to skip a single package.", "", sep = "\n")
+
   if (!"devtools" %in% rownames(installed.packages())) {
     get.it <- ask(paste("Must install 'devtools' package to proceed. OK?",
-      choices))
+      choices, sep = "\n"))
     if (!get.it) {
       warning("will not install ", paste0("'", pkg, "'", collapse = "/"),
         ": 'devtools' package needed, but not chosen for installation")
@@ -53,7 +57,7 @@ install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
   pkg <- structure(sprintf(www, pkg), names = pkg)
 
   for (i in seq_along(pkg)) {
-    get.it <- ask(sprintf("OK to install package '%s' and its dependencies? %s",
+    get.it <- ask(sprintf("Install package '%s' and its dependencies?\n%s",
       names(pkg)[[i]], choices))
     if (!get.it)
       return(invisible(pkg[seq_len(i - 1L)]))
