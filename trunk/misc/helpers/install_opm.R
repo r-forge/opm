@@ -13,19 +13,26 @@
 # Helper function for installing opm and friends. 'pkg' is character vector of
 # package names, 'www' a template for the URL in which the package name is
 # inserted, and '...' are arguments passed to devtools::install_url(). Users
-# will be prompted in interactive sessions.
+# will be prompted in interactive sessions unless they set 'confirm' to 'FALSE'.
 #
 install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
-    www = "http://www.goeker.org/opm/%s_latest.tar.gz", ...) {
+    www = "http://www.goeker.org/opm/%s_latest.tar.gz",
+    confirm = interactive(), ...) {
+
+  install.all <- !confirm
+  choices <- "Please enter 'all', 'yes' or 'no': "
 
   ask <- function(question) {
-    if (!interactive())
+    if (install.all)
       return(TRUE)
     while (TRUE) {
       answer <- tolower(substr(readline(question), 1L, 1L))
       if (answer %in% c("y", "n"))
         return(answer == "y")
-      cat("Please enter 'yes' or 'no'.\n")
+      if (answer == "a") {
+        install.all <<- TRUE
+        return(TRUE)
+      }
     }
   }
 
@@ -33,9 +40,10 @@ install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
     return(invisible(NULL))
 
   if (!"devtools" %in% rownames(installed.packages())) {
-    get.it <- ask("Must install 'devtools' package to proceed. OK? ")
+    get.it <- ask(paste("Must install 'devtools' package to proceed. OK?",
+      choices))
     if (!get.it) {
-      warning("will not install ", paste0(pkg, collapse = "/"),
+      warning("will not install ", paste0("'", pkg, "'", collapse = "/"),
         ": 'devtools' package needed, but not chosen for installation")
       return(invisible(NULL))
     }
@@ -45,8 +53,8 @@ install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
   pkg <- structure(sprintf(www, pkg), names = pkg)
 
   for (i in seq_along(pkg)) {
-    get.it <- ask(sprintf("OK to install package '%s' and its dependencies? ",
-      names(pkg)[[i]]))
+    get.it <- ask(sprintf("OK to install package '%s' and its dependencies? %s",
+      names(pkg)[[i]], choices))
     if (!get.it)
       return(invisible(pkg[seq_len(i - 1L)]))
     devtools::install_url(url = pkg[[i]], ...)

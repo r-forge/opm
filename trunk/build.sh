@@ -1679,7 +1679,7 @@ run_tidy()
 #
 update_html_startpage()
 {
-  sed -i "v; s%\(<span id=\"date\">\).*\(</span>\)%\1$(date)\2%" "$@" &&
+  sed -i "v; s%\(<em id=\"date\">\).*\(</em>\)%\1$(date)\2%" "$@" &&
     run_tidy "$@"
 }
 
