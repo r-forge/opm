@@ -10,6 +10,7 @@
 ################################################################################
 
 
+
 # Helper function for installing opm and friends. 'pkg' is character vector of
 # package names, 'www' a template for the URL in which the package name is
 # inserted, and '...' are arguments passed to devtools::install_url(). Users
@@ -18,6 +19,14 @@
 install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
     www = "http://www.goeker.org/opm/%s_latest.tar.gz",
     confirm = interactive(), ...) {
+
+  old.opt <- options(error = function() {
+      print(sessionInfo())
+      traceback(2L)
+      if (!interactive())
+        quit("no", 1L, FALSE)
+    })
+  on.exit(options(old.opt))
 
   choices <- "Please enter 'all', 'yes' or 'no': "
 
@@ -74,4 +83,4 @@ install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
 install_opm()
 
 
-
+traceback()
