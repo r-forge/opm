@@ -29,8 +29,8 @@ setOldClass("RODBC")
 #' @param map.tables Passed as \code{do_map} argument to \code{by} from the
 #'   \pkg{pkgutils} package. Necessary if table names that deviate from the
 #'   defaults are to be used.
-#' @param klass Character scalar indicating a class name. For \acronym{PM} data
-#'   this argument should \strong{not} be changed.
+#' @param klass Character vector indicating one or several class names. For
+#'   \acronym{PM} data this argument should \strong{not} be changed.
 #' @param include Integer scalar indicating whether aggregated data (1) or
 #'   aggregated and discretised data (2) or neither (0) should be added to the
 #'   result. The numeric method of \code{opm_dbnext} needs the same kind of
@@ -163,7 +163,7 @@ setGeneric("opm_dbfind",
 
 setMethod("opm_dbfind", c("character", "DBIConnection"), function(object, conn,
     map.tables = NULL, klass = "OPM_DB") {
-  pk <- pkeys(new(klass))[1L]
+  pk <- pkeys(new(klass))[1L] # names are needed, hence not [[
   sql <- sprintf("SELECT %s FROM %s WHERE %s;", make.db.names(conn, pk),
     make.db.names(conn, map_values(names(pk), map.tables)), object)
   ids <- dbGetQuery(conn, sql)
@@ -175,7 +175,7 @@ setMethod("opm_dbfind", c("character", "DBIConnection"), function(object, conn,
 
 setMethod("opm_dbfind", c("character", "RODBC"), function(object, conn,
     map.tables = NULL, klass = "OPM_DB") {
-  pk <- pkeys(new(klass))[1L]
+  pk <- pkeys(new(klass))[1L] # names are needed, hence not [[
   char <- if (attr(conn, "isMySQL"))
       "`"
     else
@@ -198,25 +198,25 @@ setGeneric("opm_dbget",
   function(object, conn, ...) standardGeneric("opm_dbget"))
 
 setMethod("opm_dbget", c("integer", "DBIConnection"), function(object, conn,
-    map.tables = NULL, include = 2L, klass = "MOPMX") {
-  as(by(new(int2dbclass(include)), object, dbGetQuery, conn = conn,
+    map.tables = NULL, include = 2L, klass = c(opm_dbclass(include), "MOPMX")) {
+  as(by(new(klass[[1L]]), object, dbGetQuery, conn = conn,
     do_map = map.tables, do_inline = TRUE, simplify = TRUE,
-    do_quote = function(x) make.db.names(conn, x)), klass)
+    do_quote = function(x) make.db.names(conn, x)), klass[[2L]])
 }, sealed = SEALED)
 
 setMethod("opm_dbget", c("integer", "RODBC"), function(object, conn,
-    map.tables = NULL, include = 2L, klass = "MOPMX") {
-  as(by(new(int2dbclass(include)), object, sqlQuery, channel = conn,
+    map.tables = NULL, include = 2L, klass = c(opm_dbclass(include), "MOPMX")) {
+  as(by(new(klass[[1L]]), object, sqlQuery, channel = conn,
     do_map = map.tables, do_inline = TRUE, do_quote = if (attr(conn, "isMySQL"))
       "`"
     else
-      "\"", stringsAsFactors = FALSE, simplify = TRUE), klass)
+      "\"", stringsAsFactors = FALSE, simplify = TRUE), klass[[2L]])
 }, sealed = SEALED)
 
 setMethod("opm_dbget", c("character", "ANY"), function(object, conn,
-    map.tables = NULL, include = 2L, klass = "MOPMX") {
-  opm_dbget(opm_dbfind(object, conn, map.tables), conn, map.tables, include,
-    klass)
+    map.tables = NULL, include = 2L, klass = c(opm_dbclass(include), "MOPMX")) {
+  opm_dbget(opm_dbfind(object, conn, map.tables, klass[[1L]]),
+    conn, map.tables, include, klass)
 }, sealed = SEALED)
 
 #= opm_dbnext opm_dbput
