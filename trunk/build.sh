@@ -459,16 +459,20 @@ do_test()
   local wantedfmt=
   local indir=
   local inext=
+  local inext2=
   local logfile=/dev/stderr
+  local pattern=
 
   local opt
   OPTIND=1
-  while getopts d:f:i:l:q:w: opt; do
+  while getopts d:f:i:I:l:p:q:w: opt; do
     case $opt in
       d ) indir=$OPTARG;;
       f ) outfmt=$OPTARG;;
       i ) inext=$OPTARG;;
+      I ) inext2=$OPTARG;;
       l ) logfile=$OPTARG;;
+      p ) pattern=$OPTARG;;
       q ) qdir=$OPTARG;;
       w ) wantedfmt=$OPTARG;;
       * ) return 1;;
@@ -483,7 +487,11 @@ do_test()
     return 1
   fi
 
-  "$@" "$indir"/*."$inext" 2> "$logfile" || true
+  if [ "$inext2" ]; then
+    "$@" "$indir"/*."$inext" "$indir"/*."$inext2" 2> "$logfile" || true
+  else
+    "$@" "$indir"/*."$inext" 2> "$logfile" || true
+  fi
 
   local infile
   local wantfile
@@ -498,7 +506,11 @@ do_test()
     echo
     echo "TESTING $infile => $wantfile..."
     if [ -s "$gotfile" ]; then
-      if diff -q "$wantfile" "$gotfile"; then
+      if [ -z "$pattern" ] && diff -q "$wantfile" "$gotfile"; then
+        echo "	<<<SUCCESS>>>"
+        echo
+        rm -f "$gotfile"
+      elif diff -I "$pattern" -q "$wantfile" "$gotfile"; then
         echo "	<<<SUCCESS>>>"
         echo
         rm -f "$gotfile"
