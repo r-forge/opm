@@ -82,5 +82,3 @@ install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
 
 install_opm()
 
-
-traceback()
