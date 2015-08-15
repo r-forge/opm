@@ -108,9 +108,10 @@ check_S4_methods <- function(pkg) {
     error = function(e) NULL) # otherwise errors from non-S4 methods
 
   print_nonsealed <- function(x) {
-    for (i in seq_len(nrow(x))[!x[, "Sealed"]])
-      cat(sprintf("Found 1 %s method with signature %s that is not sealed\n",
-        x[i, "Function"], x[i, "Signature"]))
+    if (length(x))
+      for (i in seq_len(nrow(x))[!x[, "Sealed"]])
+        cat(sprintf("Found 1 %s method with signature %s that is not sealed\n",
+          x[i, "Function"], x[i, "Signature"]))
   }
 
   pkg2 <- sprintf("package:%s", pkg)
