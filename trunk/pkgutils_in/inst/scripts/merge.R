@@ -153,12 +153,11 @@ process_specially <- function(files, opt) {
     matrix(x, length(x), 1L, FALSE, list(NULL, COLUMN_DEFAULT_NAME))
   }
   merge_vertically <- function(x, opt) {
-    join.fun <- if (opt$good)
-      join_most_frequent
-    else
-      join_unique
-    aggregate(x, by = x[, opt$xcolumn, drop = FALSE], FUN = join.fun,
-      join = opt$join, simplify = TRUE)[, -seq_along(opt$xcolumn), drop = FALSE]
+    aggregate(x = x[, -match(opt$xcolumn, colnames(x), 0L), drop = FALSE],
+      by = x[, opt$xcolumn, drop = FALSE], FUN = if (opt$good)
+        join_most_frequent
+      else
+        join_unique, join = opt$join, simplify = TRUE)
   }
   if (opt$rows)
     do_convert <- merge_horizontally

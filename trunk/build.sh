@@ -1405,13 +1405,17 @@ ____EOF
 
   rm -rf "$tmpdir" "$tmpfile"
 
+  local errors=`grep -F -c '<<<ERROR>>>' "$outfile"`
+  local failed_files=`ls "$failedfile_dir" | wc -l`
+
   echo
   printf "RESULT: "
   printf "`grep -F -c '<<<SUCCESS>>>' "$outfile"` successes, "
   printf "`grep -F -c '<<<FAILURE>>>' "$outfile"` failures, "
-  printf "`grep -F -c '<<<ERROR>>>' "$outfile"` errors, "
-  echo "`ls "$failedfile_dir" | wc -l` quarantined files."
+  echo "$errors errors, $failed_files quarantined files."
   echo
+
+  [ $(($errors + $failed_files)) -gt 0 ] && return 1 || return 0
 }
 
 
