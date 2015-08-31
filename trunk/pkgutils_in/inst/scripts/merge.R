@@ -15,6 +15,8 @@
 
 COLUMN_DEFAULT_NAME <- "Object"
 
+INSERTED_COLUMNS <- character()
+
 
 ################################################################################
 #
@@ -48,24 +50,48 @@ trunc_zeros <- function(x) {
 
 
 read_and_create_unique_column_names <- function(files, options) {
+
+  join <- function(x, y) sprintf("%s.%s", x, y)
+
   data <- lapply(X = files, FUN = do_read, opt = options)
-  change.first <- !options$first
-  suffixes <- if (options$indices)
+
+  suffix <- if (options$indices)
       seq_along(files)
     else
       truncate(files)
-  cn <- lapply(data, colnames)
-  ok <- rep(list(options$ycolumn), length(data))
-  ok[[1L]] <- options$xcolumn
-  for (i in seq_along(cn)) {
-    if (any(bad <- !nzchar(cn[[i]]))) # merge() crashes with empty column names
-      colnames(data[[i]])[bad] <- sprintf("%s.%i", suffixes[i],
-        seq_along(cn[[i]])[bad])
-    twice <- cn[[i]] %in% setdiff(unlist(cn[-i]), ok[[i]])
-    if (change.first || i != 1L)
-      colnames(data[[i]])[twice] <- sprintf("%s.%s", cn[[i]][twice],
-        suffixes[i])
+  keys <- lapply(data, names) # needed for a global check, see below
+  selection <- rep(list(options$ycolumn), length(data))
+  selection[[1L]] <- options$xcolumn
+
+  if (nzchar(options$insert)) {
+    insert <- vapply(data, ncol, 0L) <= vapply(selection, length, 0L)
+    insert <- ifelse(insert, join(options$insert, suffix), "")
+  } else {
+    insert <- character(length(data))
   }
+
+  for (i in seq_along(data)) {
+    # insert presence column if only selection columns are there
+    if (nzchar(insert[[i]])) {
+      insert[[i]] <- tail(make.unique(c(keys[[i]], insert[[i]])), 1L)
+      data[[i]][, insert[[i]]] <- rep.int(TRUE, nrow(data[[i]]))
+      keys[[i]] <- colnames(data[[i]])
+    }
+    # merge() would crash with empty column names, hence we repair them here
+    if (any(bad <- !nzchar(keys[[i]])))
+      keys[[i]][bad] <- join(suffix[[i]], seq_along(keys[[i]])[bad])
+    # if a column name is duplicated but not among the selection columns
+    other <- setdiff(unlist(keys[-i], FALSE, FALSE), selection[[i]])
+    if (any(twice <- keys[[i]] %in% other) && (!options$first || i != 1L)) {
+      keys[[i]][twice] <- join(keys[[i]][twice], suffix[[i]])
+      if (nzchar(insert[[i]]) && insert[[i]] %in% other)
+        insert[[i]] <- join(insert[[i]], suffix[[i]])
+    }
+    names(data[[i]]) <- keys[[i]]
+  }
+
+  INSERTED_COLUMNS <<- c(INSERTED_COLUMNS, insert[nzchar(insert)])
+
   data
 }
 
@@ -237,25 +263,39 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Keep non-matching lines of file 2, too [default: %default]",
     default = FALSE),
 
+  # A
+
   optparse::make_option(c("-b", "--bald"), action = "store_true",
     help = "Assume files have no headers [default: %default]",
     default = FALSE),
+
+  # B
 
   optparse::make_option(c("-c", "--conserve"), action = "store_true",
     help = "Conserve input column order, do not sort [default: %default]",
     default = FALSE),
 
+  # C
+
   optparse::make_option(c("-d", "--delete"), action = "store_true",
     help = "Delete non-matching lines of file 1 [default: %default]",
     default = FALSE),
+
+  # D
 
   optparse::make_option(c("-e", "--encoding"), type = "character",
     help = "Encoding to be assumed in input files [default: '%default']",
     metavar = "NAME", default = ""),
 
+  # E
+
   optparse::make_option(c("-f", "--first"), action = "store_true",
     help = "Do not adapt column names of file 1 [default: %default]",
     default = FALSE),
+
+  # F
+
+  # g
 
   optparse::make_option(c("-G", "--good"), action = "store_true",
     help = paste0("Use case-insensitive matching; with -v, keep only most ",
@@ -266,77 +306,118 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Print help message and exit [default: %default]",
     default = FALSE),
 
+  # H
+
   optparse::make_option(c("-i", "--indices"), action = "store_true",
     help = "Use indices for adapting column names [default: %default]",
     default = FALSE),
+
+  optparse::make_option(c("-I", "--insert"), type = "character",
+    help = paste("Prefix for name of column to insert if only -x/-y columns",
+      "are present [default: '%default']"),
+    metavar = "NAME", default = "present"),
 
   optparse::make_option(c("-j", "--join-by"), type = "character",
     help = "Join character(s) for -r/-v [default: '%default']",
     metavar = "SEP", default = "; "),
 
+  # J
+
   optparse::make_option(c("-k", "--keep"), action = "store_true",
     help = "Keep whitespace surrounding the separators [default: %default]",
     default = FALSE),
+
+  # K
 
   optparse::make_option(c("-l", "--load"), action = "store_true",
     help = "Randomly replace missing by present values [default: %default]",
     default = FALSE),
 
+  # L
+
   optparse::make_option(c("-m", "--make-header"), action = "store_true",
     help = "Output headers even for input without headers [default: %default]",
     default = FALSE),
+
+  # M
 
   optparse::make_option(c("-n", "--names"), action = "store_true",
     help = "Convert column names to syntactical names [default: %default]",
     default = FALSE),
 
+  # N
+
   optparse::make_option(c("-o", "--onename"), action = "store_true",
     help = paste("Do not split arguments of '-x' and '-y' at ','",
       "[default: %default]"), default = FALSE),
+
+  # O
 
   optparse::make_option(c("-p", "--prune"), type = "character",
     help = "Value to prune by treating as NA [default: %default]",
     default = "NA", metavar = "STR"),
 
+  # P
+
   optparse::make_option(c("-q", "--unique"), action = "store_true",
     help = "Make entries in join column unique [default: %default]",
     default = FALSE),
+
+  # Q
 
   optparse::make_option(c("-r", "--rows"), action = "store_true",
     help = "Merge each row horizontally, file by file [default: %default]",
     default = FALSE),
 
+  # R
+
   optparse::make_option(c("-s", "--separator"), type = "character",
     help = "Field separator in CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
+
+  # S
 
   optparse::make_option(c("-t", "--threshold"), type = "numeric",
     help = "Threshold for error-tolerant matching [default: %default]",
     metavar = "NUM", default = -1),
 
+  # T
+
   optparse::make_option(c("-u", "--unquoted"), action = "store_true",
     help = "Do not quote fields in output [default: %default]",
     default = FALSE),
+
+  # U
 
   optparse::make_option(c("-v", "--vertical"), action = "store_true",
     help = "Merge vertically, file by file [default: %default]",
     default = FALSE),
 
+  # V
+
   optparse::make_option(c("-w", "--widen"), action = "store_true",
     help = "Widen (unnest) selected column(s) [default: %default]",
     default = FALSE),
+
+  # W
 
   optparse::make_option(c("-x", "--xcolumn"), type = "character",
     help = "Name of the merge column(s) in file 1 [default: '%default']",
     default = COLUMN_DEFAULT_NAME, metavar = "COLUMNS"),
 
+  # X
+
   optparse::make_option(c("-y", "--ycolumn"), type = "character",
     help = "Name of the merge column(s) in file 2 [default: like file 1]",
     default = "", metavar = "COLUMNS"),
 
+  # Y
+
   optparse::make_option(c("-z", "--zack"), action = "store_true",
     help = "Fill (sack) column(s) downwards [default: %default]",
     default = FALSE)
+
+  # Z
 
 ), usage = "%prog [options] csv_file_1 csv_file_2 ...", prog = "merge.R",
   add_help_option = FALSE, description = paste("\nMerge CSV files",
@@ -382,7 +463,7 @@ if (opt$bald) {
 
 if (opt$help || !length(files)) {
   optparse::print_help(option.parser)
-  quit(status = 1L)
+  quit("default", 1L)
 }
 
 
@@ -393,7 +474,7 @@ if (opt$help || !length(files)) {
 
 if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack) {
   process_specially(files, opt)
-  quit(status = 0L)
+  quit()
 }
 
 
@@ -434,6 +515,11 @@ if (opt$conserve) {
     rownames(x) <- NULL
   }
 }
+
+for (name in INSERTED_COLUMNS) {
+  x[is.na(x[, name]), name] <- FALSE
+}
+
 
 do_write(x, opt)
 
