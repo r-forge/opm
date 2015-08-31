@@ -21,8 +21,8 @@
 
 - the 'docu.R' gets the new argument '-H'
 
-- the 'merge.R' script gets new arguments '--load', '--unique', '--prune',
-  '--threshold', '--widen', '--zack'
+- the 'merge.R' script gets new arguments '--insert', '--load', '--unique',
+  '--prune', '--threshold', '--widen', '--zack'
 
 
 2014-01-10 (6th release on CRAN)
