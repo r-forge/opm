@@ -13,22 +13,15 @@ NOT_YET <- "not yet implemented"
 BUG_MSG <- "a bug -- this should not happen"
 
 
-# Class names
+# Class names (should be removed step by step, replaced by character literals)
 #
 WMD <- "WMD"
-WMDS <- "WMDS"
-WMDX <- "WMDX"
 OPM <- "OPM"
 OPMA <- "OPMA"
 OPMD <- "OPMD"
 OPMS <- "OPMS"
 OPMX <- "OPMX"
 MOPMX <- "MOPMX"
-XOPMX <- "XOPMX"
-OPM_MCP_OUT <- "OPM_MCP_OUT"
-YAML_VIA_LIST <- "YAML_VIA_LIST"
-FOE <- "FOE"
-CMAT <- "CMAT"
 
 
 # Used in all S4 method definitions. The idea is to keep it FALSE during

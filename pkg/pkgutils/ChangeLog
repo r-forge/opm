@@ -1,4 +1,4 @@
-2015-XX-XX
+2015-09-01
 
 - modified example that failed with 'R-devel'
 
@@ -102,7 +102,7 @@
 - syntax highlighting for 'gedit' now correctly displays indexing with '$' after
   indexing with brackets
 
-- 'merge.R' now repairs empty column names (which would cause merge() to 
+- 'merge.R' now repairs empty column names (which would cause merge() to
   crash) and reads from STDIN (indicated as file name '-').
 
 - the first argument of mypdf() was renamed
@@ -112,7 +112,7 @@
 - check_R_code() gets a 'three.dots' argument, and the 'docu.R' script an
   according '--dotsok/-D' switch
 
-- listing() gets a 'hf.collapse' argument and more options in the 'last.sep' 
+- listing() gets a 'hf.collapse' argument and more options in the 'last.sep'
   argument; 'style' can be run through I() and then causes names and values to
   be swapped
 
@@ -141,10 +141,10 @@
 
 - 'docu.R' now also checks test files and scripts if located within
   inst/scripts, inst/tests, scripts or tests
-  
+
 - 'docu.R' now also copies hidden files (such as '.Rbuildignore') if requested
 
-- 'docu.R' now updates the DESCRIPTION of an input directory, too, if it is 
+- 'docu.R' now updates the DESCRIPTION of an input directory, too, if it is
   distinct from the output directory
 
 - the '-g' argument of 'docu.R' is replaced by '-G' to omit the buggy warning
@@ -182,11 +182,11 @@
 
 - expanded command-line arguments of 'docu.R' script
 
-- removed duplicate example data set ('xyplot_docu' in addition to 
+- removed duplicate example data set ('xyplot_docu' in addition to
   'xyplot.docu')
 
 - included check for '=' at end of line in check_R_code(), as well as
-  checks for closing parentheses or brackets preceded by space; result now 
+  checks for closing parentheses or brackets preceded by space; result now
   returned invisibly (better for interactive checking)
 
 - problem messages from check_R_code() set to singular throughout
