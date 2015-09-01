@@ -1,4 +1,32 @@
-Changes in version 0.6-0
+Changes in version 0.7.0
+------------------------
+
+Bug fixes:
+
+- fixed example that failed with 'R-devel'
+
+- fixed bug in spell checking by 'docu.R'
+
+- 'merge.R -v' is more consistent
+
+Significant user-visible changes:
+
+- other default option of 'docu.R -o'
+
+- dependency on R >= 3.1.0
+
+- sealed all S4 methods
+
+New features:
+
+- new filter option for check_R_code() and better Sweave filter
+
+- new arguments for the 'docu.R', which now also spell-checks the demos
+
+- new arguments for the 'merge.R' script
+
+
+Changes in version 0.6.0
 ------------------------
 
 Bug fixes:
@@ -11,12 +39,12 @@ New features:
 
 - new function check_Sweave_start(), contains(), map_values() and map_names()
 
-- new arguments for repair_docu(), check_R_code() 
+- new arguments for repair_docu(), check_R_code()
 
 - new options/features for the 'merge.R', 'docu.R' and 'repair_docu.rb' scripts
 
 
-Changes in version 0.5-0
+Changes in version 0.5.0
 ------------------------
 
 Bug fixes:
@@ -44,7 +72,7 @@ Other user-visible changes:
 - improved package documentation
 
 
-Changes in version 0.4-0
+Changes in version 0.4.0
 ------------------------
 
 Bug fixes:
@@ -73,7 +101,7 @@ New features:
 - listing() is extended in several ways
 
 
-Changes in version 0.3-0
+Changes in version 0.3.0
 ------------------------
 
 Bug fixes:
@@ -101,7 +129,7 @@ Other user-visible changes:
 - renamed some switches of 'docu.R' script
 
 
-Changes in version 0.2-0
+Changes in version 0.2.0
 ------------------------
 
 New features:
@@ -113,7 +141,7 @@ New features:
 - more options for scripts 'docu.R' and 'merge.R'
 
 
-Changes in version 0.1-56
+Changes in version 0.1.56
 ------------------------
 
 - initial release on CRAN

@@ -74,6 +74,10 @@ HELPER_SCRIPTS=$MISC_DIR/helpers
 #
 HTML_STARTPAGE=$MISC_DIR/index.html
 
+# Files to be uploaded because they are referred to in the HTML file.
+#
+HTML_LINKED_FILES=$MISC_DIR/linked
+
 # Manuals (PDF files) rescued from the check directories.
 #
 RESCUED_MANUALS=$MISC_DIR/manuals
@@ -1918,7 +1922,8 @@ ____EOF
     update_html_startpage "$HTML_STARTPAGE" &&
       generate_html_docu pkgutils opm opmdata &&
         check_html_docu pkgutils_doc opm_doc opmdata_doc &&
-          upload_to_server "$HTML_STARTPAGE" pkgutils_doc opm_doc opmdata_doc
+          upload_to_server "$HTML_STARTPAGE" "$HTML_LINKED_FILES" \
+            pkgutils_doc opm_doc opmdata_doc
     exit $?
   ;;
   index )

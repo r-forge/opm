@@ -45,7 +45,7 @@
 #'
 setGeneric("summary")
 
-setMethod("summary", OPM, function(object, ...) {
+setMethod("summary", "OPM", function(object, ...) {
   result <- list(
     Class = class(object),
     `From file` = csv_data(object, what = "filename"),
@@ -63,7 +63,7 @@ setMethod("summary", OPM, function(object, ...) {
   result
 }, sealed = SEALED)
 
-setMethod("summary", OPMS, function(object, ...) {
+setMethod("summary", "OPMS", function(object, ...) {
   result <- lapply(X = object@plates, FUN = summary, ...)
   attr(result, "overall") <- list(Dimensions = dim(object),
     Aggregated = sum(has_aggr(object)), Discretized = sum(has_disc(object)),
@@ -72,7 +72,7 @@ setMethod("summary", OPMS, function(object, ...) {
   result
 }, sealed = SEALED)
 
-setMethod("summary", MOPMX, function(object, ...) {
+setMethod("summary", "MOPMX", function(object, ...) {
   select_parts <- function(x) if (is.null(y <- attr(x, "overall")))
       c(list(Length = 1L, Plate.type = x[["Plate type"]]),
         x[c("Aggregated", "Discretized")])
@@ -94,17 +94,17 @@ setMethod("summary", MOPMX, function(object, ...) {
 
 #= show summary
 
-setMethod("show", OPMX, function(object) {
+setMethod("show", "OPMX", function(object) {
   print(summary(object))
   invisible(NULL)
 }, sealed = SEALED)
 
-setMethod("show", MOPMX, function(object) {
+setMethod("show", "MOPMX", function(object) {
   print(summary(object))
   invisible(NULL)
 }, sealed = SEALED)
 
-setMethod("show", CMAT, function(object) {
+setMethod("show", "CMAT", function(object) {
   if (typeof(object) == "list") {
     object[] <- lapply(object, paste0, collapse = "/")
     storage.mode(object) <- "character"
@@ -116,19 +116,19 @@ setMethod("show", CMAT, function(object) {
 
 setGeneric("str")
 
-setMethod("str", WMDX, function(object, ...) {
+setMethod("str", "WMDX", function(object, ...) {
   callNextMethod(object, ...)
   cat(STR_NOTE)
   invisible(NULL)
 }, sealed = SEALED)
 
-setMethod("str", MOPMX, function(object, ...) {
+setMethod("str", "MOPMX", function(object, ...) {
   callNextMethod(object, ...)
   cat(STR_NOTE)
   invisible(NULL)
 }, sealed = SEALED)
 
-setMethod("str", CMAT, function(object, ...) {
+setMethod("str", "CMAT", function(object, ...) {
   callNextMethod(object, ...)
   cat(STR_NOTE)
   invisible(NULL)
@@ -194,7 +194,7 @@ print.OPMS_Summary <- function(x, ...) {
   tmpl <- "=> %s object with %i plates (%i aggregated, %i discretized)"
   tmpl <- paste(tmpl, "of type '%s', %i well(s) and about %i time point(s).")
   y <- attr(x, "overall")
-  cat(sprintf(tmpl, OPMS, y$Dimensions[1L], y$Aggregated, y$Discretized,
+  cat(sprintf(tmpl, "OPMS", y$Dimensions[1L], y$Aggregated, y$Discretized,
     y$Plate.type, y$Dimensions[3L], y$Dimensions[2L]), sep = "\n")
   invisible(x)
 }
@@ -383,7 +383,7 @@ setMethod("improved_max", "numeric", function(object, by = 10) {
   ceiling(m / by) * by + by # => error unless 'by' is numeric
 }, sealed = SEALED)
 
-setMethod("improved_max", OPMX, function(object, theor.max = TRUE, by = 10) {
+setMethod("improved_max", "OPMX", function(object, theor.max = TRUE, by = 10) {
   if (L(theor.max))
     return(THEOR_RANGE[2L])
   improved_max(max(object), by)
@@ -440,7 +440,7 @@ setMethod("draw_ci", "numeric", function(object, col = "blue", cex = 1,
 setGeneric("negative_control",
   function(object, ...) standardGeneric("negative_control"))
 
-setMethod("negative_control", OPMX, function(object, neg.ctrl) {
+setMethod("negative_control", "OPMX", function(object, neg.ctrl) {
   if (!length(neg.ctrl) || is.numeric(neg.ctrl))
     neg.ctrl
   else if (is.character(neg.ctrl)) {
@@ -467,7 +467,7 @@ setMethod("negative_control", OPMX, function(object, neg.ctrl) {
 #'
 setGeneric("main_title", function(object, ...) standardGeneric("main_title"))
 
-setMethod("main_title", OPMX, function(object, settings) {
+setMethod("main_title", "OPMX", function(object, settings) {
   if (is.character(settings) || is.expression(settings))
     settings <- list(predef = settings)
   else if (is.logical(settings))
@@ -528,7 +528,7 @@ default_color_regions <- function(colors, space, bias, n) {
 #' Customised plotting of a single \acronym{PM} plate or multiple plates, using
 #' \code{xyplot} from the \pkg{lattice} package.
 #'
-#' @param x \code{\link{OPM}} or \code{\link{OPMS}} object.
+#' @param x \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}} object.
 #'
 #' @param col For the \code{\link{OPM}} method, just a character scalar (colour
 #'   name) determining the line colour.
@@ -638,11 +638,10 @@ default_color_regions <- function(colors, space, bias, n) {
 #'   The data-frame method is not intended for phenotype microarray data. It is
 #'   currently \strong{undocumented} and potentially subject to frequent changes
 #'   or even removal. Users interested in the method should contact the authors.
-#'
 #' @export
 #' @family plotting-functions
-#' @return An object of class \sQuote{trellis}. See \code{xyplot} from the
-#'   \pkg{lattice} package for details.
+#' @return An object of class \sQuote{trellis} or list of such objects. See
+#'   \code{xyplot} from the \pkg{lattice} package for details.
 #' @references Sarkar, D. 2008 \emph{Lattice: Multivariate Data Visualization
 #'   with R.} New York: Springer, 265 p.
 #' @references Vaas, L. A. I., Sikorski, J., Michael, V., Goeker, M., Klenk
@@ -679,7 +678,11 @@ default_color_regions <- function(colors, space, bias, n) {
 #'
 setGeneric("xy_plot", function(x, ...) standardGeneric("xy_plot"))
 
-setMethod("xy_plot", OPM, function(x, col = "midnightblue", lwd = 1,
+setMethod("xy_plot", "MOPMX", function(x, ...) {
+  sapply(X = x, FUN = xy_plot, ..., simplify = FALSE, USE.NAMES = TRUE)
+}, sealed = SEALED)
+
+setMethod("xy_plot", "OPM", function(x, col = "midnightblue", lwd = 1,
     neg.ctrl = "A01", base.col = "grey10", base.lwd = lwd,
     main = list(), xlab = "Time [h]", ylab = "Value [OmniLog units]",
     theor.max = TRUE, draw.grid = TRUE,
@@ -728,7 +731,7 @@ setMethod("xy_plot", OPM, function(x, col = "midnightblue", lwd = 1,
 
 }, sealed = SEALED)
 
-setMethod("xy_plot", OPMS, function(x, col = opm_opt("colors"), lwd = 1,
+setMethod("xy_plot", "OPMS", function(x, col = opm_opt("colors"), lwd = 1,
     neg.ctrl = "A01", base.col = "black", base.lwd = lwd,
     main = list(), xlab = "Time [h]", ylab = "Value [OmniLog units]",
     theor.max = TRUE, draw.grid = TRUE, space = "top",
@@ -886,7 +889,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #' Level plot for \code{\link{OPM}} and \code{\link{OPMS}} objects using the
 #' function from the \pkg{lattice} package.
 #'
-#' @param x \code{\link{OPM}} or \code{\link{OPMS}}  object.
+#' @param x \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}} object.
 #'
 #' @param main The settings controlling the construction of the main title.
 #'   Works like the \code{main} argument of \code{\link{xy_plot}}.
@@ -921,11 +924,12 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #' @param num.colors Numeric scalar passed to the function returned by
 #'   \code{colorRampPalette}.
 #'
-#' @param ... Arguments that are passed to \code{\link{flatten}}.
+#' @param ... Arguments that are passed between the methods or to
+#'   \code{\link{flatten}}.
 #'
 #' @export
-#' @return An object of class \sQuote{trellis}. See \code{levelplot} from the
-#'   \pkg{lattice} package for details.
+#' @return An object of class \sQuote{trellis} or a list if such objects. See
+#'   \code{levelplot} from the \pkg{lattice} package for details.
 #' @family plotting-functions
 #' @keywords hplot
 #'
@@ -955,7 +959,7 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
 #'
 setGeneric("level_plot", function(x, ...) standardGeneric("level_plot"))
 
-setMethod("level_plot", OPM, function(x, main = list(),
+setMethod("level_plot", "OPM", function(x, main = list(),
     colors = opm_opt("color.borders"), panel.headers = FALSE, cex = NULL,
     strip.fmt = list(), striptext.fmt = list(), legend.sep = " ",
     space = "Lab", bias = 0.5, num.colors = 200L, ...) {
@@ -969,7 +973,7 @@ setMethod("level_plot", OPM, function(x, main = list(),
     scales = list(cex = cex, lineheight = 10))
 }, sealed = SEALED)
 
-setMethod("level_plot", OPMS, function(x, main = list(),
+setMethod("level_plot", "OPMS", function(x, main = list(),
     colors = opm_opt("color.borders"), panel.headers = TRUE, cex = NULL,
     strip.fmt = list(), striptext.fmt = list(), legend.sep = " ",
     space = "Lab", bias = 0.5, num.colors = 200L, ...) {
@@ -997,6 +1001,10 @@ setMethod("level_plot", OPMS, function(x, main = list(),
     scales = list(cex = cex, lineheight = 10))
 }, sealed = SEALED)
 
+setMethod("level_plot", "MOPMX", function(x, ...) {
+  sapply(X = x, FUN = level_plot, ..., simplify = FALSE, USE.NAMES = TRUE)
+}, sealed = SEALED)
+
 
 ################################################################################
 
@@ -1008,10 +1016,11 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #' This method can in most cases \strong{not} be applied to entire plates but to
 #' selected wells only.
 #'
-#' @param object \code{\link{OPMS}} object or (rarely) a data frame. If an
-#'   \code{\link{OPMS}} object, it is in most cases necessary to restrict the
-#'   plates to at most about one dozen wells. See \code{\link{[}} for how to
-#'   achieve this.
+#' @param object \code{\link{OPMS}} or \code{\link{MOPMX}} object or (rarely) a
+#'   data frame. If an \code{\link{OPMS}} object, it is in most cases necessary
+#'   to restrict the plates to at most about one dozen wells. See
+#'   \code{\link{[}} for how to achieve this. This also means that care should
+#'   be taken when applying this function to a \code{\link{MOPMX}} object.
 #'
 #'   The data frame method is not normally directly called by an \pkg{opm} user
 #'   but via the \code{\link{OPMS}} method, unless it is used after
@@ -1061,7 +1070,7 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #' @param crr Numeric scalar (column-row-ratio) interpreted as number of columns
 #'   per number of rows. Determines the arrangement of the subplots.
 #' @param ... Optional arguments passed to \code{legend}, or arguments
-#'   passed from the \code{\link{OPMS}} method to the data frame method.
+#'   passed between the methods.
 #'
 #' @param split.at Character vector. See \code{\link{extract}}.
 #'
@@ -1075,7 +1084,8 @@ setMethod("level_plot", OPMS, function(x, main = list(),
 #'   exploration of Phenotype Microarray kinetics. \emph{PLoS ONE} \strong{7},
 #'   e34846.
 #'
-#' @return Character vector describing the plot's legend, returned invisibly.
+#' @return Character vector describing the plot's legend, returned invisibly, or
+#'   list of such vectors.
 #' @export
 #' @family plotting-functions
 #' @seealso graphics::plot
@@ -1160,10 +1170,14 @@ setMethod("ci_plot", "data.frame", function(object, rowname.sep = " ",
 
 }, sealed = SEALED)
 
-setMethod("ci_plot", OPMS, function(object, as.labels,
+setMethod("ci_plot", "OPMS", function(object, as.labels,
     subset = opm_opt("curve.param"), ...) {
   ci_plot(extract(object, as.labels = as.labels, subset = subset,
     dataframe = TRUE, ci = TRUE), split.at = param_names("split.at"), ...)
+}, sealed = SEALED)
+
+setMethod("ci_plot", "MOPMX", function(object, ...) {
+  sapply(X = object, FUN = ci_plot, ..., simplify = FALSE, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
 
@@ -1438,7 +1452,7 @@ setMethod("heat_map", "data.frame", function(object, as.labels,
     as.labels = as.labels, as.groups = as.groups, sep = sep), ...))
 }, sealed = SEALED)
 
-setMethod("heat_map", OPMS, function(object, as.labels,
+setMethod("heat_map", "OPMS", function(object, as.labels,
     subset = opm_opt("curve.param"), as.groups = NULL, sep = " ",
     extract.args = list(), ...) {
   extract.args <- insert(as.list(extract.args), list(object = object,
@@ -1447,7 +1461,7 @@ setMethod("heat_map", OPMS, function(object, as.labels,
   invisible(heat_map(do.call(extract, extract.args), ...))
 }, sealed = SEALED)
 
-setMethod("heat_map", MOPMX, function(object, as.labels,
+setMethod("heat_map", "MOPMX", function(object, as.labels,
     subset = opm_opt("curve.param"), as.groups = NULL, sep = " ",
     extract.args = list(), ...) {
   extract.args <- insert(as.list(extract.args), list(object = object,
@@ -1466,9 +1480,9 @@ setMethod("heat_map", MOPMX, function(object, as.labels,
 #' adaptations likely to be useful for
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} data.
 #'
-#' @param object \code{\link{OPMS}} object (with aggregated values) to be
-#'   plotted. Alternatively a data frame or a numeric matrix, but the methods
-#'   for these objects are rarely needed.
+#' @param object \code{\link{OPMS}} or \code{\link{MOPMX}} object (with
+#'   aggregated values) to be plotted. Alternatively a data frame or a numeric
+#'   matrix, but the methods for these objects are rarely needed.
 #' @param as.labels For the \code{\link{OPMS}} method, a metadata selection
 #'   defining the data to be joined and used as row names, ultimately yielding
 #'   the legend. If \code{NULL} or empty, ignored. See \code{\link{extract}} for
@@ -1507,7 +1521,7 @@ setMethod("heat_map", MOPMX, function(object, as.labels,
 #'   that belong to the same group shall have the same colour.
 #' @param main The main title of the plot.
 #' @param ... Optional other arguments passed to \code{radial.plot} from the
-#'   \pkg{plotrix} package.
+#'   \pkg{plotrix} package or between the methods.
 #' @param draw.legend Logical scalar. Whether to draw a legend. Ignored unless
 #'   \code{object} has row names (because these are used to generate the
 #'   description).
@@ -1526,7 +1540,8 @@ setMethod("heat_map", MOPMX, function(object, as.labels,
 #'
 #' @return A vector with the row names of \code{object} as names and the
 #'   corresponding colours as values, equivalent to the legend; \code{NULL} if
-#'   no row names are present.
+#'   no row names are present. A list of such objects in the case of the
+#'   \code{\link{MOPMX}} method.
 #'
 #' @details The default positioning of the legend is not necessarily very
 #'   useful, but suitable combinations of \code{margin}, \code{x} and \code{y}
@@ -1631,12 +1646,16 @@ setMethod("radial_plot", "data.frame", function(object, as.labels,
     direct = FALSE, as.labels = as.labels, sep = sep), ...))
 }, sealed = SEALED)
 
-setMethod("radial_plot", OPMS, function(object, as.labels,
+setMethod("radial_plot", "OPMS", function(object, as.labels,
     subset = opm_opt("curve.param"), sep = " ", extract.args = list(), ...) {
   extract.args <- insert(as.list(extract.args), list(object = object,
     as.labels = as.labels, as.groups = NULL, subset = subset,
     dataframe = FALSE, ci = FALSE, sep = sep), .force = TRUE)
   invisible(radial_plot(do.call(extract, extract.args), ...))
+}, sealed = SEALED)
+
+setMethod("radial_plot", "MOPMX", function(object, ...) {
+  sapply(X = object, FUN = radial_plot, ..., simplify = FALSE, USE.NAMES = TRUE)
 }, sealed = SEALED)
 
 
@@ -1650,8 +1669,9 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #' package with some adaptations likely to be useful for
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} data.
 #'
-#' @param x An \code{\link{OPMA}} or \code{\link{OPMS}} object with aggregated
-#'   data. This and the following argument can swap their places.
+#' @param x An \code{\link{OPMA}}, \code{\link{OPMS}} or \code{\link{MOPMX}
+#'   }object with aggregated data. This and the following argument can swap
+#'   their places.
 #'
 #' @param data Any kind of object that can be used for selecting
 #'   \code{\link{metadata}}. Either \code{NULL}, a character vector, a list of
@@ -1699,7 +1719,7 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #' @param space Character scalar.
 #'
 #' @param ... Optional arguments passed to \code{parallelplot} from the
-#'   \pkg{lattice} package.
+#'   \pkg{lattice} package or between the methods.
 #' @details The main application of this function is to include all four
 #'   estimated curve parameters into a single comprehensive overview. This
 #'   assists in addressing questions such as \itemize{
@@ -1715,8 +1735,8 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #'
 #' @export
 #' @family plotting-functions
-#' @return An object of class \sQuote{trellis}. See \code{xyplot} from the
-#'   \pkg{lattice} package for details.
+#' @return An object of class \sQuote{trellis} or list of such objects. See
+#'   \code{xyplot} from the \pkg{lattice} package for details.
 #' @references Sarkar, D. 2008 \emph{Lattice: Multivariate Data Visualization
 #'   with R.} New York: Springer, 265 p.
 #' @keywords hplot
@@ -1799,27 +1819,44 @@ setMethod("radial_plot", OPMS, function(object, as.labels,
 #'
 setGeneric("parallelplot")
 
-setMethod("parallelplot", c("missing", OPMX), function(x, data, ...) {
+setMethod("parallelplot", c("missing", "XOPMX"), function(x, data, ...) {
   parallelplot(data, NULL, ...)
 }, sealed = SEALED)
 
-setMethod("parallelplot", c("NULL", OPMX), function(x, data, ...) {
+setMethod("parallelplot", c("NULL", "XOPMX"), function(x, data, ...) {
   parallelplot(data, x, ...)
 }, sealed = SEALED)
 
-setMethod("parallelplot", c("vector", OPMX), function(x, data, ...) {
+setMethod("parallelplot", c("vector", "XOPMX"), function(x, data, ...) {
   parallelplot(data, x, ...)
 }, sealed = SEALED)
 
-setMethod("parallelplot", c("formula", OPMX), function(x, data, ...) {
+setMethod("parallelplot", c("MOPMX", "XOPMX"), function(x, data, ...) {
+  stop("cannot use 'XOPMX' object as both 'x' and 'data' argument")
+}, sealed = SEALED)
+
+setMethod("parallelplot", c("OPMX", "XOPMX"), function(x, data, ...) {
+  stop("cannot use 'XOPMX' object as both 'x' and 'data' argument")
+}, sealed = SEALED)
+
+setMethod("parallelplot", c("formula", "XOPMX"), function(x, data, ...) {
   parallelplot(data, x, ...)
 }, sealed = SEALED)
 
-setMethod("parallelplot", c(OPMX, "missing"), function(x, data, ...) {
+setMethod("parallelplot", c("OPMX", "missing"), function(x, data, ...) {
   parallelplot(x, NULL, ...)
 }, sealed = SEALED)
 
-setMethod("parallelplot", c(OPMX, "ANY"), function(x, data, groups = 1L,
+setMethod("parallelplot", c("MOPMX", "missing"), function(x, data, ...) {
+  parallelplot(x, NULL, ...)
+}, sealed = SEALED)
+
+setMethod("parallelplot", c("MOPMX", "ANY"), function(x, data, ...) {
+  sapply(X = x, FUN = parallelplot, data = data, ..., simplify = FALSE,
+    USE.NAMES = TRUE)
+}, sealed = SEALED)
+
+setMethod("parallelplot", c("OPMX", "ANY"), function(x, data, groups = 1L,
   panel.var = NULL, pnames = param_names(), col = opm_opt("colors"),
   strip.fmt = list(), striptext.fmt = list(), legend.fmt = list(),
   legend.sep = " ", draw.legend = TRUE, space = "top", ...) {

@@ -1257,7 +1257,7 @@ setMethod("to_metadata", "ANY", function(object, stringsAsFactors = FALSE,
   x
 }, sealed = SEALED)
 
-setMethod("to_metadata", WMD, function(object, stringsAsFactors = FALSE,
+setMethod("to_metadata", "WMD", function(object, stringsAsFactors = FALSE,
     optional = TRUE, sep = "\t", strip.white = FALSE, ...) {
   x <- collect(x = list(object@metadata), what = "values",
     optional = optional, stringsAsFactors = stringsAsFactors,
@@ -1267,7 +1267,7 @@ setMethod("to_metadata", WMD, function(object, stringsAsFactors = FALSE,
   x
 }, sealed = SEALED)
 
-setMethod("to_metadata", WMDS, function(object, stringsAsFactors = FALSE,
+setMethod("to_metadata", "WMDS", function(object, stringsAsFactors = FALSE,
     optional = TRUE, sep = "\t", strip.white = FALSE, ...) {
   x <- collect(x = metadata(object), what = "values",
     optional = optional, stringsAsFactors = stringsAsFactors,
@@ -1277,7 +1277,7 @@ setMethod("to_metadata", WMDS, function(object, stringsAsFactors = FALSE,
   x
 }, sealed = SEALED)
 
-setMethod("to_metadata", MOPMX, function(object, stringsAsFactors = FALSE,
+setMethod("to_metadata", "MOPMX", function(object, stringsAsFactors = FALSE,
     optional = TRUE, sep = "\t", strip.white = FALSE, ...) {
   collect_rows(lapply(X = object, FUN = to_metadata, optional = optional,
     sep = "\t", stringsAsFactors = stringsAsFactors, strip.white = FALSE, ...))
