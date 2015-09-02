@@ -79,6 +79,15 @@ extract_curve_params.grofit <- function(x, ...) {
 }
 
 #' @rdname extract_curve_params
+#' @method extract_curve_params fake_opm_model
+#' @export
+#'
+extract_curve_params.fake_opm_model <- function(x, ...) {
+  as.data.frame(as.list(c(mu = NA_real_, lambda = NA_real_, A = x[[3L]],
+    AUC = (x[[2L]] - x[[1L]]) * x[[3L]])))
+}
+
+#' @rdname extract_curve_params
 #' @method extract_curve_params opm_model
 #' @export
 #'
@@ -86,12 +95,12 @@ extract_curve_params.opm_model <- function(x, all = FALSE, ...) {
   if (!inherits(x, "smooth.spline"))
     x <- as.gam(x)
   pred <- fitted(x)
-  x <- get_data(x)[, 1]
+  x <- get_data(x)[, 1L]
   ## quick and dirty
   deriv <- diff(pred) / diff(x)
   slope <- max(deriv, na.rm = TRUE)
   ## index of max. slope
-  idx <- which.max(deriv):(which.max(deriv) + 1)
+  idx <- which.max(deriv):(which.max(deriv) + 1L)
   ## x-value of max. slope
   x_ms <- mean(x[idx])
   ## y-value of max. slope
@@ -129,7 +138,7 @@ summary.splines_bootstrap <- function (object, ...) {
 
   cnames <- unlist(map_param_names(), use.names = FALSE)
 
-  res <- data.frame(t(sapply(object, extract_curve_params.opm_model)))
+  res <- data.frame(t(sapply(object, extract_curve_params)))
   res$mu <- unlist(res$mu)
   res$lambda <- unlist(res$lambda)
   res$A <- unlist(res$A)
@@ -245,10 +254,14 @@ pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
 #'   estimate.
 #' @param verbose Logical scalar. Print progress messages?
 #' @param cores Integer scalar. Number of cores to use. Setting this to a value
-#'   > 1 requires that \code{mclapply} from the \pkg{parallel} package can be
-#'   run with more than 1 core, which is impossible under Windows. The
-#'   \code{cores} argument has no effect if \kbd{opm-fast} is chosen (see
-#'   below).
+#'   larger than \code{1} requires that \code{mclapply} from the \pkg{parallel}
+#'   package can be run with more than 1 core, which is impossible under
+#'   Windows. The \code{cores} argument has no effect if \kbd{opm-fast} is
+#'   chosen (see below). If \code{cores} is zero or negative, the overall number
+#'   of cores on the system as determined by \code{detectCores} from the
+#'   \pkg{parallel} package is used after addition of the original \code{cores}
+#'   argument. For instance, if the system has eight cores, \code{-1} means
+#'   using seven cores.
 #' @param options List. For its use in \pkg{grofit} mode, see
 #'   \code{grofit.control} in that package. The \code{boot} and \code{verbose}
 #'   settings, as the most important ones, are added separately (see above). The
@@ -310,7 +323,7 @@ pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
 #'   class \sQuote{boot}.
 #'
 #' @family aggregation-functions
-#' @seealso grofit::grofit
+#' @seealso grofit::grofit parallel::detectCores
 #' @keywords smooth
 #'
 #' @details Behaviour is special if the \code{\link{plate_type}} is one of those
@@ -322,7 +335,15 @@ pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
 #'   all other parameters are set to \code{NA}.
 #'
 #'   The \code{\link{OPMS}} method just applies the \code{\link{OPM}} method to
-#'   each contained plate in turn; there are no inter-dependencies.
+#'   each contained plate in turn; there are no inter-dependencies. The same
+#'   holds for the \code{\link{MOPMX}} method.
+#'
+#'   Note that some spline-fitting methods would crash with constant input data
+#'   (horizontal lines instead of curves). As it is not entirely clear that
+#'   those input data always represent artefacts, spline-fitting is skipped in
+#'   such cases and replaced by reading the maximum height and the area under
+#'   the curve directly from the data but setting the slope and the lag phase
+#'   to \code{NA}, with a warning.
 #'
 #'   Examples with \code{plain = TRUE} are not given, as only the return value
 #'   is different: Let \code{x} be the normal result of \code{do_aggr()}. The
@@ -428,10 +449,10 @@ setMethod("do_aggr", OPM, function(object, boot = 0L, verbose = FALSE,
 
   run_mgcv <- function(x, y, data, options, boot) {
     mod <- fit_spline(y = y, x = x, data = data, options = options)
-    if (boot > 0) {
+    if (boot > 0L) {
       ## draw bootstrap sample
       folds <- rmultinom(boot, nrow(data), rep(1 / nrow(data), nrow(data)))
-      res <- lapply(1:boot,
+      res <- lapply(seq_len(boot),
         function(i) {
           fit_spline(y = y, x = x, data = data, options = options,
             weights = folds[, i])
@@ -454,13 +475,23 @@ setMethod("do_aggr", OPM, function(object, boot = 0L, verbose = FALSE,
   if (anyDuplicated.default(hours(object, "all")))
     warning("duplicate time points are present, which makes no sense")
 
-  if ((plate_type(object) %in% SPECIAL_PLATES ||
-      custom_plate_is(plate_type(object))) && dim(object)[1] < 2L) {
+  if (L(cores) <= 0L) {
+    cores <- detectCores() + cores
+    if (cores <= 0L)
+      stop("attempt to use <1 computational core")
+  }
+
+  if (dim(object)[1L] < 2L && (plate_type(object) %in% SPECIAL_PLATES ||
+      custom_plate_is(plate_type(object)))) {
+
     result <- copy_A_param(well(object))
     attr(result, METHOD) <- "shortcut"
     attr(result, OPTIONS) <- list(boot = boot)
+
   } else {
+
     case(method <- match.arg(method, KNOWN_METHODS$aggregation),
+
       grofit = {
         control <- make_grofit_control(verbose, boot, add = options)
         grofit.time <- to_grofit_time(object)
@@ -473,6 +504,7 @@ setMethod("do_aggr", OPM, function(object, boot = 0L, verbose = FALSE,
         result <- do.call(cbind, result)
         attr(result, OPTIONS) <- unclass(control)
       },
+
       `opm-fast` = {
         options <- insert(as.list(options), boot = boot, .force = FALSE)
         mat <- measurements(object)
@@ -490,6 +522,7 @@ setMethod("do_aggr", OPM, function(object, boot = 0L, verbose = FALSE,
         rownames(result) <- as.character(map)
         attr(result, OPTIONS) <- options
       },
+
       splines = {
         ## extract data
         data <- as.data.frame(measurements(object))
@@ -504,9 +537,9 @@ setMethod("do_aggr", OPM, function(object, boot = 0L, verbose = FALSE,
         options <- insert(as.list(options), boot = boot)
 
         if (options$save.models) {
-            opm_models <- lapply(result, function(x) x$model)
-            if (boot > 0) {
-              opm_bootstrap <- lapply(result, function(x) x$bootstrap)
+            opm_models <- lapply(result, `[[`, "model")
+            if (boot > 0L) {
+              opm_bootstrap <- lapply(result, `[[`, "bootstrap")
             } else {
               opm_bootstrap <- NA
             }
@@ -519,28 +552,30 @@ setMethod("do_aggr", OPM, function(object, boot = 0L, verbose = FALSE,
             cat("Models saved as 'opm_models' on disk in file\n  ",
               getwd(), "/", options$filename, "\n\n", sep = "")
         }
-        result <- sapply(result, function(x) x$params)
+        result <- sapply(result, `[[`, "params")
         rn <- rownames(result)
         result <- matrix(unlist(result),
           ncol = ncol(result), nrow = nrow(result))
         rownames(result) <- rn
         ## attach bootstrap CIs if necessary
-        if (boot <= 0)
-          result <- rbind(result,
-            matrix(NA, nrow = 8L, ncol = ncol(result)))
+        if (boot <= 0L)
+          result <- rbind(result, matrix(NA, nrow = 8L, ncol = ncol(result)))
         ## dirty hack:
         map <- map_param_names(opm.fast = TRUE)
         rownames(result) <- as.character(map)
         colnames(result) <- wells
         attr(result, OPTIONS) <- unclass(options)
       }
+
     )
+
     attr(result, METHOD) <- method
+
   }
 
   tmp <- opm_string(version = TRUE)
-  attr(result, SOFTWARE) <- tmp[1L]
-  attr(result, VERSION) <- tmp[2L]
+  attr(result, SOFTWARE) <- tmp[[1L]]
+  attr(result, VERSION) <- tmp[[2L]]
 
   if (L(plain))
     return(result)
