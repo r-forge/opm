@@ -2005,8 +2005,8 @@ ____EOF
   ;;
   www )
     update_html_startpage "$HTML_STARTPAGE" &&
-      upload_to_server "$HTML_STARTPAGE" "$HELPER_SCRIPTS/install_opm.R" \
-        "$BUILT_PACKAGES"/*_latest.tar.gz
+      upload_to_server "$HTML_STARTPAGE" "$HTML_LINKED_FILES" \
+      "$HELPER_SCRIPTS/install_opm.R" "$BUILT_PACKAGES"/*_latest.tar.gz
     exit $?
   ;;
   * )

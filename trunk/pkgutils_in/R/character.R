@@ -165,7 +165,7 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' @details If \code{mapfun} returns \code{NULL}, it is ignored. Otherwise
 #'   is it an error if \code{mapfun} does not return a character vector. If
 #'   this vector is identical to the lines read from the file, it is not
-#'   printed to this file unless \code{sep} is non-empty. Otherwise the file
+#'   printed to this file unless \code{.sep} is non-empty. Otherwise the file
 #'   is attempted to be overwritten with the result of \code{mapfun}.
 #' @return Logical vector using \code{x} as names, with \code{TRUE} indicating
 #'   a successfully modified file, \code{FALSE} a file that yielded no errors

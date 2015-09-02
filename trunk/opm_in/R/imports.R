@@ -19,7 +19,7 @@ NULL
 #'
 NULL
 
-#' @importFrom parallel mclapply mcmapply
+#' @importFrom parallel mclapply mcmapply detectCores
 #'
 NULL
 
