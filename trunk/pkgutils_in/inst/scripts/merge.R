@@ -172,6 +172,29 @@ unnest <- function(x, col, sep = "; ", fixed = TRUE) {
 }
 
 
+to_yaml <- function(files, opt) {
+  dataframe_to_map <- function(x, from) {
+    to_map <- function(x, from) {
+      if (any(dup <- duplicated.default(from))) {
+        warning("duplicates in column selected as map keys, data will be lost")
+       x <- x[!dup, , drop = FALSE]
+       from <- from[!dup]
+      }
+      lapply(split.data.frame(x, from), as.list)
+    }
+    pkgutils::case(length(from),
+      to_map(x, rownames(x)),
+      to_map(x[, setdiff(names(x), from), drop = FALSE], x[, from]),
+      stop("length of 'from' argument must be 0 or 1")
+    )
+  }
+  from <- c(list(opt$xcolumn), rep.int(list(opt$ycolumn), length(files) - 1L))
+  for (i in seq_along(files))
+    write(yaml::as.yaml(dataframe_to_map(do_read(files[[i]], opt),
+      from[[i]])), "")
+}
+
+
 process_specially <- function(files, opt) {
   merge_horizontally <- function(x, opt) {
     x <- apply(x, 1L, function(x) pkgutils::listing(x[nzchar(x)],
@@ -411,7 +434,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Name of the merge column(s) in file 2 [default: like file 1]",
     default = "", metavar = "COLUMNS"),
 
-  # Y
+  optparse::make_option(c("-Y", "--yaml"), action = "store_true",
+    help = "Produce YAML mappings, skip normal run [default: %default]",
+    default = FALSE),
 
   optparse::make_option(c("-z", "--zack"), action = "store_true",
     help = "Fill (sack) column(s) downwards [default: %default]",
@@ -469,11 +494,15 @@ if (opt$help || !length(files)) {
 
 ################################################################################
 #
-# horizontal merging of rows, vertical merging, or random filling
+# horizontal merging of rows, vertical merging, random filling, or YAML
+# generation; everything file-by-file, no merging between files
 #
 
 if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack) {
   process_specially(files, opt)
+  quit()
+} else if (opt$yaml) {
+  to_yaml(files, opt)
   quit()
 }
 
