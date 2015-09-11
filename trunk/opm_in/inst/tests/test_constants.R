@@ -22,9 +22,6 @@ expect_length <- function(actual, expected) {
 ################################################################################
 
 
-## WMD
-## UNTESTED
-
 ## OPM
 ## UNTESTED
 
@@ -38,9 +35,6 @@ expect_length <- function(actual, expected) {
 ## UNTESTED
 
 ## OPMX
-## UNTESTED
-
-## MOPMX
 ## UNTESTED
 
 

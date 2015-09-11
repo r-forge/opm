@@ -250,7 +250,7 @@ setClassUnion("FOE", c("formula", "expression"))
 #'
 setClass("OPM",
   slots = c(measurements = "matrix", csv_data = "character"),
-  contains = WMD,
+  contains = "WMD",
   validity = function(object) {
     errs <- c(opm_problems(object@measurements), opm_problems(object@csv_data))
     if (length(errs))

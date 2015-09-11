@@ -334,7 +334,7 @@ setMethod("opm_dbcheck", "ANY", function(conn, metadata = NULL,
     result[[step <- step + 1L]] <- "ok"
     opm_dbclear(ids, conn)
     result[[step <- step + 1L]] <- "ok"
-    if (!is(y, MOPMX) || length(y) != 1L)
+    if (!is(y, "MOPMX") || length(y) != 1L)
       stop("expected MOPMX object of length 1")
     result[[step <- step + 1L]] <- "ok"
     last2 <- opm_dbnext(y, conn)
