@@ -1560,6 +1560,12 @@ insert.list <- function(object, other, ..., .force = FALSE, .strict = FALSE) {
 #'       use.}
 #'     \item{max.chars}{Integer scalar used when abbreviating full substrate
 #'       names. See \code{\link{wells}} for an example.}
+#'     \item{md.id.name}{Default name of the key to be treated as \acronym{ID}
+#'       in the metadata. Currently only relevant for easing the inclusion of
+#'       plate-specific \acronym{ID}s in the metadata.}
+#'     \item{md.id.start}{The first value to inserted next as \acronym{ID}
+#'       value in the metadata. Currently only relevant for easing the inclusion
+#'       of plate-specific \acronym{ID}s in the metadata.}
 #'     \item{min.mode}{Used when making discretisation results uniform within a
 #'       group. The minimum proportion the most frequent value much reach to be
 #'       used for representing all values (if less, frequent, \code{NA} is
@@ -1654,7 +1660,7 @@ setMethod("opm_opt", "missing", function(x, ...) {
 }, sealed = SEALED)
 
 setMethod("opm_opt", "character", function(x) {
-  OPM_OPTIONS[[x]]
+  get(x, , OPM_OPTIONS, "any", FALSE)
 }, sealed = SEALED)
 
 #= param_names opm_opt

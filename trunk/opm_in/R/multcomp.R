@@ -317,7 +317,7 @@
 setGeneric("opm_mcp",
   function(object, ...) standardGeneric("opm_mcp"))
 
-setMethod("opm_mcp", MOPMX, function(object, model, linfct = 1L,
+setMethod("opm_mcp", "MOPMX", function(object, model, linfct = 1L,
     m.type = "glm", rhs = 0, alternative = "two.sided", glht.args = list(),
     ops = "+", output = "mcp", sep = opm_opt("comb.value.join"), ...) {
   object <- extract(object = object, dataframe = TRUE, sep = sep, ...,
@@ -744,7 +744,7 @@ setMethod("annotated", OPMS, function(object, what = "kegg", how = "ids",
   convert_annotation_vector(result, how, what, conc)
 }, sealed = SEALED)
 
-setMethod("annotated", MOPMX, function(object, what = "kegg", how = "ids",
+setMethod("annotated", "MOPMX", function(object, what = "kegg", how = "ids",
     output = opm_opt("curve.param"), lmap = NULL, sep = opm_opt("min.mode"),
     conc = FALSE) {
   output <- match.arg(output,

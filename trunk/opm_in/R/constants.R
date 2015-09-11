@@ -15,13 +15,11 @@ BUG_MSG <- "a bug -- this should not happen"
 
 # Class names (should be removed step by step, replaced by character literals)
 #
-WMD <- "WMD"
 OPM <- "OPM"
 OPMA <- "OPMA"
 OPMD <- "OPMD"
 OPMS <- "OPMS"
 OPMX <- "OPMX"
-MOPMX <- "MOPMX"
 
 
 # Used in all S4 method definitions. The idea is to keep it FALSE during
@@ -168,6 +166,8 @@ OPM_OPTIONS$input.try.order <- c(1L, 2L, 3L)
 OPM_OPTIONS$key.join <- "."
 OPM_OPTIONS$machine.id <- 1L
 OPM_OPTIONS$max.chars <- 100L
+OPM_OPTIONS$md.id.name <- "ID"
+OPM_OPTIONS$md.id.start <- 1L
 OPM_OPTIONS$min.mode <- 0.5
 OPM_OPTIONS$phylo.fmt <- "epf"
 OPM_OPTIONS$series.key <- "Concentration"

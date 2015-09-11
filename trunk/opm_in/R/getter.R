@@ -389,12 +389,12 @@ setMethod("[", c(OPMS, "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
   x
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "missing", "missing", "missing"), function(x, i, j,
+setMethod("[", c("MOPMX", "missing", "missing", "missing"), function(x, i, j,
     drop) {
   x
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "missing", "missing", "ANY"), function(x, i, j,
+setMethod("[", c("MOPMX", "missing", "missing", "ANY"), function(x, i, j,
     drop) {
   if (drop)
     x@.Data
@@ -402,13 +402,13 @@ setMethod("[", c(MOPMX, "missing", "missing", "ANY"), function(x, i, j,
     x
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "character", "missing", "missing"), function(x, i, j,
+setMethod("[", c("MOPMX", "character", "missing", "missing"), function(x, i, j,
     drop) {
   x@.Data <- close_index_gaps(x@.Data[match(i, names(x))])
   x
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "character", "missing", "ANY"), function(x, i, j,
+setMethod("[", c("MOPMX", "character", "missing", "ANY"), function(x, i, j,
     drop) {
   if (drop) # remove the class, return a list
     return(x@.Data[match(i, names(x))])
@@ -416,34 +416,34 @@ setMethod("[", c(MOPMX, "character", "missing", "ANY"), function(x, i, j,
   x
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "expression", "missing", "missing"), function(x, i, j,
+setMethod("[", c("MOPMX", "expression", "missing", "missing"), function(x, i, j,
     drop) {
   x[i %q% x]
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "expression", "missing", "ANY"), function(x, i, j,
+setMethod("[", c("MOPMX", "expression", "missing", "ANY"), function(x, i, j,
     drop) {
   x[i %q% x, drop = drop]
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "formula", "missing", "missing"), function(x, i, j,
+setMethod("[", c("MOPMX", "formula", "missing", "missing"), function(x, i, j,
     drop) {
   x[do.call(formula2infix(i), list(i, x))]
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "formula", "missing", "ANY"), function(x, i, j,
+setMethod("[", c("MOPMX", "formula", "missing", "ANY"), function(x, i, j,
     drop) {
   x[do.call(formula2infix(i), list(i, x)), drop = drop]
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "list", "missing", "missing"), function(x, i, j,
+setMethod("[", c("MOPMX", "list", "missing", "missing"), function(x, i, j,
     drop) {
   x@.Data <- mapply(do_select, x@.Data, i, SIMPLIFY = FALSE, USE.NAMES = TRUE)
   x@.Data <- close_index_gaps(x@.Data)
   x
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "list", "missing", "ANY"), function(x, i, j, drop) {
+setMethod("[", c("MOPMX", "list", "missing", "ANY"), function(x, i, j, drop) {
   x@.Data <- mapply(do_select, x@.Data, i, SIMPLIFY = FALSE, USE.NAMES = TRUE)
   if (drop)
     return(x@.Data)
@@ -451,12 +451,13 @@ setMethod("[", c(MOPMX, "list", "missing", "ANY"), function(x, i, j, drop) {
   x
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "ANY", "missing", "missing"), function(x, i, j, drop) {
+setMethod("[", c("MOPMX", "ANY", "missing", "missing"), function(x, i, j,
+    drop) {
   x@.Data <- close_index_gaps(x@.Data[i])
   x
 }, sealed = SEALED)
 
-setMethod("[", c(MOPMX, "ANY", "missing", "ANY"), function(x, i, j, drop) {
+setMethod("[", c("MOPMX", "ANY", "missing", "ANY"), function(x, i, j, drop) {
   if (drop) # remove the class, return a list
     return(x@.Data[i])
   x@.Data <- close_index_gaps(x@.Data[i]) # keeps the class
@@ -602,7 +603,7 @@ setMethod("dim", OPMS, function(x) {
 
 #= length dim
 
-setMethod("length", WMD, function(x) {
+setMethod("length", "WMD", function(x) {
   1L
 }, sealed = SEALED)
 
@@ -617,7 +618,7 @@ setMethod("length", "WMDS", function(x) {
 #'
 setGeneric("seq")
 
-setMethod("seq", WMD, function(...) {
+setMethod("seq", "WMD", function(...) {
   stop("one cannot loop over an object of class ", class(..1))
 }, sealed = SEALED)
 
@@ -1006,7 +1007,7 @@ setMethod("aggr_settings", OPMS, function(object, join = NULL) {
     result
 }, sealed = SEALED)
 
-setMethod("aggr_settings", MOPMX, function(object, join = NULL) {
+setMethod("aggr_settings", "MOPMX", function(object, join = NULL) {
   result <- lapply(object@.Data, aggr_settings, join)
   if (length(join))
     do.call(rbind, result)
@@ -1099,7 +1100,7 @@ setMethod("disc_settings", OPMS, function(object, join = NULL) {
     result
 }, sealed = SEALED)
 
-setMethod("disc_settings", MOPMX, function(object, join = NULL) {
+setMethod("disc_settings", "MOPMX", function(object, join = NULL) {
   result <- lapply(object@.Data, disc_settings, join)
   if (length(join))
     do.call(rbind, result)
@@ -1305,7 +1306,7 @@ setMethod("subset", OPMX, function(x, query, values = TRUE,
   do_select(x, query)
 }, sealed = SEALED)
 
-setMethod("subset", MOPMX, function(x, query, ...) {
+setMethod("subset", "MOPMX", function(x, query, ...) {
   x@.Data <- lapply(X = x@.Data, FUN = subset, query = query, ...)
   x@.Data <- close_index_gaps(x@.Data)
   x
@@ -1330,7 +1331,7 @@ setMethod("thin_out", OPMS, function(object, ...) {
   new(OPMS, plates = lapply(X = object@plates, FUN = thin_out, ...))
 }, sealed = SEALED)
 
-setMethod("thin_out", MOPMX, function(object, ...) {
+setMethod("thin_out", "MOPMX", function(object, ...) {
   object@.Data <- lapply(X = object@.Data, FUN = thin_out, ...)
   object
 }, sealed = SEALED)
@@ -1449,11 +1450,11 @@ setMethod("duplicated", c(OPMS, "ANY"), function(x, incomparables,
   ), incomparables = incomparables, ...)
 }, sealed = SEALED)
 
-setMethod("duplicated", c(MOPMX, "missing"), function(x, incomparables, ...) {
+setMethod("duplicated", c("MOPMX", "missing"), function(x, incomparables, ...) {
   duplicated(x = x, incomparables = FALSE, ...)
 }, sealed = SEALED)
 
-setMethod("duplicated", c(MOPMX, "ANY"), function(x, incomparables,
+setMethod("duplicated", c("MOPMX", "ANY"), function(x, incomparables,
     what = c("all", "plate.type", "metadata"), exact = TRUE, strict = FALSE,
     ...) {
   selection <- tryCatch(match.arg(what), error = function(e) "other")
@@ -1490,12 +1491,12 @@ setMethod("anyDuplicated", c(OPMS, "ANY"), function(x, incomparables, ...) {
   case(length(dups), 0L, dups[1L])
 }, sealed = SEALED)
 
-setMethod("anyDuplicated", c(MOPMX, "missing"), function(x, incomparables,
+setMethod("anyDuplicated", c("MOPMX", "missing"), function(x, incomparables,
     ...) {
   anyDuplicated(x = x, incomparables = FALSE, ...)
 }, sealed = SEALED)
 
-setMethod("anyDuplicated", c(MOPMX, "ANY"), function(x, incomparables, ...) {
+setMethod("anyDuplicated", c("MOPMX", "ANY"), function(x, incomparables, ...) {
   dups <- which(duplicated(x = x, incomparables = incomparables, ...))
   case(length(dups), 0L, dups[1L])
 }, sealed = SEALED)
@@ -1533,18 +1534,18 @@ setMethod("contains", c(OPM, OPM), function(object, other, ...) {
   identical(x = object, y = other, ...)
 }, sealed = SEALED)
 
-setMethod("contains", c(OPMX, MOPMX), function(object, other, ...) {
+setMethod("contains", c(OPMX, "MOPMX"), function(object, other, ...) {
   FALSE
 }, sealed = SEALED)
 
-setMethod("contains", c(MOPMX, OPMX), function(object, other, ...) {
+setMethod("contains", c("MOPMX", OPMX), function(object, other, ...) {
   for (elem in object@.Data)
     if (all(contains(elem, other, ...)))
       return(TRUE)
   FALSE
 }, sealed = SEALED)
 
-setMethod("contains", c(MOPMX, MOPMX), function(object, other, ...) {
+setMethod("contains", c("MOPMX", "MOPMX"), function(object, other, ...) {
   vapply(X = other@.Data, FUN = contains, FUN.VALUE = NA, object = object, ...)
 }, sealed = SEALED)
 
@@ -1587,7 +1588,7 @@ lapply(c(
     well
     #-
   ), FUN = function(func_) {
-  setMethod(func_, MOPMX, function(object, ...) {
+  setMethod(func_, "MOPMX", function(object, ...) {
     simplify_conditionally(lapply(object@.Data, FUN = func_, ...))
   }, sealed = SEALED)
 })
@@ -1731,26 +1732,26 @@ lapply(c(
 #'
 setGeneric("%k%", function(x, table) standardGeneric("%k%"))
 
-setMethod("%k%", c("character", WMD), function(x, table) {
+setMethod("%k%", c("character", "WMD"), function(x, table) {
   all(x %in% names(table@metadata))
 }, sealed = SEALED)
 
-setMethod("%k%", c("list", WMD), function(x, table) {
+setMethod("%k%", c("list", "WMD"), function(x, table) {
   contains(table@metadata, x, values = FALSE)
 }, sealed = SEALED)
 
-setMethod("%k%", c(WMD, WMD), function(x, table) {
+setMethod("%k%", c("WMD", "WMD"), function(x, table) {
   contains(table@metadata, x@metadata, values = FALSE)
 }, sealed = SEALED)
 
-setMethod("%k%", c("formula", WMD), function(x, table) {
+setMethod("%k%", c("formula", "WMD"), function(x, table) {
   tryCatch({
     eval(x[[length(x)]], table@metadata, parent.frame())
     TRUE
   }, error = function(e) FALSE)
 }, sealed = SEALED)
 
-setMethod("%k%", c("expression", WMD), function(x, table) {
+setMethod("%k%", c("expression", "WMD"), function(x, table) {
   tryCatch({
     eval(x, table@metadata, parent.frame())
     TRUE
@@ -1767,28 +1768,28 @@ setMethod("%k%", c("expression", WMD), function(x, table) {
 #'
 setGeneric("%K%", function(x, table) standardGeneric("%K%"))
 
-setMethod("%K%", c("character", WMD), function(x, table) {
+setMethod("%K%", c("character", "WMD"), function(x, table) {
   if (!length(x))
     return(TRUE) # for consistency with %k%
   tryCatch(!is.null(table@metadata[[x]]), error = function(e) FALSE)
 }, sealed = SEALED)
 
-setMethod("%K%", c("list", WMD), function(x, table) {
+setMethod("%K%", c("list", "WMD"), function(x, table) {
   contains(table@metadata, x, values = FALSE)
 }, sealed = SEALED)
 
-setMethod("%K%", c(WMD, WMD), function(x, table) {
+setMethod("%K%", c("WMD", "WMD"), function(x, table) {
   contains(table@metadata, x@metadata, values = FALSE)
 }, sealed = SEALED)
 
-setMethod("%K%", c("formula", WMD), function(x, table) {
+setMethod("%K%", c("formula", "WMD"), function(x, table) {
   tryCatch({
     eval(x[[length(x)]], table@metadata, baseenv())
     TRUE
   }, error = function(e) FALSE)
 }, sealed = SEALED)
 
-setMethod("%K%", c("expression", WMD), function(x, table) {
+setMethod("%K%", c("expression", "WMD"), function(x, table) {
   tryCatch({
     eval(x, table@metadata, baseenv())
     TRUE
@@ -1944,26 +1945,26 @@ setMethod("%K%", c("expression", WMD), function(x, table) {
 #'
 setGeneric("%q%", function(x, table) standardGeneric("%q%"))
 
-setMethod("%q%", c("character", WMD), function(x, table) {
+setMethod("%q%", c("character", "WMD"), function(x, table) {
   if (length(keys <- names(x)) == 0L && length(x) > 0L)
     return(FALSE)
   got <- unlist(table@metadata[keys])
   length(x) == length(got) && all(x == got)
 }, sealed = SEALED)
 
-setMethod("%q%", c("list", WMD), function(x, table) {
+setMethod("%q%", c("list", "WMD"), function(x, table) {
   contains(table@metadata, x, values = TRUE, exact = FALSE)
 }, sealed = SEALED)
 
-setMethod("%q%", c(WMD, WMD), function(x, table) {
+setMethod("%q%", c("WMD", "WMD"), function(x, table) {
   contains(table@metadata, x@metadata, values = TRUE, exact = FALSE)
 }, sealed = SEALED)
 
-setMethod("%q%", c("formula", WMD), function(x, table) {
+setMethod("%q%", c("formula", "WMD"), function(x, table) {
   eval(x[[length(x)]], table@metadata, parent.frame())
 }, sealed = SEALED)
 
-setMethod("%q%", c("expression", WMD), function(x, table) {
+setMethod("%q%", c("expression", "WMD"), function(x, table) {
   eval(x, table@metadata, parent.frame())
 }, sealed = SEALED)
 
@@ -1977,26 +1978,26 @@ setMethod("%q%", c("expression", WMD), function(x, table) {
 #'
 setGeneric("%Q%", function(x, table) standardGeneric("%Q%"))
 
-setMethod("%Q%", c("character", WMD), function(x, table) {
+setMethod("%Q%", c("character", "WMD"), function(x, table) {
   if (length(keys <- names(x)) == 0L && length(x) > 0L)
     return(FALSE)
   all(vapply(keys, function(key) identical(x[[key]], table@metadata[[key]]),
     NA))
 }, sealed = SEALED)
 
-setMethod("%Q%", c("list", WMD), function(x, table) {
+setMethod("%Q%", c("list", "WMD"), function(x, table) {
   contains(table@metadata, x, values = TRUE, exact = TRUE)
 }, sealed = SEALED)
 
-setMethod("%Q%", c(WMD, WMD), function(x, table) {
+setMethod("%Q%", c("WMD", "WMD"), function(x, table) {
   contains(table@metadata, x@metadata, values = TRUE, exact = TRUE)
 }, sealed = SEALED)
 
-setMethod("%Q%", c("formula", WMD), function(x, table) {
+setMethod("%Q%", c("formula", "WMD"), function(x, table) {
   eval(x[[length(x)]], table@metadata, baseenv())
 }, sealed = SEALED)
 
-setMethod("%Q%", c("expression", WMD), function(x, table) {
+setMethod("%Q%", c("expression", "WMD"), function(x, table) {
   eval(x, table@metadata, baseenv())
 }, sealed = SEALED)
 
@@ -2014,7 +2015,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c("factor", WMD), function(x, table) {
+  setMethod(func_, c("factor", "WMD"), function(x, table) {
     func_(structure(as.character(x), names = names(x)), table)
   }, sealed = SEALED)
 })
@@ -2051,7 +2052,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c(WMD, "WMDS"), function(x, table) {
+  setMethod(func_, c("WMD", "WMDS"), function(x, table) {
     vapply(table@plates, func_, NA, x = x, USE.NAMES = FALSE)
   }, sealed = SEALED)
 })
@@ -2116,7 +2117,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c(WMD, "ANY"), function(x, table) {
+  setMethod(func_, c("WMD", "ANY"), function(x, table) {
     func_(table, x)
   }, sealed = SEALED)
 })
@@ -2147,7 +2148,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c(MOPMX, "ANY"), function(x, table) {
+  setMethod(func_, c("MOPMX", "ANY"), function(x, table) {
     func_(table, x)
   }, sealed = SEALED)
 })
@@ -2160,7 +2161,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c(MOPMX, WMD), function(x, table) {
+  setMethod(func_, c("MOPMX", "WMD"), function(x, table) {
     func_(table, x)
   }, sealed = SEALED)
 })
@@ -2173,7 +2174,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c(MOPMX, "WMDS"), function(x, table) {
+  setMethod(func_, c("MOPMX", "WMDS"), function(x, table) {
     func_(table, x)
   }, sealed = SEALED)
 })
@@ -2186,7 +2187,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c("ANY", MOPMX), function(x, table) {
+  setMethod(func_, c("ANY", "MOPMX"), function(x, table) {
     lapply(table@.Data, func_, x = x)
   }, sealed = SEALED)
 })
@@ -2199,7 +2200,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c(WMD, MOPMX), function(x, table) {
+  setMethod(func_, c("WMD", "MOPMX"), function(x, table) {
     lapply(table@.Data, func_, x = x)
   }, sealed = SEALED)
 })
@@ -2212,7 +2213,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c("WMDS", MOPMX), function(x, table) {
+  setMethod(func_, c("WMDS", "MOPMX"), function(x, table) {
     lapply(table@.Data, func_, x = x)
   }, sealed = SEALED)
 })
@@ -2225,7 +2226,7 @@ lapply(c(
     `%Q%`
     #-
   ), FUN = function(func_) {
-  setMethod(func_, c(MOPMX, MOPMX), function(x, table) {
+  setMethod(func_, c("MOPMX", "MOPMX"), function(x, table) {
     lapply(table@.Data, func_, x = x)
   }, sealed = SEALED)
 })
