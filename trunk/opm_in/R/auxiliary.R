@@ -124,7 +124,7 @@ setMethod("common_times", OPM, function(x) {
   x
 }, sealed = SEALED)
 
-setMethod("common_times", OPMS, function(x) {
+setMethod("common_times", "OPMS", function(x) {
   tp <- hours(x, what = "all")
   if (is.matrix(tp))
     tp <- lapply(seq_len(nrow(tp)), function(i) tp[i, ])
@@ -139,7 +139,7 @@ setMethod("common_times", OPMS, function(x) {
 
 setGeneric("select_by_disc", function(x, ...) standardGeneric("select_by_disc"))
 
-setMethod("select_by_disc", OPMD, function(x, invert.1, invert.2, comb.fun) {
+setMethod("select_by_disc", "OPMD", function(x, invert.1, invert.2, comb.fun) {
   y <- discretized(x)
   if (invert.1)
     y <- !y
@@ -149,7 +149,7 @@ setMethod("select_by_disc", OPMD, function(x, invert.1, invert.2, comb.fun) {
   x[, y]
 }, sealed = SEALED)
 
-setMethod("select_by_disc", OPMS, function(x, invert.1, invert.2, comb.fun) {
+setMethod("select_by_disc", "OPMS", function(x, invert.1, invert.2, comb.fun) {
   y <- discretized(x)
   if (invert.1)
     y <- !y
@@ -171,7 +171,7 @@ setMethod("do_select", OPM, function(x, query) {
     NULL
 }, sealed = SEALED)
 
-setMethod("do_select", OPMS, function(x, query) {
+setMethod("do_select", "OPMS", function(x, query) {
   x[query]
 }, sealed = SEALED)
 

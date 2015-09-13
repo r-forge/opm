@@ -25,18 +25,6 @@ expect_length <- function(actual, expected) {
 ## OPM
 ## UNTESTED
 
-## OPMA
-## UNTESTED
-
-## OPMD
-## UNTESTED
-
-## OPMS
-## UNTESTED
-
-## OPMX
-## UNTESTED
-
 
 ################################################################################
 

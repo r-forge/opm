@@ -314,6 +314,7 @@ setMethod("opm_dbcheck", "ANY", function(conn, metadata = NULL,
     c(unlist(result), csv_data = all.equal(csv_data(a, normalize = TRUE),
       csv_data(b, normalize = TRUE)))
   }
+  # data(list = "vaas_4", package = opm_string())
   x <- vaas_4[1L:2L, time.points, wells]
   metadata(x) <- structure(list(), names = character())
   if (length(metadata))

@@ -855,7 +855,7 @@ read_opm <- function(names, convert = c("try", "no", "yes", "sep", "grp"),
     gen.iii = opm_opt("gen.iii"), include = list(), ..., force = FALSE,
     demo = FALSE) {
   do_split <- function(x) split(x, vapply(x, plate_type, ""))
-  do_opms <- function(x) case(length(x), , x[[1L]], new(OPMS, plates = x))
+  do_opms <- function(x) case(length(x), , x[[1L]], new("OPMS", plates = x))
   convert <- match.arg(convert)
   LL(gen.iii, demo)
   names <- explode_dir(names = names, include = include, ...)
@@ -890,10 +890,10 @@ read_opm <- function(names, convert = c("try", "no", "yes", "sep", "grp"),
     ),
     case(convert,
       no = new("MOPMX", result),
-      yes = new(OPMS, plates = result),
+      yes = new("OPMS", plates = result),
       grp = new("MOPMX", lapply(do_split(result), do_opms)),
       sep = lapply(do_split(result), new, Class = "MOPMX"),
-      try = tryCatch(new(OPMS, plates = result), error = function(e) {
+      try = tryCatch(new("OPMS", plates = result), error = function(e) {
         warning("the data from distinct files could not be converted to a ",
           "single OPMS object and will be returned as a list")
         new("MOPMX", result)
@@ -1209,7 +1209,7 @@ setMethod("collect_template", OPM, function(object, outfile = NULL,
   finish_template(result, outfile, sep, previous, md.args, demo)
 }, sealed = SEALED)
 
-setMethod("collect_template", OPMS, function(object, outfile = NULL,
+setMethod("collect_template", "OPMS", function(object, outfile = NULL,
     sep = "\t", previous = outfile, md.args = list(),
     selection = opm_opt("csv.selection"), add.cols = NULL, normalize = FALSE,
     instrument = NULL, ..., demo = FALSE) {
