@@ -601,7 +601,7 @@ setMethod("gen_iii", OPM, function(object, to = "gen.iii", force = FALSE) {
   object
 }, sealed = SEALED)
 
-setMethod("gen_iii", OPMS, function(object, ...) {
+setMethod("gen_iii", "OPMS", function(object, ...) {
   object@plates <- lapply(X = object@plates, FUN = gen_iii, ...)
   object
 }, sealed = SEALED)
@@ -1242,7 +1242,7 @@ setMethod("listing", "well_coords_map", function(x) {
   result
 }, sealed = SEALED)
 
-setMethod("listing", OPMD, function(x, as.groups,
+setMethod("listing", "OPMD", function(x, as.groups,
     cutoff = opm_opt("min.mode"), downcase = TRUE, full = TRUE,
     in.parens = FALSE, html = FALSE, sep = " ", ..., exact = TRUE,
     strict = TRUE) {
@@ -1936,7 +1936,7 @@ lapply(c(
     plate_type
     #-
   ), FUN = function(func_) {
-  setMethod(func_, OPMS, function(object, ...) {
+  setMethod(func_, "OPMS", function(object, ...) {
     func_(object@plates[[1L]], ...)
   }, sealed = SEALED)
 })

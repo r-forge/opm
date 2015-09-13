@@ -16,10 +16,6 @@ BUG_MSG <- "a bug -- this should not happen"
 # Class names (should be removed step by step, replaced by character literals)
 #
 OPM <- "OPM"
-OPMA <- "OPMA"
-OPMD <- "OPMD"
-OPMS <- "OPMS"
-OPMX <- "OPMX"
 
 
 # Used in all S4 method definitions. The idea is to keep it FALSE during
