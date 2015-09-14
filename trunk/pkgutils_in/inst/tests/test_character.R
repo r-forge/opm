@@ -11,3 +11,6 @@ context("Testing the character functions of the pkgutils package")
 ## map_files
 ## UNTESTED
 
+## map_filenames
+## UNTESTED
+

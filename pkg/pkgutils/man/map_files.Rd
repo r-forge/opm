@@ -1,4 +1,6 @@
 \name{map_files}
+\alias{map_filenames}
+\alias{map_filenames.character}
 \alias{map_files}
 \alias{map_files.character}
 \title{Map files}
@@ -8,6 +10,13 @@
   \method{map_files}{character} (x, mapfun, ...,
     .attr = ".filename", .encoding = "", .sep = NULL,
     .warn = FALSE)
+
+  map_filenames(x, ...)
+
+  \method{map_filenames}{character} (x, out.ext,
+    append = "", out.dir = ".", groups = 1L,
+    assort = c("lst", "rlst", "ext", "rext", "grp", "rgrp"),
+    normalize = TRUE, ...)
 }
 \arguments{
   \item{x}{Character vector of input (and potentially
@@ -19,7 +28,8 @@
   \code{.attr}.}
 
   \item{...}{Optional additional arguments passed to
-  \code{fun}.}
+  \code{fun} (in the case of \code{map_files} or between
+  other methods.}
 
   \item{.attr}{Character scalar. See description to
   \code{mapfun}.}
@@ -35,30 +45,81 @@
 
   \item{.warn}{Logical scalar passed as \code{warn}
   argument to \code{readLines}.}
+
+  \item{out.ext}{Character vector with one to several
+  output file extensions.  Recycled if necessary.}
+
+  \item{append}{Character vector appended after the base
+  name of the input file name (separated from ti with an
+  underscore) but before the output file extension.
+  Recycled if necessary but ignored where equal the empty
+  string.}
+
+  \item{out.dir}{Character vector with one to several names
+  of output directories. Recycled if necessary.}
+
+  \item{groups}{Integer scalar indicating the number of
+  input file names to be assumed in one group. Used in
+  conjunction with the next argument.}
+
+  \item{assort}{Character scalar indicating how to assort
+  input file names. \describe{ \item{lst}{All files of the
+  first kind first, then all of the second kind, etc.,
+  sorted increasingly.} \item{rlst}{All files of the first
+  kind first, then all of the second kind, etc., sorted
+  decreasingly.} \item{ext}{Assort according to the file
+  extensions, assume increasing order.} \item{rext}{Assort
+  according to the file extensions, assume decreasing
+  order.} \item{grp}{Assume one set of file after each
+  other, each sorted increasingly.} \item{rgrp}{Assume one
+  set of file after each other, each sorted decreasingly.}
+  }}
+
+  \item{normalize}{Logical scalar indicating whether
+  \code{normalizePath} from the \pkg{base} package shall be
+  applied. Eases the recognition of duplicate file names.}
 }
 \value{
-  Logical vector using \code{x} as names, with \code{TRUE}
-  indicating a successfully modified file, \code{FALSE} a
-  file that yielded no errors but needed not to be
-  modified, and \code{NA} a file name that caused an error.
-  An attribute \sQuote{errors} is provided, containing a
-  character vector with error messages (empty strings if no
-  error occurred).
+  \code{map_files} returns a logical vector using \code{x}
+  as names, with \code{TRUE} indicating a successfully
+  modified file, \code{FALSE} a file that yielded no errors
+  but needed not to be modified, and \code{NA} a file name
+  that caused an error. An attribute \sQuote{errors} is
+  provided, containing a character vector with error
+  messages (empty strings if no error occurred).
+
+  \code{map_filenames} returns a matrix of mode
+  \code{character}. Each row contains a set of one to
+  several input file names and its associated set of one to
+  several output file names constructed from these input
+  file names and the arguments \code{out.ext},
+  \code{append} and \code{out.dir}.
 }
 \description{
   Read lines from a file, modify the lines using a given
   function, and write the lines back to the input file
   unless the result of applying the function is identical
-  to the lines read.
+  to the lines read. Alternatively, map (sets of) input
+  file names to (sets of) output file names and check for
+  duplicates.
 }
 \details{
-  If \code{mapfun} returns \code{NULL}, it is ignored.
-  Otherwise is it an error if \code{mapfun} does not return
-  a character vector. If this vector is identical to the
-  lines read from the file, it is not printed to this file
-  unless \code{sep} is non-empty. Otherwise the file is
-  attempted to be overwritten with the result of
-  \code{mapfun}.
+  These function are mainly of use in non-interactive
+  scripts.
+
+  If \code{mapfun} returns \code{NULL}, it is ignored by
+  \code{map_files}. Otherwise is it an error if
+  \code{mapfun} does not return a character vector. If this
+  vector is identical to the lines read from the file, it
+  is not printed to this file unless \code{.sep} is
+  non-empty. Otherwise the file is attempted to be
+  overwritten with the result of \code{mapfun}.
+
+  The purpose of \code{map_filenames} is to ease the
+  generation of output file names from input file names and
+  to assort these input file names. This in turn helps
+  converting sets of input file names to sets of output
+  file names.
 }
 \examples{
 tmpfile <- tempfile()

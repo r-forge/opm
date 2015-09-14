@@ -40,8 +40,9 @@
 #'   \code{key} to mode \sQuote{character}.
 #' }
 #' @param value Character vector, list, data frame, formula, \code{\link{WMD}}
-#'   or \code{\link{WMDS}} object.
-#'   \itemize{
+#'   or \code{\link{WMDS}} object. As the metadata are stored as a list, other
+#'   kinds of objects used as \code{value} are special, particularly if
+#'   \code{key} is missing. \itemize{
 #'   \item If \code{key} is a character vector, this can be arbitrary value(s)
 #'   to be included in the metadata (if \code{NULL}, this metadata entry is
 #'   deleted).
@@ -189,16 +190,17 @@
 #' metadata(copy, "Type2") <- x
 #' stopifnot(!identical(metadata(copy, "Type2"), x$Type))
 #'
-#' # WMDS/missing/character method
+#' # WMDS/missing/character method: setting unique IDs
 #' metadata(copy) <- opm_opt("md.id.name") # set IDs
 #' metadata(copy, opm_opt("md.id.name")) # get these IDs
 #' stopifnot(is.integer(metadata(copy, opm_opt("md.id.name"))))
+#' # to reset the start point to the number n, use opm_opt(md.id.start = n)
 #'
-#' # WMDS/missing/logical method
+#' # WMDS/missing/logical method: storing or deleting csv_data() entries
 #' copy <- vaas_4
-#' metadata(copy) <- TRUE
+#' metadata(copy) <- TRUE # store them
 #' stopifnot(ncol(to_metadata(copy)) > ncol(to_metadata(vaas_4)))
-#' metadata(copy) <- FALSE
+#' metadata(copy) <- FALSE # remove them again
 #' stopifnot(identical(metadata(copy), metadata(vaas_4)))
 #'
 setGeneric("metadata<-",
@@ -733,8 +735,9 @@ setMethod("metadata<-", c("MOPMX", "ANY", "data.frame"), function(object, key,
 #' though this is not enforced by the implementation of the \code{\link{OPMX}}
 #' classes. Entries missing in some elements of \code{name} should not present a
 #' problem, however. Values that remained \code{NA} would  be removed before
-#' returning the result. The \code{\link{MOPMX}} method works by calling each
-#' element in turn (allowing for independent editing).
+#' returning the result. Rows additionally included in the temporary data frame
+#' during editing yielded an error. The \code{\link{MOPMX}} method works by
+#' calling each element in turn (allowing for independent editing).
 #'
 #' @family metadata-functions
 #' @seealso utils::edit
@@ -821,7 +824,8 @@ setMethod("metadata<-", c("MOPMX", "ANY", "data.frame"), function(object, key,
 #' \dontrun{ ## edit metadata by hand
 #'   x <- edit(vaas_4) # this would create a new object
 #'   x <- edit(x) # overwrite x in 2nd editing step
-#'   ## This will not necessarily work if the metadata are nested!
+#'   ## This will not necessarily work as intended if the metadata are nested!
+#'   ## Moreover, additionally inserted rows would cause an error.
 #' }
 #'
 #' ## List/formula method of map_values()
