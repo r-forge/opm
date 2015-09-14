@@ -145,7 +145,7 @@ setMethod("[<-", c("OPMS", "ANY", "missing", "NULL"), function(x, i, j,
   case(length(x@plates), NULL, x@plates[[1L]], x) # no checks necessary here
 }, sealed = SEALED)
 
-setMethod("[<-", c("OPMS", "ANY", "missing", OPM), function(x, i, j, value) {
+setMethod("[<-", c("OPMS", "ANY", "missing", "OPM"), function(x, i, j, value) {
   x@plates[i] <- value
   new("OPMS", plates = close_index_gaps(x@plates)) # checks and unnaming needed
 }, sealed = SEALED)
@@ -298,22 +298,22 @@ setMethod("c", "MOPMX", function(x, ..., recursive = FALSE) {
 #' @name plus
 #' @exportMethod "+"
 #'
-setMethod("+", c(OPM, OPM), function(e1, e2) {
+setMethod("+", c("OPM", "OPM"), function(e1, e2) {
   new("OPMS", plates = list(e1, e2))
 }, sealed = SEALED)
 
-setMethod("+", c(OPM, "OPMS"), function(e1, e2) {
+setMethod("+", c("OPM", "OPMS"), function(e1, e2) {
   e2@plates <- c(list(e1), e2@plates)
   validObject(e2)
   e2
 }, sealed = SEALED)
 
-setMethod("+", c(OPM, "MOPMX"), function(e1, e2) {
+setMethod("+", c("OPM", "MOPMX"), function(e1, e2) {
   e2@.Data <- c(list(e1), e2@.Data)
   e2
 }, sealed = SEALED)
 
-setMethod("+", c(OPM, "list"), function(e1, e2) {
+setMethod("+", c("OPM", "list"), function(e1, e2) {
   new("OPMS", plates = c(list(e1), e2))
 }, sealed = SEALED)
 
@@ -323,7 +323,7 @@ setMethod("+", c("OPMS", "OPMS"), function(e1, e2) {
   e1
 }, sealed = SEALED)
 
-setMethod("+", c("OPMS", OPM), function(e1, e2) {
+setMethod("+", c("OPMS", "OPM"), function(e1, e2) {
   e1@plates <- c(e1@plates, list(e2))
   validObject(e1)
   e1
