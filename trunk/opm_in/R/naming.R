@@ -486,7 +486,7 @@ normalize_predefined_plate <- function(object, subtype = FALSE) {
 #'
 setGeneric("plate_type", function(object, ...) standardGeneric("plate_type"))
 
-setMethod("plate_type", OPM, function(object, ..., normalize = FALSE,
+setMethod("plate_type", "OPM", function(object, ..., normalize = FALSE,
     subtype = FALSE) {
   plate_type(object = object@csv_data[[CSV_NAMES[["PLATE_TYPE"]]]], ...,
     normalize = normalize, subtype = subtype)
@@ -586,7 +586,7 @@ setMethod("plate_type", "logical", function(object, ...) {
 #'
 setGeneric("gen_iii", function(object, ...) standardGeneric("gen_iii"))
 
-setMethod("gen_iii", OPM, function(object, to = "gen.iii", force = FALSE) {
+setMethod("gen_iii", "OPM", function(object, to = "gen.iii", force = FALSE) {
   get <- function(name, map) map[[match.arg(tolower(name), names(map))]]
   if (custom_plate_is(L(to))) {
     to <- custom_plate_normalize(to)
@@ -1168,7 +1168,7 @@ to_sentence.logical <- function(x, html, ...) {
 #'
 setGeneric("wells", function(object, ...) standardGeneric("wells"))
 
-setMethod("wells", OPM, function(object, full = FALSE, in.parens = TRUE,
+setMethod("wells", "OPM", function(object, full = FALSE, in.parens = TRUE,
     max = opm_opt("max.chars"), brackets = FALSE, clean = TRUE,
     word.wise = FALSE, paren.sep = " ", downcase = FALSE, rm.num = FALSE,
     plate = plate_type(object), simplify = TRUE) {
@@ -1460,7 +1460,7 @@ setMethod("find_positions", "list", function(object, ...) {
     how = "list", ...)
 }, sealed = SEALED)
 
-setMethod("find_positions", OPM, function(object, type = NULL, ...) {
+setMethod("find_positions", "OPM", function(object, type = NULL, ...) {
   object <- wells(object, full = TRUE, in.parens = FALSE)
   if (isTRUE(type))
     structure(names(object), names = object)
@@ -1793,7 +1793,7 @@ setMethod("substrate_info", "list", function(object, ...) {
     classes = c("character", "factor"), ...)
 }, sealed = SEALED)
 
-setMethod("substrate_info", OPM, function(object, ...) {
+setMethod("substrate_info", "OPM", function(object, ...) {
   substrate_info(wells(object, full = TRUE, in.parens = FALSE), ...)
 }, sealed = SEALED)
 
