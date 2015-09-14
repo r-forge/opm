@@ -177,8 +177,8 @@ to_yaml <- function(files, opt) {
     to_map <- function(x, from) {
       if (any(dup <- duplicated.default(from))) {
         warning("duplicates in column selected as map keys, data will be lost")
-       x <- x[!dup, , drop = FALSE]
-       from <- from[!dup]
+        x <- x[!dup, , drop = FALSE]
+        from <- from[!dup]
       }
       lapply(split.data.frame(x, from), as.list)
     }

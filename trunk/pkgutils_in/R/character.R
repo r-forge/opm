@@ -147,13 +147,15 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #'
 #' Read lines from a file, modify the lines using a given function, and write
 #' the lines back to the input file unless the result of applying the function
-#' is identical to the lines read.
+#' is identical to the lines read. Alternatively, map (sets of) input file names
+#' to (sets of) output file names and check for duplicates.
 #'
 #' @param x Character vector of input (and potentially output) file names.
 #' @param mapfun Mapping function, receives character vector with the lines per
 #'   file as first argument, with the name of the file added as attribute with
 #'   the name given using \code{.attr}.
-#' @param ... Optional additional arguments passed to \code{fun}.
+#' @param ... Optional additional arguments passed to \code{fun} (in the case
+#'   of \code{map_files} or between other methods.
 #' @param .attr Character scalar. See description to \code{mapfun}.
 #' @param .encoding Passed to \code{readLines} as \sQuote{encoding} argument.
 #' @param .sep \code{NULL} or character scalar. If empty, ignored. Otherwise
@@ -162,16 +164,55 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #'   breaks if \code{mapfun} is \code{identity}.
 #' @param .warn Logical scalar passed as \code{warn} argument to
 #'   \code{readLines}.
-#' @details If \code{mapfun} returns \code{NULL}, it is ignored. Otherwise
-#'   is it an error if \code{mapfun} does not return a character vector. If
-#'   this vector is identical to the lines read from the file, it is not
-#'   printed to this file unless \code{.sep} is non-empty. Otherwise the file
-#'   is attempted to be overwritten with the result of \code{mapfun}.
-#' @return Logical vector using \code{x} as names, with \code{TRUE} indicating
-#'   a successfully modified file, \code{FALSE} a file that yielded no errors
-#'   but needed not to be modified, and \code{NA} a file name that caused an
-#'   error. An attribute \sQuote{errors} is provided, containing a character
-#'   vector with error messages (empty strings if no error occurred).
+#' @param out.ext Character vector with one to several output file extensions.
+#'   Recycled if necessary.
+#' @param append Character vector appended after the base name of the input file
+#'   name (separated from ti with an underscore) but before the output file
+#'   extension. Recycled if necessary but ignored where equal the empty string.
+#' @param out.dir Character vector with one to several names of output
+#'   directories. Recycled if necessary.
+#' @param groups Integer scalar indicating the number of input file names to be
+#'   assumed in one group. Used in conjunction with the next argument.
+#' @param assort Character scalar indicating how to assort input file names.
+#' \describe{
+#'   \item{lst}{All files of the first kind first, then all of the second kind,
+#'   etc., sorted increasingly.}
+#'   \item{rlst}{All files of the first kind first, then all of the second kind,
+#'   etc., sorted decreasingly.}
+#'   \item{ext}{Assort according to the file extensions, assume increasing
+#'   order.}
+#'   \item{rext}{Assort according to the file extensions, assume decreasing
+#'   order.}
+#'   \item{grp}{Assume one set of file after each other, each sorted
+#'   increasingly.}
+#'   \item{rgrp}{Assume one set of file after each other, each sorted
+#'   decreasingly.}
+#' }
+#' @param normalize Logical scalar indicating whether \code{normalizePath} from
+#'   the \pkg{base} package shall be applied. Eases the recognition of duplicate
+#'   file names.
+#' @return \code{map_files} returns a logical vector using \code{x} as names,
+#'   with \code{TRUE} indicating a successfully modified file, \code{FALSE} a
+#'   file that yielded no errors but needed not to be modified, and \code{NA} a
+#'   file name that caused an error. An attribute \sQuote{errors} is provided,
+#'   containing a character vector with error messages (empty strings if no
+#'   error occurred).
+#'
+#'   \code{map_filenames} returns a matrix of mode \code{character}. Each row
+#'   contains a set of one to several input file names and its associated set of
+#'   one to several output file names constructed from these input file names
+#'   and the arguments \code{out.ext}, \code{append} and \code{out.dir}.
+#' @details These function are mainly of use in non-interactive scripts.
+#'
+#' If \code{mapfun} returns \code{NULL}, it is ignored by \code{map_files}.
+#' Otherwise is it an error if \code{mapfun} does not return a character vector.
+#' If this vector is identical to the lines read from the file, it is not
+#' printed to this file unless \code{.sep} is non-empty. Otherwise the file is
+#' attempted to be overwritten with the result of \code{mapfun}.
+#'
+#' The purpose of \code{map_filenames} is to ease the generation of output file
+#' names from input file names and to assort these input file names. This in
+#' turn helps converting sets of input file names to sets of output file names.
 #' @seealso base::readLines base::writeLines base::identity
 #' @family character-functions
 #' @export
@@ -238,6 +279,109 @@ map_files.character <- function(x, mapfun, ..., .attr = ".filename",
     return(structure(logical(), names = character(), errors = character()))
   result <- do.call(rbind, lapply(x, doit))
   structure(unlist(result[, 1L]), names = x, errors = unlist(result[, 2L]))
+}
+
+#' @rdname map_files
+#' @export
+#'
+map_filenames <- function(x, ...) UseMethod("map_filenames")
+
+#' @method map_filenames character
+#' @rdname map_files
+#' @export
+#'
+map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
+    groups = 1L, assort = c("lst", "rlst", "ext", "rext", "grp", "rgrp"),
+    normalize = TRUE, ...) {
+
+  file_ext <- function(x) sub(".*\\.", "", x, FALSE, TRUE)
+
+  assort_files <- function(files, ngrp, how) {
+    do_split <- function(files, ngrp) {
+      cnt <- sort.int(table(ext <- file_ext(files)), NULL, NA, TRUE)
+      if (!all(cnt[seq_len(ngrp)] == sum(cnt) * (ngrp - 1L) / ngrp))
+        stop("except for one group all file names must have the same extension")
+      if (length(cnt) > ngrp) {
+        grps <- names(cnt)[seq_len(ngrp)]
+        repl <- "_"
+        while (repl %in% grps)
+          repl <- paste0(repl, repl)
+        ext[!ext %in% grps] <- repl
+        grps <- c(grps, repl)
+      } else {
+        grps <- names(cnt)
+      }
+      do.call(cbind, split.default(files, factor(ext, grps)))
+    }
+    if (ngrp == 1L)
+      return(cbind(files))
+    if (length(files) %% ngrp)
+      stop("need number of file names divisible by ", ngrp)
+    case(how,
+      ext = do_split(files, ngrp),
+      rext = do_split(files, ngrp)[, seq.int(ngrp, 1L), drop = FALSE],
+      lst = matrix(files, length(files) / ngrp, ngrp, FALSE),
+      rlst = matrix(files, length(files) / ngrp, ngrp, FALSE)[,
+        seq.int(ngrp, 1L), drop = FALSE],
+      grp = matrix(files, length(files) / ngrp, ngrp, TRUE),
+      rgrp = matrix(files, length(files) / ngrp, ngrp, TRUE)[,
+        seq.int(ngrp, 1L), drop = FALSE]
+    )
+  }
+
+  prepare_basename <- function(infiles) {
+    infiles <- basename(infiles)
+    x <- sub("\\.[^.]*(\\.(gz|xz|bz2|lzma))?$", "", infiles, TRUE, TRUE)
+    if (any(duplicated.default(x)[-1L]))
+      if (any(duplicated.default(x <- file_ext(infiles))[-1L]))
+        if (any(duplicated.default(x <- infiles)[-1L]))
+          stop("duplicate file names")
+    x
+  }
+
+  prepare_filename <- function(base, out.ext, append, out.dir) {
+    file.path(out.dir, paste0(base, append, ".", out.ext))
+  }
+
+  if (!length(x))
+    stop("empty 'x' argument")
+  if (!length(out.ext))
+    stop("empty 'out.ext' argument")
+  LL(groups, normalize)
+  if (!length(append))
+    append <- ""
+  if (!length(out.dir))
+    out.dir <- ""
+
+  files <- assort_files(x, groups, match.arg(assort))
+  colnames(files) <- sprintf("Infile%i", seq.int(ncol(files)))
+  ok <- nzchar(out.dir <- rep_len(out.dir, nrow(files)))
+  if (normalize) {
+    files[] <- normalizePath(files)
+    if (any(ok))
+      out.dir[ok] <- normalizePath(out.dir[ok])
+  }
+  if (!all(ok))
+    out.dir[!ok] <- dirname(x[!ok, 1L])
+
+  append <- rep_len(append, length(out.ext))
+  ok <- nzchar(append)
+  append[ok] <- paste0("_", append[ok])
+  if (is.null(names(out.ext)))
+    names(out.ext) <- out.ext
+  names(out.ext) <- toupper(names(out.ext))
+  if (any(names(out.ext) %in% colnames(files)))
+    stop("duplicate column names -- use (other) names of 'out.ext'")
+
+  files <- cbind(files, do.call(cbind, mapply(FUN = prepare_filename,
+    MoreArgs = list(base = prepare_basename(files[, 1L]), out.dir = out.dir),
+    out.ext = out.ext, append = append, SIMPLIFY = FALSE)))
+  ok <- seq.int(1L, ncol(files) - length(out.ext))
+  if (any(bad <- files[, ok] %in% files[, -ok]))
+    stop("file '", files[, ok][bad][1L], "' and its output file are identical")
+  if (anyDuplicated.default(files[, !ok]))
+    stop("duplicated output file names")
+  files
 }
 
 
