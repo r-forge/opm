@@ -229,18 +229,16 @@ This is the tutorial of \pkg{opm} in the version of \today{}.
 
 Readers who want to jump right into examples for applying \pkg{opm} to their data will find an overview of what the package can do for them in Figure~\ref{fig:work_flow}.
 The functions that can be used in each step of the possible \pkg{opm} work flows are shown in Figure~\ref{fig:overview}.
+A more theoretical overview of all according subsections is provided in Section~\ref{methods overview}.
 Examples for each step are found in the according subsections of Section~\ref{application}.
-An overview of these sections is provided in Section~\ref{methods overview}.
+Almost all of these subsections contain a final \textbf{troubleshooting} paragraph in which we comment on the most frequently observed problems.
 
 The single most important problem users reported to us when applying \pkg{opm} was that the input files could not be read.
-This was uniformly due to the use of multiple-plate \ac{CSV} files.
-But the most recent versions of the OmniLog\textregistered \ software can batch-export one plate per \ac{CSV} file, and \pkg{opm} can split multiple-plate \ac{CSV} into files that can be input by the package.
-See Section~\ref{methods import} and then Section~\ref{application import} for a usage example.
+This was most often due to the use of multiple-plate \ac{CSV} files and sometimes due to selection of non-\ac{PM} \ac{CSV} files.
+See Section~\ref{application import troubleshooting} for details.
 
-For troubleshooting when including metadata, see Section~\ref{application metadata}.
-For instance, leading spaces in plate identifiers might be missing after input, causing errors due to mismatches; moreover, some spreadsheet software might reformat the setup time, which would need to be prevented by reading this date-time entry as plain text. 
-When selecting metadata, the selection by, say \code{c("a", "b")} might be mixed up with the selection using \code{list("a", "b")}; see Section~\ref{application plotting}.
-If a plotting function complains about having more groups than colours available, consider using \code{opm\_opt(colors = "brewer")}.
+For troubleshooting when including metadata, see Section~\ref{application metadata troubleshooting}.
+For instance, some spreadsheet software might reformat the setup time, which would need to be prevented by reading this date-time entry as plain text. 
 
 The scientific background in Section~\ref{scientific introduction}, including references for important methods, could well be skipped during a first reading.
 
@@ -440,7 +438,6 @@ We refer to the \ac{CSV} exports from versions of the OmniLog\textregistered \ \
 Later versions exported the data in a slightly different \ac{CSV} format we call ``new style'', and as of 2014 the \ac{LIMS} style is available.
 The \pkg{opm} package currently does not support the input of several plates from \ac{PM}-mode runs stored in a single \ac{CSV} file, but its function \code{split\_files} can split old-style \ac{CSV} files containing multiple plates.
 
-
 As of version 0.4.0, \pkg{opm} also supports the input of MicroStation\texttrademark \ \ac{CSV} files (frequently used in conjunction with EcoPlate\texttrademark \ assay for microbial community analysis) \citep{Vaas2013}.
 These files contain only end-point measurements but potentially several plates, which can nevertheless be input together with their potentially also rich meta-information.
 
@@ -472,11 +469,15 @@ On such systems it can also be run in parallel, making use of multiple-core mach
 
 \subsection[Integration of metadata]{Integration of metadata}\label{methods metadata}
 
+Metadata are ``data about data''.
+They can be either structural, i.e. indicating the way data are stored, or descriptive, i.e. providing background information on the content of the data.
+In the case of \ac{PM} data, such descriptive metadata can include all kind of describing characteristics of the observed organisms such as taxonomic affiliation, geographical and/or ecological origin, and of the performed experimental setting such as culture conditions, genetic modifications, physiological information of any kind and so on.
+
 The interface of the \textit{Data Collection} software of the OmniLog\textregistered \ reader is restricted in size and contains only comparatively few fields for entering accompanying information  to each plate such as on the organism under study or the culture conditions.
 Further, not all of these fields are exported together with the raw measurements.
 The few metadata that come along with the imported \ac{CSV} file can be accessed \textit{via} \code{csv_data}.
 But for most experimental designs it is clearly necessary to add much more meta-information to the kinetic data.
-It has to be emphasised that metadata can include all kind of describing characteristics of the observed organisms such as taxonomic affiliation, geographical and/or ecological origin, and of the performed experimental setting such as culture conditions, genetic modifications, physiological information of any kind and so on.
+It might also happen that the metainformation from \ac{CSV} files is not only limited but also inconsistent or even erroneous, depending on what has been entered into the OmniLog\textregistered \ instrument.
 
 The \pkg{opm} user can integrate the metadata into \proglang{OPM} and \proglang{OPMS} objects using functions such as \code{include\_metadata} (see Figure~\ref{fig:overview}).
 Often the metadata are kept in a data frame which can conveniently be saved to, and generated directly from, a \ac{CSV} file.
@@ -522,9 +523,11 @@ The \proglang{OPM\_DB} class and its child classes are internally used by \pkg{o
 
 
 The user can provide additional information to the metadata data frame on the fly by calling the function \code{edit}, which opens the \proglang{R} editor enabling the user to modify and add data.
+Moreover, you can  just assign the metainformation from the \ac{CSV} files to the metadata in one line of code.
 As an alternative to changing the metadata entries by using the \proglang{R} editor, \code{map\_metadata} safely maps metadata within \proglang{OPMS} objects.
 The replacement function \code{metadata<-} enables the user to set the entire meta-information, or specific entries, directly.
 If a data frame is used on the right side of the assignment whose number of rows is identical to the number of plates within the  \proglang{OPMS} object on the left side, each data-frame row is specifically added to the corresponding plate.
+Note that \ac{LIMS} input automatically yielded metadata entries.
 
 There are no restrictions regarding the stored metadata \textit{values} but it usually makes not much sense to store factors.
 It is safer to store character vectors instead because conversions otherwise might easily result in integer vectors instead of factors.
@@ -808,6 +811,7 @@ It also displays the set of names that are used by some methods that have to com
 It is thus not impossible, but discouraged, to use these names as metadata keys.
 The same holds for (non-syntactical) names starting with an underscore and followed by capital letters, as such names are temporarily used by some methods in intermediary objects together with the metadata.
 
+
 \section[Program application]{Program application}\label{application}
 
 
@@ -862,6 +866,11 @@ The keys \textit{Species} and \textit{Strain} refer to the organism used for the
 Two additional entries contain the index of the time point and the corresponding sample point in minutes for the time series experiment.
 The key \textit{Plate number} indicates the technical replicate (per biological replicate).
 The combination of the keys \textit{Strains}, \textit{Species}, \textit{Experiment} and \textit{Plate number} results in a unique label which unequivocally annotates every single plate.
+
+
+\subsubsection[Troubleshooting]{Troubleshooting}\label{application overview troubleshooting}
+
+It is hard to provide a general hint regarding problems with \proglang{R} code except for the following one: If anything fails, read the issued error message and take it serious.
 
 
 \subsection[Data import]{Data import}\label{application import}
@@ -958,6 +967,19 @@ A single plate could also be imported using \code{read\_single\_opm}.
 But this might only occasionally be useful, as \code{read\_opm} can cope with single files, too.
 
 
+\subsubsection[Troubleshooting]{Troubleshooting}\label{application import troubleshooting}
+
+The most usual error we know about is to try to input \ac{CSV} files with \textit{several} plates per file, but such  multiple-plate \ac{CSV} files would need to be split beforehand with \code{split\_files} as explained above to generate files that can be input by the package.
+Moreover, the most recent versions of the OmniLog\textregistered \ software can batch-export one plate per \ac{CSV} file.
+
+A second frequent kind of error is that you attempt to read files that are \ac{CSV} but do not contain PM data.
+The name of the first file that fails is shown in the error message, fixing the problem should thus be straightforward.
+Use \code{demo = TRUE} to first show the files you would read, and if this list contains names of files that expectedly cannot be read by \pkg{opm}, modify the inclusion or exclusion settings.
+Alternatively, modify your folder structure.
+Finally, note that you can always use a character vector of specific file names collected by hand as \code{names} argument.
+This would provide complete control about the files to be read.
+
+
 \subsection[Batch conversion of many files]{Batch conversion of many files}\label{application batch}
 
 In addition to \code{read\_opm} and \code{read\_single\_opm} (Section~\ref{application import}), which need to be called before an interactive exploration of \ac{PM} data, batch-processing large numbers of files by converting them from \ac{CSV} (or previously generated \proglang{YAML} or \proglang{JSON}) to \proglang{YAML}, \proglang{JSON} or \ac{CSV} format, is also possible.
@@ -1032,8 +1054,13 @@ metadata.example <- to_metadata("example_metadata.CSV")
 
 Per default, this expects \ac{CSV} columns separated by tabulators, with the fields protected by quotes.
 To input other formats, consider the \code{sep} argument for defining an alternative column separator, as well as the \code{strip.white} argument for turning the removal of whitespace at the beginning and end of the fields on or off (which is relevant if a spreadsheet program exports \ac{CSV} \textit{without} quotes).
+Note that you can pass a file name directly to \code{include\_metadata}.
+This is computationally less efficient but by default the function then tries several \code{strip.white} and \code{sep} arguments in turn unless it succeeds in finding the column names and rows of interest.
+
 Some spreadsheet software might also interpret and reformat the setup time.
 This needs to be avoided by declaring the according column to be input as plain text into the spreadsheet, thus preventing any interpretation of its content.
+%% TODO: we need screenshots to show this in Excel
+
 
 Now the user could add information to the data frame by calling \code{edit}, which would open the \proglang{R} editor, or by any other way of manipulating data frames in \proglang{R}.
 New columns could be defined, or the existing metadata modified.
@@ -1068,12 +1095,14 @@ unlink("example_metadata.CSV")
 
 If \code{include\_metadata} complains about a missing key/value pair, watch carefully whether the shown value contains leading (or trailing) spaces.
 If so, consider using \code{strip.white = FALSE} when calling \code{include\_metadata} or \code{to\_metadata}.
+The default setting for \code{include\_metadata} tries several options in turn, however, until the matching succeeds. 
+
 
 A couple of other functions have been implemented for manipulating metadata included in \proglang{OPM} and \proglang{OPMS} objects.
 For instance, the entire meta-information, or specific entries, can be set using the replacement function \code{metadata<-}.
 Setting a specific entry named \code{key} to a specific value \code{value} in all plates is accomplished with \code{metadata(example.opm, key) <- value}.
 If the right side of the assignment is a data frame with the same length as the \proglang{OPMS} object, each row would specifically be assigned to the \proglang{OPM} object with the same index.
-This makes it easy to add the selected \code{CSV\_data}, or all information from the OmniLog\textregistered \ \ac{CSV} files, to the metadata:
+This makes it easy to add the selected \code{csv\_data}, or all information from the OmniLog\textregistered \ \ac{CSV} files, to the metadata:
 
 <<label=to-metadata-convert, results=hide>>=
 metadata(example.opm)
@@ -1081,6 +1110,16 @@ metadata(example.opm) <- to_metadata(csv_data(example.opm))[,
   c("Strain Name", "Sample Number")]
 metadata(example.opm)
 @
+
+However, there is an even easier short-cut to copy the \code{csv\_data} to the metadata:
+
+<<label=to-metadata-convert-easy, eval=FALSE, results=hide>>=
+## do not enter this code, as we already have copied the CSV data
+metadata(example.opm) <- TRUE # set selected CSV metainformation
+metadata(example.opm) <- FALSE # remove it again
+@
+
+The \code{csv\_data} not to be copied (or removed again) are chosen using \code{opm\_opt("csv.selection")}.
 
 You might note that ``Sample Number'' is a misnomer in these data sets.
 (One of the fields in the interface of the \textit{Data Collection} software of the OmniLog\textregistered \ reader had been defined as ``Sample Number'', but the operator entered species and strain designations into this field.)
@@ -1247,6 +1286,26 @@ metadata(example.opm)
 
 As result, a new metadata entry named ``Col.Int'' is created with the general string-concatenation tool \code{paste}.
 Note that metadata should not normally contain factors but rather generate them on-the-fly from selected entries, and keep in mind that metadata are not organised in rows.
+
+Finally, there is short-cut for assigning a plate \ac{ID} that is unique during the current \pkg{opm} session to the metadata:
+
+<<label=assign-id-to-metadata, eval=FALSE, results=hide>>=
+## do not do this unless you need it
+metadata(example.opm) <- "ID"
+@
+
+For using keys other than ``\ac{ID}'', use \code{opm\_opt("md.id.name")}.
+For resetting the starting point, use \code{opm\_opt("md.id.start")}.
+If so, keep in mind that all forthcoming \ac{ID}s might not be unique any more.
+You would need to re-assign all of them to ensure uniqueness.
+
+
+\subsubsection[Troubleshooting]{Troubleshooting}\label{application metadata troubleshooting}
+
+The \code{include_metadata} function must correctly and uniquely identify plates to correctly assign the metadata.
+This cannot work if the identifiers get modified after exporting them.
+A potential cause for key-value mismatches mismatches is the re-interpretation of date-time entries (in the column for the setup time) by some spreadsheet software re-interpreting date-time entries.
+You must set the data type of all columns to text to safely prevent this from happening.
 
 
 \subsection[Aggregating data by estimating curve parameters]{Aggregating data by estimating curve parameters}\label{application aggregating}
@@ -1458,6 +1517,14 @@ This is applied by \code{opm\_mcp}, see Section~\ref{application group-means}.
 The behaviour during joining of factors is modified using \code{opm\_opt(comb.key.join = ...)} and \code{opm\_opt(comb.value.join = ...)}.
 The default curve parameter returned by \code{extract} can be set with \code{opm\_opt(curve.param = ...)}.
 
+\subsubsection[Troubleshooting]{Troubleshooting}\label{application manipulation troubleshooting}
+
+It is an error to apply \code{\%q\%} with a formula to metadata keys that are not present.
+These errors can be avoided by using a list on the right-hand side and by checking with \code{\%k\%} beforehand which keys are there.
+Also note that metadata can be nested.
+
+You can create subsets of \proglang{OPMX} and \proglang{MOPMX} objects at any time, but what is allowed depends on the dimensions of the data. If you select beyond the real range, an error results.
+
 
 \subsection[Plotting functions for raw data]{Plotting functions for raw data}\label{application plotting}
 
@@ -1556,6 +1623,13 @@ Again, a main title can be set explicitly.
 Furthermore, the argument \code{include} again refers to the metadata and allows the user to choose the information to be included in the header for annotating the plates.
 In the example the combination of species and strain is used.
 The default colour palette used can by modified with \code{opm\_opt(colour.borders = ...)}.
+
+\subsubsection[Troubleshooting]{Troubleshooting}\label{application plotting troubleshooting}
+
+If a plotting function complains about having more groups than colours available, check \code{select\_colors} and consider using \code{opm\_opt(colors = "brewer")} or create your own set of colours using \code{rainbow} etc.
+
+When selecting metadata, do not mix up the selection by, say \code{c("a", "b")} with the selection using \code{list("a", "b")}.
+
 
 \subsection[Plotting the aggregated data]{Plotting the aggregated data}\label{application plotting-aggregated}
 
@@ -1818,6 +1892,18 @@ Call \code{demo("cluster-with-pvalues", package = "opm")} for running examples b
 Additional example code on visualising curve parameters is available \textit{via} \code{opm\_files("demo")}.
 It is indeed easy to conduct principal-component analysis with matrices created with \code{extract}.
 Call \code{demo("custom-PCA", package = "opm")} for running examples based on the \pkg{BiodiversityR} package \citep{Kindt2005}.
+
+\subsubsection[Troubleshooting]{Troubleshooting}\label{application application plotting-aggregated troubleshooting}
+
+If a plotting function complains about having more groups than colours available, check \code{select\_colors} and consider using \code{opm\_opt(colors = "brewer")} or create your own set of colours using \code{rainbow} etc.
+In the case of \code{radial\_plot}, alternatively use \code{group.col = TRUE} to for one colour per group.
+
+If there are no replicates per group, \code{ci\_plot} cannot newly calculate confidence intervals.
+
+In the case of the \code{heat\_map} function, the widths of the left and bottom margin are not easy to correctly calculate automatically under all circumstances.
+The margin widths can be set by hand at any time, however, using the \code{margins} argument.
+
+When selecting metadata, do not mix up the selection by, say \code{c("a", "b")} with the selection using \code{list("a", "b")}.
 
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
@@ -2215,6 +2301,12 @@ Compare with Figure~\ref{fig:ci_plot_mcp} for the axis annotation.
 }
 \end{figure}
 
+\subsubsection[Troubleshooting]{Troubleshooting}\label{application group-means troubleshooting}
+
+Note that you need data sets which actually provide group structures for comparisons.
+That would be e.g. strains measured on the same plate type in several repetitions or one strain differentially treated and every treatment measured in several repetitions.
+Of course, it is also possible to compare the wells between each other \textit{if} the plates are comparable.
+But with a single value per group \code{opm\_mcp} will inevitably raise an error.
 
 
 \subsection[Discretisation]{Discretisation}\label{application discrete}

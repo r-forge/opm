@@ -50,6 +50,7 @@ discretise
 discretised
 discretising
 durations
+expectedly
 genotype
 genotypes
 getter
