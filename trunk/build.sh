@@ -1443,6 +1443,7 @@ test_demos()
       for csv_file in "$wdir"/external_tests/tests/*.csv; do
         case $csv_file in
           *Multiline* ) continue;;
+          *Microstation* ) continue;;
         esac
         ln -s "$csv_file" "${csv_file##*/}"
       done
