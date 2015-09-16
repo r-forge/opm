@@ -640,7 +640,7 @@ setMethod("metadata<-", c("MOPMX", "ANY", "data.frame"), function(object, key,
 #'   (unambiguous) selection is impossible but raise a warning only?
 #' @param remove.keys Logical scalar. When including \code{md} in the metadata,
 #'   discard the \code{keys} columns?
-#' @param col Passed to \code{\link{to_metadata}}. If empty, the default values
+#' @param sep Passed to \code{\link{to_metadata}}. If empty, the default values
 #'   are inserted, depending on the \code{md} object. If several values are
 #'   present and if \code{md} is a file name, the values will be tried in turn
 #'   until all \code{keys} are found in the resulting column names.
@@ -849,7 +849,7 @@ setGeneric("include_metadata",
   function(object, ...) standardGeneric("include_metadata"))
 
 setMethod("include_metadata", "WMD", function(object, md, keys, replace = FALSE,
-    skip.failure = FALSE, remove.keys = TRUE, col = NULL, strip.white = NULL,
+    skip.failure = FALSE, remove.keys = TRUE, sep = NULL, strip.white = NULL,
     ...) {
 
   pick_from <- function(object, selection) {
@@ -863,10 +863,10 @@ setMethod("include_metadata", "WMD", function(object, md, keys, replace = FALSE,
   }
 
   # Get and check metadata.
-  read_stuff <- function(md, col, keys, strip.white, ...) {
-    for (colname in col) {
-      md <- to_metadata(object = md, col = colname, strip.white = strip.white,
-        ...)
+  read_stuff <- function(md, sep, keys, strip.white, ...) {
+    for (separator in sep) {
+      md <- to_metadata(object = md, sep = separator,
+        strip.white = strip.white, ...)
       if (all(keys %in% colnames(md)))
         break
     }
@@ -880,8 +880,8 @@ setMethod("include_metadata", "WMD", function(object, md, keys, replace = FALSE,
 
   selection <- as.list(csv_data(object, keys))
 
-  if (!length(col))
-    col <- if (is.character(md))
+  if (!length(sep))
+    sep <- if (is.character(md))
         c("\t", ",", ";") # has an effect
       else
         "\t" # has no effect anyway
@@ -895,7 +895,7 @@ setMethod("include_metadata", "WMD", function(object, md, keys, replace = FALSE,
     strip.white <- strip.white[[1L]]
 
   for (strip.ws in strip.white) {
-    found <- read_stuff(md, col, keys, strip.ws, ...)
+    found <- read_stuff(md, sep, keys, strip.ws, ...)
     if (nrow(found <- pick_from(found, selection)))
       break
   }
