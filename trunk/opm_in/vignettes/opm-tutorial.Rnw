@@ -227,8 +227,8 @@ This is the tutorial of \pkg{opm} in the version of \today{}.
 % No details here, only links.
 % Remember: repetition causes a huge maintenance problem.
 
-Readers who want to jump right into examples for applying \pkg{opm} to their data will find an overview of what the package can do for them in Figure~\ref{fig:work_flow}.
-The functions that can be used in each step of the possible \pkg{opm} work flows are shown in Figure~\ref{fig:overview}.
+Readers who want to jump right into examples for applying \pkg{opm} to their data will find an overview of what the package can do for them in Section~\ref{methods overview}.
+The functions that can be used in each step of the possible \pkg{opm} work flows are shown in Section~\ref{application overview}.
 A more theoretical overview of all according subsections is provided in Section~\ref{methods overview}.
 Examples for each step are found in the according subsections of Section~\ref{application}.
 Almost all of these subsections contain a final \textbf{troubleshooting} paragraph in which we comment on the most frequently observed problems.
@@ -282,7 +282,7 @@ Based on this meta-information, a variety of visual and statistical comparison t
 \end{figure}
 
 
-The \ac{PM} system can measure many phenotypes in a high-throughput system that uses such as tetrazolium detection approach.
+The \ac{PM} system (Figure~\ref{fig:data}) can measure many phenotypes in a high-throughput system that uses such as tetrazolium detection approach.
 About 2,000 distinct physiological challenges, such as the metabolism of single carbon sources for energy gain, the metabolism under varying osmolyte concentrations, and the response to varying growth-inhibitory substances are included in the \ac{PM} microtiter plates \citep{bochner2001, bochner2009}.
 The system is applicable, in principle, to each kind of cultivated cells and also to environmental probes, even though some kinds of cells, such as those from plant cell cultures, cause a reduction of the dye but are too large to be handled in the 96-well layout \citep{ijms140715141}.
 The OmniLog\textregistered \ \ac{PM} system records the colour formation in an automated setting (every 15 minutes) throughout the duration of the experiment, which may last up to several days.
@@ -292,7 +292,7 @@ In brief, 96-well microtiter plates with substrates, dye, and bacterial cells ar
 The OmniLog\textregistered \ reader is driven by the \textit{Data Collection} software.
 The stored results files, which are in a proprietary format, are then imported into the \textit{Data Management}, \textit{File Management/Kinetic Analysis}, and \textit{Parametric Analysis} software packages for data analysis.
 
-In the case of positive reactions, the kinetics are expected to appear as (more or less regularly) sigmoid curves in analogy to typical bacterial growth curves (Figure~\ref{fig:parameters}).
+In the case of positive reactions, the kinetics are expected to appear as (more or less regularly) sigmoid curves in analogy to typical bacterial growth curves (Figure~\ref{fig:data}).
 The intrinsic higher level of data complexity contains additional valuable biological information, which can be extracted by exploring the shape characteristics of the recorded curves \citep{bisbin}.
 These curve features can, in principle, unravel fundamental differences or similarities in the respiration behaviour of distinct organisms, which cannot be identified by the traditional end-point measurements alone.
 But the meta-information of interest on the organisms and experimental conditions must also be available for a biologically meaningful data analysis and an according statistical assessment.
@@ -327,7 +327,7 @@ The work flows described below include the input of raw kinetic data and integra
 
 \subsection[Overview]{Overview}\label{methods overview}
 
-In the following the possible work flows (see Figure~\ref{fig:work_flow}) for generating an \proglang{R} object that contains the kinetic raw data from one to several OmniLog\textregistered \ plates along with the corresponding metadata of interest, and optionally the aggregated and potentially also discretised curve parameters, are described.
+In the following the possible work flows (see Figure~\ref{fig:work-flow}) for generating an \proglang{R} object that contains the kinetic raw data from one to several OmniLog\textregistered \ plates along with the corresponding metadata of interest, and optionally the aggregated and potentially also discretised curve parameters, are described.
 We then explain the principles of graphically and statistically analysing either raw data, metadata, aggregated data (curve parameters), or combinations of all of them, as stored in the respective \proglang{R} objects.
 
 % The following figure is first referred to in the section 'Overview'.
@@ -336,9 +336,9 @@ We then explain the principles of graphically and statistically analysing either
 \scalebox{1.225}{
 \includegraphics{opm_fig_2}
 }
-\caption{\label{fig:work_flow}
+\caption{\label{fig:work-flow}
 A depiction of the work flows possible within \pkg{opm} and its potential interplay with base \proglang{R}, add-on packages for \proglang{R} and third-party software.
-See Figure~\ref{fig:overview} for the functions that can be used in the respective steps.
+See Section~\ref{application overview} for the functions that can be used in the respective steps.
 The package allows the user full flexibility with respect to the type of information added to the created \proglang{R} objects and to the order of steps in which this is achieved.
 For example, it is possible to first add the metadata and to perform some of the later described analysis and second to aggregate the raw kinetics and go on with analysis of the aggregated values.
 Discretisation might frequently not be of interest because it causes a loss of information.
@@ -358,7 +358,7 @@ Batch processing many files is also possible, even without starting an interacti
 This includes storage of the \pkg{opm} data in the \proglang{YAML} (or \proglang{JSON} or \ac{CSV}) format, as detailed in Section~\ref{methods batch}.
 Example code is given in  Section~\ref{application batch}.
 
-All kinds of \ac{PM} data can be enriched with metadata (see Figure~\ref{fig:data}).
+All kinds of \ac{PM} data can be enriched with metadata (see Figure~\ref{fig:data}, Figure~\ref{fig:work-flow}).
 The underlying principles are described in Section~\ref{methods metadata}, whereas example code for metadata management is included in Section~\ref{application metadata}.
 
 To statistically analyse the biological information coded in the shape characteristics of the kinetics, four descriptive curve parameters are estimated, which is explained in Section~\ref{methods aggregating}, whereas example code for curve-parameter estimation is provided in Section~\ref{application aggregating}.
@@ -441,16 +441,16 @@ The \pkg{opm} package currently does not support the input of several plates fro
 As of version 0.4.0, \pkg{opm} also supports the input of MicroStation\texttrademark \ \ac{CSV} files (frequently used in conjunction with EcoPlate\texttrademark \ assay for microbial community analysis) \citep{Vaas2013}.
 These files contain only end-point measurements but potentially several plates, which can nevertheless be input together with their potentially also rich meta-information.
 
-The easiest way to load the raw kinetic data (as \ac{CSV} files or as \proglang{YAML} or \proglang{JSON}) into \proglang{R} in a single step is using the function \code{read\_opm} (see Figure~\ref{fig:work_flow}).
+The easiest way to load the raw kinetic data (as \ac{CSV} files or as \proglang{YAML} or \proglang{JSON}) into \proglang{R} in a single step is using the function \code{read\_opm} (see Figure~\ref{fig:work-flow}).
 If raw data from only one single-plate OmniLog\textregistered \ \ac{PM} are imported, the resulting object belongs to the \proglang{S4} class \proglang{OPM}.
-This class for holding single-plate OmniLog\textregistered \ \ac{PM} data originally only includes the (limited) meta-information read from the original input \ac{CSV} files, but an arbitrary amount of metadata can be added later on (see Figure~\ref{fig:work_flow}).
+This class for holding single-plate OmniLog\textregistered \ \ac{PM} data originally only includes the (limited) meta-information read from the original input \ac{CSV} files, but an arbitrary amount of metadata can be added later on (see Figure~\ref{fig:work-flow}).
 If multiple plates are imported, the resulting object automatically belongs to the \proglang{S4} class \proglang{OPMS}.
-In the \proglang{OPMS} class, data may have been obtained from distinct organisms and/or replicates, but must correspond to the same plate type and must contain the same wells (see Figure~\ref{fig:work_flow}).
+In the \proglang{OPMS} class, data may have been obtained from distinct organisms and/or replicates, but must correspond to the same plate type and must contain the same wells (see Figure~\ref{fig:work-flow}).
 The function \code{read\_opm} has an argument ``convert'' which controls how sets of plates with distinct types are treated; for instance, the function can return a list of  \proglang{OPMS} objects, one for each encountered plate type.
 
-The entire \proglang{S4} class hierarchy used by \pkg{opm} is shown in Figure~\ref{fig:class_hierarchy}.
+The entire \proglang{S4} class hierarchy used by \pkg{opm} is shown in Figure~\ref{fig:class-hierarchy}.
 A number of \proglang{S3} helper classes are also used by several functions.
-Users come in direct contact only with the \proglang{OPM}, \proglang{OPMA}, \proglang{OPMD} and \proglang{OPMS} classes (see Figure~\ref{fig:overview}).
+Users come in direct contact only with the \proglang{OPM}, \proglang{OPMA}, \proglang{OPMD} and \proglang{OPMS} classes (see Section~\ref{application overview}).
 Once such objects are created they could also be stored in files using \code{save} and read again using \code{load} but \textit{not} using \code{dump} and \code{source} instead, respectively.
 We would nevertheless recommend storage in \proglang{YAML} format.
 
@@ -479,7 +479,7 @@ The few metadata that come along with the imported \ac{CSV} file can be accessed
 But for most experimental designs it is clearly necessary to add much more meta-information to the kinetic data.
 It might also happen that the metainformation from \ac{CSV} files is not only limited but also inconsistent or even erroneous, depending on what has been entered into the OmniLog\textregistered \ instrument.
 
-The \pkg{opm} user can integrate the metadata into \proglang{OPM} and \proglang{OPMS} objects using functions such as \code{include\_metadata} (see Figure~\ref{fig:overview}).
+The \pkg{opm} user can integrate the metadata into \proglang{OPM} and \proglang{OPMS} objects using functions such as \code{include\_metadata} (see Section~\ref{application overview}).
 Often the metadata are kept in a data frame which can conveniently be saved to, and generated directly from, a \ac{CSV} file.
 For an unambiguous match between the raw kinetic data in the \proglang{OPMS} object and the collected metadata, a unique \ac{ID} is needed.
 This is, by default, provided by the combination of \textit{Setup Time} and \textit{Position}, which should unequivocally identify certain plates.
@@ -495,7 +495,7 @@ The resulting data frame can then be queried for the information specific to eac
 Whereas this function will usually result in non-nested metadata entries, \pkg{opm} allows one, in principle, to deal with arbitrarily nested meta-information.
 This holds because within \proglang{OPM} or \proglang{OPMS} objects metadata are not stored as data frames and not organised into rows and columns.
 The amount of meta-information added (and the number plates simultaneously analysed) is only limited by the available computer memory.
-Functions for generating and modifying plate meta-information are listed in Figure~\ref{fig:overview}.
+Functions for generating and modifying plate meta-information are listed in Section~\ref{application overview}.
 
 
 % The following figure is already referred to in the section 'Data import'.
@@ -504,7 +504,7 @@ Functions for generating and modifying plate meta-information are listed in Figu
 \scalebox{1.225}{
 \includegraphics{opm_fig_4}
 }
-\caption{\label{fig:class_hierarchy}
+\caption{\label{fig:class-hierarchy}
 This picture shows the \proglang{S4} class hierarchy used by \pkg{opm}.
 Class names are shown in bold within the boxes.
 Boxes with dark background indicate virtual classes, those with light background indicate real classes whose objects can be created and manipulated by some code.
@@ -571,7 +571,7 @@ The parameters can nevertheless be robustly estimated from deviating curves, par
 
 \subsection[Manipulation of OPM and OPMS data]{Manipulation of \proglang{OPM} and \proglang{OPMS} data}\label{methods manipulation}
 
-As usual, data analysis starts with data exploration (Figure~\ref{fig:overview}).
+As usual, data analysis starts with data exploration (Section~\ref{application overview}).
 It is easy to select specific wells and time points from \proglang{OPM} or \proglang{OPMS} objects.
 It also straightforward to select specific \proglang{OPM} objects from an \proglang{OPMS} object that contains them.
 To this end, \proglang{OPM} and \proglang{OPMS} methods for the generic function \code{subset} and \proglang{R}'s bracket operator have been implemented.
@@ -586,21 +586,6 @@ This has successfully been applied to slow-growing organisms in the bacterial ge
 It is also possible to convert \proglang{OPM} or \proglang{OPMS} objects to other objects for an independent exploration by the user.
 This can be done within \proglang{R}, based on a variety of distinct data-frame or matrix objects that can be generated.
 Alternatively, export in some useful file formats is possible.
-
-
-\begin{figure}
-\scalebox{1.225}{
-\includegraphics{opm_fig_6}
-}
-\caption{\label{fig:overview}
-Overview of the possible strategies and appropriate functions for data analysis using the \pkg{opm} package.
-Beginning with one to several \ac{CSV} files containing raw kinetic data exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis}, or \proglang{YAML} or \proglang{JSON} files that have been generated in previous \pkg{opm} runs, \proglang{OPM} or \proglang{OPMS} objects can easily be generated.
-Methods for metadata management, plotting the data in a customised manner, querying and sub-setting the generated objects, statistical comparison of multiple group means, and data-conversion tools including discretisation, report generation and output in files are provided.
-How to use \code{annotated} to produce graphics is explained in the tutorial on substrate information in \pkg{opm}.
-The input of growth-curve data, or any other data that have neither been measured with an OmniLog\textregistered \ nor a with a MicroStation\texttrademark \ system, is described in the tutorial on analysing growth curves and other user-defined data.
-As shown in the upper left part of the figure, it only requires the creation of a data frame that can be converted with the \code{opmx} function.
-}
-\end{figure}
 
 
 \subsection[Plotting functions for raw data]{Plotting functions for raw data}\label{methods plotting}
@@ -829,6 +814,24 @@ library("methods")
 if ("package:opm" %in% search())
   detach("package:opm", unload = TRUE)
 @
+
+The most important functions that can be used in each step of the possible \pkg{opm} work flows are shown in Figure~\ref{fig:overview}.
+For a complete list of user-level functions see the manual.
+
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics{opm_fig_7}
+}
+\caption{\label{fig:overview}
+Overview of the possible strategies and appropriate functions for data analysis using the \pkg{opm} package.
+Beginning with one to several \ac{CSV} files containing raw kinetic data exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis}, or \proglang{YAML} or \proglang{JSON} files that have been generated in previous \pkg{opm} runs, \proglang{OPM} or \proglang{OPMS} objects can easily be generated.
+Methods for metadata management, plotting the data in a customised manner, querying and sub-setting the generated objects, statistical comparison of multiple group means, and data-conversion tools including discretisation, report generation and output in files are provided.
+How to use \code{annotated} to produce graphics is explained in the tutorial on substrate information in \pkg{opm}.
+The input of growth-curve data, or any other data that have neither been measured with an OmniLog\textregistered \ nor a with a MicroStation\texttrademark \ system, is described in the tutorial on analysing growth curves and other user-defined data.
+As shown in the upper left part of the figure, it only requires the creation of a data frame that can be converted with the \code{opmx} function.
+}
+\end{figure}
+
 
 Before starting, the \pkg{opm} package should be loaded into an \proglang{R} session as follows:
 
