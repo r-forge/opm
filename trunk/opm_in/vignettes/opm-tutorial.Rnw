@@ -448,6 +448,29 @@ If multiple plates are imported, the resulting object automatically belongs to t
 In the \proglang{OPMS} class, data may have been obtained from distinct organisms and/or replicates, but must correspond to the same plate type and must contain the same wells (see Figure~\ref{fig:work-flow}).
 The function \code{read\_opm} has an argument ``convert'' which controls how sets of plates with distinct types are treated; for instance, the function can return a list of  \proglang{OPMS} objects, one for each encountered plate type.
 
+
+\begin{figure}
+\scalebox{1.225}{
+\includegraphics{opm_fig_4}
+}
+\caption{\label{fig:class-hierarchy}
+This picture shows the \proglang{S4} class hierarchy used by \pkg{opm}.
+Class names are shown in bold within the boxes.
+Boxes with dark background indicate virtual classes, those with light background indicate real classes whose objects can be created and manipulated by some code.
+Arrows indicate either inheritance relationships (pointing from the parent to its child class) or object composition (pointing from the container class to its element class).
+Note particularly that \proglang{OPM}, which only contains raw data, \ac{CSV} data and metadata, is the parent class of \proglang{OPMA}, which also contains aggregated data (and has methods for dealing with them).
+\proglang{OPMD} inherits from \proglang{OPMA} and stores discretised curve parameters in addition to aggregated values.
+\proglang{OPMS} is a container class that holds \proglang{OPM}, \proglang{OPMA} and/or \proglang{OPMD} objects.
+These can usually co-occur in a single \proglang{OPMS} object but for some calculations the additional information in \proglang{OPMA} or \proglang{OPMD} objects is strictly required.
+The query functions \code{has\_aggr} and \code{has\_disc} are available for checking from which kinds of objects an \proglang{OPMS} is composed; see the manual and Section~\ref{application}.
+\proglang{MOPMX} objects are less tightly controlled collections.
+\proglang{MOPMX} objects are lists restricted to objects of the previously listed classes as elements, which may or may not have the same plate type.
+The non-virtual auxiliary classes shown in the figure are either well-known in \proglang{R} (e.g., matrices) or not directly manipulated by the user (\proglang{CMAT}).
+The \proglang{OPM\_DB} class and its child classes are internally used by \pkg{opm} for interactions with \acs{RDBMS}.
+}
+\end{figure}
+
+
 The entire \proglang{S4} class hierarchy used by \pkg{opm} is shown in Figure~\ref{fig:class-hierarchy}.
 A number of \proglang{S3} helper classes are also used by several functions.
 Users come in direct contact only with the \proglang{OPM}, \proglang{OPMA}, \proglang{OPMD} and \proglang{OPMS} classes (see Section~\ref{application overview}).
@@ -481,6 +504,7 @@ It might also happen that the metainformation from \ac{CSV} files is not only li
 
 The \pkg{opm} user can integrate the metadata into \proglang{OPM} and \proglang{OPMS} objects using functions such as \code{include\_metadata} (see Section~\ref{application overview}).
 Often the metadata are kept in a data frame which can conveniently be saved to, and generated directly from, a \ac{CSV} file.
+How to safely edit such a file with Microsoft Excel is shown in Figure~\ref{fig:excel}.
 For an unambiguous match between the raw kinetic data in the \proglang{OPMS} object and the collected metadata, a unique \ac{ID} is needed.
 This is, by default, provided by the combination of \textit{Setup Time} and \textit{Position}, which should unequivocally identify certain plates.
 \textit{Setup Time} indicates the date and time at the precision of seconds of starting the batch read in the OmniLog\textregistered \ reader.
@@ -498,26 +522,20 @@ The amount of meta-information added (and the number plates simultaneously analy
 Functions for generating and modifying plate meta-information are listed in Section~\ref{application overview}.
 
 
-% The following figure is already referred to in the section 'Data import'.
-% Make sure it remains mentioned there.
+
 \begin{figure}
+\centering
 \scalebox{1.225}{
-\includegraphics{opm_fig_4}
+\includegraphics{opm_fig_5}
 }
-\caption{\label{fig:class-hierarchy}
-This picture shows the \proglang{S4} class hierarchy used by \pkg{opm}.
-Class names are shown in bold within the boxes.
-Boxes with dark background indicate virtual classes, those with light background indicate real classes whose objects can be created and manipulated by some code.
-Arrows indicate either inheritance relationships (pointing from the parent to its child class) or object composition (pointing from the container class to its element class).
-Note particularly that \proglang{OPM}, which only contains raw data, \ac{CSV} data and metadata, is the parent class of \proglang{OPMA}, which also contains aggregated data (and has methods for dealing with them).
-\proglang{OPMD} inherits from \proglang{OPMA} and stores discretised curve parameters in addition to aggregated values.
-\proglang{OPMS} is a container class that holds \proglang{OPM}, \proglang{OPMA} and/or \proglang{OPMD} objects.
-These can usually co-occur in a single \proglang{OPMS} object but for some calculations the additional information in \proglang{OPMA} or \proglang{OPMD} objects is strictly required.
-The query functions \code{has\_aggr} and \code{has\_disc} are available for checking from which kinds of objects an \proglang{OPMS} is composed; see the manual and Section~\ref{application}.
-\proglang{MOPMX} objects are less tightly controlled collections.
-\proglang{MOPMX} objects are lists restricted to objects of the previously listed classes as elements, which may or may not have the same plate type.
-The non-virtual auxiliary classes shown in the figure are either well-known in \proglang{R} (e.g., matrices) or not directly manipulated by the user (\proglang{CMAT}).
-The \proglang{OPM\_DB} class and its child classes are internally used by \pkg{opm} for interactions with \acs{RDBMS}.
+\caption{\label{fig:excel}
+When using Microsoft Excel for editing metadata template files exported by \pkg{opm}, care must be taken that these files remain interpretable by \pkg{opm}.
+After exporting a file in \ac{CSV} format under default settings and opening that file with Microsoft Excel, the entries will not be split into separate columns.
+To fix this, mark the single existing column and choose the \textit{Text to Columns} tool.
+Select the tabulator as column separator and set all columns (at least the ``Setup Time'' column) to \textit{Text} as \textit{Column data format}.
+After clicking \textit{Finish} the columns should then appear correctly.
+Further columns can then safely be added and the file saved, but make sure it is saved in \ac{CSV} format instead of the native Microsoft Excel format.
+Afterwards the file can be input by \pkg{opm} again as described in Section~\ref{application metadata}.
 }
 \end{figure}
 
@@ -557,7 +575,7 @@ Attaching the aggregated data to an \proglang{OPM} object yields an object of th
 \begin{figure}
 \centering
 \scalebox{1.0}{
-\includegraphics{opm_fig_5}
+\includegraphics{opm_fig_6}
 }
 \caption{\label{fig:parameters}
 A schematic depiction of a typical respiration curve and the parameters estimated by \pkg{opm}.
@@ -1062,7 +1080,7 @@ This is computationally less efficient but by default the function then tries se
 
 Some spreadsheet software might also interpret and reformat the setup time.
 This needs to be avoided by declaring the according column to be input as plain text into the spreadsheet, thus preventing any interpretation of its content.
-%% TODO: we need screenshots to show this in Excel
+See Figure~\ref{fig:excel} for how to achieve this with Microsoft Excel.
 
 
 Now the user could add information to the data frame by calling \code{edit}, which would open the \proglang{R} editor, or by any other way of manipulating data frames in \proglang{R}.
@@ -1309,6 +1327,7 @@ The \code{include_metadata} function must correctly and uniquely identify plates
 This cannot work if the identifiers get modified after exporting them.
 A potential cause for key-value mismatches mismatches is the re-interpretation of date-time entries (in the column for the setup time) by some spreadsheet software re-interpreting date-time entries.
 You must set the data type of all columns to text to safely prevent this from happening.
+Consult Figure~\ref{fig:excel} for how to safely do edit \pkg{opm} metadata template \ac{CSV} files in Microsoft Excel.
 
 
 \subsection[Aggregating data by estimating curve parameters]{Aggregating data by estimating curve parameters}\label{application aggregating}
