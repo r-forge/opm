@@ -16,6 +16,7 @@ Genotype
 Geodermatophilus
 Harabasz
 Hennig
+LIMS
 Metadata
 MicroStation
 Montero
@@ -71,6 +72,7 @@ logarithmised
 logfile
 maxima
 metadata
+metainformation
 microarray
 milligramme
 namespace
