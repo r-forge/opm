@@ -63,6 +63,7 @@
 %
 \def\Surname{}
 \def\German{}
+\def\Spanish{}
 
 
 % Acronyms
@@ -133,14 +134,16 @@
 
 % authors, first page
 \author{
+\German{Markus} \Surname{G\"{o}ker}\\
+  Leibniz Institute \acs{DSMZ} \And
+Benjamin \Surname{Hofner}\\
+  \German{Universit\"{a}t}\\
+  \German{Erlangen-N\"{u}rnberg} \AND
+Maria \Spanish{del} Carmen \Surname{Montero Calasanz} \\
+  Newcastle University \AND
 Johannes \Surname{Sikorski}\\
   Leibniz Institute \acs{DSMZ}  \And
 Lea A.I. \Surname{Vaas}\\
-  Leibniz Institute \acs{DSMZ} \AND
-Benjamin \Surname{Hofner}\\
-  \German{Universit\"{a}t}\\
-  \German{Erlangen-N\"{u}rnberg} \And
-\German{Markus} \Surname{G\"{o}ker}\\
   Leibniz Institute \acs{DSMZ}
 }
 
@@ -149,7 +152,7 @@ Benjamin \Surname{Hofner}\\
 \title{\pkg{opm}: An R Package for Analysing Phenotype Microarray and Growth Curve Data}
 
 % authors, header on every 2nd page
-\Plainauthor{J. Sikorski, L.A.I. Vaas, B. Hofner, M. G\"{o}ker}
+\Plainauthor{M. G\"{o}ker, B. Hofner, M.d.C. Montero Calasanz, J. Sikorski, L.A.I. Vaas}
 
 % main title, first page
 \Plaintitle{opm: An R package for analysing phenotype microarray and growth curve Data}
