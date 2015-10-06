@@ -1677,6 +1677,8 @@ check_html_docu()
         fi
       done
     done
+    find "$docdir" -name '*.html' -exec \
+      grep 'href="\.\./\.\./[^/]\+/html/' \{\} + || true
   done
   return $errs
 }
@@ -1730,7 +1732,7 @@ upload_to_server()
   local item
   for item; do
     if [ -s "$item" ]; then
-      ncftpput -f "$ncftp_alias" -R "$remote_folder" "$item"
+      ncftpput -V -f "$ncftp_alias" -R "$remote_folder" "$item"
     else
       echo "file or directory '$item' does not exist -- skipped" >&2
     fi
