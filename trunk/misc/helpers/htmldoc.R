@@ -198,12 +198,17 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
   }
 
   store_manual <- function(pkg, outdir, mdir, url, alt) {
-    fix_hrefs <- function(x, url, mdir, alt) {
+    fix_index_hrefs <- function(x, url, mdir, alt) {
       pat <- sprintf("\\bhref=\"%s/doc/html/index.html\"", url)
       x <- sub(pat, "target=_parent href=\"../../\"", x, FALSE, TRUE)
       pat <- sprintf("\\bhref=\"%s/doc/html/packages.html\"", url)
       alt <- sprintf("../../%s/%s/index.html", alt, mdir)
       sub(pat, sprintf("target=_parent href=\"%s\"", alt), x, FALSE, TRUE)
+    }
+    fix_hrefs <- function(x, pkg) { # remove references to foreign packages
+      p <- paste0("(<a href=\")", "\\.\\./\\.\\./[^/]+/html/[^/\"]+",
+        "(\\.html\">)", "([^<>]+)", "(</a>)")
+      gsub(p, "\\1\\3\\2\\3\\4", x, TRUE, TRUE)
     }
     dir.create(outdir <- file.path(outdir, mdir), FALSE, TRUE)
     current.dir <- getwd()
@@ -215,7 +220,8 @@ package2htmldoc <- function(pkg, outdir = "%s_doc", mdir = "manual",
         sub(pkg, alt, dirname(outdir), FALSE, FALSE, TRUE)
       else
         dirname(outdir)
-    pkgutils::map_files("00Index.html", fix_hrefs, url, mdir, alt)
+    pkgutils::map_files("00Index.html", fix_index_hrefs, url, mdir, alt)
+    pkgutils::map_files(list.files(".", "\\.html$"), fix_hrefs, pkg)
   }
 
   alt <- basename(alt)
