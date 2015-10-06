@@ -14,28 +14,29 @@
 #'
 #' @inheritParams pack_desc
 #' @param x Logical vector. It is an error if \code{NA} values are contained.
-#' @param include Logical scalar indicating whether the separator positions
-#'   should also be included in the factor levels instead of being coded as
-#'   \code{NA}.
+#' @param include Logical scalar indicating whether or not the separator
+#'   positions should also be included in the factor levels instead of being
+#'   coded as \code{NA}. If \code{include} is \code{NA}, the behaviour is
+#'   special; pairs of runs of distinct values are expected, each pair yields a
+#'   distinct factor level, and the output does not contain any \code{NA}
+#'   values.
 #' @param pattern Scalar. If of mode \sQuote{character}, passed to
 #'   \code{grepl} from the \pkg{base} package. If numeric, used to indicate the
 #'   lengths of the partial strings to extract.
 #' @param invert Negate the results of \code{grepl}?
 #' @param perl Logical scalar passed to \code{grepl}.
-#' @return The \sQuote{logical} method returns an
-#'   ordered factor, its length being the one of \code{x}. The levels
-#'   correspond to a groups whose indexes correspond to the index of a
-#'   \code{TRUE} value in \code{x} plus the indexes of the \code{FALSE}
-#'   values immediately following it. \sQuote{logical} method returns a list
-#'   of character vectors.
+#' @return The \sQuote{logical} method returns an ordered factor, its length
+#'   being the one of \code{x}. The levels correspond to a groups whose indexes
+#'   correspond to the index of a \code{TRUE} value in \code{x} plus the indexes
+#'   of the \code{FALSE} values immediately following it. \sQuote{logical}
+#'   method returns a list of character vectors.
 #' @details When applying \code{split}, positions corresponding to \code{NA}
 #'   factor levels will usually be removed. Thus note the action of the
 #'   \code{include} argument, and note that the positions of \code{TRUE} values
 #'   that are followed by other \code{TRUE} values are always set to \code{NA},
 #'   irrespective of \code{include}. The \sQuote{character} method using a
-#'   pattern works by passing this pattern to \code{grepl}, the result to
-#'   the \sQuote{logical} method and this in turn to \code{split}.
-#'
+#'   pattern works by passing this pattern to \code{grepl}, the result to the
+#'   \sQuote{logical} method and this in turn to \code{split}.
 #' @seealso base::split base::grepl
 #' @export
 #' @family character-functions
@@ -53,20 +54,30 @@
 #' y <- sections(x, include = FALSE)
 #' stopifnot(identical(as.ordered(c(NA, 1, 1, NA, 2, NA, 3)), y))
 #'
+#' # and now put pairs of runs together
+#' y <- sections(x, include = NA)
+#' stopifnot(identical(as.ordered(c(1, 1, 1, 2, 2, 3, 3)), y))
+#'
 #' # leading FALSE
 #' x <- c(FALSE, x)
 #' (y <- sections(x))
 #' stopifnot(identical(as.ordered(c(1, 2, 2, 2, 3, 3, 4, 4)), y))
+#' (y <- try(sections(x, include = NA), silent = TRUE))
+#' stopifnot(inherits(y, "try-error")) # no pairs throughout => error
 #'
 #' # adjacent TRUEs and trailing TRUE
 #' x <- c(FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE)
 #' (y <- sections(x))
 #' stopifnot(identical(as.ordered(c(1, NA, 2, 2, 3, 3, NA, 4, 4, 5)), y))
+#' (y <- sections(x, include = NA))
+#' stopifnot(identical(as.ordered(c(1, 1, 1, 2, 2, 3, 3, 3, 4, 4)), y))
 #'
 #' # several adjacent TRUEs
 #' x <- c(FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE)
 #' (y <- sections(x))
 #' stopifnot(identical(as.ordered(c(1, NA, NA, NA, 2, 2, 3, 3)), y))
+#' (y <- try(sections(x, include = NA), silent = TRUE))
+#' stopifnot(inherits(y, "try-error")) # no pairs throughout => error
 #'
 #' ## 'character' method
 #'
@@ -90,15 +101,17 @@ sections <- function(x, ...) UseMethod("sections")
 #' @export
 #'
 sections.logical <- function(x, include = TRUE, ...) {
+  runs <- function(x) {
+    unlist(mapply(FUN = rep.int, x = seq_along(x), times = x, SIMPLIFY = FALSE,
+      USE.NAMES = FALSE), FALSE, FALSE)
+  }
   prepare_sections <- function(x) {
     if (prepend <- !x[1L])
       x <- c(TRUE, x)
     if (append <- x[length(x)])
       x <- c(x, FALSE)
     x <- matrix(cumsum(rle(x)$lengths), ncol = 2L, byrow = TRUE)
-    x <- x[, 2L] - x[, 1L] + 1L
-    x <- mapply(rep.int, seq_along(x), x, SIMPLIFY = FALSE, USE.NAMES = FALSE)
-    x <- unlist(x)
+    x <- runs(x[, 2L] - x[, 1L] + 1L)
     if (prepend)
       x <- x[-1L]
     if (append)
@@ -109,13 +122,20 @@ sections.logical <- function(x, include = TRUE, ...) {
     return(structure(factor(ordered = TRUE), names = names(x)))
   if (anyNA(x))
     stop("'x' must not contain NA values")
-  result <- integer(length(x))
-  true.runs <- x & c(x[-1L] == x[-length(x)], FALSE)
-  result[!true.runs] <- prepare_sections(x[!true.runs])
-  if (L(include))
-    result[true.runs] <- NA_integer_
-  else
-    result[x] <- NA_integer_
+  if (is.na(L(include))) {
+    result <- rle(x)$lengths
+    if (length(result) %% 2L != 0L)
+      stop("data do not comprise pairs of runs of distinct values")
+    result <- runs(colSums(matrix(result, 2L)))
+  } else {
+    result <- integer(length(x))
+    true.runs <- x & c(x[-1L] == x[-length(x)], FALSE)
+    result[!true.runs] <- prepare_sections(x[!true.runs])
+    if (include)
+      result[true.runs] <- NA_integer_
+    else
+      result[x] <- NA_integer_
+  }
   structure(as.ordered(result), names = names(x))
 }
 
