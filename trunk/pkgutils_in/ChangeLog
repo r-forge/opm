@@ -1,3 +1,5 @@
+- sections() gets more 'include' options
+
 2015-09-01
 
 - modified example that failed with 'R-devel'

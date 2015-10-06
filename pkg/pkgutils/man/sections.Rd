@@ -15,9 +15,13 @@
   \item{x}{Logical vector. It is an error if \code{NA}
   values are contained.}
 
-  \item{include}{Logical scalar indicating whether the
-  separator positions should also be included in the factor
-  levels instead of being coded as \code{NA}.}
+  \item{include}{Logical scalar indicating whether or not
+  the separator positions should also be included in the
+  factor levels instead of being coded as \code{NA}. If
+  \code{include} is \code{NA}, the behaviour is special;
+  pairs of runs of distinct values are expected, each pair
+  yields a distinct factor level, and the output does not
+  contain any \code{NA} values.}
 
   \item{pattern}{Scalar. If of mode \sQuote{character},
   passed to \code{grepl} from the \pkg{base} package. If
@@ -73,20 +77,30 @@ stopifnot(identical(as.ordered(c(1, 1, 1, 2, 2, 3, 3)), y))
 y <- sections(x, include = FALSE)
 stopifnot(identical(as.ordered(c(NA, 1, 1, NA, 2, NA, 3)), y))
 
+# and now put pairs of runs together
+y <- sections(x, include = NA)
+stopifnot(identical(as.ordered(c(1, 1, 1, 2, 2, 3, 3)), y))
+
 # leading FALSE
 x <- c(FALSE, x)
 (y <- sections(x))
 stopifnot(identical(as.ordered(c(1, 2, 2, 2, 3, 3, 4, 4)), y))
+(y <- try(sections(x, include = NA), silent = TRUE))
+stopifnot(inherits(y, "try-error")) # no pairs throughout => error
 
 # adjacent TRUEs and trailing TRUE
 x <- c(FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, TRUE)
 (y <- sections(x))
 stopifnot(identical(as.ordered(c(1, NA, 2, 2, 3, 3, NA, 4, 4, 5)), y))
+(y <- sections(x, include = NA))
+stopifnot(identical(as.ordered(c(1, 1, 1, 2, 2, 3, 3, 3, 4, 4)), y))
 
 # several adjacent TRUEs
 x <- c(FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE)
 (y <- sections(x))
 stopifnot(identical(as.ordered(c(1, NA, NA, NA, 2, 2, 3, 3)), y))
+(y <- try(sections(x, include = NA), silent = TRUE))
+stopifnot(inherits(y, "try-error")) # no pairs throughout => error
 
 ## 'character' method
 

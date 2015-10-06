@@ -1,15 +1,17 @@
 sections <- function(x, ...) UseMethod("sections")
 
 sections.logical <- function(x, include = TRUE, ...) {
+  runs <- function(x) {
+    unlist(mapply(FUN = rep.int, x = seq_along(x), times = x, SIMPLIFY = FALSE,
+      USE.NAMES = FALSE), FALSE, FALSE)
+  }
   prepare_sections <- function(x) {
     if (prepend <- !x[1L])
       x <- c(TRUE, x)
     if (append <- x[length(x)])
       x <- c(x, FALSE)
     x <- matrix(cumsum(rle(x)$lengths), ncol = 2L, byrow = TRUE)
-    x <- x[, 2L] - x[, 1L] + 1L
-    x <- mapply(rep.int, seq_along(x), x, SIMPLIFY = FALSE, USE.NAMES = FALSE)
-    x <- unlist(x)
+    x <- runs(x[, 2L] - x[, 1L] + 1L)
     if (prepend)
       x <- x[-1L]
     if (append)
@@ -20,13 +22,20 @@ sections.logical <- function(x, include = TRUE, ...) {
     return(structure(factor(ordered = TRUE), names = names(x)))
   if (anyNA(x))
     stop("'x' must not contain NA values")
-  result <- integer(length(x))
-  true.runs <- x & c(x[-1L] == x[-length(x)], FALSE)
-  result[!true.runs] <- prepare_sections(x[!true.runs])
-  if (L(include))
-    result[true.runs] <- NA_integer_
-  else
-    result[x] <- NA_integer_
+  if (is.na(L(include))) {
+    result <- rle(x)$lengths
+    if (length(result) %% 2L != 0L)
+      stop("data do not comprise pairs of runs of distinct values")
+    result <- runs(colSums(matrix(result, 2L)))
+  } else {
+    result <- integer(length(x))
+    true.runs <- x & c(x[-1L] == x[-length(x)], FALSE)
+    result[!true.runs] <- prepare_sections(x[!true.runs])
+    if (include)
+      result[true.runs] <- NA_integer_
+    else
+      result[x] <- NA_integer_
+  }
   structure(as.ordered(result), names = names(x))
 }
 
