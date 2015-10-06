@@ -83,6 +83,7 @@
 \acrodef{DSM}{\German{Deutsche Sammlung von Mikroorganismen}}
 \acrodef{HTML}{Hypertext Markup Language}
 \acrodef{ID}{Identifier}
+\acrodef{IME}{Institute for Molecular Biology and Applied Ecology}
 \acrodef{LB}{Lysogeny Broth}
 \acrodef{LIMS}{Laboratory Information Management System}
 \acrodef{NADH}{reduced Nicotinamide Adenine Dinucleotide}
@@ -135,15 +136,17 @@
 % authors, first page
 \author{
 \German{Markus} \Surname{G\"{o}ker}\\
-  Leibniz Institute \acs{DSMZ} \And
+  Leibniz Institute\\
+   \acs{DSMZ} \And
 Benjamin \Surname{Hofner}\\
   \German{Universit\"{a}t}\\
-  \German{Erlangen-N\"{u}rnberg} \AND
-Maria \Spanish{del} Carmen \Surname{Montero Calasanz} \\
-  Newcastle University \AND
-Johannes \Surname{Sikorski}\\
-  Leibniz Institute \acs{DSMZ}  \And
+  \German{Erlangen-N\"{u}rnberg} \And
 Lea A.I. \Surname{Vaas}\\
+  \German{Fraunhofer} Institute\\
+    \acs{IME}  \AND
+Maria \Spanish{del} Carmen \Surname{Montero Calasanz}\\
+  Newcastle University \And
+Johannes \Surname{Sikorski}\\
   Leibniz Institute \acs{DSMZ}
 }
 

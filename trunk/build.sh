@@ -1781,8 +1781,8 @@ remind_of_external_tests=
 
 case $RUNNING_MODE in
   all ) 
-    "$0" full -i -y && "$0" cran && "$0" sql1 && "$0" www && "$0" html &&
-      "$0" forget && "$0" erase
+    "$0" full -i -y -o no-build-vignettes && "$0" cran && "$0" sql1 &&
+      "$0" www && "$0" html && "$0" forget && "$0" erase
     exit $?
   ;;
   ascii )
