@@ -115,6 +115,8 @@ setMethod("opm_dbput", c("DBTABLES", "DBIConnection"), function(object, conn,
 
 setMethod("opm_dbput", c("DBTABLES", "RODBC"), function(object, conn,
     map.tables = NULL, start = opm_dbnext(object, conn, map.tables)) {
+  if (!suppressPackageStartupMessages(require(RODBC)))
+    stop("package 'RODBC' must be available to run this function")
   object <- update(object, start, TRUE)
   by(object, TRUE, function(n, x, ...) sqlSave(dat = x, tablename = n, ...),
     channel = conn, append = TRUE, test = FALSE, rownames = FALSE, fast = TRUE,
@@ -175,6 +177,8 @@ setMethod("opm_dbfind", c("character", "DBIConnection"), function(object, conn,
 
 setMethod("opm_dbfind", c("character", "RODBC"), function(object, conn,
     map.tables = NULL, klass = "OPM_DB") {
+  if (!suppressPackageStartupMessages(require(RODBC)))
+    stop("package 'RODBC' must be available to run this function")
   pk <- pkeys(new(klass))[1L] # names are needed, hence not [[
   char <- if (attr(conn, "isMySQL"))
       "`"
@@ -206,6 +210,8 @@ setMethod("opm_dbget", c("integer", "DBIConnection"), function(object, conn,
 
 setMethod("opm_dbget", c("integer", "RODBC"), function(object, conn,
     map.tables = NULL, include = 2L, klass = c(opm_dbclass(include), "MOPMX")) {
+  if (!suppressPackageStartupMessages(require(RODBC)))
+    stop("package 'RODBC' must be available to run this function")
   as(by(new(klass[[1L]]), object, sqlQuery, channel = conn,
     do_map = map.tables, do_inline = TRUE, do_quote = if (attr(conn, "isMySQL"))
       "`"
@@ -245,6 +251,8 @@ setMethod("opm_dbnext", c("DBTABLES", "DBIConnection"), function(object, conn,
 
 setMethod("opm_dbnext", c("DBTABLES", "RODBC"), function(object, conn,
     map.tables = NULL) {
+  if (!suppressPackageStartupMessages(require(RODBC)))
+    stop("package 'RODBC' must be available to run this function")
   get_last <- function(tn, id, conn, char) {
     sql <- sprintf("SELECT max(%s) FROM %s;",
       quote_protected(id, char), quote_protected(tn, char))
@@ -281,6 +289,8 @@ setMethod("opm_dbclear", c("integer", "DBIConnection"), function(object, conn,
 
 setMethod("opm_dbclear", c("integer", "RODBC"), function(object, conn,
     map.tables = NULL, klass = "OPM_DB") {
+  if (!suppressPackageStartupMessages(require(RODBC)))
+    stop("package 'RODBC' must be available to run this function")
   pk <- pkeys(new(klass))[1L]
   char <- if (attr(conn, "isMySQL"))
       "`"

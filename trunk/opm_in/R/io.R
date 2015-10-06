@@ -136,35 +136,44 @@ read_old_opm <- function(filename) {
     structure(c(filename, x), names = c(CSV_NAMES[["FILE"]], n))
   }
 
-  con <- file(description = filename, encoding = opm_opt("file.encoding"))
-  on.exit(close(con))
-  data <- readLines(con = con, warn = FALSE)
-  data <- strsplit(data, ",", TRUE) # fixed-string splitting most efficient
-  data <- data[vapply(data, length, 0L) > 0L]
-
-  # determine position of first field of data header, then split lines into
-  # comments and data fields accordingly
-  pos <- sub("^\\s+", "", vapply(data, `[[`, "", 1L), FALSE, TRUE)
-  if (length(pos <- which(pos == HOUR)) != 1L)
-    stop("uninterpretable header (maybe because there is not 1 plate per file)")
-  pos <- seq_len(pos - 1L)
-  comments <- prepare_comments(data[pos], filename)
-
-  data <- grep("\\S", unlist(data[-pos]), FALSE, TRUE, TRUE)
-  ncol <- 97L
-  if (length(data) %% ncol != 0L)
-    stop("wrong number of fields")
-  data <- matrix(as.numeric(data[-seq(ncol)]), ncol = ncol, byrow = TRUE,
-    dimnames = list(NULL, sub("^\\s+", "", data[seq(ncol)], FALSE, TRUE)))
-
-  # Repair OTH (this affects both data and comments)
-  if (comments[CSV_NAMES[["PLATE_TYPE"]]] == "OTH") {
-    comments[CSV_NAMES[["PLATE_TYPE"]]] <- SPECIAL_PLATES[["gen.iii"]]
-    data <- repair_oth(data)
+  prepare_opm <- function(x, pos) {
+    pos <- seq_len(match(TRUE, pos, 0L) - 1L)
+    comments <- prepare_comments(x[pos], filename)
+    x <- grep("\\S", unlist(x[-pos]), FALSE, TRUE, TRUE)
+    ncol <- 97L
+    if (length(x) %% ncol != 0L)
+      stop("data part with wrong number of fields, not organised in 97 columns")
+    x <- matrix(as.numeric(x[-seq(ncol)]), length(x) %/% ncol - 1L, ncol,
+        TRUE, list(NULL, sub("^\\s+", "", x[seq(ncol)], FALSE, TRUE)))
+    # Repair OTH (this affects both data and comments)
+    if (comments[CSV_NAMES[["PLATE_TYPE"]]] == "OTH") {
+      comments[CSV_NAMES[["PLATE_TYPE"]]] <- SPECIAL_PLATES[["gen.iii"]]
+      x <- repair_oth(x)
+    }
+    new("OPM", measurements = x, metadata = list(), csv_data = comments)
   }
 
-  new("OPM", measurements = data, metadata = list(), csv_data = comments)
+  con <- file(filename, "", TRUE, opm_opt("file.encoding"))
+  on.exit(close(con))
+  x <- readLines(con, -1L, TRUE, FALSE)
+  x <- strsplit(x[nzchar(x)], ",", TRUE) # fixed-string splitting most efficient
+
+  # determine position of first field of data header, then split lines into
+  # comments and data fields accordingly; if necessary split into plates
+  pos <- sub("^\\s+", "", vapply(x, `[[`, "", 1L), FALSE, TRUE) == HOUR
+  if (length(which(pos)) == 1L)
+    return(prepare_opm(x, pos))
+  warning("trying to read multiple-plate old-style CSV, ",
+    "result (if any) is a list")
+  if (all(duplicated.default(n <- vapply(x, length, 0L))[-1L]))
+    stop("constant number of fields -- ",
+      "multiple-plate old-style format saved from Excel?")
+  n <- kmeans(n, 2L) # split into long and short sections
+  n <- sections(n$cluster == n$cluster[[1L]], NA)
+  mapply(FUN = prepare_opm, x = split.default(x, n),
+    pos = split.default(pos, n), SIMPLIFY = FALSE, USE.NAMES = FALSE)
 }
+
 
 #' @rdname read_new_opm
 #'
@@ -175,6 +184,7 @@ read_opm_yaml <- function(filename) {
     stop("YAML file contained no data interpretable by opm")
   result
 }
+
 
 #' @rdname read_new_opm
 #'
@@ -202,6 +212,7 @@ read_microstation_opm <- function(filename) {
     stop("MicroStation CSV file contained no interpretable data")
   x
 }
+
 
 #' @rdname read_new_opm
 #'
@@ -744,14 +755,16 @@ glob_to_regex.factor <- function(object) {
 #'   invisibly?
 #'
 #' @return
-#'   \code{read_opm} returns an \code{\link{OPM}} object (maybe
-#'   \code{\link{OPMA}} in case of \acronym{YAML} input), or list
-#'   (\code{\link{MOPMX}} object) of such objects, or \code{\link{OPMS}} object.
-#'   If \code{demo} is \code{TRUE}, a character vector instead.
+#'   \code{read_opm} returns an \code{\link{OPM}} object (maybe derived classes
+#'   such as \code{\link{OPMA}} in case of \acronym{YAML} input), or list
+#'   (\code{\link{MOPMX}} object) of such objects, or a single
+#'   \code{\link{OPMS}} object. If \code{demo} is \code{TRUE}, a character
+#'   vector instead.
 #'
 #'   \code{read_single_opm} also returns an\code{\link{OPM}} object. In the case
-#'   of \acronym{YAML} input, this might also be an \code{\link{OPMA}} object or
-#'   a list of such objects, but \strong{not} an \code{\link{OPMS}} object.
+#'   of \acronym{YAML} and multiple-plate \acronym{CSV} input (which yields an
+#'   according warning), the result might instead be a list of such objects, but
+#'   \strong{not} an \code{\link{OPMS}} object.
 #'
 #' @details The expected \acronym{CSV} format is what is output by an
 #'   OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} instrument, one plate
@@ -774,14 +787,15 @@ glob_to_regex.factor <- function(object) {
 #'   \sQuote{Generation III}). A generation-III or other plate type can also be
 #'   forced later on by using \code{\link{gen_iii}}.
 #'
-#'   It is \strong{impossible} to read \acronym{CSV} files that contain more
+#'   It is impossible to read new-style \acronym{CSV} files that contain more
 #'   than one plate. The data import section of the \pkg{opm} tutorial provides
 #'   a detailed description of how to batch-generate many files with one plate
-#'   per file. For splitting old-style and new-style \acronym{CSV} files into
-#'   one file per plate, see the example under \code{\link{split_files}}. In
-#'   contrast, input \acronym{YAML} files can contain data from more than one
-#'   plate. The format (which includes \acronym{JSON}) is described in detail
-#'   under \code{\link{batch_opm}}.
+#'   per file. Old-style multiple-plate files can usually be read but the format
+#'   is not recommended. For splitting old-style and new-style \acronym{CSV}
+#'   files into one file per plate, see the example under
+#'   \code{\link{split_files}}. In contrast, input \acronym{YAML} files can
+#'   contain data from more than one plate. The format (which includes
+#'   \acronym{JSON}) is described in detail under \code{\link{batch_opm}}.
 #'
 #'   For splitting lists of \code{\link{OPM}} objects according to the plate
 #'   type, see \code{\link{plate_type}}, and consider the plate-type selection
@@ -836,20 +850,28 @@ glob_to_regex.factor <- function(object) {
 #' x <- read_opm(getwd())
 #' # or
 #' x <- read_opm(".")
+#' # or just
+#' x <- read_opm()
 #' }
 #'
 #' # read_single_opm()
 #' test.files <- opm_files("omnilog")
 #' if (length(test.files) > 0) { # if the folder is found
-#'   x <- read_single_opm(test.files[1]) # => 'OPM' object
+#'   (x <- read_single_opm(test.files[1])) # => 'OPM' object
 #'   class(x)
 #'   dim(x)
-#'   summary(x)
 #'   stopifnot(is(x, "OPM"), identical(dim(x), c(384L, 96L)))
 #' } else {
 #'   warning("test-file folder not found")
 #' }
-#' # this can be repeated for the other input test files
+#' test.files <- opm_files("multiple")
+#' if (length(test.files) > 0) { # if the folder is found
+#'   (x <- read_single_opm(test.files[1])) # => list
+#'   class(x)
+#'   stopifnot(is.list(x), length(x) > 1, sapply(x, is, "OPM"))
+#' } else {
+#'   warning("test-file folder not found")
+#' }
 #'
 read_opm <- function(names = getwd(),
     convert = c("try", "no", "yes", "sep", "grp"), gen.iii = opm_opt("gen.iii"),
@@ -1582,7 +1604,7 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
   create_plot_from_file <- function(infile, outfile) {
     data <- read_file(infile)
     if (is.list(data))
-      data <- do.call(c, data)
+      data <- opms(data, group = TRUE)
     create_plot(data, outfile)
   }
 
