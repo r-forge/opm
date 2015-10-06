@@ -1748,14 +1748,14 @@ setMethod("%k%", c("WMD", "WMD"), function(x, table) {
 
 setMethod("%k%", c("formula", "WMD"), function(x, table) {
   tryCatch({
-    eval(x[[length(x)]], table@metadata, parent.frame())
+    eval(x[[length(x)]], table@metadata, parent.frame(2L))
     TRUE
   }, error = function(e) FALSE)
 }, sealed = SEALED)
 
 setMethod("%k%", c("expression", "WMD"), function(x, table) {
   tryCatch({
-    eval(x, table@metadata, parent.frame())
+    eval(x, table@metadata, parent.frame(2L))
     TRUE
   }, error = function(e) FALSE)
 }, sealed = SEALED)
@@ -1963,11 +1963,11 @@ setMethod("%q%", c("WMD", "WMD"), function(x, table) {
 }, sealed = SEALED)
 
 setMethod("%q%", c("formula", "WMD"), function(x, table) {
-  eval(x[[length(x)]], table@metadata, parent.frame())
+  eval(x[[length(x)]], table@metadata, parent.frame(2L))
 }, sealed = SEALED)
 
 setMethod("%q%", c("expression", "WMD"), function(x, table) {
-  eval(x, table@metadata, parent.frame())
+  eval(x, table@metadata, parent.frame(2L))
 }, sealed = SEALED)
 
 #= infix.largeq infix.q
