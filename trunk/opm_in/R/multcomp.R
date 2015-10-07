@@ -206,8 +206,6 @@
 #'   output = "model"))
 #' stopifnot(inherits(x, "formula")) # left side is set automatically
 #'
-#' if (require("multcomp")) {
-#'
 #' # watch the converted 'linfct' argument
 #' (x <- opm_mcp(vaas_4, model = list("Species", "Strain"),
 #'   linfct = c(Dunnett = 1), output = "linfct"))
@@ -311,8 +309,6 @@
 #' stopifnot(inherits(y, "glht"), length(coef(y)) == 1)
 #' if (do.plot)
 #'   plot_with_margin(y, c(3, 15, 3, 2), main = "Dunnett (from data frame)")
-#'
-#' }
 #'
 setGeneric("opm_mcp",
   function(object, ...) standardGeneric("opm_mcp"))
@@ -512,11 +508,6 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
   object <- convert_data(object, split.at, model, sep)
   linfct <- convert_hypothesis_spec(linfct, model, object, rhs, alternative)
 
-  # necessary at this stage because otherwise glht() does not find its
-  # dependencies
-  if (!suppressPackageStartupMessages(require(multcomp)))
-    stop("package 'multcomp' must be available to run this function")
-
   # fit the linear model according to 'm.type', then run glht()
   model <- do.call(match.arg(m.type), list(formula = model, data = object))
   glht.args <- c(list(model = model, linfct = linfct, rhs = rhs),
@@ -603,9 +594,8 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'   values as first column together with data obtained via web service
 #'   associated with the chosen database, in analogy to the \code{download}
 #'   argument of \code{\link{substrate_info}} but after conversion to a numeric
-#'   matrix. This option is not available for all values of \code{what} and
-#'   requires additional libraries. See \code{\link{substrate_info}} for
-#'   details.
+#'   matrix. This option is not available for all values of \code{what}. See
+#'   \code{\link{substrate_info}} for details.
 #'
 #'   The first column name of the matrix is like the \sQuote{value} entry
 #'   returned by \code{\link{param_names}} in \sQuote{reserved.md.names} mode.
@@ -683,8 +673,6 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #'
 #' ## 'opm_glht' method
 #'
-#' if (require("multcomp")) {
-#'
 #' # generation of 'opm_ghlt' test object
 #' y <- opm_mcp(vaas_4[, , 1:4], model = ~ J(Well, Species),
 #'   m.type = "aov", linfct = c(Pairs.Well = 1), full = FALSE)
@@ -702,8 +690,6 @@ setMethod("opm_mcp", "data.frame", function(object, model, linfct = 1L,
 #' # substrate names after translation of relevant characters to Greek letters
 #' head(y.ann.eq <- annotated(y, output = "equal", what = "greek", lmap = 1:3))
 #' stopifnot(is.numeric(y.ann.eq), !is.null(names(y.ann.eq)))
-#'
-#' }
 #'
 setGeneric("annotated", function(object, ...) standardGeneric("annotated"))
 

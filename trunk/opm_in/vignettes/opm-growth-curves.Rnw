@@ -175,7 +175,7 @@ options(width = 90)
 options(prompt = "R> ")
 options(continue = "   ")
 options(useFancyQuotes = FALSE)
-library(methods)
+library("methods")
 @
 
 As usual, \pkg{opm} must be loaded before any analysis can begin:
@@ -183,7 +183,7 @@ As usual, \pkg{opm} must be loaded before any analysis can begin:
 <<label=load-library>>=
 if ("package:opm" %in% search())
   detach(package:opm, unload = TRUE)
-library(opm)
+library("opm")
 @
 
 \section{Growth-curve data input}\label{data-input}
@@ -496,7 +496,7 @@ Visualising raw measurements of growth curves with the methods intended for \ac{
 For instance, the expected maximum for \ac{PM} data can seldom be used for delimiting the \code{y} axes, the data are not measured in OmniLog\textregistered \ units, and a negative control might not be present:
 
 <<label=potato-growth-code, eval=FALSE>>=
-library(gridExtra)
+library("gridExtra")
 plot.fm <- xy_plot(potato.fm, theor.max = FALSE, rcr = 1,
   include = "Genotype", main = list(in.parens = FALSE),
   ylab = "Fresh cell mass [mg]", neg.ctrl = FALSE)
@@ -655,7 +655,6 @@ fm.mcp <- opm_mcp(potato.fm, ~ J(Well, Genotype), m.type = "aov",
 Using the dedicated \code{plot} method, the results can be visualised as demonstrated in Figure~\ref{fig:potato-mcp}.
 
 <<label=plot-potato-mcp-code, eval=FALSE>>=
-library(multcomp) # now needed
 old.par <- par(mfrow = c(2, 1), mar = c(1, 15, 2, 1))
 plot(fm.mcp)
 plot(dm.mcp, main = "")

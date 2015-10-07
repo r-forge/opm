@@ -240,7 +240,7 @@ Examples for each step are found in the according subsections of Section~\ref{ap
 Almost all of these subsections contain a final \textbf{troubleshooting} paragraph in which we comment on the most frequently observed problems.
 
 The single most important problem users reported to us when applying \pkg{opm} was that the input files could not be read.
-This was most often due to the use of multiple-plate \ac{CSV} files and sometimes due to selection of non-\ac{PM} \ac{CSV} files.
+This was most often due to the use of multiple-plate \ac{CSV} files, which could not be read with older versions of \pkg{opm}, and sometimes due to selection of non-\ac{PM} \ac{CSV} files.
 See Section~\ref{application import troubleshooting} for details.
 
 For troubleshooting when including metadata, see Section~\ref{application metadata troubleshooting}.
@@ -411,7 +411,7 @@ Many additional resources on \pkg{opm} are available:
 The proprietary OmniLog\textregistered \ \ac{PM} data analysis software \textit{File Management/Kinetic Analysis} \citep{biologInc} can export the kinetic raw data from single or multiple plates as \ac{CSV} files.
 These contain a small amount of associated run information that has been entered at the interface of the OmniLog\textregistered \ \ac{PM} \textit{Data Collection} software, which controls the OmniLog\textregistered \ reader.
 This generation of \ac{CSV} files used to involve the creation of intermediary files with the extension \code{"d5e"} from the original ones with the extension \code{"oka"}.
-For use with \pkg{opm}, the raw kinetic data should be exported into a single \ac{CSV} file for each measured plate.
+For use with \pkg{opm}, the raw kinetic data should be exported into a single \ac{CSV} file for each measured plate (but current versions of the package can also read \ac{CSV} containing more than a single plate, thus the user does not need to export the data again).
 With version 1.6.0.107 of the \textit{File Management/Kinetic Analysis} software, this works as follows:
 
 \begin{figure}
@@ -428,7 +428,7 @@ Screenshot of the export module of the OmniLog\textregistered \ \ac{PM} data ana
 \item Start the software \code{PMM_Kinetic.exe}.
 \item Import \code{"d5e"} files by using \textit{Load $\rightarrow$ Import $\rightarrow$ Select Data Folder $\rightarrow$ Populate Filters $\rightarrow$ Import $\rightarrow$ Close}.
 \item Add all plates or selected plates from the \textit{Worksheet List} to the \textit{Data List}.
-\item Export the data by using \textit{Export $\rightarrow$ Export Data} as shown in Figure~\ref{fig:omnilog-export}. You may either choose \textit{One-line Header} or \textit{Multi-line Header}, but you must choose \textit{Every Plate (Individual Files)}.
+\item Export the data by using \textit{Export $\rightarrow$ Export Data} as shown in Figure~\ref{fig:omnilog-export}. You may either choose \textit{One-line Header} or \textit{Multi-line Header}, but you should choose \textit{Every Plate (Individual Files)}.
 \item Enter a directory name in the pop-up window that now opens.
 \item Press the \textit{Save} button.
 \end{enumerate}
@@ -442,7 +442,8 @@ Please contact your local representative of the vendor for the latest OmniLog\te
 
 We refer to the \ac{CSV} exports from versions of the OmniLog\textregistered \ \ac{PM} \textit{File Management/Kinetic Analysis} software that did not support batch-export with one file per plate as ``old style''.
 Later versions exported the data in a slightly different \ac{CSV} format we call ``new style'', and as of 2014 the \ac{LIMS} style is available.
-The \pkg{opm} package currently does not support the input of several plates from \ac{PM}-mode runs stored in a single new-style \ac{CSV} file, but its function \code{split\_files} can split new-style \ac{CSV} files containing multiple plates.
+The \pkg{opm} package now also supports the input of several plates from \ac{PM}-mode runs stored in a single old-style or new-style \ac{CSV} file.
+Using the function \code{split\_files} to split \ac{CSV} files containing multiple plates is not necessary any more.
 
 As of version 0.4.0, \pkg{opm} also supports the input of MicroStation\texttrademark \ \ac{CSV} files (frequently used in conjunction with EcoPlate\texttrademark \ assay for microbial community analysis) \citep{Vaas2013}.
 These files contain only end-point measurements but potentially several plates, which can nevertheless be input together with their potentially also rich meta-information.
@@ -860,7 +861,7 @@ As shown in the upper left part of the figure, it only requires the creation of 
 Before starting, the \pkg{opm} package should be loaded into an \proglang{R} session as follows:
 
 <<label=load-library>>=
-library(opm)
+library("opm")
 @
 
 The example data set distributed with the package \citep{vaas} comprises the results from running 114 GEN-III plates (BIOLOG Inc.) in the \ac{PM} mode of the OmniLog\textregistered \ reader.
@@ -907,8 +908,8 @@ In the \pkg{opm} manual and all help pages, all data import functions are contai
 
 The \ac{CSV} files with the OmniLog\textregistered \ raw data should be stored in one to several user-defined folders.
 Setting the working directory of \proglang{R} to the parent folder of these using \code{setwd} frequently facilitates file selection, but in principle the user can provide any number of paths to input files and/or directories containing such files to the function \code{read\_opm}, which can load several \ac{CSV} files (and also \proglang{YAML} or \proglang{JSON} files generated by \pkg{opm}) at once.
-A restriction of the input functions is that they can solely read new-style \ac{CSV} files that only contain the measurements from a single plate per file (either a \ac{PM} plate or a single GEN-III plate measured in either \ac{PM}- or identification mode).
-But the package contains a function \code{split\_files}, which can be used to split \ac{CSV} files with multiple plates into one file per plate.
+A former restriction of the input functions was that they could solely read new-style \ac{CSV} files that only contained the measurements from a single plate per file (either a \ac{PM} plate or a single GEN-III plate measured in either \ac{PM}- or identification mode).
+The function \code{split\_files} had to be used to split \ac{CSV} files with multiple plates into one file per plate, but this is not necessary any more.
 
 To illustrate the file import step by step, a set of input \ac{CSV} example files is provided with the package.
 Before starting, remember that the \pkg{opm} package must be loaded.
@@ -920,30 +921,30 @@ files
 Afterwards check whether this returned a vector of nine file names, including the full path to their location in the file system.
 (It might fail in very unusual \proglang{R} installation situations; in that case, the files must be found manually.)
 For demonstration purposes, the test data contain EcoPlate\textregistered \, Gen-III, PM01 and PM20 plate types.
-One of these files contains multiple plates and acts as an example for \code{split\_files} but could also directly be read.
+One of these files contains multiple plates and could be used as an example for \code{split\_files}, but it can also directly be read.
 
-The following code creates single-plate \ac{CSV} files from the multiple-plate file that comes with \pkg{opm}:
-
-<<label=file-splitting, results=hide>>=
-multi.plate.file <- grep("Multiple", files,
-  value = TRUE, ignore.case = TRUE)
-multi.plate.file
-list.files()
-split_files(multi.plate.file, '^("Data File",|Data File)', getwd())
-list.files()
-@
-
-Three additional files should now be visible in the working directory, consecutively numbered and using the base name of the input file.
-These could now be read with \code{read\_opm}, but we will use other files in the next paragraph and tidy up now:
-
-<<label=tidy-split-files-up, results=hide>>=
-rm(multi.plate.file)
-unlink(grep("Multiple-0000", list.files(),
-  value = TRUE, ignore.case = TRUE))
-@
-
-Note that \code{split\_files}, in contrast to \code{read\_opm}, does not automatically expand directory names into file names.
-(It would otherwise be too easy to accidentally generate many unneeded files.)
+%The following code creates single-plate \ac{CSV} files from the multiple-plate file that comes with \pkg{opm}:
+%
+%<<label=file-splitting, results=hide>>=
+%multi.plate.file <- grep("Multiple", files,
+%  value = TRUE, ignore.case = TRUE)
+%multi.plate.file
+%list.files()
+%split_files(multi.plate.file, '^("Data File",|Data File)', getwd())
+%list.files()
+%@
+%
+%Three additional files should now be visible in the working directory, consecutively numbered and using the base name of the input file.
+%These could now be read with \code{read\_opm}, but we will use other files in the next paragraph and tidy up now:
+%
+%<<label=tidy-split-files-up, results=hide>>=
+%rm(multi.plate.file)
+%unlink(grep("Multiple-0000", list.files(),
+%  value = TRUE, ignore.case = TRUE))
+%@
+%
+%Note that \code{split\_files}, in contrast to \code{read\_opm}, does not automatically expand directory names into file names.
+%(It would otherwise be too easy to accidentally generate many unneeded files.)
 
 Using \code{read\_opm}, from a given vector of file and/or directory names, files can easily be selected and deselected using globbing or regular-expression patterns.
 For instance, for reading the three example files in ``new style'' \ac{CSV} format (see Section~\ref{methods import}), use the following code.
@@ -996,16 +997,16 @@ But this might only occasionally be useful, as \code{read\_opm} can cope with si
 
 \subsubsection[Troubleshooting]{Troubleshooting}\label{application import troubleshooting}
 
-The most usual error we know about is to try to input new-style \ac{CSV} files with \textit{several} plates per file, but such  multiple-plate \ac{CSV} files would need to be split beforehand with \code{split\_files} as explained above to generate files that can be input by the package.
-Moreover, the most recent versions of the OmniLog\textregistered \ software can batch-export one plate per \ac{CSV} file.
-
-A second frequent kind of error is that you attempt to read files that are \ac{CSV} but do not contain PM data.
+A frequent kind of error is that you attempt to read files that are \ac{CSV} but do not contain PM data.
 The name of the first file that fails is shown in the error message, fixing the problem should thus be straightforward.
 Use \code{demo = TRUE} to first show the files you would read, and if this list contains names of files that expectedly cannot be read by \pkg{opm}, modify the inclusion or exclusion settings.
 Alternatively, modify your folder structure.
 Finally, note that you can always use a character vector of specific file names collected by hand as \code{names} argument.
 This would provide complete control about the files to be read.
 
+The most usual error that occurred with older versions of \pkg{opm} was that it was attempted to input \ac{CSV} files with \textit{several} plates per file, but such  multiple-plate \ac{CSV} files had to be split beforehand with \code{split\_files} to generate files that can be input by the package.
+This restriction has been lifted in current \pkg{opm} versions.
+Moreover, the most recent versions of the OmniLog\textregistered \ software can batch-export one plate per \ac{CSV} file.
 
 \subsection[Batch conversion of many files]{Batch conversion of many files}\label{application batch}
 
@@ -2027,7 +2028,6 @@ For the computation of the tests itself, \code{opm\_mcp} uses \code{glht} from t
 As shown in Figure~\ref{fig:ci_plot_mcp}, the results of the performed statistical test can be plotted using the methods available for objects of that class (see \code{multcomp::glht} in the manual).
 
 <<label=plot-mcp-linfct-figure-code, eval=FALSE>>=
-library(multcomp) # now needed
 old.mar <- par(mar = c(3, 15, 3, 2)) # adapt margins in the plot
 plot(vaas.G06.mcp)
 par(old.mar) # reset to default plotting settings
@@ -2176,6 +2176,7 @@ For performing even more specific comparisons of interest, the user can provide 
 To demonstrate the principle of a contrast matrix, an all-against-all comparison (a ``Tukey''-type contrast) of four groups is performed using a toy-example.
 
 <<label=contrMat>>=
+library("multcomp") # now needed
 n <- c(10, 20, 30, 40)
 names(n) <- paste0("group", 1:4)
 contrMat(n, type = "Tukey")
