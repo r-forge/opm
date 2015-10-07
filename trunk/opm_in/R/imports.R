@@ -59,3 +59,6 @@ NULL
 #'
 NULL
 
+#' @importFrom multcomp glht
+#'
+NULL
