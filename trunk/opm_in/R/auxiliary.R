@@ -1591,7 +1591,7 @@ insert.list <- function(object, other, ..., .force = FALSE, .strict = FALSE) {
 #'       format might well match a given entry, causing \pkg{opm} to
 #'       misinterpret the time or even the date.}
 #'     \item{warn.mult}{Issue a warning if \code{\link{read_single_opm}} reads
-#'       a multi-plate old-style or new-style \acronym{CSV} file.}
+#'       a multiple-plate old-style or new-style \acronym{CSV} file.}
 #'   }
 #'
 #'   The following kinds of parameter names applied by \pkg{opm} cannot be
