@@ -1928,10 +1928,10 @@ ____EOF
     OPM_SQLITE_DB=`pwd`/$MISC_DIR/$DEFAULT_DBNAME.db
     export OPM_SQLITE_DB
     update_html_startpage "$HTML_STARTPAGE" &&
-      generate_html_docu pkgutils opm opmdata &&
-        check_html_docu pkgutils_doc opm_doc opmdata_doc &&
+      generate_html_docu pkgutils opm opmdata opmextra &&
+        check_html_docu pkgutils_doc opm_doc opmdata_doc opmextra_doc &&
           upload_to_server "$HTML_STARTPAGE" "$HTML_LINKED_FILES" \
-            pkgutils_doc opm_doc opmdata_doc
+            pkgutils_doc opm_doc opmdata_doc opmextra_doc
     exit $?
   ;;
   index )
@@ -1964,7 +1964,7 @@ ____EOF
     exit $?
   ;;
   rnw )
-    run_Stangle opm_in opmdata_in opmdata2_in pkgutils_in
+    run_Stangle opm_in opmdata_in opmdata2_in opmextra_in pkgutils_in
     exit $?
   ;;
   rout )
@@ -1999,7 +1999,7 @@ ____EOF
     exit $?
   ;;
   time )
-    show_example_timings opm opmdata opmdata2 pkgutils
+    show_example_timings opm opmdata opmdata2 opmextra pkgutils
     exit $?
   ;;
   todo )

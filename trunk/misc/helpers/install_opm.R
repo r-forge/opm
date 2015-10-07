@@ -16,7 +16,7 @@
 # inserted, and '...' are arguments passed to devtools::install_url(). Users
 # will be prompted in interactive sessions unless they set 'confirm' to 'FALSE'.
 #
-install_opm <- function(pkg = c("pkgutils", "opm", "opmdata"),
+install_opm <- function(pkg = c("pkgutils", "opm", "opmdata", "opmextra"),
     www = "http://www.goeker.org/opm/%s_latest.tar.gz",
     confirm = interactive(), ...) {
 
