@@ -164,7 +164,7 @@ Johannes \Surname{Sikorski}\\
 \Shorttitle{Phenotype Microarray Data (\today)}
 
 \Abstract{
-The OmniLog\textregistered \ \ac{PM} system is able to monitor simultaneously, on a longitudinal time scale, the phenotypic reaction of single-celled organisms such as bacteria, fungi, and animal cell cultures to up to 2,000 environmental challenges spotted on sets of 96-well microtiter plates.
+The OmniLog\textregistered \ \ac{PM} system can monitor simultaneously, on a longitudinal time scale, the phenotypic reaction of single-celled organisms such as bacteria, fungi, and animal cell cultures to up to 2,000 environmental challenges spotted on sets of 96-well microtiter plates.
 The phenotypic reactions are recorded as respiration kinetics with a shape comparable to growth curves.
 Tools for storing the curve kinetics, aggregating the curve parameters, recording associated metadata of organisms and experimental settings as well as methods for analysing graphically and statistically these highly complex data sets are increasingly in demand.
 
@@ -319,7 +319,7 @@ Its subset, \proglang{JSON} (\url{http://www.json.org/}), can also be used, for 
 As \pkg{opm} is also able to generate \proglang{R} matrices and data frames, output as \ac{CSV} is also easy.
 
 Data evaluation includes the graphical display of the data such as the raw respiration curve kinetics or the confidence intervals of aggregated curve parameters.
-With sophisticated selection methods the user is able to sort, group and arrange the data according the specific experimental questions in the plotting and analysis framework.
+With sophisticated selection methods the user can sort, group and arrange the data according the specific experimental questions in the plotting and analysis framework.
 Since most addressed experimental questions require to statistically compare not only single curves, but distinct groups of curves, the package provides adapted methods for performing simultaneous multiple comparisons of group means \citep{bretz}.
 Because the definition of groups using stored metadata is highly flexible, the user is enabled to individually define contrast tests \citep{hsu}.
 
@@ -694,7 +694,7 @@ Here, a statistical comparison of four groups (four organisms), each containing 
 Statistically, this requires simultaneous inferences across multiple questions \citep{hothorn}.
 
 To address this issue the function \code{opm\_mcp} performs simultaneous multiple comparisons of group means by internally calling \code{glht} from the \pkg{multcomp} package \citep{hothorn} but providing an easier interface for it, specifically adapted to the typical objects used within \pkg{opm}.
-By referring to available metadata and/or the substrate names, the user is able to define groups of interest, set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}.
+By referring to available metadata and/or the substrate names, the user can define groups of interest, set up a model of choice and perform multiple comparison of group means on individually specified contrasts \citep{bretz, hsu}.
 The choice of appropriate models and contrasts will be explained in detail below.
 As comparisons of the different curve parameters are performed separately, it is possible to ask very specific questions on differences between curve shapes.
 
@@ -1503,7 +1503,7 @@ This is useful because deviations regarding the overall measurement hours might 
 
 In addition to plate-wise querying and subdividing \proglang{OPMS} objects, methods for a variety of generic \proglang{R} functions such as \code{unique}, \code{sort}, \code{duplicated}, \code{anyDuplicated} and \code{merge} are available for \proglang{OPMS} objects.
 As specified using \code{sort(by = ...)}, sorting can be done based on selected metadata or on \code{csv_data} entries such as the setup time.
-The latter is of use in conjunction with the \code{merge} method, which is able to concatenate \proglang{OPM} objects from subsequent runs of the same plate.
+The latter is of use in conjunction with the \code{merge} method, which can concatenate \proglang{OPM} objects from subsequent runs of the same plate.
 See the manual entries for \code{opm::sort} and \code{opm::merge} for further information.
 For a usage example (and entire exemplar data set) see \code{opmdata::montero_et_al}.
 
@@ -1589,10 +1589,7 @@ Likewise, the well coordinates are automatically converted to substrate names (d
 The content of the legend, which is mainly a description of the assignment of the colours to the curves, is also determined automatically.
 
 
-%% CHECK BY MG JULY 2015 END (start at beginning of document)
-
-
-The argument \code{include} refers to the metadata and allows the user to choose which entries to be used for assigning curve colours and accordingly be included in the legend.
+The argument \code{include} refers to the metadata and allows the user to choose which entries to use for assigning curve colours and accordingly be included in the legend.
 Character vectors, lists and formulae are allowed as \code{include} argument.
 See Section~\ref{application metadata} and the \code{metadata} entry in the manual.
 Note particularly the difference between, say, \code{list("Species", "Strain")} and \code{c("Species", "Strain")}.
@@ -1601,7 +1598,7 @@ As the metadata can be nested, the latter would search for an element called \co
 In the example the combination of species and strain is used, yielding four distinct colours.
 If \code{include} is not used, the colours are assigned per plate.
 Several predefined colour palettes are available in \pkg{opm} (accessible \textit{via} \code{select\_colors}) with a maximum of 24 distinct colours.
-If more colours were needed, the user should set up a larger own colour vector and pass it as the argument \code{col} to \code{xy\_plot} or preferably use \code{opm\_opt(colours = ...)}.
+If more colours were needed, the user should set up a larger colour vector and pass it as the argument \code{col} to \code{xy\_plot} or preferably use \code{opm\_opt(colours = ...)}.
 
 The plotting of fewer sub-panels (see Figure~\ref{fig:xy_plot_2}) works as described above; the only difference is in the manipulation of the data set (note that the order of wells is changed in the plotted object, but not in the plot):
 
@@ -1653,9 +1650,12 @@ Furthermore, the argument \code{include} again refers to the metadata and allows
 In the example the combination of species and strain is used.
 The default colour palette used can by modified with \code{opm\_opt(colour.borders = ...)}.
 
+
 \subsubsection[Troubleshooting]{Troubleshooting}\label{application plotting troubleshooting}
 
-If a plotting function complains about having more groups than colours available, check \code{select\_colors} and consider using \code{opm\_opt(colors = "brewer")} or create your own set of colours using \code{rainbow} etc.
+If a plotting function complains about having more groups than colours available, you can check \code{select\_colors} and consider using \code{opm\_opt(colors = "brewer")} or create your own set of colours using \code{rainbow} etc.
+The more colours, however, the more difficult is it to visually distinguish them.
+Hence, we recommend to try to create larger and thus fewer groups instead of more colours.
 
 When selecting metadata, do not mix up the selection by, say \code{c("a", "b")} with the selection using \code{list("a", "b")}.
 
@@ -1682,14 +1682,14 @@ parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
 Visualisation of all four curve parameters in one comprehensive parallel coordinate plot.
 The parameters are automatically scaled to a fixed range (here marked with ``Min'' and ``Max'') and plotted by connecting lines.
 By default the first element of the right part of the formula in \code{data} is used as \code{groups} argument.
-Thus, in the example the colours indicate the ``Strain''-``Species'' combination, since these entries are selected from the metadata \textit{via} the \code{data} argument and joined using the pseudo-function \code{J}.
+Thus, in the example the colours indicate the combination of ``Strain'' and ``Species'', since these entries are selected from the metadata \textit{via} the \code{data} argument and joined using the pseudo-function \code{J}.
 }
 \end{figure}
 
-The fine tuning of the plot is managed by the \code{data} argument for selecting metadata, optionally combined with \code{groups}, which by default accesses the provided metadata entries, if any.
+The fine-tuning of the plot is managed by the \code{data} argument for selecting metadata, optionally combined with \code{groups}, which by default accesses the provided metadata entries, if any.
 Additionally, \code{panel.var} for creating sub-panels can access the metadata selected with \code{data}.
 If no metadata are selected (the default), only \code{Well} is available as grouping variable.
-Figure~\ref{fig:para_plot_advanced} demonstrates how the \code{panel.var} and the \code{groups} argument can be used for fine tuning the plot.
+Figure~\ref{fig:para_plot_advanced} demonstrates how the \code{panel.var} and the \code{groups} argument can be used for fine-tuning the plot.
 
 <<label=para-plot-advanced-figure-code, results=hide, eval=FALSE>>=
 parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
@@ -1711,19 +1711,19 @@ Since a combination of \code{Strain} and \code{Species} is selected from the met
 \end{figure}
 
 
-In addition to \code{NULL} as \code{data} argument (no metadata are included), a character vector or a list of character vectors indicating which metadata should be included can be used.
-However, the most flexibility is achieved if \code{data} is stated as a formula.
+In addition to \code{NULL} as \code{data} argument (no metadata are included), a character vector or a list of character vectors can be used that indicates which metadata should be included.
+However, most flexibility is achieved if \code{data} is a formula.
 The right part of the formula always indicates the meta-information to be included in the underlying data set.
 As usual in \pkg{opm}, the \code{J} pseudo-function can be used to join metadata entries.
 Further, the left part in the formula (as an alternative to the \code{pnames} argument) can indicate which parameters should be plotted on the Y-axes.
 Note that at least two parameters have to be used, see the manual for examples.
 
-The function \code{radial\_plot} is able to plot numeric values as distances from the centre of a circular field in directions defined by angles in radians.
+The function \code{radial\_plot} can plot numeric values as distances from the centre of a circular field in directions defined by angles in radians.
 Some selection of wells should usually be applied beforehand for these plots to be useful.
 Figure~\ref{fig:radial_plot} provides a simple example of such a visualisation.
 The parameter \ac{A} is plotted for the wells A01 to A05 and A10 from data set \code{vaas\_4}.
-Note also that the values for positioning the upper-left corner of the legend are oriented according to the axes of the plot.
-For positioning in the lower left part of the figure, negative values for x and y would be necessary (see Figure~\ref{fig:radial_plot-symbols}).
+Note that the values for positioning the upper-left corner of the legend are oriented according to the axes of the plot.
+For positioning the legend in the lower left part of the figure, negative values for x and y would be necessary (see Figure~\ref{fig:radial_plot-symbols}).
 The code is as follows:
 
 <<label=radial-plot-figure-code, results=hide, eval=FALSE>>=
@@ -1741,8 +1741,8 @@ radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
 \caption{
 \label{fig:radial_plot}
 Comparison using \code{radial\_plot} of the parameter \ac{A} measured for four strains.
-Shown are the results for the wells A01 to A05 and A10.
-The data, represented by polygons, are supplemented by centroids shown as correspondingly coloured squares.
+The results for the wells A01 to A05 and A10 are shown.
+The data, represented by polygons, are supplemented by centroids displayed as accordingly coloured squares.
 }
 \end{figure}
 
@@ -1765,15 +1765,17 @@ radial_plot(vaas_4[, , c(1:5, 10)], as.labels = list("Species", "Strain"),
 }
 \caption{
 \label{fig:radial_plot-symbols}
-Comparison using \code{radial\_plot} of estimates for the parameter \ac{A} observed for four strains.
-Shown are the results for the wells A01 to A05 and A10 plotted as symbols.
-Each centroid is shown as larger symbol in the corresponding colour.
+Comparison of estimates for the parameter \ac{A} from four distinct strains using \code{radial\_plot}.
+The results for the wells A01 to A05 and A10 are shown, plotted as symbols.
+Each centroid is displayed as larger symbol in the corresponding colour.
 }
 \end{figure}
 
 
+%% CHECK BY MG JULY 2015 END (start at beginning of document)
 
-The function \code{ci\_plot} is able to visualise point estimates and corresponding 95\% confidence intervals for the parameters, derived \textit{via} bootstrapping during aggregation of raw kinetic data into curve parameters, or, in conjunction with \code{extract}, from plate groups defined by the metadata.
+
+The function \code{ci\_plot} can visualise point estimates and corresponding 95\% confidence intervals for the parameters, derived \textit{via} bootstrapping during aggregation of raw kinetic data into curve parameters, or, in conjunction with \code{extract}, from plate groups defined by the metadata.
 Thereby the bracket operator as described above (see Section~\ref{application manipulation}) facilitates the selection of subsets of interest.
 
 Figure~\ref{fig:ci_plot} provides an example of such a visualisation.

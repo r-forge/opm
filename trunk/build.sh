@@ -1487,7 +1487,7 @@ test_sql_demos()
   local errs=0
   OPM_SQLITE_DB=$wdir/$MISC_DIR/$DEFAULT_DBNAME.db
   export OPM_SQLITE_DB
-  for rscript in "$wdir"/opm_in/demo/*.R; do
+  for rscript in "$wdir"/*_in/demo/*.R; do
     [ -s "$rscript" ] || continue
     echo "${rscript##*/}" | grep -q 'SQL\|ODBC' - || continue
     echo "TESTING ${rscript##*/}..."
@@ -1812,15 +1812,20 @@ case $RUNNING_MODE in
   ;;
   d2norm )
     PKG_DIR=opmdata2_in
-    RUNNING_MODE=${RUNNING_MODE#d}
+    RUNNING_MODE=${RUNNING_MODE#d2}
     CHECK_R_TESTS=
   ;;
   docu )
     :
   ;;
+  efull|enorm )
+    PKG_DIR=opmextra_in
+    RUNNING_MODE=${RUNNING_MODE#e}
+    CHECK_R_TESTS=
+  ;;
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
-      remove_dirs_carefully pkgutils opm opmdata opmdata2 validate &&
+      remove_dirs_carefully pkgutils opm opmdata opmextra opmdata2 validate &&
       remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmdata2_doc \
         validate_doc
     exit $?

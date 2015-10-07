@@ -16,6 +16,7 @@
 
 
 library(opm)
+library(opmextra)
 library(RODBC)
 
 
@@ -71,5 +72,6 @@ print(result2)
 stopifnot(result2 == "ok")
 
 
+detach("package:opmextra")
 detach("package:RODBC")
 
