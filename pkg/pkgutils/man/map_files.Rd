@@ -1,9 +1,11 @@
 \name{map_files}
+\alias{clean_filenames}
+\alias{clean_filenames.character}
 \alias{map_filenames}
 \alias{map_filenames.character}
 \alias{map_files}
 \alias{map_files.character}
-\title{Map files}
+\title{Map files or file names}
 \usage{
   map_files(x, ...)
 
@@ -17,10 +19,17 @@
     append = "", out.dir = ".", groups = 1L,
     assort = c("lst", "rlst", "ext", "rext", "grp", "rgrp"),
     normalize = TRUE, ...)
+
+  clean_filenames(x, ...)
+
+  \method{clean_filenames}{character} (x,
+    overwrite = FALSE, demo = FALSE,
+    empty.tmpl = "__EMPTY__\%05i__", ...)
 }
 \arguments{
   \item{x}{Character vector of input (and potentially
-  output) file names.}
+  output) file names.  Names of directories are not
+  supported.}
 
   \item{mapfun}{Mapping function, receives character vector
   with the lines per file as first argument, with the name
@@ -78,6 +87,22 @@
   \item{normalize}{Logical scalar indicating whether
   \code{normalizePath} from the \pkg{base} package shall be
   applied. Eases the recognition of duplicate file names.}
+
+  \item{overwrite}{Logical scalar. Overwrite already
+  existing files, and do not care for duplicate names
+  created by cleaning the file names?}
+
+  \item{empty.tmpl}{Character scalar. The template to use
+  for file names that become empty after cleaning. Should
+  include an integer placeholder to enable incrementing an
+  index for creating unique file names. (Empty file names
+  should occur rarely anyway.)}
+
+  \item{demo}{Logical scalar. For \code{clean_filenames},
+  \code{TRUE} means to not rename files but just return the
+  usual result indicating the renaming actions that would
+  be attempted? (Note that this does not indicate whether
+  the renaming would also by successful.)}
 }
 \value{
   \code{map_files} returns a logical vector using \code{x}
@@ -94,6 +119,10 @@
   several output file names constructed from these input
   file names and the arguments \code{out.ext},
   \code{append} and \code{out.dir}.
+
+  \code{clean_filenames} yields a character vector, its
+  names corresponding to the renamed old files, values
+  corresponding to the novel names, returned invisibly.
 }
 \description{
   Read lines from a file, modify the lines using a given
@@ -122,6 +151,8 @@
   file names.
 }
 \examples{
+## map_files
+
 tmpfile <- tempfile()
 write(letters, file = tmpfile)
 (x <- map_files(tmpfile, identity))
@@ -135,9 +166,27 @@ x <- readLines(tmpfile)
 stopifnot(x == LETTERS)
 (x <- map_files(tmpfile, as.null))
 stopifnot(!x)
+
+## clean_filenames
+
+# Example with temporary files
+(x <- tempfile(pattern = "cb& ahi+ si--")) # bad file name
+write("test", x)
+stopifnot(file.exists(x))
+(y <- clean_filenames(x)) # file renamed
+stopifnot(!file.exists(x), file.exists(y))
+unlink(y) # tidy up
 }
 \seealso{
   base::readLines base::writeLines base::identity
+
+  \code{clean_filenames} modifies file names by removing
+  anything else then word characters, dashes, and dots.
+  Also remove trailing and leading dashes and underscores
+  (per part of a file name, with dots separating these
+  parts) and reduce adjacent dashes and underscores to a
+  single one. Note that directory parts within the file
+  names, if any, are not affected.
 
   Other character-functions: \code{\link{sections}},
     }

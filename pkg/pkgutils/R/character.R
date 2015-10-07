@@ -196,3 +196,43 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
   files
 }
 
+clean_filenames <- function(x, ...) UseMethod("clean_filenames")
+
+clean_filenames.character <- function(x, overwrite = FALSE, demo = FALSE,
+    empty.tmpl = "__EMPTY__%05i__", ...) {
+  empty.idx <- 0L
+  clean_parts <- function(x) {
+    x <- gsub("[^\\w-]+", "_", x, FALSE, TRUE)
+    x <- gsub("_*-_*", "-", x, FALSE, TRUE)
+    x <- gsub("-+", "-", gsub("_+", "_", x, FALSE, TRUE), FALSE, TRUE)
+    x <- sub("[_-]+$", "", sub("^[_-]+", "", x, FALSE, TRUE), FALSE, TRUE)
+    x <- x[nzchar(x)]
+    if (!length(x))
+      x <- sprintf(empty.tmpl, empty.idx <<- empty.idx + 1L)
+    x
+  }
+  clean_basenames <- function(x) {
+    x <- lapply(strsplit(x, ".", TRUE), clean_parts)
+    unlist(lapply(x, paste0, collapse = "."), FALSE, FALSE)
+  }
+  LL(overwrite, demo, empty.tmpl)
+  x <- unique.default(as.character(x))
+  if (any(bad <- !nzchar(x))) {
+    warning("removing invalid empty file name")
+    x <- x[!bad]
+  }
+  result <- clean_basenames(basename(x))
+  result <- ifelse(dirname(x) == ".", result, file.path(dirname(x), result))
+  different <- result != x
+  result <- structure(result[different], names = x[different])
+  if (!overwrite) {
+    result <- result[!duplicated(result)]
+    result <- result[!file.exists(result)]
+  }
+  if (demo)
+    message(listing(result, header = "Attempted renamings:"))
+  else
+    result <- result[file.rename(names(result), result)]
+  invisible(result)
+}
+

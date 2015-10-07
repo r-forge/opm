@@ -163,7 +163,7 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 ################################################################################
 
 
-#' Map files
+#' Map files or file names
 #'
 #' Read lines from a file, modify the lines using a given function, and write
 #' the lines back to the input file unless the result of applying the function
@@ -171,6 +171,7 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' to (sets of) output file names and check for duplicates.
 #'
 #' @param x Character vector of input (and potentially output) file names.
+#'   Names of directories are not supported.
 #' @param mapfun Mapping function, receives character vector with the lines per
 #'   file as first argument, with the name of the file added as attribute with
 #'   the name given using \code{.attr}.
@@ -211,6 +212,16 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' @param normalize Logical scalar indicating whether \code{normalizePath} from
 #'   the \pkg{base} package shall be applied. Eases the recognition of duplicate
 #'   file names.
+#' @param overwrite Logical scalar. Overwrite already existing files, and do not
+#'   care for duplicate names created by cleaning the file names?
+#' @param empty.tmpl Character scalar. The template to use for file names that
+#'   become empty after cleaning. Should include an integer placeholder to
+#'   enable incrementing an index for creating unique file names. (Empty
+#'   file names should occur rarely anyway.)
+#' @param demo Logical scalar. For \code{clean_filenames}, \code{TRUE} means to
+#'   not rename files but just return the usual result indicating the renaming
+#'   actions that would be attempted? (Note that this does not indicate whether
+#'   the renaming would also by successful.)
 #' @return \code{map_files} returns a logical vector using \code{x} as names,
 #'   with \code{TRUE} indicating a successfully modified file, \code{FALSE} a
 #'   file that yielded no errors but needed not to be modified, and \code{NA} a
@@ -222,6 +233,10 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #'   contains a set of one to several input file names and its associated set of
 #'   one to several output file names constructed from these input file names
 #'   and the arguments \code{out.ext}, \code{append} and \code{out.dir}.
+#'
+#'   \code{clean_filenames} yields a character vector, its names corresponding
+#'   to the renamed old files, values corresponding to the novel names, returned
+#'   invisibly.
 #' @details These function are mainly of use in non-interactive scripts.
 #'
 #' If \code{mapfun} returns \code{NULL}, it is ignored by \code{map_files}.
@@ -234,10 +249,19 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' names from input file names and to assort these input file names. This in
 #' turn helps converting sets of input file names to sets of output file names.
 #' @seealso base::readLines base::writeLines base::identity
+#'
+#' \code{clean_filenames} modifies file names by removing anything else then
+#' word characters, dashes, and dots. Also remove trailing and leading dashes
+#' and underscores (per part of a file name, with dots separating these parts)
+#' and reduce adjacent dashes and underscores to a single one. Note that
+#' directory parts within the file names, if any, are not affected.
 #' @family character-functions
 #' @export
 #' @keywords IO
 #' @examples
+#'
+#' ## map_files
+#'
 #' tmpfile <- tempfile()
 #' write(letters, file = tmpfile)
 #' (x <- map_files(tmpfile, identity))
@@ -251,6 +275,16 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' stopifnot(x == LETTERS)
 #' (x <- map_files(tmpfile, as.null))
 #' stopifnot(!x)
+#'
+#' ## clean_filenames
+#'
+#' # Example with temporary files
+#' (x <- tempfile(pattern = "cb& ahi+ si--")) # bad file name
+#' write("test", x)
+#' stopifnot(file.exists(x))
+#' (y <- clean_filenames(x)) # file renamed
+#' stopifnot(!file.exists(x), file.exists(y))
+#' unlink(y) # tidy up
 #'
 map_files <- function(x, ...) UseMethod("map_files")
 
@@ -404,8 +438,53 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
   files
 }
 
+#' @rdname map_files
+#' @export
+#'
+clean_filenames <- function(x, ...) UseMethod("clean_filenames")
+
+#' @method clean_filenames character
+#' @rdname map_files
+#' @export
+#'
+clean_filenames.character <- function(x, overwrite = FALSE, demo = FALSE,
+    empty.tmpl = "__EMPTY__%05i__", ...) {
+  empty.idx <- 0L
+  clean_parts <- function(x) {
+    x <- gsub("[^\\w-]+", "_", x, FALSE, TRUE)
+    x <- gsub("_*-_*", "-", x, FALSE, TRUE)
+    x <- gsub("-+", "-", gsub("_+", "_", x, FALSE, TRUE), FALSE, TRUE)
+    x <- sub("[_-]+$", "", sub("^[_-]+", "", x, FALSE, TRUE), FALSE, TRUE)
+    x <- x[nzchar(x)]
+    if (!length(x))
+      x <- sprintf(empty.tmpl, empty.idx <<- empty.idx + 1L)
+    x
+  }
+  clean_basenames <- function(x) {
+    x <- lapply(strsplit(x, ".", TRUE), clean_parts)
+    unlist(lapply(x, paste0, collapse = "."), FALSE, FALSE)
+  }
+  LL(overwrite, demo, empty.tmpl)
+  x <- unique.default(as.character(x))
+  if (any(bad <- !nzchar(x))) {
+    warning("removing invalid empty file name")
+    x <- x[!bad]
+  }
+  result <- clean_basenames(basename(x))
+  result <- ifelse(dirname(x) == ".", result, file.path(dirname(x), result))
+  different <- result != x
+  result <- structure(result[different], names = x[different])
+  if (!overwrite) {
+    result <- result[!duplicated(result)]
+    result <- result[!file.exists(result)]
+  }
+  if (demo)
+    message(listing(result, header = "Attempted renamings:"))
+  else
+    result <- result[file.rename(names(result), result)]
+  invisible(result)
+}
+
 
 ################################################################################
-
-
 

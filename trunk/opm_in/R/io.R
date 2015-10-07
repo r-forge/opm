@@ -341,14 +341,24 @@ process_io <- function(files, io.fun, fun.args = list(),
 #
 
 
-#' Batch processing of files
+################################################################################
+################################################################################
+#
+# File splitting and name cleaning
+#
+
+
+## NOTE: no S4 methods because conversion is done
+
+
+#' Helper functions for file input and output
 #'
 #' Batch-collect information from a series of input files or batch-convert data
 #' from input files to data in output files. Alternatively, turn a mixed
 #' file/directory list into a list of files or create a regular expression
 #' matching certain file extensions, or convert a wildcard pattern to a regular
-#' expression. These functions are not normally directly called by an \pkg{opm}
-#' user but by the other IO functions of the package such as
+#' expression, or split files. These functions are not normally directly called
+#' by an \pkg{opm} user but by the other IO functions of the package such as
 #' \code{\link{collect_template}} or \code{\link{batch_opm}}. One can use their
 #' \code{demo} argument directly for testing the results of the applied file
 #' name patterns.
@@ -365,17 +375,20 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'   \code{NULL}, ignored. If a list, used as arguments of \code{file_pattern}
 #'   and its result used as regular expression. Note that selection is done
 #'   \strong{after} expanding the directory names to file names.
+#'
+#'   For \code{split_files} a logical scalar. \code{TRUE} means to also include
+#'   the separator lines in the output files.
 #' @param exclude Like \code{include}, but for excluding matching input files.
 #'   Note that exclusion is done \strong{after} applying \code{include}.
 #'
 #' @param ignore.case Logical scalar. Ignore differences between uppercase and
 #'   lowercase when using \code{include} and \code{exclude}? Has no effect for
 #'   \code{NULL} values for \code{include} or \code{exclude}, respectively.
-#' @param wildcard Logical scalar. Are \code{include} and \code{exclude}
-#'   wildcards (as used by UNIX shells) that first need to be concerted to
-#'   regular expressions? Has no effect if lists are used for \code{include} or
-#'   \code{exclude}, respectively. See below for details on such wildcards
-#'   (a.k.a. globbing patterns).
+#' @param wildcard Logical scalar. Are \code{include}, \code{exclude} or
+#'   \code{pattern} wildcards (as used by UNIX shells) that first need to be
+#'   concerted to regular expressions? Has no effect if lists are used for
+#'   \code{include} or \code{exclude}, respectively. See below for details on
+#'   such wildcards (a.k.a. globbing patterns).
 #'
 #' @param recursive Logical scalar. Traverse directories recursively and also
 #'   consider all subdirectories? See \code{list.files} from the \pkg{base}
@@ -389,7 +402,10 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'
 #' @param fun Collecting function. Should use the file name as first argument.
 #' @param fun.args Optional list of arguments to \code{fun} or \code{io.fun}.
-#' @param ... Optional further arguments passed to \code{explode_dir}.
+#' @param ... Optional further arguments passed from \code{batch_process} or
+#'   \code{batch_collect} to \code{explode_dir}. For \code{split_files},
+#'   optional arguments passed to \code{grepl}, which is used for matching the
+#'   separator lines. See also \code{invert} listed above.
 #' @param proc Integer scalar. The number of processes to spawn. Cannot be set
 #'   to more than 1 core if running under Windows. See the \code{cores}
 #'   argument of \code{\link{do_aggr}} for details.
@@ -401,7 +417,7 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' @param out.ext Character scalar. The extension of the output file names
 #'   (without the dot).
 #' @param outdir Character vector. Directories in which to place the output
-#'   files. If \code{NULL} or only containing empty strings, the directory of
+#'   files. If empty  or only containing empty strings, the directory of
 #'   each input file is used.
 #' @param in.ext Character scalar. Passed through \code{file_pattern}, then used
 #'   for the replacement of old file extensions with new ones.
@@ -418,6 +434,11 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'   This affects the returned pattern as well as the pattern used for
 #'   extracting file extensions from complete file names (if \code{literally}
 #'   is \code{TRUE}).
+#'
+#'   \code{split_files} passes this argument to \code{\link{file_pattern}}, but
+#'   here it only affects the way file names are split in extensions and base
+#'   names. Should only be set to \code{FALSE} if input files are not compressed
+#'   (and have according file extensions).
 #' @param literally Logical scalar. Interpret \code{type} literally? This also
 #'   allows for vectors with more than a single element, as well as the
 #'   extraction of file extensions from file names.
@@ -427,6 +448,36 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'   first and output files in the second column? For the other functions, the
 #'   effect is equivalent.
 #'
+#'   For \code{split_files}, do not create files, just return the usual list
+#'   containing all potentially created files. Note that in contrast to the
+#'   \code{demo} arguments of other IO functions, this requires the input files
+#'   to be read.
+#' @param files Character vector or convertible to such. Names of the files to
+#'   be split. In contrast to functions such as \code{\link{read_opm}}, names of
+#'   directories are not supported (will not be expanded to lists of files).
+#' @param pattern Regular expression or shell globbing pattern for matching the
+#'   separator lines if \code{invert} is \code{FALSE} (the default) or matching
+#'   the non-separator lines if otherwise.
+#'
+#'   Conceptually each of the sections into which a file is split comprises a
+#'   separator line followed by non-separator lines. That is, separator lines
+#'   followed by another separator line are ignored. Non-separator lines not
+#'   preceded by a separator line are treated as a section of their own,
+#'   however.
+#' @param single Logical scalar. If there is only one group per file, i.e. only
+#'   one output file would result from the splitting, create this file anyway?
+#'   Such cases could be recognised by empty character vectors as values of the
+#'   returned list (see below).
+#' @param invert Logical scalar. Invert pattern matching, i.e. treat all lines
+#'   that \strong{not} match \code{pattern} as separators?
+#' @param format Character scalar determining the output file name format. It is
+#'   passed to \code{sprintf} and expects three placeholders: \itemize{
+#'   \item the base name of the file;
+#'   \item the index of the section;
+#'   \item the file extension.
+#'   }
+#'   Getting \code{format} wrong might result in non-unique file names and thus
+#'   probably in overwritten files; accordingly, it should be used with care.
 #' @return
 #' \code{explode_dir} returns a character vector (which would be empty if all
 #' existing files, if any, had been unselected).
@@ -446,6 +497,10 @@ process_io <- function(files, io.fun, fun.args = list(),
 #'
 #' \code{file_pattern} yields a character scalar, holding a regular expression.
 #' \code{glob_to_regex} yields a vector of regular expressions.
+#'
+#' \code{split_files} creates a list of character vectors, each vector
+#' containing the names of the newly generated files. The names of the list are
+#' the input file names. The list is returned invisibly.
 #'
 #' @details
 #' Other functions that call \code{explode_dir} have a \code{demo} argument
@@ -478,10 +533,21 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' Despite their simplicity, globbing patterns are often sufficient for
 #' selecting file names.
 #'
+#' \code{split_files} subdivides each file into sections which are written
+#' individually to newly generated files. Sections are determined with patterns
+#' that match the start of a section. This function might be useful for
+#' splitting OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} multiple-plate
+#' \acronym{CSV} files before inputting them with \code{\link{read_opm}}, even
+#' though that function could also input such files directly. It is used in one
+#' of the running modes of by \code{\link{batch_opm}} for splitting files. See
+#' also the \sQuote{Examples}. The newly generated files are numbered
+#' accordingly; they are \emph{not} named after any \code{\link{csv_data}} entry
+#' because there is no guarantee that it is present.
 #' @export
 #' @seealso base::list.files base::Sys.glob utils::glob2rx base::regex
+#'   base::split base::strsplit base::file.rename
 #' @family io-functions
-#' @keywords IO character
+#' @keywords IO character utilities
 #' @examples
 #'
 #' # explode_dir()
@@ -548,6 +614,30 @@ process_io <- function(files, io.fun, fun.args = list(),
 #' # Factor method
 #' (z <- glob_to_regex(as.factor(x)))
 #' stopifnot(identical(as.factor(y), z))
+#'
+#' ## split_files()
+#'
+#' # Splitting an old-style CSV file containing several plates
+#' (x <- opm_files("multiple"))
+#' if (length(x) > 0) {
+#'   outdir <- tempdir()
+#'   # For old-style CSV, use either "^Data File" as pattern or "Data File*"
+#'   # with 'wildcard' set to TRUE:
+#'   (result <- split_files(x, pattern = "^Data File", outdir = outdir))
+#'   stopifnot(is.list(result), length(result) == length(x))
+#'   stopifnot(sapply(result, length) == 3)
+#'   result <- unlist(result)
+#'   stopifnot(file.exists(result))
+#'   unlink(result) # tidy up
+#' } else {
+#'   warning("opm example files not found")
+#' }
+#' ## One could split new-style CSV as follows (if x is a vector of file names):
+#' # split_files(x, pattern = '^"Data File",')
+#' ## note the correct setting of the quotes
+#' ## A pattern that covers both old and new-style CSV is:
+#' # split_files(x, pattern = '^("Data File",|Data File)')
+#' ## This is used by batch_opm() in 'split' mode any by the 'run_opm.R' script
 #'
 explode_dir <- function(names,
     include = NULL, exclude = NULL, ignore.case = TRUE, wildcard = TRUE,
@@ -669,6 +759,49 @@ file_pattern <- function(
       yaml = "ya?ml", json = "json", yorj = "(ya?ml|json)", lims = "exl",
       nolims = "csv", any = "[^.]+", empty = "")
   make_pat(result, compressed)
+}
+
+#' @rdname explode_dir
+#' @export
+#'
+split_files <- function(files, pattern, outdir = "", demo = FALSE,
+    single = TRUE, wildcard = FALSE, invert = FALSE, include = TRUE,
+    format = opm_opt("file.split.tmpl"), compressed = TRUE, ...) {
+
+  create_outnames <- function(files, compressed, outdir) {
+    file.pat <- file_pattern("any", compressed = compressed, literally = FALSE)
+    out.base <- sub(file.pat, "", files, TRUE, TRUE)
+    out.ext <- substr(files, nchar(out.base) + 2L, nchar(files))
+    if (compressed)
+      out.ext <- sub("\\.[^.]+$", "", out.ext, FALSE, TRUE)
+    if (length(outdir) && all(nzchar(outdir)))
+      out.base <- file.path(outdir, basename(out.base))
+    list(base = out.base, ext = out.ext)
+  }
+
+  LL(pattern, outdir, demo, single, wildcard, invert, include,
+    format, compressed)
+  files <- unique(as.character(files))
+  out <- create_outnames(files, compressed = compressed, outdir = outdir)
+  if (wildcard)
+    pattern <- glob_to_regex(pattern)
+
+  invisible(mapply(function(infile, out.base, out.ext) {
+    con <- file(description = infile, encoding = opm_opt("file.encoding"))
+    on.exit(close(con))
+    data <- readLines(con = con, warn = FALSE)
+    data <- sections(x = data, pattern = pattern, invert = invert,
+      include = include, ...)
+    if ((len <- length(data)) == 0L || (!single && len == 1L))
+      return(character())
+    outnames <- sprintf(format, out.base, seq_along(data), out.ext)
+    if (demo)
+      message(listing(structure(outnames, names = seq_along(outnames)),
+        header = infile))
+    else
+      mapply(write, data, outnames, USE.NAMES = FALSE, SIMPLIFY = FALSE)
+    outnames
+  }, files, out$base, out$ext, SIMPLIFY = FALSE))
 }
 
 #' @rdname explode_dir
@@ -1379,7 +1512,7 @@ setMethod("to_metadata", "MOPMX", function(object, stringsAsFactors = FALSE,
 #'   \code{fun} and \code{fun.args} are set automatically. Alternatively,
 #'   these are parameters passed to \code{\link{batch_collect}}.
 #' @param output Character scalar determining the main output mode. \describe{
-#'   \item{clean}{Apply \code{\link{clean_filenames}}.}
+#'   \item{clean}{Apply \code{clean_filenames} from the \pkg{pkgutils} package.}
 #'   \item{csv}{Create \acronym{CSV} files, by default one per input file.}
 #'   \item{json}{Create \acronym{JSON} files, by default one per input file.}
 #'   \item{levelplot}{Create graphics files, by default one per input file,
@@ -1390,6 +1523,9 @@ setMethod("to_metadata", "MOPMX", function(object, stringsAsFactors = FALSE,
 #'   \item{xyplot}{Create graphics files, by default one per input file,
 #'     containing the output of \code{\link{xy_plot}}.}
 #'   }
+#'   The \code{clean} mode might be useful for managing
+#'   OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{CSV} files,
+#'   which can contain a lot of special characters.
 #' @param combine.into Empty or character scalar modifying the output mode
 #'   unless it is \sQuote{clean} or \sQuote{split}. If non-empty, causes the
 #'   creation of a single output file named per plate type encountered in the
@@ -1719,238 +1855,5 @@ batch_opm <- function(names, md.args = NULL, aggr.args = NULL,
       in.ext = in.ext, compressed = TRUE, literally = FALSE, ..., proc = proc,
       overwrite = overwrite, outdir = outdir, verbose = verbose, demo = demo)
 }
-
-
-################################################################################
-################################################################################
-#
-# File splitting and name cleaning
-#
-
-
-## NOTE: no S4 methods because conversion is done
-
-#' Manipulate files
-#'
-#' Split files or clean file names.
-#'
-#' @param files Character vector or convertible to such. Names of the files to
-#'   be split. In contrast to functions such as \code{\link{read_opm}}, names of
-#'   directories are not supported (will not be expanded to lists of files).
-#' @param pattern Regular expression or shell globbing pattern for matching the
-#'   separator lines if \code{invert} is \code{FALSE} (the default) or matching
-#'   the non-separator lines if otherwise.
-#'
-#'   Conceptually each of the sections into which a file is split comprises a
-#'   separator line followed by non-separator lines. That is, separator lines
-#'   followed by another separator line are ignored. Non-separator lines not
-#'   preceded by a separator line are treated as a section of their own,
-#'   however.
-#'
-#' @param outdir Character scalar determining the output directory. If empty,
-#'   or containing empty strings, each file's input directory is used.
-#' @param demo Logical scalar. For \code{split_files}, do not create files, just
-#'   return the usual list containing all potentially created files. Note that
-#'   in contrast to the \code{demo} arguments of other IO functions, this
-#'   requires the input files to be read.
-#'
-#'   For \code{clean_filenames}, do not rename files but just return the usual
-#'   result indicating the renaming actions that would be attempted? (Note that
-#'   this does not indicate whether the renaming would also by successful.)
-#'
-#' @param single Logical scalar. If there is only one group per file, i.e. only
-#'   one output file would result from the splitting, create this file anyway?
-#'   Such cases could be recognised by empty character vectors as values of the
-#'   returned list (see below).
-#' @param wildcard Logical scalar. Is \code{pattern} a shell-globbing wildcard
-#'   that first needs to be converted to a regular expression?
-#' @param invert Logical scalar. Invert pattern matching, i.e. treat all lines
-#'   that \strong{not} match \code{pattern} as separators?
-#' @param include Logical scalar. Also include the separator lines in the output
-#'   files?
-#'
-#' @param format Character scalar determining the output file name format. It is
-#'   passed to \code{sprintf} and expects three placeholders: \itemize{
-#'   \item the base name of the file;
-#'   \item the index of the section;
-#'   \item the file extension.
-#'   }
-#'   Getting \code{format} wrong might result in non-unique file names and thus
-#'   probably in overwritten files; accordingly, it should be used with care.
-#' @param compressed Logical scalar. Passed to \code{\link{file_pattern}}, but
-#'   here only affects the way file names are split in extensions and base
-#'   names. Should only be set to \code{FALSE} if input files are not compressed
-#'   (and have according file extensions).
-#'
-#' @param ... Optional arguments passed to \code{grepl}, which is used for
-#'   matching the separator lines. See also \code{invert} listed above.
-#'
-#' @param x Character vector or convertible to such. Names of the files to be
-#'   modified. In contrast to functions such as \code{\link{read_opm}}, names of
-#'   directories are not supported (will not be expanded to lists of files).
-#' @param overwrite Logical scalar. Overwrite already existing files, and do not
-#'   care for duplicate names created by cleaning the file names?
-#' @param empty.tmpl Character scalar. The template to use for file names that
-#'   become empty after cleaning. Should include an integer placeholder to
-#'   enable incrementing an index for creating unique file names. (Empty
-#'   file names should occur rarely anyway.)
-#'
-#' @export
-#' @return
-#'   \code{split_files} creates a list of character vectors, each vector
-#'   containing the names of the newly generated files. The names of the list
-#'   are the input file names. The list is returned invisibly.
-#'
-#'   \code{clean_filenames} yields a character vector, its names corresponding
-#'   to the renamed old files, values corresponding to the novel names, returned
-#'   invisibly.
-#'
-#' @details
-#' \code{split_files} subdivides each file into sections which are written
-#' individually to newly generated files. Sections are determined with patterns
-#' that match the start of a section. This function is useful for splitting
-#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} multiple-plate
-#' \acronym{CSV} files before inputting them with \code{\link{read_opm}}. It is
-#' used by \code{\link{batch_opm}} for this purpose. See also the
-#' \sQuote{Examples}. The newly generated files are numbered accordingly; they
-#' are \emph{not} named after any \code{\link{csv_data}} entry because there is
-#' no guarantee that it is present.
-#'
-#' \code{clean_filenames} modifies file names by removing anything else then
-#' word characters, dashes, and dots. Also remove trailing and leading dashes
-#' and underscores (per part of a file name, with dots separating these parts)
-#' and reduce adjacent dashes and underscores to a single one. Note that
-#' directory parts within the file names, if any, are not affected. This
-#' function might be useful for managing
-#' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{CSV} files,
-#' which can contain a lot of special characters.
-#'
-#' @family io-functions
-#' @seealso base::split base::strsplit base::file.rename
-#' @keywords utilities
-#' @examples
-#'
-#' ## split_files()
-#'
-#' # Splitting an old-style CSV file containing several plates
-#' (x <- opm_files("multiple"))
-#' if (length(x) > 0) {
-#'   outdir <- tempdir()
-#'   # For old-style CSV, use either "^Data File" as pattern or "Data File*"
-#'   # with 'wildcard' set to TRUE:
-#'   (result <- split_files(x, pattern = "^Data File", outdir = outdir))
-#'   stopifnot(is.list(result), length(result) == length(x))
-#'   stopifnot(sapply(result, length) == 3)
-#'   result <- unlist(result)
-#'   stopifnot(file.exists(result))
-#'   unlink(result) # tidy up
-#' } else {
-#'   warning("opm example files not found")
-#' }
-#' ## One could split new-style CSV as follows (if x is a vector of file names):
-#' # split_files(x, pattern = '^"Data File",')
-#' ## note the correct setting of the quotes
-#' ## A pattern that covers both old and new-style CSV is:
-#' # split_files(x, pattern = '^("Data File",|Data File)')
-#' ## This is used by batch_opm() in 'split' mode any by the 'run_opm.R' script
-#'
-#' ## clean_filenames()
-#'
-#' # Check the example files: they should be ok
-#' (x <- clean_filenames(opm_files("testdata"), demo = TRUE))
-#' stopifnot(length(x) == 0)
-#'
-#' # Example with temporary files
-#' (x <- tempfile(pattern = "cb& ahi+ si--")) # bad file name
-#' write("test", x)
-#' stopifnot(file.exists(x))
-#' (y <- clean_filenames(x)) # file renamed
-#' stopifnot(!file.exists(x), file.exists(y))
-#' unlink(y) # tidy up
-#'
-split_files <- function(files, pattern, outdir = "", demo = FALSE,
-    single = TRUE, wildcard = FALSE, invert = FALSE, include = TRUE,
-    format = opm_opt("file.split.tmpl"), compressed = TRUE, ...) {
-
-  create_outnames <- function(files, compressed, outdir) {
-    file.pat <- file_pattern("any", compressed = compressed, literally = FALSE)
-    out.base <- sub(file.pat, "", files, TRUE, TRUE)
-    out.ext <- substr(files, nchar(out.base) + 2L, nchar(files))
-    if (compressed)
-      out.ext <- sub("\\.[^.]+$", "", out.ext, FALSE, TRUE)
-    if (length(outdir) && all(nzchar(outdir)))
-      out.base <- file.path(outdir, basename(out.base))
-    list(base = out.base, ext = out.ext)
-  }
-
-  LL(pattern, outdir, demo, single, wildcard, invert, include,
-    format, compressed)
-  files <- unique(as.character(files))
-  out <- create_outnames(files, compressed = compressed, outdir = outdir)
-  if (wildcard)
-    pattern <- glob_to_regex(pattern)
-
-  invisible(mapply(function(infile, out.base, out.ext) {
-    con <- file(description = infile, encoding = opm_opt("file.encoding"))
-    on.exit(close(con))
-    data <- readLines(con = con, warn = FALSE)
-    data <- sections(x = data, pattern = pattern, invert = invert,
-      include = include, ...)
-    if ((len <- length(data)) == 0L || (!single && len == 1L))
-      return(character())
-    outnames <- sprintf(format, out.base, seq_along(data), out.ext)
-    if (demo)
-      message(listing(structure(outnames, names = seq_along(outnames)),
-        header = infile))
-    else
-      mapply(write, data, outnames, USE.NAMES = FALSE, SIMPLIFY = FALSE)
-    outnames
-  }, files, out$base, out$ext, SIMPLIFY = FALSE))
-}
-
-#' @rdname split_files
-#' @export
-#'
-clean_filenames <- function(x, overwrite = FALSE, demo = FALSE,
-    empty.tmpl = "__EMPTY__%05i__") {
-  empty.idx <- 0L
-  clean_parts <- function(x) {
-    x <- gsub("[^\\w-]+", "_", x, FALSE, TRUE)
-    x <- gsub("_*-_*", "-", x, FALSE, TRUE)
-    x <- gsub("-+", "-", gsub("_+", "_", x, FALSE, TRUE), FALSE, TRUE)
-    x <- sub("[_-]+$", "", sub("^[_-]+", "", x, FALSE, TRUE), FALSE, TRUE)
-    x <- x[nzchar(x)]
-    if (!length(x))
-      x <- sprintf(empty.tmpl, empty.idx <<- empty.idx + 1L)
-    x
-  }
-  clean_basenames <- function(x) {
-    x <- lapply(strsplit(x, ".", TRUE), clean_parts)
-    unlist(lapply(x, paste0, collapse = "."), FALSE, FALSE)
-  }
-  LL(overwrite, demo, empty.tmpl)
-  x <- unique.default(as.character(x))
-  if (any(bad <- !nzchar(x))) {
-    warning("removing invalid empty file name")
-    x <- x[!bad]
-  }
-  result <- clean_basenames(basename(x))
-  result <- ifelse(dirname(x) == ".", result, file.path(dirname(x), result))
-  different <- result != x
-  result <- structure(result[different], names = x[different])
-  if (!overwrite) {
-    result <- result[!duplicated(result)]
-    result <- result[!file.exists(result)]
-  }
-  if (demo)
-    message(listing(result, header = "Attempted renamings:"))
-  else
-    result <- result[file.rename(names(result), result)]
-  invisible(result)
-}
-
-
-################################################################################
-
 
 

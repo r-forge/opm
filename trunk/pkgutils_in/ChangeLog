@@ -1,5 +1,7 @@
 - sections() gets more 'include' options
 
+- moved function clean_filenames() from 'opm' to 'pkgutils'
+
 2015-09-01
 
 - modified example that failed with 'R-devel'
