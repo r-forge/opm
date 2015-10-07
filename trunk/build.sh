@@ -1827,7 +1827,7 @@ case $RUNNING_MODE in
     remove_generated_graphics && remove_R_CMD_check_dirs &&
       remove_dirs_carefully pkgutils opm opmdata opmextra opmdata2 validate &&
       remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmdata2_doc \
-        validate_doc
+        opmextra_doc validate_doc
     exit $?
   ;;
   example )
