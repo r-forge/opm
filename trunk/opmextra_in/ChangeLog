@@ -1,0 +1,9 @@
+
+
+2015-10-07
+
+- creation of the package
+- moved RODBC-based function from 'opm' to 'opmextra'
+
+
+################################################################################
