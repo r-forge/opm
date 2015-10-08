@@ -9,10 +9,10 @@ Depends:
     R (>= 3.0.0),
     methods,
     opm (>= 1.0.0)
-Description: The package opm provides tools for analysing OmniLog(R)
-    Phenotype Microarray (PM) data as produced by the device
-    distributed by BIOLOG Inc. and similar kinds of data such as
-    growth curves. The package opmdata contains the entire example
+Description: Tools for analysing OmniLog(R) Phenotype Microarray (PM)
+    data as produced by the device distributed by BIOLOG Inc. and
+    similar kinds of data such as growth curves are provided in the
+    opm package. The opmdata package contains the entire example
     data set from Vaas et al. (2012), which has been removed from
     opm due to its size, as well as the data sets from Wittmann et
     al. (2013) and Montero-Calasanz et al. (2013).
