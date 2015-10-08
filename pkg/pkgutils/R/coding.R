@@ -36,30 +36,30 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
   }, items, arg.names, SIMPLIFY = TRUE, USE.NAMES = FALSE))
 }
 
-listing <- function(x, ...) UseMethod("listing")
+setGeneric("listing", function(x, ...) standardGeneric("listing"))
 
-listing.double <- function(x, ...) {
+setMethod("listing", "numeric", function(x, ...) {
   x <- signif(x, getOption("digits"))
   storage.mode(x) <- "character"
-  listing.character(x, ...)
-}
+  listing(x, ...)
+}, sealed = SEALED)
 
-listing.factor <- function(x, ...) {
+setMethod("listing", "factor", function(x, ...) {
   y <- as.character(x)
   names(y) <- names(x)
-  listing.character(y, ...)
-}
+  listing(y, ...)
+}, sealed = SEALED)
 
-listing.default <- function(x, ...) {
+setMethod("listing", "ANY", function(x, ...) {
   listing(c(unclass(x)), ...)
-}
+}, sealed = SEALED)
 
-listing.list <- function(x, ...) {
+setMethod("listing", "list", function(x, ...) {
   listing(unlist(x), ...)
-}
+}, sealed = SEALED)
 
-listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
-    style = "list", collapse = if (style == "sentence")
+setMethod("listing", "character", function(x, header = NULL, footer = NULL,
+    prepend = FALSE, style = "list", collapse = if (style == "sentence")
       ""
     else
       "\n", force.numbers = FALSE,
@@ -126,23 +126,23 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
   else
     paste0(c(header, paste0(x, collapse = collapse), footer),
       collapse = hf.collapse)
-}
+}, sealed = SEALED)
 
-flatten <- function(object, ...) UseMethod("flatten")
+setGeneric("flatten", function(object, ...) standardGeneric("flatten"))
 
-flatten.default <- function(object, ...) {
+setMethod("flatten", "ANY", function(object, ...) {
   if (is.atomic(object))
     return(object)
   stop("need atomic 'object' (or specific 'flatten' method)")
-}
+}, sealed = SEALED)
 
-flatten.list <- function(object, use.names = TRUE, ...) {
+setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
   while (any(is.a.list <- vapply(object, is.list, NA))) {
     object[!is.a.list] <- lapply(object[!is.a.list], list)
     object <- unlist(object, FALSE, use.names)
   }
   object
-}
+}, sealed = SEALED)
 
 collect <- function(x, what, ...) UseMethod("collect")
 

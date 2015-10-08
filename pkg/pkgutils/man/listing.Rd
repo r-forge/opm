@@ -1,30 +1,15 @@
 \name{listing}
+\alias{flatten}
 \alias{listing}
-\alias{listing.character}
-\alias{listing.default}
-\alias{listing.double}
-\alias{listing.factor}
-\alias{listing.list}
-\title{Nicer message listings}
-\usage{
-  listing(x, ...)
-
-  \method{listing}{double} (x, ...)
-
-  \method{listing}{factor} (x, ...)
-
-  \method{listing}{default} (x, ...)
-
-  \method{listing}{list} (x, ...)
-
-  \method{listing}{character} (x, header = NULL,
-    footer = NULL, prepend = FALSE, style = "list",
-    collapse = if (style == "sentence") "" else "\n",
-    force.numbers = FALSE,
-    last.sep = c("and", "both", "comma", "or", "two"),
-    hf.collapse = collapse, ...)
-}
+\title{Nicer message listings and flattening of objects}
 \arguments{
+  \item{object}{Usually a list. The default method just
+  returns \code{object} if it is atomic but raises an error
+  otherwise.}
+
+  \item{use.names}{Logical scalar passed to \code{unlist}
+  from the \pkg{base} package.}
+
   \item{x}{For the default method, an object convertible
   via \code{unclass} to one of the object classes that have
   explicit methods. For the character-vector method, in the
@@ -100,9 +85,13 @@
 }
 \description{
   Create some kind of listing, used, e.g., in (error)
-  messages or warnings.
+  messages or warnings. Alternatively, make an object
+  \sQuote{flat}, such as by creating a non-nested list from
+  a list.
 }
 \examples{
+## listing()
+
 # default style
 x <- structure(letters[1:5], names = LETTERS[1:5])
 (y <- listing(x, "Five letters:", "...end here", 1))
@@ -138,15 +127,50 @@ stopifnot(listing(x) == listing(as.list(x)))
 old.opt <- options(digits = 3)
 stopifnot(listing(pi) == "1: 3.14") # controlled by getOption("digits")
 options(old.opt)
+
+## flatten()
+x <- list(a = list(b = 1:5, c = letters[1:5]), d = LETTERS[1:3],
+  e = list(pi))
+(y <- flatten(x)) # sublists removed, non-list elements kept
+stopifnot(is.list(y), length(y) == 4, !sapply(y, is.list))
+# atomic objects are not modified by default
+stopifnot(identical(letters, flatten(letters)))
 }
 \seealso{
   base::message base::warning base::stop base::formatDL
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},
-    \code{\link{collect}},   \code{\link{contains}}, \code{\link{flatten}},
-    \code{\link{map_names}},
+    \code{\link{collect}},   \code{\link{contains}}, \code{\link{map_names}},
   \code{\link{map_values}}, \code{\link{must}}
 }
 \keyword{utilities}
 
+%% BEGIN INSERTION BY repair_S4_docu.rb
+\docType{methods}
+\alias{flatten-methods}
+\alias{flatten,ANY-method}
+\alias{flatten,list-method}
+\alias{listing-methods}
+\alias{listing,ANY-method}
+\alias{listing,character-method}
+\alias{listing,factor-method}
+\alias{listing,list-method}
+\alias{listing,numeric-method}
+\usage{
+  \S4method{flatten}{ANY}(object, ...) 
+  \S4method{flatten}{list}(object, use.names = TRUE, ...) 
+
+  \S4method{listing}{ANY}(x, ...) 
+  \S4method{listing}{character}(x, header = NULL, footer = NULL,
+    prepend = FALSE, style = "list", collapse = if (style == "sentence")
+      ""
+    else
+      "\n", force.numbers = FALSE,
+    last.sep = c("and", "both", "comma", "or", "two"), hf.collapse = collapse,
+    ...) 
+  \S4method{listing}{factor}(x, ...) 
+  \S4method{listing}{list}(x, ...) 
+  \S4method{listing}{numeric}(x, ...) 
+}
+%% END INSERTION BY repair_S4_docu.rb
