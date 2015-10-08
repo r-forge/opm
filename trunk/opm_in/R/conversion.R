@@ -1729,8 +1729,6 @@ setMethod("as.data.frame", "kegg_compound", function(x, row.names = NULL,
 #' @rdname as.data.frame
 #' @export
 #'
-setGeneric("flatten")
-
 setMethod("flatten", "OPM", function(object, include = NULL, fixed = list(),
     factors = TRUE, exact = TRUE, strict = TRUE, full = TRUE,
     numbers = FALSE, ...) {

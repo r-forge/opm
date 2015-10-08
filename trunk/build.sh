@@ -1776,7 +1776,7 @@ if [ $# -gt 0 ] && [ "${1%%-*}" ]; then
   RUNNING_MODE=`echo "$1" | awk '{print tolower($0)}' -`
   shift
 else
-  RUNNING_MODE=norm
+  RUNNING_MODE=help
 fi
 
 remind_of_external_tests=

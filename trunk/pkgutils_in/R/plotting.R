@@ -56,7 +56,7 @@
 #'   colours are most distinct with respect to their \acronym{RGB} coordinates.
 #'   This is done as follows: (1) Euclidean distances between the \acronym{RGB}
 #'   coordinates of the input colours are calculated; (2) the distances are
-#'   logarithmised and inverted; (3) a principal-coordinate analysis is
+#'   log-transformed and inverted; (3) a principal-coordinate analysis is
 #'   conducted on these inverted distances; (4) the input colours are sorted
 #'   according to the first principal coordinate.
 #'

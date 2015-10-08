@@ -68,7 +68,6 @@ incrementing
 inhibens
 inoculum
 interpretable
-logarithmised
 logfile
 maxima
 metadata

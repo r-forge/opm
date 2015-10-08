@@ -59,8 +59,8 @@ stopifnot(contains(x, y, exact = TRUE, values = FALSE))
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},
-    \code{\link{collect}},   \code{\link{flatten}},   \code{\link{listing}},
-          \code{\link{map_names}}, \code{\link{map_values}},
+    \code{\link{collect}},   \code{\link{flatten}}, \code{\link{listing}},
+  \code{\link{map_names}}, \code{\link{map_values}},
   \code{\link{must}}
 }
 \keyword{attribute}
