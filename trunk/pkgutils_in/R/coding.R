@@ -148,11 +148,17 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 ################################################################################
 
 
-#' Nicer message listings
+#' Nicer message listings and flattening of objects
 #'
 #' Create some kind of listing, used, e.g., in (error) messages or warnings.
+#' Alternatively, make an object \sQuote{flat}, such as by creating a non-nested
+#' list from a list.
 #'
 #' @inheritParams pack_desc
+#' @param object Usually a list. The default method just returns \code{object}
+#'   if it is atomic but raises an error otherwise.
+#' @param use.names Logical scalar passed to \code{unlist} from the \pkg{base}
+#'   package.
 #' @param x For the default method, an object convertible via \code{unclass} to
 #'   one of the object classes that have explicit methods. For the
 #'   character-vector method, in the default style mode, its \sQuote{names}
@@ -210,6 +216,8 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #' @keywords utilities
 #' @examples
 #'
+#' ## listing()
+#'
 #' # default style
 #' x <- structure(letters[1:5], names = LETTERS[1:5])
 #' (y <- listing(x, "Five letters:", "...end here", 1))
@@ -246,50 +254,38 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #' stopifnot(listing(pi) == "1: 3.14") # controlled by getOption("digits")
 #' options(old.opt)
 #'
-listing <- function(x, ...) UseMethod("listing")
-
-#' @rdname listing
-#' @method listing double
-#' @export
+#' ## flatten()
+#' x <- list(a = list(b = 1:5, c = letters[1:5]), d = LETTERS[1:3],
+#'   e = list(pi))
+#' (y <- flatten(x)) # sublists removed, non-list elements kept
+#' stopifnot(is.list(y), length(y) == 4, !sapply(y, is.list))
+#' # atomic objects are not modified by default
+#' stopifnot(identical(letters, flatten(letters)))
 #'
-listing.double <- function(x, ...) {
+setGeneric("listing", function(x, ...) standardGeneric("listing"))
+
+setMethod("listing", "numeric", function(x, ...) {
   x <- signif(x, getOption("digits"))
   storage.mode(x) <- "character"
-  listing.character(x, ...)
-}
+  listing(x, ...)
+}, sealed = SEALED)
 
-#' @rdname listing
-#' @method listing factor
-#' @export
-#'
-listing.factor <- function(x, ...) {
+setMethod("listing", "factor", function(x, ...) {
   y <- as.character(x)
   names(y) <- names(x)
-  listing.character(y, ...)
-}
+  listing(y, ...)
+}, sealed = SEALED)
 
-#' @rdname listing
-#' @method listing default
-#' @export
-#'
-listing.default <- function(x, ...) {
+setMethod("listing", "ANY", function(x, ...) {
   listing(c(unclass(x)), ...)
-}
+}, sealed = SEALED)
 
-#' @rdname listing
-#' @method listing list
-#' @export
-#'
-listing.list <- function(x, ...) {
+setMethod("listing", "list", function(x, ...) {
   listing(unlist(x), ...)
-}
+}, sealed = SEALED)
 
-#' @rdname listing
-#' @method listing character
-#' @export
-#'
-listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
-    style = "list", collapse = if (style == "sentence")
+setMethod("listing", "character", function(x, header = NULL, footer = NULL,
+    prepend = FALSE, style = "list", collapse = if (style == "sentence")
       ""
     else
       "\n", force.numbers = FALSE,
@@ -356,22 +352,38 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
   else
     paste0(c(header, paste0(x, collapse = collapse), footer),
       collapse = hf.collapse)
-}
+}, sealed = SEALED)
+
+#= flatten listing
+
+#' @rdname listing
+#' @export
+#'
+setGeneric("flatten", function(object, ...) standardGeneric("flatten"))
+
+setMethod("flatten", "ANY", function(object, ...) {
+  if (is.atomic(object))
+    return(object)
+  stop("need atomic 'object' (or specific 'flatten' method)")
+}, sealed = SEALED)
+
+setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
+  while (any(is.a.list <- vapply(object, is.list, NA))) {
+    object[!is.a.list] <- lapply(object[!is.a.list], list)
+    object <- unlist(object, FALSE, use.names)
+  }
+  object
+}, sealed = SEALED)
 
 
 ################################################################################
 
 
-#' Flatten a list or collect information from it
+#' Collect information from a list
 #'
-#' Methods for making an object \sQuote{flat}, such as creating a non-nested
-#' list from a list, and methods for collecting information from list-like
-#' objects into a matrix or data frame.
+#' Methods for collecting information from list-like objects into a matrix or
+#' data frame.
 #'
-#' @param object Usually a list. The default method just returns \code{object}
-#'   if it is atomic but raises an error otherwise.
-#' @param use.names Logical scalar passed to \code{unlist} from the \pkg{base}
-#'   package.
 #' @param x List.
 #' @param what Character scalar indicating how to collect information.
 #'   \describe{
@@ -415,14 +427,6 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #' @seealso base::unlist base::as.data.frame
 #' @keywords manip
 #' @examples
-#'
-#' ## flatten()
-#' x <- list(a = list(b = 1:5, c = letters[1:5]), d = LETTERS[1:3],
-#'   e = list(pi))
-#' (y <- flatten(x)) # sublists removed, non-list elements kept
-#' stopifnot(is.list(y), length(y) == 4, !sapply(y, is.list))
-#' # atomic objects are not modified by default
-#' stopifnot(identical(letters, flatten(letters)))
 #'
 #' ## collect()
 #' x <- list(X = list(A = 1:3, B = 7L, C = list('c1', 1:3)),
@@ -469,36 +473,9 @@ listing.character <- function(x, header = NULL, footer = NULL, prepend = FALSE,
 #' # values missing in some matrix yield NA
 #' stopifnot(dim(got) == c(3, 3), anyNA(got))
 #'
-flatten <- function(object, ...) UseMethod("flatten")
-
-#' @rdname flatten
-#' @method flatten default
-#' @export
-#'
-flatten.default <- function(object, ...) {
-  if (is.atomic(object))
-    return(object)
-  stop("need atomic 'object' (or specific 'flatten' method)")
-}
-
-#' @rdname flatten
-#' @method flatten list
-#' @export
-#'
-flatten.list <- function(object, use.names = TRUE, ...) {
-  while (any(is.a.list <- vapply(object, is.list, NA))) {
-    object[!is.a.list] <- lapply(object[!is.a.list], list)
-    object <- unlist(object, FALSE, use.names)
-  }
-  object
-}
-
-#' @rdname flatten
-#' @export
-#'
 collect <- function(x, what, ...) UseMethod("collect")
 
-#' @rdname flatten
+#' @rdname collect
 #' @method collect list
 #' @export
 #'
