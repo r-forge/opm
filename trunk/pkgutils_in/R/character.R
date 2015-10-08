@@ -17,9 +17,9 @@
 #' @param include Logical scalar indicating whether or not the separator
 #'   positions should also be included in the factor levels instead of being
 #'   coded as \code{NA}. If \code{include} is \code{NA}, the behaviour is
-#'   special; pairs of runs of distinct values are expected, each pair yields a
-#'   distinct factor level, and the output does not contain any \code{NA}
-#'   values.
+#'   special; pairs of runs of distinct values are expected (\code{length(x)}
+#'   must be an even number), each pair yields a distinct factor level, and the
+#'   output does not contain any \code{NA} values.
 #' @param pattern Scalar. If of mode \sQuote{character}, passed to
 #'   \code{grepl} from the \pkg{base} package. If numeric, used to indicate the
 #'   lengths of the partial strings to extract.
@@ -285,6 +285,21 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' (y <- clean_filenames(x)) # file renamed
 #' stopifnot(!file.exists(x), file.exists(y))
 #' unlink(y) # tidy up
+#'
+#' ## map_filenames
+#' (x <- map_filenames(letters, out.ext = c("txt", "csv"),
+#'   normalize = FALSE))
+#' stopifnot(is.matrix(x), dim(x) == c(26, 3))
+#' (x <- map_filenames(letters, out.ext = c("txt", "csv"),
+#'   out.dir = LETTERS, normalize = FALSE))
+#' stopifnot(is.matrix(x), dim(x) == c(26, 3))
+#'
+#' # Several sets of input files
+#' infiles <- paste0(letters, c(".txt", ".csv"))
+#' (x <- map_filenames(infiles, "tmp", normalize = FALSE,
+#'   groups = 2, assort = "ext"))
+#' stopifnot(is.matrix(x), dim(x) == c(13, 3), grepl("csv", x[, 1]),
+#'   grepl("txt", x[, 2]))
 #'
 map_files <- function(x, ...) UseMethod("map_files")
 
