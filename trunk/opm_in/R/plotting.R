@@ -1304,6 +1304,12 @@ setMethod("ci_plot", "MOPMX", function(object, ...) {
 #' @keywords hplot
 #'
 #' @examples
+#'
+#' # temporarily disabled until an error specific for Windows on
+#' # R-Forge is fixed; needs not affect user code, Windows users
+#' # can well try heat_map()
+#' if (!grepl("windows", Sys.info()[["sysname"]], TRUE, TRUE)) {
+#'
 #' # Matrix method (usually unnecessary, see below)
 #' x <- extract(vaas_4, as.labels = list("Strain"),
 #'   as.groups = list("Species"))
@@ -1318,6 +1324,8 @@ setMethod("ci_plot", "MOPMX", function(object, ...) {
 #' x <- extract(vaas_4, as.labels = list("Species", "Strain"), dataframe = TRUE)
 #' hm <- heat_map(x, as.labels = "Strain", as.groups = "Species")
 #' stopifnot(identical(metadata(vaas_4, "Species"), names(hm$rowColMap)))
+#'
+#' }
 #'
 setGeneric("heat_map", function(object, ...) standardGeneric("heat_map"))
 
