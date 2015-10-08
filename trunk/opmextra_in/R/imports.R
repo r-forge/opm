@@ -1,9 +1,6 @@
 
-#' @import methods opm RODBC
+#' @import methods opm pkgutils RODBC
 #'
 NULL
 
-#' @importFrom pkgutils pkeys by update
-#'
-NULL
 

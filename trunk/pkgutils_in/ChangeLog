@@ -1,6 +1,9 @@
+- moved function clean_filenames() from 'opm' to 'pkgutils'
+
 - sections() gets more 'include' options
 
-- moved function clean_filenames() from 'opm' to 'pkgutils'
+- listing() and flatten() are now S4 generics
+
 
 2015-09-01
 
