@@ -91,5 +91,4 @@ level_plot(vaas.1.3[, , c("D01", "D02", "C10", "C11")],
   \url{http://www.dsmz.de/catalogues/details/culture/DSM-30083.html}
 }
 \keyword{datasets}
-\keyword{datasets}
 

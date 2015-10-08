@@ -79,5 +79,4 @@ stopifnot(is(x, "OPMS"), length(x) == 4)
   \url{http://www.dsmz.de/catalogues/details/culture/DSM-45421.html}
 }
 \keyword{datasets}
-\keyword{datasets}
 

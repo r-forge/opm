@@ -1,47 +1,47 @@
-opmdata 0.7-0
--------------
+Changes in version 0.7-0
+------------------------
 
 - added data set from Wittmann et al. (2014)
 
 - added data set from Montero-Calasanz et al. (2013)
 
 
-opmdata 0.6-0
--------------
+Changes in version 0.6-0
+------------------------
 
 - formal improvements as required by new CRAN restrictions
 
 
-opmdata 0.5-0
--------------
+Changes in version 0.5-0
+------------------------
 
 - updated binary data (no user-visible changes)
 
 
-opmdata 0.4-0
--------------
+Changes in version 0.4-0
+------------------------
 
-- updated aggregation and discretization settings to the new style; as this
-  causes incompatibilities, opmdata >= 0.4-0 should only be used in
-  conjunction with opm > 0.7-0
+- updated aggregation and discretisation settings to the new style; as this
+  causes incompatibilities, 'opmdata' >= 0.4-0 should only be used in
+  conjunction with 'opm' > 0.7-0
 
 
-opmdata 0.3-0
--------------
+Changes in version 0.3-0
+------------------------
 
 - some aesthetical improvements of the documentation
 
 
-opmdata 0.2-0
--------------
+Changes in version 0.2-0
+------------------------
 
-- included discretized values
+- included discretised values
 - improved documentation
 - nicer package URL
 
 
-opmdata 0.1-0
--------------
+Changes in version 0.1-0
+------------------------
 
 - initial release on CRAN
 

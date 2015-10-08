@@ -67,5 +67,4 @@ head(to_metadata(wittmann_et_al))
   \strong{9}, e86935.
 }
 \keyword{datasets}
-\keyword{datasets}
 
