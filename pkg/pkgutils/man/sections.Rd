@@ -19,7 +19,8 @@
   the separator positions should also be included in the
   factor levels instead of being coded as \code{NA}. If
   \code{include} is \code{NA}, the behaviour is special;
-  pairs of runs of distinct values are expected, each pair
+  pairs of runs of distinct values are expected
+  (\code{length(x)} must be an even number), each pair
   yields a distinct factor level, and the output does not
   contain any \code{NA} values.}
 

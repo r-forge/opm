@@ -176,6 +176,21 @@ stopifnot(file.exists(x))
 (y <- clean_filenames(x)) # file renamed
 stopifnot(!file.exists(x), file.exists(y))
 unlink(y) # tidy up
+
+## map_filenames
+(x <- map_filenames(letters, out.ext = c("txt", "csv"),
+  normalize = FALSE))
+stopifnot(is.matrix(x), dim(x) == c(26, 3))
+(x <- map_filenames(letters, out.ext = c("txt", "csv"),
+  out.dir = LETTERS, normalize = FALSE))
+stopifnot(is.matrix(x), dim(x) == c(26, 3))
+
+# Several sets of input files
+infiles <- paste0(letters, c(".txt", ".csv"))
+(x <- map_filenames(infiles, "tmp", normalize = FALSE,
+  groups = 2, assort = "ext"))
+stopifnot(is.matrix(x), dim(x) == c(13, 3), grepl("csv", x[, 1]),
+  grepl("txt", x[, 2]))
 }
 \seealso{
   base::readLines base::writeLines base::identity
