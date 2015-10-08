@@ -646,9 +646,9 @@ By default one sub-panel in the level plot corresponds to one complete plate com
 
 \subsection[Plotting the aggregated data]{Plotting the aggregated data}\label{methods plotting-aggregated}
 
-For the graphical representation of the aggregated data the \pkg{opm} package provides four different functions, namely \code{parallelplot} for visualising distinct curve parameters in one plot as well as \code{radial\_plot}, \code{ci\_plot} and \code{heat\_map} for displaying a selected curve parameter.
+For the graphical representation of the aggregated data the \pkg{opm} package provides four different functions, namely \code{parallel\_plot} for visualising distinct curve parameters in one plot as well as \code{radial\_plot}, \code{ci\_plot} and \code{heat\_map} for displaying a selected curve parameter.
 
-\code{parallelplot} provides an overview of at least two estimated parameters and visualises their interrelationships.
+\code{parallel\_plot} provides an overview of at least two estimated parameters and visualises their interrelationships.
 Such a parallel coordinate plot produces an effective graphical summary of a multivariate data set when there are not too many variables.
 Since the variables are automatically scaled to a fixed range, this is equivalent to working with standardised values.
 This is important for \ac{PM} data because the distinct curve parameters are measured on quite different scales.
@@ -1662,12 +1662,12 @@ When selecting metadata, do not mix up the selection by, say \code{c("a", "b")} 
 
 \subsection[Plotting the aggregated data]{Plotting the aggregated data}\label{application plotting-aggregated}
 
-The purpose of \code{parallelplot} is to include several estimated curve parameters into one comprehensive overview.
+The purpose of \code{parallel\_plot} is to include several estimated curve parameters into one comprehensive overview.
 Figure~\ref{fig:para_plot_simple} provides an example of such a visualisation.
 All four parameters are plotted for the wells A01 to A10 from the data set \code{vaas\_4} and superimposed with colours according their affiliation to strains.
 
 <<label=para-plot-figure-code, results=hide, eval=FALSE>>=
-parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
+parallel_plot(vaas_4[, , 1:10], data = ~ J(Species, Strain))
 @
 
 \begin{figure}
@@ -1692,7 +1692,7 @@ If no metadata are selected (the default), only \code{Well} is available as grou
 Figure~\ref{fig:para_plot_advanced} demonstrates how the \code{panel.var} and the \code{groups} argument can be used for fine-tuning the plot.
 
 <<label=para-plot-advanced-figure-code, results=hide, eval=FALSE>>=
-parallelplot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
+parallel_plot(vaas_4[, , 1:10], data = ~ J(Species, Strain),
   panel.var = "Species", groups = "Strain")
 @
 

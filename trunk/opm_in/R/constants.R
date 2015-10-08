@@ -174,7 +174,7 @@ OPM_OPTIONS$warn.mult <- FALSE
 ################################################################################
 ################################################################################
 #
-# Constants related to the phylogeny functions
+# Constants related to the phylogeny and plotting functions
 #
 
 
@@ -186,6 +186,12 @@ MISSING_CHAR <- "?"
 # Used by several functions via match.arg().
 #
 PHYLO_FORMATS <- c("epf", "nexus", "phylip", "hennig", "html")
+
+
+# Against R CMD check complaints about a missing variable in lattice-based
+# plotting functions such as xy_plot and parallel_plot.
+#
+`_GROUPING` <- "?"
 
 
 ################################################################################
