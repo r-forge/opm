@@ -1,3 +1,7 @@
+2014-10-08
+
+- shortened the package title
+
 2014-03-20 (the seventh release on CRAN)
 
 - added data set from Wittmann et al. (2014)
@@ -29,11 +33,11 @@
 2012-11-13 (the second release on CRAN)
 
 - updated the package URL
-- included discretized values; has_disc() returns now TRUE for all plates
+- included discretised values; has_disc() returns now TRUE for all plates
 - included more information on the contained data in the documentation
 
 
 2012-10-13 (the first release on CRAN)
 
-- moved 'vaas_et_al' data set from opm to opmdata
+- moved 'vaas_et_al' data set from 'opm' to 'opmdata'
 

@@ -1,8 +1,8 @@
 Package: opmextra
 Version: 0.0.2
 Date: 2015-10-08
-Title: Additional functions for analysing OmniLog(R) Phenotype
-        Microarray data
+Title: Additional Functions for Analysing OmniLog(R) Phenotype
+        Microarray Data
 Author: Markus Goeker
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
 Depends: R (>= 3.0.0), opm (>= 1.3.0)
