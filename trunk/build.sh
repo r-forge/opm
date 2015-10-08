@@ -1657,7 +1657,12 @@ check_html_docu()
   local errs=0
   for docdir; do
     # show errors in R code (might be knitr-specific)
-    find "$docdir" -name '*.html' -exec grep -F '## Error' \{\} + || true
+    for infile in `find "$docdir" -name '*.html'`; do
+      if grep -F '## Error' "$infile"; then
+        echo "ERROR: file '$infile' contains R error message" >&2
+        errs=$(($errs + 1))
+      fi
+    done
     # check for output generated from the demo R files
     for infile in `find "$docdir" -name '*.R'`; do
       [ -e "${infile%.*}.Rnw" ] && continue # not a demo file
@@ -1677,8 +1682,13 @@ check_html_docu()
         fi
       done
     done
-    find "$docdir" -name '*.html' -exec \
-      grep 'href="\.\./\.\./[^/]\+/html/' \{\} + || true
+    # check for dead links to other packages
+    for infile in `find "$docdir" -name '*.html'`; do
+      if grep 'href="\.\./\.\./[^/]\+/html/' "$infile"; then
+        echo "ERROR: file '$infile' contains dead link" >&2
+        errs=$(($errs + 1))
+      fi
+    done
   done
   return $errs
 }
