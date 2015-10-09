@@ -627,12 +627,11 @@ setMethod("metadata<-", c("MOPMX", "ANY", "data.frame"), function(object, key,
 #' @param object \code{\link{OPM}} (\code{\link{WMD}}), \code{\link{OPMS}}
 #'   (\code{\link{WMDS}}) or \code{\link{MOPMX}} object. For \code{map_values},
 #'   a list.
-#'
 #' @param name Like \code{object}, but for the \code{edit} method.
-#'
 #' @param md Data frame containing keys as column names, or name of file from
 #'   which to read the data frame. Handled by \code{\link{to_metadata}}.
-#' @param keys Character vector.
+#' @param keys Character vector. Corresponds to the \code{selection} argument
+#'   of \code{\link{collect_template}}.
 #' @param replace Logical scalar indicating whether the previous metadata, if
 #'   any, shall be replaced by the novel ones, or whether these shall be
 #'   appended.
@@ -640,17 +639,9 @@ setMethod("metadata<-", c("MOPMX", "ANY", "data.frame"), function(object, key,
 #'   (unambiguous) selection is impossible but raise a warning only?
 #' @param remove.keys Logical scalar. When including \code{md} in the metadata,
 #'   discard the \code{keys} columns?
-#' @param sep Passed to \code{\link{to_metadata}}. If empty, the default values
-#'   are inserted, depending on the \code{md} object. If several values are
-#'   present and if \code{md} is a file name, the values will be tried in turn
-#'   until all \code{keys} are found in the resulting column names.
-#' @param strip.white Passed to \code{\link{to_metadata}}. If empty, the default
-#'   values are inserted, depending on the \code{md} object. If several values
-#'   are present and \code{skip.failure} is \code{FALSE}, the values will be
-#'   tried in turn until all key-value pairs are found in the resulting data
-#'   frame with metadata. If \code{skip.failure} is \code{TRUE}, only the
-#'   first value is tried.
-#'
+#' @param normalize Passed to \code{\link{csv_data}}. The same value must be
+#'   chosen for subsequent calls of \code{\link{collect_template}} and
+#'   \code{include_metadata}.
 #' @param mapping In most cases passed to \code{map_values}. \itemize{
 #'   \item If a function, this is just a wrapper for \code{rapply}, with
 #'   \code{how} set to \sQuote{replace}, if \code{values} is \code{TRUE}. It is
@@ -849,8 +840,7 @@ setGeneric("include_metadata",
   function(object, ...) standardGeneric("include_metadata"))
 
 setMethod("include_metadata", "WMD", function(object, md, keys, replace = FALSE,
-    skip.failure = FALSE, remove.keys = TRUE, sep = NULL, strip.white = NULL,
-    ...) {
+    skip.failure = FALSE, remove.keys = TRUE, normalize = -1L, ...) {
 
   pick_from <- function(object, selection) {
     matches <- lapply(names(selection), FUN = function(name) {
@@ -862,49 +852,20 @@ setMethod("include_metadata", "WMD", function(object, md, keys, replace = FALSE,
     object[matches, , drop = FALSE]
   }
 
-  # Get and check metadata.
-  read_stuff <- function(md, sep, keys, strip.white, ...) {
-    for (separator in sep) {
-      md <- to_metadata(object = md, sep = separator,
-        strip.white = strip.white, ...)
-      if (all(keys %in% colnames(md)))
-        break
-    }
-    if (length(absent.keys <- setdiff(keys, colnames(md))))
-      stop("key missing in 'metadata': ", absent.keys[1L])
-    md
-  }
-
-
   LL(replace, skip.failure, remove.keys)
 
-  selection <- as.list(csv_data(object, keys))
+  selection <- csv_data(object = object, keys = keys, normalize = normalize)
+  selection <- as.list(selection)
 
-  if (!length(sep))
-    sep <- if (is.character(md))
-        c("\t", ",", ";") # has an effect
-      else
-        "\t" # has no effect anyway
-  if (!length(strip.white))
-    strip.white <- if (is.character(md))
-        c(TRUE, FALSE, NA) # NA allowed
-      else
-        c(TRUE, FALSE) # NA not allowed
+  # Get and check metadata.
+  md <- to_metadata(md, ...)
+  if (length(absent.keys <- setdiff(keys, colnames(md))))
+    stop("key missing in 'metadata': ", absent.keys[1L])
 
-  if (skip.failure)
-    strip.white <- strip.white[[1L]]
-
-  for (strip.ws in strip.white) {
-    found <- read_stuff(md, sep, keys, strip.ws, ...)
-    if (nrow(found <- pick_from(found, selection)))
-      break
-  }
-
-  # Check for the necessary information from the metadata.
+  # Try to select the necessary information from the metadata.
+  found <- pick_from(md, selection)
   msg <- case(nrow(found), listing(lapply(selection, safe_labels, "nexus"),
-      header = "could not find this key/value combination in 'metadata':",
-      footer = paste0("white-space stripping setting was: ",
-        paste0(strip.white, collapse = "/"))),
+      header = "could not find this key/value combination in 'metadata':"),
     NULL, listing(lapply(selection, safe_labels, "nexus"),
       header = "the selection resulted in more than one row for:"))
 
@@ -958,19 +919,19 @@ setGeneric("map_metadata",
 setMethod("map_metadata", c("WMD", "function"), function(object, mapping,
     values = TRUE, classes = "ANY", ...) {
   object@metadata <- if (L(values))
-    map_values(object = object@metadata, mapping = mapping, coerce = classes,
-      ...)
-  else
-    map_names(object = object@metadata, mapping = mapping, ...)
+      map_values(object = object@metadata, mapping = mapping,
+        coerce = classes, ...)
+    else
+      map_names(object = object@metadata, mapping = mapping, ...)
   object
 }, sealed = SEALED)
 
 setMethod("map_metadata", c("WMD", "character"), function(object, mapping,
     values = TRUE, classes = "factor") {
   object@metadata <- if (L(values))
-    map_values(object@metadata, mapping, coerce = classes)
-  else
-    map_names(object@metadata, mapping)
+      map_values(object@metadata, mapping, coerce = classes)
+    else
+      map_names(object@metadata, mapping)
   object
 }, sealed = SEALED)
 
@@ -1026,18 +987,18 @@ setGeneric("map_values")
 
 setMethod("map_values", c("list", "formula"), function(object, mapping,
     coerce = parent.frame()) {
-  if (length(mapping) > 2L) {
-    right <- eval(mapping[[3L]], object, coerce)
-    left <- metadata_key.formula(mapping[-3L], FALSE, envir = coerce)
-    if (is.list(left)) {
-      right <- rep(right, length.out = length(left))
-      for (i in seq_along(left))
-        object[[left[[i]]]] <- right[[i]]
-    } else
-      object[[left]] <- right
-    object
-  } else
-    eval(mapping[[2L]], object, coerce)
+  if (length(mapping) < 3L)
+    return(eval(mapping[[2L]], object, coerce))
+  right <- eval(mapping[[3L]], object, coerce)
+  left <- metadata_key.formula(mapping[-3L], FALSE, envir = coerce)
+  if (is.list(left)) {
+    right <- rep(right, length.out = length(left))
+    for (i in seq_along(left))
+      object[[left[[i]]]] <- right[[i]]
+  } else {
+    object[[left]] <- right
+  }
+  object
 }, sealed = SEALED)
 
 #= edit include_metadata
