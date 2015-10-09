@@ -653,12 +653,18 @@ setMethod("seq", "WMDS", function(...) {
 #'   select all \acronym{CSV} entries that have no special meaning (it makes
 #'   sense to include only these in the metadata, see the examples).
 #'   Otherwise a shortcut for one of the more important \acronym{CSV} entries.
-#' @param normalize Logical scalar indicating whether plate position and setup
-#'   time entries (if selected) should be normalised. This should always work
-#'   for the plate positions, but for the setup times it depends on the values
-#'   for the \code{\link{opm_opt}} keys \code{time.fmt} and \code{time.zone}
-#'   (see also \code{\link{merge}}). For other entries, normalisation means
-#'   replacing backslashes by slashes.
+#' @param normalize Logical or integer scalar indicating whether plate position
+#'   and setup time entries (if selected) should be normalised. This should
+#'   always work for the plate positions, but for the setup times it depends on
+#'   the values for the \code{\link{opm_opt}} keys \code{time.fmt} and
+#'   \code{time.zone} (see also \code{\link{merge}}). For other entries,
+#'   normalisation means replacing backslashes by slashes.
+#'
+#'   For \code{what = "select"}, a negative integer value is special and causes
+#'   spaces to be replaced by underscores. This kind of \sQuote{normalisation}
+#'   is not suitable for creating more beautiful labels but useful in
+#'   conjunction with \code{\link{collect_template}} and
+#'   \code{\link{include_metadata}}.
 #' @param ... Optional arguments passed between the methods.
 #' @return For the \code{\link{OPM}} method, a named character vector (unnamed
 #'   character scalar in the case of \code{filename}, \code{setup_time} and
@@ -729,7 +735,7 @@ setMethod("csv_data", "OPM", function(object,
     what = c("select", "filename", "setup_time", "position", "other"),
     normalize = FALSE) {
   no_backslash <- function(x) gsub("\\",
-    "/", x, FALSE, FALSE, TRUE)
+    "/", x, FALSE, FALSE, TRUE) # break necessary, otherwise style complaint
   LL(strict, normalize)
   result <- case(match.arg(what),
       select = NULL,
@@ -759,15 +765,18 @@ setMethod("csv_data", "OPM", function(object,
       else
         names(result)[isna] <- keys[isna]
   }
-  if (normalize) {
-    pos <- match(CSV_NAMES[c("SETUP", "POS")], names(result), 0L)
-    if (pos[1L])
-      result[pos[1L]] <- as.character(parse_time(result[pos[1L]]))
-    if (pos[2L])
-      result[pos[2L]] <- clean_plate_positions(result[pos[2L]])
-    pos <- setdiff(seq_along(result), pos)
-    result[pos] <- no_backslash(result[pos])
-  }
+  if (normalize)
+    if (normalize > 0L) {
+      pos <- match(CSV_NAMES[c("SETUP", "POS")], names(result), 0L)
+      if (pos[1L])
+        result[pos[1L]] <- as.character(parse_time(result[pos[1L]]))
+      if (pos[2L])
+        result[pos[2L]] <- clean_plate_positions(result[pos[2L]])
+      pos <- setdiff(seq_along(result), pos)
+      result[pos] <- no_backslash(result[pos])
+    } else {
+      result <- chartr(" ", "_", result)
+    }
   result
 }, sealed = SEALED)
 
