@@ -1154,9 +1154,9 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
 #'
 #' Either collect a metadata template from
 #' OmniLog\eqn{\textsuperscript{\textregistered}}{(R)} \acronym{CSV} comments
-#' assisting in later on adding metadata using \code{\link{include_metadata}} or
-#' create a data frame holding potential \code{\link{OPM}} or \code{\link{OPMS}}
-#' object metadata.
+#' assisting in later on adding metadata using \code{\link{include_metadata}},
+#' or create a data frame containing potential \code{\link{OPM}} or
+#' \code{\link{OPMS}} object metadata.
 #'
 #' @param object Character vector or \code{\link{OPM}}, \code{\link{OPMS}}
 #'   or \code{\link{MOPMX}} object.
@@ -1222,28 +1222,27 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
 #'   advisable to set this to \code{FALSE} if \acronym{CSV} input is done for a
 #'   later call to \code{collect_template}. For a character vector not
 #'   interpreted as file name, set to \code{FALSE} if \code{NA}.
-#'
 #' @export
 #' @return
-#'   \code{to_metadata} yields a data frame. Regarding \code{collect_template},
-#'   in the case of the character method, a data frame, returned invisibly
-#'   if \code{outfile} is given; if \code{demo} is \code{TRUE}, a character
-#'   vector of file names instead, returned invisibly. The \code{\link{OPM}}
-#'   method returns a data frame with one row and the number of columns equal to
-#'   the sum of the lengths of \code{selection} and \code{add.cols}. The
-#'   \code{\link{OPM}} method returns such a data frame with one row per
-#'   contained plate.
-#' @details The character method batch-collects templates for meta-information
-#'   from files and optionally add these data as novel rows to previously
-#'   collected data. It writes the collected template to a file for use with an
-#'   external editor, and/or creates a data frame for editing the data directly
-#'   in \R with the \code{edit} function.
+#'   \code{to_metadata} yields a data frame. The output of
+#'   \code{collect_template}, in the case of the character method, is a data
+#'   frame, returned invisibly if \code{outfile} is given; if \code{demo} is
+#'   \code{TRUE}, a character vector of file names instead, returned invisibly.
+#'   The \code{\link{OPM}} method returns a data frame with one row and the
+#'   number of columns equal to the sum of the lengths of \code{selection} and
+#'   \code{add.cols}. The \code{\link{OPM}} method returns such a data frame
+#'   with one row per contained plate.
+#' @details The \code{collect_template} character method batch-collects
+#'   templates for meta-information from files and optionally adds these data as
+#'   novel rows to previously collected data. It writes the collected template
+#'   to a file for use with an external editor, and/or creates a data frame for
+#'   editing the data directly in \R with the \code{edit} function.
 #'
 #'   The \code{to_metadata} character method reads metadata from an input file
 #'   and is only a thin wrapper for \code{read.delim} but contains some useful
-#'   adaptations (such as \strong{not} converting strings to factors, and not
-#'   modifying column names). The default method reads metadata from an object
-#'   convertible to a data frame and is only a thin wrapper of
+#'   adaptations (such as \emph{not} converting strings to factors, and
+#'   \emph{not} modifying column names). The default method reads metadata from
+#'   an object convertible to a data frame and is only a thin wrapper of
 #'   \code{as.data.frame} but contains the same useful adaptations as the
 #'   file-name method.
 #'
@@ -1253,7 +1252,6 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
 #'   of the resulting data frame corresponds to the length of \code{object}, the
 #'   number of columns to the size of the set created from all valid names at
 #'   the top level of the metadata entries.
-#'
 #' @seealso base::default.stringsAsFactors base::as.data.frame
 #' @seealso utils::edit utils::read.delim
 #' @family io-functions
@@ -1385,7 +1383,7 @@ setMethod("collect_template", "OPMS", function(object, outfile = NULL,
     instrument = NULL, ..., demo = FALSE) {
   result <- lapply(X = object@plates, FUN = collect_template, md.args = md.args,
     add.cols = add.cols, sep = sep, selection = selection, previous = NULL,
-    normalize = normalize, instrument = instrument, outfile = NULL)
+    normalize = normalize, instrument = instrument, outfile = NULL, ...)
   finish_template(do.call(rbind, result), outfile, sep, previous, md.args, demo)
 }, sealed = SEALED)
 
@@ -1395,7 +1393,7 @@ setMethod("collect_template", "MOPMX", function(object,
     normalize = -1L, instrument = NULL, ..., demo = FALSE) {
   result <- lapply(X = object, FUN = collect_template, selection = selection,
     add.cols = add.cols, normalize = normalize, instrument = instrument,
-    outfile = NULL, previous = NULL, sep = sep, md.args = md.args)
+    outfile = NULL, previous = NULL, sep = sep, md.args = md.args, ...)
   finish_template(do.call(rbind, result), outfile, sep, previous, md.args, demo)
 }, sealed = SEALED)
 
@@ -1461,7 +1459,7 @@ setMethod("to_metadata", "WMDS", function(object, stringsAsFactors = FALSE,
 setMethod("to_metadata", "MOPMX", function(object, stringsAsFactors = FALSE,
     optional = TRUE, sep = "\t", strip.white = FALSE, ...) {
   collect_rows(lapply(X = object, FUN = to_metadata, optional = optional,
-    sep = "\t", stringsAsFactors = stringsAsFactors, strip.white = FALSE, ...))
+    sep = sep, stringsAsFactors = stringsAsFactors, strip.white = FALSE, ...))
 }, sealed = SEALED)
 
 

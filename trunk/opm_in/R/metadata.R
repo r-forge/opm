@@ -629,7 +629,9 @@ setMethod("metadata<-", c("MOPMX", "ANY", "data.frame"), function(object, key,
 #'   a list.
 #' @param name Like \code{object}, but for the \code{edit} method.
 #' @param md Data frame containing keys as column names, or name of file from
-#'   which to read the data frame. Handled by \code{\link{to_metadata}}.
+#'   which to read the data frame. Handled by \code{\link{to_metadata}}. In the
+#'   case of many plates, it is computationally more efficient to provide a data
+#'   frame instead of a file name.
 #' @param keys Character vector. Corresponds to the \code{selection} argument
 #'   of \code{\link{collect_template}}.
 #' @param replace Logical scalar indicating whether the previous metadata, if
@@ -698,27 +700,37 @@ setMethod("metadata<-", c("MOPMX", "ANY", "data.frame"), function(object, key,
 #'
 #' Three kinds of errors can occur when attempting to identify a data-frame row
 #' using the given combination of keys and values. \itemize{
-#'   \item{The keys are not found at all.}
 #'   \item{The combination results in more than a single row.}
 #'   \item{The combination results in now rows at all.}
-#' } The first case of error is usually caused by a wrong column separator
+#'   \item{The keys are not found at all.}
+#' } In the first two cases study the error message in detail. It contains the
+#' failed values enclosed in single quotes, doubling all contained single
+#' quotes, if any. This eases recognising leading and trailing spaces, which
+#' used to be a frequent cause of mismatches between data-frame fields and
+#' \code{\link{csv_data}} within \code{\link{WMD}} objects.
+#'
+#' The third kind of error is usually caused by a wrong column separator
 #' (\code{sep}) argument. This happens particularly if a spreadsheet software
-#' saves the file with a separator distinct from the one used in the input.
-#' In the other cases the error message puts the failed values in single quotes,
-#' doubling all contained single quotes, if any. This eases recognising leading
-#' and trailing spaces, which are frequent cause of mismatches between
-#' data-frame fields and \code{\link{csv_data}} within \code{\link{WMD}}
-#' objects. This in turn is often due to leading or trailing spaces being lost
-#' when inputting \acronym{CSV} files again. Consider setting \code{strip.white}
-#' to \code{FALSE} in such cases. A potential cause of mismatches is the
-#' reformatting of setup time entries by spreadsheet software. This could be
-#' prevented by forcing that software to treat the setup time as character
-#' strings.
+#' saves the file with a separator distinct from the one used in the input. The
+#' \code{to_metadata} method for file names by default tries several \code{sep}
+#' values in turn as a remedy.
+#'
+#' Leading and trailing spaces can be lost when writing \acronym{CSV} files and
+#' inputting them again. By default both \code{\link{collect_template}} and
+#' \code{include_metadata} attempt to avoid this by replacing all spaces with
+#' underscores. Make sure you use the same \code{normalize} argument with both
+#' functions. If you use a non-default \code{normalize} argument, consider the
+#' \code{strip.white} argument.
+#'
+#' A further potential cause of mismatches is the reformatting of setup time
+#' entries by spreadsheet software. By default both \code{include_metadata} and
+#' \code{\link{collect_template}} attempt to avoid this by replacing all spaces
+#' with underscores. If this does not help, prevent the reformatting by forcing
+#' that software to treat the setup time as character strings.
 #'
 #' If \code{md} is a file name, the default settings for \code{sep} and
 #' \code{strip.white} try to avoid these errors by trying several values in
-#' turn, at the cost of decreased computational efficiency, particularly if
-#' \code{object} contains many plates.
+#' turn.
 #'
 #' Calling \code{edit} will only work if \code{\link{to_metadata}} yields a data
 #' frame suitable for the \code{edit} method from the \pkg{utils} package. This
@@ -885,9 +897,9 @@ setMethod("include_metadata", "WMD", function(object, md, keys, replace = FALSE,
   found <- as.list(found[, wanted, drop = FALSE])
   result <- object
   result@metadata <- if (replace)
-    found
-  else
-    c(metadata(result), found)
+      found
+    else
+      c(metadata(result), found)
 
   result
 
