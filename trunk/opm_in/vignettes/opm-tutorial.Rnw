@@ -1772,11 +1772,8 @@ Each centroid is displayed as larger symbol in the corresponding colour.
 \end{figure}
 
 
-%% CHECK BY MG JULY 2015 END (start at beginning of document)
-
-
 The function \code{ci\_plot} can visualise point estimates and corresponding 95\% confidence intervals for the parameters, derived \textit{via} bootstrapping during aggregation of raw kinetic data into curve parameters, or, in conjunction with \code{extract}, from plate groups defined by the metadata.
-Thereby the bracket operator as described above (see Section~\ref{application manipulation}) facilitates the selection of subsets of interest.
+The bracket operator as described above (see Section~\ref{application manipulation}) facilitates the selection of subsets of interest.
 
 Figure~\ref{fig:ci_plot} provides an example of such a visualisation.
 The parameter \ac{A} is plotted for the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose) from one plate (the sixth plate of the first biological repetition from data set \code{vaas_et_al}).
@@ -1798,14 +1795,14 @@ ci_plot.legend <- ci_plot(vaas.1.6[, , c("A01", "A02", "A03")],
 \caption{
 \label{fig:ci_plot}
 Comparison of point estimates and their 95\% confidence intervals for the parameter \ac{A} observed from four strains, using \code{ci\_plot}.
-Shown are the results for estimating the maximum height of the single curves on the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose) as indicated by the sub-plot titles. Point estimates that have no overlapping confidence intervals are regarded to be significantly different.
+The results for estimating the maximum height of the single curves on the three wells A01 (Negative Control), A02 (Dextrin) and A03 (D-Maltose) as indicated by the sub-plot titles are shown. Point estimates that have no overlapping confidence intervals are regarded as significantly different.
 But note that here the confidence intervals only indicate the uncertainty in parameter estimation from single curves.
 }
 \end{figure}
 
 
-Furthermore, the helper function \code{extract} (more specifically, its data-frame method) can group curve parameters from \proglang{OPMS} objects according to selected metadata and calculate according point estimates (means) and confidence intervals.
-It can also apply normalisation beforehand, which might frequently be necessary to more easily recognise biological differences; see Section~\ref{methods norm-aggregated}.
+The helper function \code{extract} (more specifically, its data-frame method) can group curve parameters from \proglang{OPMS} objects according to selected metadata and calculate point estimates (means) and confidence intervals.
+This \code{extract} method can also apply normalisation beforehand, which might frequently be necessary to more easily recognise biological differences; see Section~\ref{methods norm-aggregated}.
 
 After the extraction of the values together with necessary metadata (argument \code{as.labels}) in a first call to \code{extract}, the resulting data frame can be treated by \code{extract} again for generating another data frame with numeric values grouped according to the \code{as.groups} argument and optionally normalisation applied, as triggered \textit{via} the argument \code{norm.per}.
 The first data frame would be created as follows:
@@ -1815,7 +1812,7 @@ x <- extract(vaas_et_al, as.labels = list("Species", "Strain"),
   dataframe = TRUE)
 @
 
-For a better understanding of the following secondary applications of \code{extract} it is highly recommended to take a look at the results from plotting the data with \code{ci\_plot} and also at structure of the created data frames.
+For a better understanding of the following second call of \code{extract} it is highly recommended to take a look at the results from plotting the data with \code{ci\_plot} and also at structure of the created data frames.
 
 Using \code{norm.per = "none"} causes normalisation to be omitted.
 If \code{as.groups = TRUE} is used, all metadata that have been included in the first data frame are used to determine the groups.
@@ -1858,10 +1855,10 @@ ci_plot(extract(x, as.groups = TRUE, norm.per = "column")[, c(1:7, 13)],
   legend.field = NULL, x = 150, y = 0)
 @
 
-Moreover, \textit{via} \code{norm.by} it is possible to use one to several selected wells or plates for the calculation of the means used for normalisation.
+\textit{Via} \code{norm.by} it is possible to use one to several selected wells or plates for the calculation of the means used for normalisation.
 With \code{direct = TRUE} even directly entered numeric values can be used for normalisation purposes.
 See Figure~\ref{fig:ci_plot_norm} for an example of plotted confidence intervals obtained from data normalised by subtracting the value of well A10 (``Positive Control'').
-Note that due to the structure of the data frame \code{norm.per = "row"} in combination with the \code{norm.by} argument has to be used.
+Note that due to the structure of the data frame \code{norm.per = "row"} in conjunction with the \code{norm.by} argument has to be used.
 One could normalise by subtracting the means of well A10 only as follows:
 
 <<label=ci-plot-norm-well-A10-figure-code, eval=FALSE>>=
@@ -1881,7 +1878,7 @@ ci_plot(extract(x, as.groups = TRUE, norm.per = "row",
 \label{fig:ci_plot_norm}
 Comparison of mean point estimates and their 95\% confidence intervals, computed with \code{extract} over groups defined by the ``Species'' and ``Strain'' metadata entries, for the parameter \ac{A} observed from four strains, using \code{ci\_plot}.
 Shown are the results on the three wells A01 (Negative Control), A02 (Dextrin), A03 (D-Maltose), A04 (D-Trehalose) and A10 (Positive Control) as indicated by the sub-plot titles.
-Normalisation was done by subtracting the overall well means of well A10 (``Positive Control''). Point estimates that have no overlapping confidence intervals are regarded to be significantly different.
+Normalisation was done by subtracting the overall well means of well A10 (``Positive Control''). Point estimates that have no overlapping confidence intervals are regarded as significantly different.
 Compare this with Figure~\ref{fig:ci_plot_groups}.
 }
 \end{figure}
@@ -1890,7 +1887,7 @@ Compare this with Figure~\ref{fig:ci_plot_groups}.
 The function \code{heat\_map} (see Figure~\ref{fig:heat_map}) provides false-colour level plots in which both axes are rearranged according to clustering results.
 In the context of \ac{PM} data, it makes most sense to apply it to the estimated curve parameters.
 This \pkg{opm} function is a wrapper for \code{heatmap} from the \pkg{stats} and \code{heatmap.2} from the \pkg{gplots} package with some adaptations to \ac{PM} data.
-For instance, row groups can be automatically constructed from the metadata.
+For instance, row groups can automatically be constructed from the metadata.
 
 The function \code{heat\_map} could be applied to matrices or data frames constructed using the helper function \code{extract}, but it is more convenient to apply it directly to \proglang{OPMS} objects:
 
@@ -1909,10 +1906,10 @@ vaas.1.6.A <- heat_map(vaas.1.6, as.labels = "Strain",
 \caption{
 \label{fig:heat_map}
 Visualisation of the clustered results from the curve parameter \ac{A} for each substrate using the function \code{heat\_map}.
-The x-axis corresponds to the substrates clustered according to the similarity of their values over all plates; the y-axis corresponds to the plates clustered to the similarity of their values over all substrates.
-As row labels, the strain names were selected (argument \code{as.labels}), whereas the species affiliations was used to assign row group colours (bars at the left side, argument \code{as.groups}).
+The x-axis corresponds to the substrates clustered according to the similarity of their values over all plates; the y-axis corresponds to the plates clustered according to the similarity of their values over all substrates.
+As row labels, the strain names were selected (argument \code{as.labels}), whereas the species affiliation was used to assign row group colours (bars at the left side, argument \code{as.groups}).
 The central rectangle is a substrate $\times$ plate matrix in which the colours represent the classes of values.
-The default colour setting uses topological colours, with deep violet and blue indicating the lowest values and light brown indicating the highest values, but another colour palette could also be chosen by the user.
+The default colour setting uses topological colours, with deep violet and blue indicating the lowest values and light brown indicating the highest values, but another colour palette could also be chosen.
 The default can by set with \code{opm\_opt(hm.colours = ...)}.
 }
 \end{figure}
@@ -1921,13 +1918,13 @@ Additional example code on clustering curve parameters, including an assessment 
 Call \code{demo("cluster-with-pvalues", package = "opm")} for running examples based on the  using the \pkg{pvclust} package \citep{Suzuki2011}.
 
 Additional example code on visualising curve parameters is available \textit{via} \code{opm\_files("demo")}.
-It is indeed easy to conduct principal-component analysis with matrices created with \code{extract}.
+It is indeed easy to conduct a principal-component analysis with matrices created with \code{extract}.
 Call \code{demo("custom-PCA", package = "opm")} for running examples based on the \pkg{BiodiversityR} package \citep{Kindt2005}.
 
 \subsubsection[Troubleshooting]{Troubleshooting}\label{application application plotting-aggregated troubleshooting}
 
 If a plotting function complains about having more groups than colours available, check \code{select\_colors} and consider using \code{opm\_opt(colors = "brewer")} or create your own set of colours using \code{rainbow} etc.
-In the case of \code{radial\_plot}, alternatively use \code{group.col = TRUE} to for one colour per group.
+In the case of \code{radial\_plot}, alternatively use \code{group.col = TRUE} for one colour per group.
 
 If there are no replicates per group, \code{ci\_plot} cannot newly calculate confidence intervals.
 
@@ -1935,6 +1932,9 @@ In the case of the \code{heat\_map} function, the widths of the left and bottom 
 The margin widths can be set by hand at any time, however, using the \code{margins} argument.
 
 When selecting metadata, do not mix up the selection by, say \code{c("a", "b")} with the selection using \code{list("a", "b")}.
+
+
+%% CHECK BY MG JULY 2015 END (start at beginning of document)
 
 
 \subsection[Statistical comparisons of group means]{Statistical comparisons of group means}\label{application group-means}
