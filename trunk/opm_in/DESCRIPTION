@@ -8,7 +8,7 @@ Author: Markus Goeker, with contributions by Benjamin Hofner, Lea A.I.
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
 Depends: R (>= 3.1.0)
 Imports: methods, lattice, parallel, boot, hwriter, plotrix,
-        Ckmeans.1d.dp, pkgutils (>= 0.7.5), yaml (>= 2.1.7), splines,
+        Ckmeans.1d.dp, pkgutils (>= 0.7.7), yaml (>= 2.1.7), splines,
         mgcv, grofit (>= 1.1), rjson (>= 0.2.12), nlme, DBI, multcomp
 Suggests: optparse, gplots, opmdata (>= 0.4.0), testthat, KEGGREST,
         pathview, mboost (>= 2.3.0), gridExtra
