@@ -1071,17 +1071,28 @@ setMethod("edit", "MOPMX", function(name, ...) {
 #'   also be collected (and coerced to \sQuote{character}), or \code{TRUE}. In
 #'   that case, a mapping template for the classes themselves is returned. See
 #'   the \code{coerce} argument of \code{map_values} for details.
-#' @param ... Optional argument passed from the \code{\link{WMDS}} to the
-#'   \code{\link{WMD}} method.
+#' @param max.dist Numeric scalar. If non-negative, causes the construction of a
+#'   mapping from potential misspellings to the putative correct spelling, based
+#'   on string similarity. \code{max.dist} then gives the maximum string
+#'   distance allowed for regarding two strings as synonyms. This boundary must
+#'   not be set too high; otherwise strings with distinct meanings might be
+#'   regarded as misspellings (see the example below). The resulting vector
+#'   should always be inspected before passing it to \code{\link{map_values}}.
+#'   See the \code{map_values} method for character vectors as \code{object} and
+#'   numeric vectors as \code{mapping} argument in the \pkg{pkgutils} package
+#'   for further details on such string matching.
+#' @param ... Optional arguments passed between the methods or to
+#'   \code{\link{map_values}}.
 #'
 #' @return \code{metadata} generates a list (empty if metadata were not set or
 #'   if partial selection using \code{key} did not result).
 #'
-#'   \code{metadata_chars} yields a character vector, sorted and made unique.
-#'   Original \code{names} attributes, if any, are dropped and replaced by the
-#'   character vector itself. (This might be convenient regarding its use with
-#'   \code{\link{map_metadata}}.)
-#'
+#'   Under default settings \code{metadata_chars} yields a character vector,
+#'   sorted and made unique. Original \code{names} attributes, if any, are
+#'   dropped and replaced by the character vector itself. (This might be
+#'   convenient regarding its use with \code{\link{map_metadata}}.) If
+#'   \code{max.distance} is non-negative, the result is distinct; see above for
+#'   details.
 #' @export
 #' @family metadata-functions
 #' @keywords attribute
@@ -1147,6 +1158,13 @@ setMethod("edit", "MOPMX", function(name, ...) {
 #' (y <- metadata_chars(vaas_4, values = FALSE)) # the keys
 #' stopifnot(length(x) > length(y))
 #'
+#' # detecting misspellings
+#' (x <- metadata_chars(vaas_4, max.dist = 0.1))
+#' stopifnot(length(x) == 0) # no misspellings
+#' (x <- metadata_chars(vaas_4, max.dist = 0.5)) # wrong result!
+#' # distance too high => non-synonyms thought to be misspellings
+#' stopifnot(length(x) == 2, !is.null(names(x)))
+#'
 setGeneric("metadata", function(object, ...) standardGeneric("metadata"))
 
 setMethod("metadata", "WMD", function(object, key = NULL, exact = TRUE,
@@ -1183,21 +1201,36 @@ setGeneric("metadata_chars",
   function(object, ...) standardGeneric("metadata_chars"))
 
 setMethod("metadata_chars", "WMD", function(object, values = TRUE,
-    classes = "factor") {
-  if (L(values))
-    map_values(object@metadata, coerce = classes)
-  else
-    map_names(object@metadata)
+    classes = "factor", max.dist = -1, ...) {
+  result <- if (L(values))
+      map_values(object = object@metadata, coerce = classes)
+    else
+      map_names(object@metadata)
+  if (is.na(L(max.dist)) || max.dist < 0)
+    return(result)
+  map_values(object = result, mapping = max.dist, ...)
 }, sealed = SEALED)
 
-setMethod("metadata_chars", "WMDS", function(object, ...) {
-  # 2nd call of map_values unifies the vector but keeps the names
-  map_values(unlist(lapply(object@plates, FUN = metadata_chars, ...)))
+setMethod("metadata_chars", "WMDS", function(object, values = TRUE,
+    classes = "factor", max.dist = -1, ...) {
+  result <- unlist(lapply(object@plates, FUN = metadata_chars,
+    values = values, classes = classes, max.dist = NA_real_, ...))
+  if (is.na(L(max.dist)))
+    return(result)
+  else if (max.dist < 0) # 2nd call of map_values unifies the
+    return(map_values(result)) # vector but keeps the names
+  map_values(object = result, mapping = max.dist, ...)
 }, sealed = SEALED)
 
-setMethod("metadata_chars", "MOPMX", function(object, ...) {
-  # 3rd call of map_values unifies the vector but keeps the names
-  map_values(unlist(lapply(object@.Data, FUN = metadata_chars, ...)))
+setMethod("metadata_chars", "MOPMX", function(object, values = TRUE,
+    classes = "factor", max.dist = -1, ...) {
+  result <- unlist(lapply(object@.Data, FUN = metadata_chars,
+    values = values, classes = classes, max.dist = NA_real_, ...))
+  if (is.na(L(max.dist)))
+    return(result)
+  else if (max.dist < 0) # 2nd call of map_values unifies the
+    return(map_values(result)) # vector but keeps the names
+  map_values(object = result, mapping = max.dist, ...)
 }, sealed = SEALED)
 
 

@@ -1288,6 +1288,11 @@ metadata(example.opm)
 This command transforms all entries in the table with the value "red" to "green".
 Other values, as well as the keys, are unaffected.
 
+The \code{metadata\_chars} function can also detect misspellings in metadata name or values if the \code{max.distance} argument is set to a non-negative numeric value.
+It then indicates the upper threshold for the dissimilarity between two strings to regard them as synonyms.
+The most frequent within each group of strings is regarded as the correct spelling.
+This is not fail-safe, hence resulting vectors should always be checked before passing them to \code{map\_metadata}, and distinct \code{max.distance} settings should be tried.
+
 Frequently, metadata entries will be used as factors in statistical models.
 This always requires that the chosen metadata entry is present in all considered \proglang{OPM} object and sometimes requires that entries are combined.
 For instance, for setting up a \textit{cell-means model} (see Section~\ref{methods group-means} and Section~\ref{application group-means}), factors used for defining the groups of interest have to be merged.
