@@ -818,6 +818,11 @@ prepare_class_names.character <- function(x) {
 #' (y <- map_values(x, function(z) sprintf("%s%s", z, z)))
 #' stopifnot(names(y) == names(x), y != x)
 #'
+#' # Character/numeric method
+#' x <- c("car", "cars", "car", "care", " Car")
+#' (y <- map_values(x, 0.25))
+#' stopifnot(length(y) == 3, y == "car")
+#'
 #' # List/character method
 #' x <- list(a = 1:8, c = 9, d = 'x')
 #' map <- c(a = "b", e = "f", x = "y")
