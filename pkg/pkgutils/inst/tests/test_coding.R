@@ -278,3 +278,23 @@ test_that("a list can be queried with a list with missing names", {
 
 })
 
+
+################################################################################
+
+
+## adist2map
+test_that("we can create maps from string similarities", {
+  x <- c("fibroblast", "fibroblast", "oth", letters[13:20], "FIB", "", " ",
+    "fibroblasts", "fib", "control", "CONT", "other", "other", "FIBRO", "fib ",
+    NA_character_, "fibroblasts ")
+  got <- adist2map(x)
+  exp <- c(FIB = "fib", fibroblasts = "fibroblast",
+    `fibroblasts ` = "fibroblast")
+  expect_equal(got, exp)
+  got <- adist2map(x, partial = TRUE)
+  exp <- c(FIB = "fib", fibroblasts = "fibroblasts ")
+  expect_equal(got, exp)
+})
+
+
+

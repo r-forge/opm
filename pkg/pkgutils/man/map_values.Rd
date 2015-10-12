@@ -20,12 +20,12 @@
   \sQuote{names} attribute is considered.}
 
   \item{mapping}{When mapping values, a character vector,
-  function, expression, \code{NULL} or missing.  \itemize{
-  \item If a character vector used as a mapping from its
-  names to its values.  Values from \code{object} are
-  searched for in the \code{names} attribute of
-  \code{mapping}; those found are replaced by the
-  corresponding values of \code{mapping}.  \item If
+  function, expression, numeric scalar, \code{NULL} or
+  missing.  \itemize{ \item If a character vector, used as
+  a mapping from its names to its values. Values from
+  \code{object} are searched for in the \code{names}
+  attribute of \code{mapping}; those found are replaced by
+  the corresponding values of \code{mapping}.  \item If
   \code{mapping} is missing, a character vector is returned
   (sorted and with duplicates removed) whose names are
   identical to the values. This eases the construction of
@@ -46,7 +46,11 @@
   environment, which after conversion back to a list, is
   returned.  \item If \code{mapping} is \code{NULL} and
   \code{object} is a list, all contained objects of zero
-  length are removed recursively.  }
+  length are removed recursively.  \item If \code{mapping}
+  is a numeric scalar and \code{object} is a character
+  vector or factor, a mapping (named character vector) is
+  created that translates groups of similar strings to
+  their most frequent member.  }
 
   When mapping names, a mapping function that takes a
   character vector as first argument, or character vector
@@ -123,6 +127,20 @@
   their own \code{names} attribute; this might be useful if
   the result is later on used for some mapping (using this
   function or \code{\link{map_values}}).
+
+  The method for a numeric \code{mapping} argument and
+  strings or factors as \code{object} argument can be used
+  to correct misspellings. It is based on \code{adist} from
+  the base package, to which the \code{...} arguments are
+  passed. \code{mapping} indicates the maximum string
+  distance allowed when placing strings into the same
+  group. Distances are calculated as output of \code{adist}
+  divided by the larger of the two strings length for
+  \code{partial = FALSE} (the default) and the smaller one
+  otherwise.  \code{ignore.case} is \code{TRUE} per
+  default, \code{useBytes} is \code{FALSE}. Clustering is
+  done by single linkage for \code{partial = FALSE}, by
+  complete linkage for \code{partial = TRUE}.
 }
 \examples{
 ## map_values()
@@ -340,6 +358,7 @@ stopifnot(y == c("a", "b"), names(y) == y)
 \alias{map_values,character,character-method}
 \alias{map_values,character,function-method}
 \alias{map_values,character,missing-method}
+\alias{map_values,character,numeric-method}
 \alias{map_values,data.frame,NULL-method}
 \alias{map_values,data.frame,character-method}
 \alias{map_values,data.frame,function-method}
@@ -347,6 +366,7 @@ stopifnot(y == c("a", "b"), names(y) == y)
 \alias{map_values,factor,character-method}
 \alias{map_values,factor,function-method}
 \alias{map_values,factor,missing-method}
+\alias{map_values,factor,numeric-method}
 \alias{map_values,list,NULL-method}
 \alias{map_values,list,character-method}
 \alias{map_values,list,expression-method}
@@ -380,6 +400,7 @@ stopifnot(y == c("a", "b"), names(y) == y)
   \S4method{map_values}{character,character}(object, mapping) 
   \S4method{map_values}{character,function}(object, mapping, ...)
   \S4method{map_values}{character,missing}(object) 
+  \S4method{map_values}{character,numeric}(object, mapping, ...)
   \S4method{map_values}{data.frame,NULL}(object, mapping, coerce = character(), ...)
   \S4method{map_values}{data.frame,character}(object, mapping, coerce = character())
   \S4method{map_values}{data.frame,function}(object, mapping, coerce = character(), ...)
@@ -387,6 +408,7 @@ stopifnot(y == c("a", "b"), names(y) == y)
   \S4method{map_values}{factor,character}(object, mapping) 
   \S4method{map_values}{factor,function}(object, mapping, ...)
   \S4method{map_values}{factor,missing}(object) 
+  \S4method{map_values}{factor,numeric}(object, mapping, ...)
   \S4method{map_values}{list,NULL}(object, mapping, coerce = character())
   \S4method{map_values}{list,character}(object, mapping, coerce = character())
   \S4method{map_values}{list,expression}(object, mapping, coerce = parent.frame())
