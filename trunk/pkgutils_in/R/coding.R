@@ -701,12 +701,12 @@ prepare_class_names.character <- function(x) {
 #'   attribute, not the \sQuote{names} attribute is considered.
 #'
 #' @param mapping When mapping values, a character vector, function, expression,
-#'   \code{NULL} or missing.
+#'   numeric scalar, \code{NULL} or missing.
 #'   \itemize{
-#'   \item If a character vector used as a mapping from its names to its values.
-#'   Values from \code{object} are searched for in the \code{names} attribute of
-#'   \code{mapping}; those found are replaced by the corresponding values of
-#'   \code{mapping}.
+#'   \item If a character vector, used as a mapping from its names to its
+#'   values. Values from \code{object} are searched for in the \code{names}
+#'   attribute of \code{mapping}; those found are replaced by the corresponding
+#'   values of \code{mapping}.
 #'   \item If \code{mapping} is missing, a character vector is returned (sorted
 #'   and with duplicates removed) whose names are identical to the values. This
 #'   eases the construction of mapping vectors specific for \code{object}. If
@@ -724,6 +724,9 @@ prepare_class_names.character <- function(x) {
 #'   conversion back to a list, is returned.
 #'   \item If \code{mapping} is \code{NULL} and \code{object} is a list, all
 #'   contained objects of zero length are removed recursively.
+#'   \item If \code{mapping} is a numeric scalar and \code{object} is a
+#'   character vector or factor, a mapping (named character vector) is created
+#'   that translates groups of similar strings to their most frequent member.
 #'   }
 #'
 #'   When mapping names, a mapping function that takes a character vector as
@@ -785,6 +788,16 @@ prepare_class_names.character <- function(x) {
 #'   be useful if the result is later on used for some mapping (using this
 #'   function or \code{\link{map_values}}).
 #'
+#'   The method for a numeric \code{mapping} argument and strings or factors as
+#'   \code{object} argument can be used to correct misspellings. It is based on
+#'   \code{adist} from the base package, to which the \code{...} arguments are
+#'   passed. \code{mapping} indicates the maximum string distance allowed when
+#'   placing strings into the same group. Distances are calculated as output of
+#'   \code{adist} divided by the larger of the two strings length for
+#'   \code{partial = FALSE} (the default) and the smaller one otherwise.
+#'   \code{ignore.case} is \code{TRUE} per default, \code{useBytes} is
+#'   \code{FALSE}. Clustering is done by single linkage for \code{partial =
+#'   FALSE}, by complete linkage for \code{partial = TRUE}.
 #' @examples
 #'
 #' ## map_values()
@@ -1136,6 +1149,11 @@ setMethod("map_values", c("character", "NULL"), function(object, mapping) {
   object
 }, sealed = SEALED)
 
+setMethod("map_values", c("character", "numeric"), function(object, mapping,
+    ...) {
+  adist2map(x = object, max.distance = mapping, ...)
+}, sealed = SEALED)
+
 #-------------------------------------------------------------------------------
 
 setMethod("map_values", c("factor", "function"), function(object, mapping,
@@ -1151,6 +1169,11 @@ setMethod("map_values", c("factor", "character"), function(object, mapping) {
 
 setMethod("map_values", c("factor", "missing"), function(object) {
   map_values(levels(object))
+}, sealed = SEALED)
+
+setMethod("map_values", c("factor", "numeric"), function(object, mapping,
+    ...) {
+  adist2map(x = as.character(object), max.distance = mapping, ...)
 }, sealed = SEALED)
 
 #-------------------------------------------------------------------------------
@@ -1371,3 +1394,45 @@ setMethod("contains", c("list", "list"), function(object, other,
 
 
 ################################################################################
+
+
+# Used by map_values, character/numeric method
+adist2map <- function(x, max.distance = 0.1, ignore.case = TRUE,
+    partial = FALSE, useBytes = FALSE, ...) {
+  single_linkage <- function(x) {
+    result <- seq_len(nrow(x))
+    for (i in result) {
+      j <- result %in% result[x[i, ]]
+      result[j] <- max(result[j])
+    }
+    result
+  }
+  complete_linkage <- function(x) {
+    result <- seq_len(nrow(x))
+    for (i in rev.default(result[-1L])) {
+      group <- result == result[[i]]
+      for (j in rev.default(which(x[i, seq_len(i - 1L)])))
+        if (all(x[j, group])) {
+          result[[j]] <- result[[i]]
+          group[[j]] <- TRUE
+        }
+    }
+    result
+  }
+  s <- table(x[!is.na(x) & nzchar(x)])
+  s <- s[order(s, nchar(names(s)))]
+  d <- adist(x = names(s), y = NULL, ignore.case = ignore.case,
+    useBytes = useBytes, partial = partial, ...)
+  n <- nchar(names(s), if (useBytes) "bytes" else "chars")
+  f <- if (partial) pmin else pmax
+  for (i in seq_len(nrow(d)))
+    d[i, ] <- d[i, ] / f(n[[i]], n)
+  f <- if (partial) complete_linkage else single_linkage
+  d <- f(d <= max.distance)
+  n <- names(s)
+  n[seq_along(d)] <- n[d]
+  names(n) <- names(s)
+  n[names(n) != n]
+}
+
+
