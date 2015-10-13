@@ -797,7 +797,10 @@ prepare_class_names.character <- function(x) {
 #'   \code{partial = FALSE} (the default) and the smaller one otherwise.
 #'   \code{ignore.case} is \code{TRUE} per default, \code{useBytes} is
 #'   \code{FALSE}. Clustering is done by single linkage for \code{partial =
-#'   FALSE}, by complete linkage for \code{partial = TRUE}.
+#'   FALSE}, by complete linkage for \code{partial = TRUE}. An additional
+#'   argument \code{exclude}, if a non-empty string, is used as a
+#'   \acronym{PERL}-compatible regular expression to remove strings prior to
+#'   determining misspellings.
 #' @examples
 #'
 #' ## map_values()
@@ -1403,7 +1406,7 @@ setMethod("contains", c("list", "list"), function(object, other,
 
 # Used by map_values, character/numeric method
 adist2map <- function(x, max.distance = 0.1, ignore.case = TRUE,
-    partial = FALSE, useBytes = FALSE, ...) {
+    exclude = "", partial = FALSE, useBytes = FALSE, ...) {
   single_linkage <- function(x) {
     result <- seq_len(nrow(x))
     for (i in result) {
@@ -1424,6 +1427,10 @@ adist2map <- function(x, max.distance = 0.1, ignore.case = TRUE,
     }
     result
   }
+  if (nzchar(exclude))
+    x <- grep(exclude, x, FALSE, TRUE, TRUE, FALSE, useBytes, TRUE)
+  if (!length(x))
+    return(structure(character(), names = character()))
   s <- table(x[!is.na(x) & nzchar(x)])
   s <- s[order(s, nchar(names(s)))]
   d <- adist(x = names(s), y = NULL, ignore.case = ignore.case,

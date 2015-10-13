@@ -294,6 +294,11 @@ test_that("we can create maps from string similarities", {
   got <- adist2map(x, partial = TRUE)
   exp <- c(FIB = "fib", fibroblasts = "fibroblasts ")
   expect_equal(got, exp)
+  got <- adist2map(x, exclude = "FIB")
+  exp <- c(fibroblasts = "fibroblast", `fibroblasts ` = "fibroblast")
+  expect_equal(got, exp)
+  got <- adist2map(character())
+  expect_equal(got, structure(character(), names = character()))
 })
 
 
