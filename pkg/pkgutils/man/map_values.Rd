@@ -140,7 +140,10 @@
   otherwise.  \code{ignore.case} is \code{TRUE} per
   default, \code{useBytes} is \code{FALSE}. Clustering is
   done by single linkage for \code{partial = FALSE}, by
-  complete linkage for \code{partial = TRUE}.
+  complete linkage for \code{partial = TRUE}. An additional
+  argument \code{exclude}, if a non-empty string, is used
+  as a \acronym{PERL}-compatible regular expression to
+  remove strings prior to determining misspellings.
 }
 \examples{
 ## map_values()
