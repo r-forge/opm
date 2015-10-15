@@ -84,6 +84,7 @@
 \acrodef{HTML}{Hypertext Markup Language}
 \acrodef{ID}{Identifier}
 \acrodef{IME}{Institute for Molecular Biology and Applied Ecology}
+\acrodef{JSON}{JavaScript Object Notation}
 \acrodef{LB}{Lysogeny Broth}
 \acrodef{LIMS}{Laboratory Information Management System}
 \acrodef{NADH}{reduced Nicotinamide Adenine Dinucleotide}
@@ -93,6 +94,7 @@
 \acrodef{SFB}{\German{Sonderforschungsbereich}}
 \acrodef{TRR}{\German{Transregio}}
 \acrodef{WWW}{World Wide Web}
+\acrodef{YAML}{YAML Ain't Markup Language}
 
 %% Add Revision Control System (RCS) Markups
 \usepackage{ulem}      % use this for sout
@@ -179,14 +181,14 @@ It is also possible to discretise the curve parameters and to export them for re
 
 Tabular and textual summaries suitable for, e.g., taxonomic journals can also be automatically created and customised.
 Data storage within, and data retrieval from, relational or other databases is easily possible.
-Export and import in the \proglang{YAML} (or \proglang{JSON}) markup language (or as character-separated values) facilitates the data exchange among labs.
+Export and import in the \ac{YAML} (or \ac{JSON}) markup language (or as character-separated values) facilitates the data exchange among labs.
 All methods are exemplified using real-world data sets that are part of the \pkg{opm} \proglang{R} package or are included in the accompanying data package \pkg{opmdata}.
 
 This is the tutorial of \pkg{opm} in the version of \today{}.
 
 }
 
-\Keywords{Bootstrap, Cell Lines, \pkg{grofit}, Growth Curves, \pkg{lattice}, Metadata, Microbiology, Respiration Kinetics, Splines, \proglang{YAML}, \proglang{JSON}, \acs{CSV},
+\Keywords{Bootstrap, Cell Lines, \pkg{grofit}, Growth Curves, \pkg{lattice}, Metadata, Microbiology, Respiration Kinetics, Splines, \acs{YAML}, \acs{JSON}, \acs{CSV},
 \acs{RDBMS}}
 
 \Plainkeywords{bootstrap, cell lines, grofit, growth curves, lattice, metadata, microbiology, respiration kinetics, splines, YAML, JSON, CSV, RDBMS}
@@ -314,8 +316,8 @@ Based on a previous study \citep{vaas} the here presented \pkg{opm} package \cit
 Using customised input functions, raw kinetic data can be transferred into \proglang{R}, stored as \proglang{S4} objects \citep{chambers} containing single or multiple OmniLog\textregistered \ \ac{PM} plates and further processed.
 The package features the statistically robust calculation and attachment of aggregated curve parameters including their (bootstrapped) confidence intervals.
 Moreover, infrastructure is provided to merge this with any kind of additional metadata.
-These complex data bundles can then be exported in \proglang{YAML} format (\url{http://www.yaml.org/}), which is a human-readable data serialisation format that can be read by most common programming languages and facilitates fast and easy data exchange between laboratories.
-Its subset, \proglang{JSON} (\url{http://www.json.org/}), can also be used, for instance if a proper \proglang{YAML} parser is unavailable.
+These complex data bundles can then be exported in \ac{YAML} format (\url{http://www.yaml.org/}), which is a human-readable data serialisation format that can be read by most common programming languages and facilitates fast and easy data exchange between laboratories.
+Its subset, \ac{JSON} (\url{http://www.json.org/}), can also be used, for instance if a proper \ac{YAML} parser is unavailable.
 As \pkg{opm} is also able to generate \proglang{R} matrices and data frames, output as \ac{CSV} is also easy.
 
 Data evaluation includes the graphical display of the data such as the raw respiration curve kinetics or the confidence intervals of aggregated curve parameters.
@@ -361,7 +363,7 @@ The raw kinetic data can be exported by the proprietary OmniLog\textregistered \
 This is explained in section Section~\ref{methods import}, whereas corresponding code examples are found in Section~\ref{application import}.
 
 Batch processing many files is also possible, even without starting an interactive \proglang{R} session.
-This includes storage of the \pkg{opm} data in the \proglang{YAML} (or \proglang{JSON} or \ac{CSV}) format, as detailed in Section~\ref{methods batch}.
+This includes storage of the \pkg{opm} data in the \ac{YAML} (or \ac{JSON} or \ac{CSV}) format, as detailed in Section~\ref{methods batch}.
 Example code is given in  Section~\ref{application batch}.
 
 All kinds of \ac{PM} data can be enriched with metadata (see Figure~\ref{fig:data}, Figure~\ref{fig:work-flow}).
@@ -448,7 +450,7 @@ Using the function \code{split\_files} to split \ac{CSV} files containing multip
 As of version 0.4.0, \pkg{opm} also supports the input of MicroStation\texttrademark \ \ac{CSV} files (frequently used in conjunction with EcoPlate\texttrademark \ assay for microbial community analysis) \citep{Vaas2013}.
 These files contain only end-point measurements but potentially several plates, which can nevertheless be input together with their potentially also rich meta-information.
 
-The easiest way to load the raw kinetic data (as \ac{CSV} files or as \proglang{YAML} or \proglang{JSON}) into \proglang{R} in a single step is using the function \code{read\_opm} (see Figure~\ref{fig:work-flow}).
+The easiest way to load the raw kinetic data (as \ac{CSV} files or as \ac{YAML} or \ac{JSON}) into \proglang{R} in a single step is using the function \code{read\_opm} (see Figure~\ref{fig:work-flow}).
 If raw data from only one single-plate OmniLog\textregistered \ \ac{PM} are imported, the resulting object belongs to the \proglang{S4} class \proglang{OPM}.
 This class for holding single-plate OmniLog\textregistered \ \ac{PM} data originally only includes the (limited) meta-information read from the original input \ac{CSV} files, but an arbitrary amount of metadata can be added later on (see Figure~\ref{fig:work-flow}).
 If multiple plates are imported, the resulting object automatically belongs to the \proglang{S4} class \proglang{OPMS}.
@@ -482,12 +484,12 @@ The entire \proglang{S4} class hierarchy used by \pkg{opm} is shown in Figure~\r
 A number of \proglang{S3} helper classes are also used by several functions.
 Users come in direct contact only with the \proglang{OPM}, \proglang{OPMA}, \proglang{OPMD} and \proglang{OPMS} classes (see Section~\ref{application overview}).
 Once such objects are created they could also be stored in files using \code{save} and read again using \code{load} but \textit{not} using \code{dump} and \code{source} instead, respectively.
-We would nevertheless recommend storage in \proglang{YAML} format.
+We would nevertheless recommend storage in \ac{YAML} format.
 
 
 \subsection[Batch conversion of many files]{Batch conversion of many files}\label{methods batch}
 
-To process and store huge numbers of raw data files, the function \code{batch\_opm} reads all OmniLog\textregistered \ \ac{CSV} files (or \proglang{YAML} or \proglang{JSON} files previously generated with \pkg{opm}) within a given list of files and/or directories and converts them to \pkg{opm} \proglang{YAML} (or \proglang{JSON} or \ac{CSV}) format.
+To process and store huge numbers of raw data files, the function \code{batch\_opm} reads all OmniLog\textregistered \ \ac{CSV} files (or \ac{YAML} or \ac{JSON} files previously generated with \pkg{opm}) within a given list of files and/or directories and converts them to \pkg{opm} \ac{YAML} (or \ac{JSON} or \ac{CSV}) format.
 It is possible to let \pkg{opm} automatically include metadata (Section~\ref{methods metadata}) and aggregated values (curve parameters) (Section~\ref{methods aggregating}) as well as discretised values (Section~\ref{methods discrete-binary}) during this conversion.
 Alternatively, graphics files containing the output of \code{xy\_plot} or \code{level\_plot} can be batch-produced; see Section~\ref{methods plotting} for Details.
 File selection and exclusion using regular expressions or globbing patterns is integrated in the function.
@@ -807,7 +809,7 @@ If you have set up a local \proglang{MongoDB} server and installed \pkg{RMongo},
 The data storage used within \pkg{opm} fits well to a document-oriented database because \proglang{OPMX} objects do not enforce a particular structure for storing the metadata (see Section~\ref{methods metadata}).
 The same holds for the ``options'' entries of the aggregation and discretisation settings.
 
-Finally, the output \proglang{YAML} format (or its subset, \proglang{JSON}) is likely to facilitate the quick establishment of third-party software for importing \ac{PM} data into a database.
+Finally, the output \ac{YAML} format (or its subset, \ac{JSON}) is likely to facilitate the quick establishment of third-party software for importing \ac{PM} data into a database.
 
 \subsection[Global settings]{Global settings}\label{methods settings}
 
@@ -849,7 +851,7 @@ For a complete list of user-level functions see the manual.
 }
 \caption{\label{fig:overview}
 Overview of the possible strategies and appropriate functions for data analysis using the \pkg{opm} package.
-Beginning with one to several \ac{CSV} files containing raw kinetic data exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis}, or \proglang{YAML} or \proglang{JSON} files that have been generated in previous \pkg{opm} runs, \proglang{OPM} or \proglang{OPMS} objects can easily be generated.
+Beginning with one to several \ac{CSV} files containing raw kinetic data exported by the proprietary OmniLog\textregistered \ software \textit{File Management/Kinetic Analysis}, or \ac{YAML} or \ac{JSON} files that have been generated in previous \pkg{opm} runs, \proglang{OPM} or \proglang{OPMS} objects can easily be generated.
 Methods for metadata management, plotting the data in a customised manner, querying and sub-setting the generated objects, statistical comparison of multiple group means, and data-conversion tools including discretisation, report generation and output in files are provided.
 How to use \code{annotated} to produce graphics is explained in the tutorial on substrate information in \pkg{opm}.
 The input of growth-curve data, or any other data that have neither been measured with an OmniLog\textregistered \ nor a with a MicroStation\texttrademark \ system, is described in the tutorial on analysing growth curves and other user-defined data.
@@ -907,7 +909,7 @@ The following code illustrates the import of the OmniLog\textregistered \ \ac{CS
 In the \pkg{opm} manual and all help pages, all data import functions are contained in the family ``IO-functions'' with according cross-references.
 
 The \ac{CSV} files with the OmniLog\textregistered \ raw data should be stored in one to several user-defined folders.
-Setting the working directory of \proglang{R} to the parent folder of these using \code{setwd} frequently facilitates file selection, but in principle the user can provide any number of paths to input files and/or directories containing such files to the function \code{read\_opm}, which can load several \ac{CSV} files (and also \proglang{YAML} or \proglang{JSON} files generated by \pkg{opm}) at once.
+Setting the working directory of \proglang{R} to the parent folder of these using \code{setwd} frequently facilitates file selection, but in principle the user can provide any number of paths to input files and/or directories containing such files to the function \code{read\_opm}, which can load several \ac{CSV} files (and also \ac{YAML} or \ac{JSON} files generated by \pkg{opm}) at once.
 A former restriction of the input functions was that they could solely read new-style \ac{CSV} files that only contained the measurements from a single plate per file (either a \ac{PM} plate or a single GEN-III plate measured in either \ac{PM}- or identification mode).
 The function \code{split\_files} had to be used to split \ac{CSV} files with multiple plates into one file per plate, but this is not necessary any more.
 
@@ -1010,7 +1012,7 @@ Moreover, the most recent versions of the OmniLog\textregistered \ software can 
 
 \subsection[Batch conversion of many files]{Batch conversion of many files}\label{application batch}
 
-In addition to \code{read\_opm} and \code{read\_single\_opm} (Section~\ref{application import}), which need to be called before an interactive exploration of \ac{PM} data, batch-processing large numbers of files by converting them from \ac{CSV} (or previously generated \proglang{YAML} or \proglang{JSON}) to \proglang{YAML}, \proglang{JSON} or \ac{CSV} format, is also possible.
+In addition to \code{read\_opm} and \code{read\_single\_opm} (Section~\ref{application import}), which need to be called before an interactive exploration of \ac{PM} data, batch-processing large numbers of files by converting them from \ac{CSV} (or previously generated \ac{YAML} or \ac{JSON}) to \ac{YAML}, \ac{JSON} or \ac{CSV} format, is also possible.
 This optionally includes aggregating the raw data by estimating curve parameters (Section~\ref{application aggregating}), discretising these parameters (Section~\ref{application discrete-text}) and integrating metadata (Section~\ref{application metadata}).
 Again there is a \textit{demo} mode to first investigate the attempted conversions:
 
@@ -1023,7 +1025,7 @@ batch_opm(files, include = "*Example_?.CSV.xz",
 The arguments \code{aggr.args}, \code{disc.args} and \code{md.args} control aggregation, discretisation and metadata incorporation, respectively.
 Details on all three processes are given in the according sections, and for the exact use of these arguments see the \pkg{opm} manual.
 
-The following command reads three of the seven example input files, estimates two of the four curve parameters using the fast native method including 100 rounds of bootstrapping, and stores the resulting \proglang{YAML} files (one per plate) in the current working directory (indicated by \code{"."}):
+The following command reads three of the seven example input files, estimates two of the four curve parameters using the fast native method including 100 rounds of bootstrapping, and stores the resulting \ac{YAML} files (one per plate) in the current working directory (indicated by \code{"."}):
 
 <<label=batch-opm-real,results=hide>>=
 batch.result <- batch_opm(files, include = "*Example_?.CSV.xz",
@@ -2373,9 +2375,6 @@ For example, the command \code{xy\_plot(subset(vaas_4, positive = "all"), neg.ct
 Look up \code{opm::subset} in the manual for further information.
 
 
-%% CHECK BY MG OCTOBER 2015 END (start at beginning of document)
-
-
 \subsubsection[Discretisation and export of text]{Discretisation and export of text}\label{application discrete-text}
 
 The \code{listing} methods of the \proglang{OPMD} and \proglang{OPMD} classes create textual descriptions of the discretisation results suitable for the direct inclusion in scientific manuscripts.
@@ -2385,18 +2384,20 @@ listing(vaas.repl, as.groups = NULL)
 listing(vaas.repl, as.groups = list("Species"))
 @
 
-As usual, the results can be grouped according to specified metadata entries using the ``as.groups'' argument.
+As usual, the results can be grouped according to specified metadata entries using the \code{as.groups} argument.
 If this yields ambiguities (such as a negative reaction of the same well on one plate and a positive reaction on another plate), the result is accordingly renamed.
-The ``cutoff'' argument can be used to define filters, keeping only those values that occur in a specified minimum proportion of wells, as described in the \code{opm::listing} entry in the manual.
+The  \code{cutoff} argument can be used to define filters, keeping only those values that occur in a specified minimum proportion of wells, as described in the \code{opm::listing} entry in the manual.
 
-The \code{listing} function returns a character vector or matrix with the \proglang{S3} class \proglang{OPMD\_listing} or \proglang{OPMS\_listing}, allowing for a special \code{phylo\_data} function that further formats these objects. Accordingly, the following code snippets
+The \code{listing} function returns a character vector or matrix with the \proglang{S3} class \proglang{OPMD\_listing} or \proglang{OPMS\_listing}, allowing for a special \code{phylo\_data} function that further formats these objects.
+Accordingly, the following code snippets:
 
 <<label=phylo-data-text, results=hide>>=
 phylo_data(listing(vaas.repl, as.groups = NULL))
 phylo_data(listing(vaas.repl, as.groups = list("Species")))
 @
 
-would yield character scalars better suitable for exporting into text files using \code{write}. It is also possible to generate \ac{HTML} output, yielding formatted text. Try
+yield character scalars better suitable for exporting into text files using \code{write}.
+It is also possible to generate \ac{HTML} output, yielding formatted text. Try
 
 <<label=phylo-data-html, results=hide>>=
 phylo_data(listing(vaas.repl, as.groups = NULL, html = TRUE))
@@ -2404,7 +2405,7 @@ phylo_data(listing(vaas.repl, as.groups = list("Species"), html = TRUE))
 @
 
 and note that the \code{phylo\_data} function has a  \code{html.args} argument.
-Textual \ac{HTML} output supports most of the formatting instructions  for the output of \ac{HTML} tables described below (see \ref{application discrete-table}).
+Textual \ac{HTML} output supports most of the formatting instructions for the output of \ac{HTML} tables described below (see \ref{application discrete-table}).
 Note particularly how formatting \textit{via} a \ac{CSS} file works, as described in Section~\ref{application discrete-table}.
 
 The default settings of \code{do\_disc} imply exact k-means partitioning into three groups (``negative'', ``ambiguous'' and ``positive''), treating all contained plates together, and using the maximum-height parameter for discretisation.
@@ -2448,7 +2449,7 @@ vaas.html <- phylo_data(vaas.repl, format = "html",
 
 A practical problem is that the resulting \ac{HTML} file is linked to its \ac{CSS} file with a fixed path.
 The formatting would thus get lost once the \ac{HTML} file was copied to another system, without a warning.
-So users might want to copy the predefined \ac{CSS} file to the working directory and set it as default, or embed the \ac{CSS} file directly into \ac{HTML}:
+Hence, users might want to copy the predefined \ac{CSS} file to the working directory and set it as default, or embed the \ac{CSS} file directly into \ac{HTML}:
 
 <<label=wd-css-file, results=hide>>=
 vaas.html <- phylo_data(vaas.repl, format = "html",
@@ -2494,7 +2495,7 @@ vaas.repl.disc <- discrete(vaas.repl, range = c(0, 400))
 @
 
 This yields (at most) 32 distinct character states corresponding to the 32 equal-width intervals within 0 and 400.
-Exporting the data in \textit{extended \proglang{PHYLIP} format} readable by \proglang{RAxML} \citep{stamatakis} would work as follows:
+Exporting the data in \textit{extended \proglang{PHYLIP} format} readable by \proglang{RAxML} \citep{stamatakis} works as follows:
 
 <<label=phylo-data-epf>>=
 phylo_data(vaas.repl.disc, outfile = "example_replicates.epf")
@@ -2507,10 +2508,10 @@ For discretising the data not in equally spaced intervals but into binary charac
 vaas.repl.disc <- discrete(vaas.repl, range = c(120.2, 236.6), gap = TRUE)
 @
 
-Here the range argument provides not the overall boundaries of the data as before (at least as large as the real range), but the boundaries of a zone within the real range of the data corresponding to an area of ambiguous affiliation.
+Here the range argument does not provides the overall boundaries of the data as before (at least as large as the real range), but the boundaries of a zone within the real range of the data corresponding to an area of ambiguous affiliation.
 That is, values below 120.2 are coded as ``0'', those above 236.6 as ``1'', and those in between as ``?''.
 The values used above were determined by k-means partitioning of the \ac{A} values from the \code{vaas\_et\_al} data set \citep{vaas}; there is currently no conclusive evidence that they can generally be applied.
-The last command would result in the treatment of values within the given range as ``missing data'' (\code{NA} in \proglang{R}, ``?'' if exported).
+The last command results in the treatment of values within the given range as ``missing data'' (\code{NA} in \proglang{R}, ``?'' if exported).
 To treat them as a third, intermediary character state, set \code{middle.na} to \code{FALSE}:
 
 <<label=disc-data-tertiary>>=
@@ -2518,8 +2519,8 @@ vaas.repl.disc <- discrete(vaas.repl, range = c(120.2, 236.6),
   gap = TRUE, middle.na = FALSE)
 @
 
-The three resulting states, coded as ``0'', ``1'' and ``2'' (in contrast to ``0'', ``?'' and ``1'' above) would have to be interpreted as ``negative'', ``weak'' and ``positive''.
-Exporting the data in one of the supported phylogeny formats would work as described above.
+The three resulting states, coded as ``0'', ``1'' and ``2'' (in contrast to ``0'', ``?'' and ``1'' above) have to be interpreted as ``negative'', ``weak'' and ``positive''.
+Exporting the data in one of the supported phylogeny formats works as described above.
 If the \code{do\_disc} function described above calls \code{discrete}, then only in gap mode and with \code{middle.na} set to \code{TRUE}, yielding a vector or logical matrix.
 
 \section[Discussion and conclusion]{Discussion and conclusion}\label{DisCon}
@@ -2541,9 +2542,9 @@ In combination with the functionality for annotating the data with meta-informat
 
 But since the design of the \pkg{opm} objects is not intended to be limited to specific analysis frameworks, the \pkg{opm} package works as a data containment providing well organised and comprehensive \ac{PM} data for further, more specialised analyses using methods from different \proglang{R} packages or other third-party software tools.
 Particularly the generation of \proglang{S4} objects featuring a rich set of methods as containers for either single or multiple OmniLog\textregistered \ \ac{PM} plates enables not only the transfer of raw kinetic data into \proglang{R} but also eases their further processing.
-The complex data bundles can also be exported in \proglang{YAML} format, which is a human-readable data serialisation format that can be read by most common programming languages and facilitates fast and easy data exchange between laboratories.
-If a proper \proglang{YAML} parser was unavailable, its subset \proglang{JSON} could also be used.
-The interaction between \pkg{opm} and databases is also based on these formats; see Section~\ref{methods database}.
+The complex data bundles can also be exported in \ac{YAML} format, which is a human-readable data serialisation format that can be read by most common programming languages and facilitates fast and easy data exchange between laboratories.
+If a proper \ac{YAML} parser was unavailable, its subset \ac{JSON} could also be used.
+The interaction between \pkg{opm} and databases is partially also based on these formats; see Section~\ref{methods database}.
 The package can also generate \ac{CSV} output files, but due to the limitation of this format these files cannot be read back into \pkg{opm} in a meaningful way (but into \proglang{R}).
 
 Power and limitations regarding usage of substrate information and their implementation for data arrangement and hypothesis testing \citep{Hofner2015} are discussed in detail in the vignette ``Working with substrate information in \pkg{opm}''.
