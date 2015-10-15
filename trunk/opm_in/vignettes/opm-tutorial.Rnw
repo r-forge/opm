@@ -2122,20 +2122,18 @@ mcp.summary
 
 \subsubsection[Pairs-type comparison of specific wells]{Pairs-type comparison of groups: pairwise comparisons as defined by specific combinations of metadata entries}\label{specific-well-Pairs}
 
-%% CHECK BY MG JULY 2015 END (start at beginning of document)
-
 This paragraph describes a more specific and hence more complex design of the group structure that makes a more elaborate use of the stored metadata.
-Assume data from two species, \emph{P. aeruginosa} and \emph{E. coli} (data set \code{vaas_4}), each with two plates restricted to the wells A01, A02, A03, and H02.
+For example, consider data from two species, \emph{P. aeruginosa} and \emph{E. coli} (data set \code{vaas_4}), each of which with two plates restricted to the wells A01, A02, A03, and H02.
 
 A combination of two species $\times$ four well types would yield eight different groups, which are each represented by two plates.
 A Tukey-type comparison (all-against-all) would then result in 28 pairwise comparisons, whereas a Dunnett-type comparison (one-against-all) would result in seven pairwise comparisons.
 
-However, assume the user is only interested in a specific subset of pairwise comparisons defined by questions such as ``For each well, is there a difference between the two species?''
-This experimental question resulted in testing four statistical hypotheses, as there are only four pairwise combinations that fit this question, since for each of the four wells, the two species should be compared.
+However, assume the user was only interested in a specific subset of pairwise comparisons defined by questions such as ``For each well, is there a difference between the two species?''
+This experimental question resulted in testing four statistical hypotheses, as there are only four pairwise combinations that fit this question, since for each of the four wells the two species should be compared.
 
 This user-defined set of comparisons can easily be performed by applying the specially designed \code{linfct} argument ``Pairs''.
-The user needs to take care that ``Well'' is part of the model and is joined with at least one other factor extracted from the metadata, in this case with ``Species''.
-This can, be achieved on-the-fly with the \code{J} pseudo-function as shown below.
+The user must take care that ``Well'' is part of the model and is joined with at least one other factor extracted from the metadata, in this case with ``Species''.
+This is achieved on-the-fly with the \code{J} pseudo-function as shown below.
 Note that the resulting model factor ``Well.Species'' contains eight levels, i.e. four groups per plate.
 
 <<label=mcp-linfct-pairs-showdata, echo=FALSE>>=
@@ -2143,8 +2141,9 @@ opm_mcp(vaas_4[, , c(1:3, 86)], model = ~ J(Well, Species), m.type = "aov",
   linfct = c(Pairs = 1), output = "data", full = FALSE)
 @
 
-As explained above, the name of the \code{linfct} value indicates the type of contrast used for the testing procedure. Unless explicitly specified, ``Pairs'' selects the first subcomponent of the selected (joined) model component for the comparisons.
-The use of explicitly setting \code{linfct = c(Pairs.Well = 1)} ensures that for all levels present in the first (joined) component of the model, i.e, \code{Well}-wise, all pairwise comparisons are performed among the different groups present (here: the two species \emph{P. aeruginosa} and \emph{E. coli}).
+As explained above, the name of the \code{linfct} value indicates the type of contrast used for the testing procedure.
+Unless explicitly specified, ``Pairs'' selects the first subcomponent from the previously selected (joined) model component for the comparisons.
+Explicitly setting \code{linfct = c(Pairs.Well = 1)} ensures that for all levels present in the first (joined) component of the model, i.e, \code{Well}-wise, all pairwise comparisons are performed between the defined groups (here: the two species \emph{P. aeruginosa} and \emph{E. coli}).
 
 The result of this analysis is shown below.
 
@@ -2160,8 +2159,8 @@ mcp.summary
 @
 
 
-Especially, if models are more complex, e.g., if more than two metadata entries would be joined by the  \code{J} function, it is highly recommended to state the names of the metadata entries for which the pairwise comparisons should be performed by appending it directly to the \code{Pairs} argument.
-For instance in the example the metadata name \code{Species} can directly be addressed by using \code{linfct = c(Pairs.Species = 1)} and results in the pairwise all-against-all comparisons of the selected four wells \textit{within each} of the two species \textit{Escherichia coli} and \textit{Pseudomonas aeruginosa}.
+Particularly if models are more complex, e.g., if more than two metadata entries would be joined by the  \code{J} function, it is highly recommended to explicitly set the names of the metadata entries for which the pairwise comparisons should be performed by appending it directly to the \code{Pairs} argument.
+For instance, in our example the metadata name \code{Species} is directly addressed with \code{linfct = c(Pairs.Species = 1)}, which results in the pairwise all-against-all comparisons of the selected four wells \textit{within each} of the two species \textit{Escherichia coli} and \textit{Pseudomonas aeruginosa}.
 
 <<label=mcp-linfct-pairs-species>>=
 y <- opm_mcp(vaas_4[, , c(1:3, 86)], model = ~ J(Well, Species), m.type = "aov",
@@ -2171,15 +2170,17 @@ mcp.summary$model$call <- NULL # avoid some unnecessary output
 mcp.summary
 @
 
-This yields two (for each species) x six (all-against-all among four wells = six) = 12 pairwise comparisons for which the adjustment of multiplicity has been undertaken.
 
-When dealing with more complex models also keep in mind that the numeric vector in \code{linfct} can refer to the position of any variable, or set of variables obtained by joining, within \code{model}.
+This yields $2 \times 6 = 12$ pairwise comparisons (two species, and six all-against-all comparisons between four wells) for which the adjustment of multiplicity has been undertaken.
+
+When dealing with more complex models keep in mind that a numeric \code{linfct} argument can refer to the position of any variable, or set of variables obtained by joining, within \code{model}.
 
 
 \subsubsection[User-defined comparisons of interest]{User-defined comparisons of interest}\label{use-def-comp}
 
-For performing even more specific comparisons of interest, the user can provide a contrast matrix directly. A contrast for multiple comparison procedures is defined as a linear combination of two or more factor level means (averages) whose coefficients add up to zero \citep{hochberg}.
-To demonstrate the principle of a contrast matrix, an all-against-all comparison (a ``Tukey''-type contrast) of four groups is performed using a toy-example.
+For performing even more specific comparisons of interest, the user would directly provide a contrast matrix.
+Such a contrast for multiple comparison procedures is defined as a linear combination of two or more factor-level means whose coefficients add up to $0$ \citep{hochberg}.
+To demonstrate the principle of a contrast matrix, we here perform an all-against-all comparison (a ``Tukey''-type contrast) of four groups using a toy example.
 
 <<label=contrMat>>=
 library("multcomp") # now needed
@@ -2188,25 +2189,25 @@ names(n) <- paste0("group", 1:4)
 contrMat(n, type = "Tukey")
 @
 
-In each line, a pair of group-wise comparisons is defined by the locations of the non-zero values.
-For instance, in the first line, the 1 and -1 values indicate that the means of \code{group1} are subtracted from the means of \code{group2}.
-The function \code{multcomp::contrMat} provides an overview of the predefined contrast types that can be used in the \code{opm\_mcp} argument \code{linfct}.
+Each line defines a pair of group-wise comparisons by the locations of the non-zero values.
+For instance, in the first line, the $1$ and $-1$ entries indicate that the means of \code{group1} are subtracted from the means of \code{group2}.
+The function \code{multcomp::contrMat} provides an overview of the predefined contrast types that can be used in the \code{linfct} argument of \code{opm\_mcp}.
 
 In the example from above (see Figure~\ref{fig:ci_plot_mcp}), a ``Tukey''-type contrast was used to trigger the comparison of all groups against all others in the data set.
-The underlying contrast matrix used to set up the contrasts can be viewed by entering
+The underlying contrast matrix used to set up the contrasts is shown after entering:
 
 <<label=mcp-summary-linfct>>=
 summary(vaas.G06.mcp)$linfct
 @
 
 
-Accordingly, the user is free to set up contrast matrices for \code{opm\_mcp} that define the comparisons of interest.
-However, a \code{model} argument is necessary for definition of the factors that determine the groups and thus the possibilities for comparisons.
-As the next example, we compare the overall performance of the tested organisms in the four wells A01 to A04.
+Accordingly, the user is free to set up her own contrast matrix for \code{opm\_mcp} that defines the comparisons of interest.
+However, a \code{model} argument is necessary to define the factors that determine the groups and thus the possibilities for comparisons.
+In the next example we compare the overall performance of the tested organisms in the four wells A01 to A04.
 
-Although the user typically expects these wells to be in order in an \proglang{OPMS} object, this actually may have been changed by a previous well selection.
-Moreover, the implementation of the conversion of \proglang{OPMS} objects to data frames, and of reshaping these data frames, might be changed in the future, which might also affect the order of factor levels within the final data passed to \code{glht}.
-Hence, it should be avoided to set up a contrast matrix fully by hand.
+Although the user typically expects these wells to be in order in an \proglang{OPMS} object, this actually may have been changed by a previous selection of wells.
+Moreover, the implementation of the conversion of \proglang{OPMS} objects to data frames, and of reshaping these data frames, might be changed in the future, which might also affect the order of factor levels within the data frame passed to \code{glht}.
+Hence, it should be avoided to construct a contrast matrix entirely by hand.
 Instead, \code{opm\_mcp(output = "contrast")} yields one to several template contrast matrices, which are guaranteed to match the used \proglang{OPMS} object.
 We highly recommend to generate those template matrices and modify them according to specific user needs.
 
@@ -2218,7 +2219,7 @@ contr <- opm_mcp(vaas_4[, , 1:4], model = ~ Well, linfct = c(Tukey = 1),
 contr
 @
 
-The \code{contr} object is a named list of contrast matrices, with one matrix per factor selected.
+The \code{contr} object is a named list of contrast matrices with one matrix per selected factor.
 An according call of the \code{opm\_mcp} function including the selecting of some comparisons of interest is:
 
 <<label=mcp-wells, results=hide>>=
@@ -2226,13 +2227,13 @@ vaas4.mcp <- opm_mcp(vaas_4[, , 1:4], model = ~ Well, m.type = "lm",
   linfct = contr$Well[c(1:3, 6), ], full = FALSE)
 @
 
+Since \code{output = "contrast"} does not work in this situation, the definition of the contrast matrix is controlled with:
 
-Since \code{output = "contrast"} does not work in this situation, the correct set-up of the contrast matrix can be controlled by:
 <<label=summary-mcp-wells>>=
 summary(vaas4.mcp)$linfct
 @
 
-As mentioned above, the outcome can be visualised using the \code{plot} method for \code{glht} objects (see Figure~\ref{fig:opm_mcp_CI_plotII}).
+As mentioned above, the outcome is visualised using the \code{plot} method for \code{glht} objects (see Figure~\ref{fig:opm_mcp_CI_plotII}).
 
 \begin{figure}
 \centering
@@ -2246,22 +2247,22 @@ par(old.mar) # reset plotting settings
 \caption{
 \label{fig:opm_mcp_CI_plotII}
 Point estimates and 95\% confidence intervals in a manually defined comparison of group means for a specifically selected set of wells (A01 to A04) from the \code{vaas\_4} exemplar object.
-The picture was obtained by running \code{opm\_mcp} and then the plotting function for the resulting object.
-Compare with Figure~\ref{fig:ci_plot_mcp} for the axis annotation.
+The picture was obtained by running \code{opm\_mcp} and then plotting the resulting object.
+Compare this with Figure~\ref{fig:ci_plot_mcp} regarding the axis annotation.
 }
 \end{figure}
 
-Note that the \code{model} argument defines the group means available for comparisons.
+Note that the \code{model} argument defines the group means available for comparison.
 In the following example ``Species'' contains only two levels (``\textit{Pseudomonas aeruginosa}'' and ``\textit{Escherichia coli}'').
-Thus, irrespective of the stated contrast type, only one comparison is possible.
+Thus only one comparison is possible, irrespective of the requested contrast type.
 
 <<label=model-mcp>>=
 vaas4.mcp <- opm_mcp(vaas_4, model = ~ Species, m.type = "lm",
   linfct = mcp(Species = "Dunnett"))
 @
 
-Finally, besides the multiple comparison of single group means as described above, it is also possible to compare averages from several subgroups with a single other subgroup or averages from several other subgroups.
-For example, the user may be interested in comparing the data shown in Figure~\ref{fig:opm_mcp_CI_plot_cell-meansI} at the level of groups that may contain different data sets as subgroups.
+Finally, in addition to the multiple comparison of single group means as described above, it is possible to compare averages from several subgroups with a single other subgroup or averages from several other subgroups.
+For instance, the user might be interested in comparing the data shown in Figure~\ref{fig:opm_mcp_CI_plot_cell-meansI} at the level of groups that contained distinct data sets as subgroups.
 
 <<label=analyse-G06-data, results=hide>>=
 vaas.G06 <- vaas_et_al[, , "G06"]
@@ -2288,8 +2289,8 @@ Compare with Figure~\ref{fig:ci_plot_mcp} for the axis annotation.
 }
 \end{figure}
 
-When building a contrast matrix, keep in mind that the levels of the model-defining factor needs to match the columns of the contrast matrix, in order.
-For this reason, it is advantageous to work with a template contrast matrix generated with \code{opm\_mcp} from the object under study and check the positioning of its column names prior to any modification:
+Note that for defining a contrast matrix the levels of the model-defining factor need to match the columns of the contrast matrix, in order.
+For this reason, it is advantageous to work with a template contrast matrix generated with \code{opm\_mcp} from the object under study and to investigate the positioning of its column names prior to any modification:
 
 <<label=mcp-G06-output-contrast, results=hide>>=
 contr <- opm_mcp(vaas.G06, model = ~ J(Strain, Experiment),
@@ -2297,10 +2298,10 @@ contr <- opm_mcp(vaas.G06, model = ~ J(Strain, Experiment),
 colnames(contr)
 @
 
-The user is then free to choose other values than just 0 and 1 for the coefficients, provided that each contrast sums up to zero.
-In the example below, the contrast matrix is reduced to three contrasts of interest, in which the values 0, -1/4 , 1/4, and 1 are used.
-The reader might have noted that the ``First replicate'' entries are in columns 1, 3, 5 and 8, whereas the ``Second replicate'' entries are in columns 2, 4, 6 and 9 and the ``Time series'' entries are in column 7 of the object \code{contr}.
-This information is sufficient to set up a correct contrast matrix for the following three contrasts of interest:
+The user is then free to choose other values than just $0$ and $1$ for the coefficients, provided that each contrast sums up to zero.
+In the example below, the contrast matrix is reduced to three contrasts of interest, in which the values $0$, $-1/4$ , $1/4$, and $1$ are used.
+At this point the reader might already have noted that the ``First replicate'' entries are in columns $1$, $3$, $5$ and $8$, whereas the ``Second replicate'' entries are in columns $2$, $4$, $6$ and $9$ and the ``Time series'' entries are in column $7$ of the object \code{contr}.
+This information is sufficient to define a correct contrast matrix for the following three contrasts of interest:
 
 <<label=mcp-G06-user-def-contrasts, results=hide>>=
 contr <- contr[1:3, ] # keeps the column names
@@ -2331,7 +2332,7 @@ par(old.mar) # reset plotting settings
 \caption{
 \label{fig:opm_mcp_CI_plot_cell-meansII}
 Point estimates and 95\% confidence intervals in a user defined comparison of group means for a \textit{cell-means model} for the \code{vaas.G06} exemplar object.
-Like Figure~\ref{fig:opm_mcp_CI_plotII}, the picture was obtained by running \code{opm\_mcp} and then the plotting function for the resulting object.
+Like Figure~\ref{fig:opm_mcp_CI_plotII}, the picture was obtained by first applying \code{opm\_mcp} and then the plotting function for the resulting object.
 Compare with Figure~\ref{fig:ci_plot_mcp} for the axis annotation.
 }
 \end{figure}
@@ -2339,8 +2340,8 @@ Compare with Figure~\ref{fig:ci_plot_mcp} for the axis annotation.
 \subsubsection[Troubleshooting]{Troubleshooting}\label{application group-means troubleshooting}
 
 Note that you need data sets which actually provide group structures for comparisons.
-These are, e.g., strains measured on the same plate type in several repetitions, or one strain differentially treated and every treatment measured in several repetitions.
-Of course, it is also possible to compare the wells between each other \textit{if} the plates are comparable.
+These are, e.g., strains measured on the same plate type in several repetitions, or one strain treated differentially with each treatment measured in several repetitions.
+It is also possible, of course, to compare the wells with each other \textit{if} the plates are comparable.
 But with a single value per group \code{opm\_mcp} will inevitably raise an error.
 
 
@@ -2354,7 +2355,7 @@ By default it works on the \ac{A} parameter (see Figure~\ref{fig:parameters}) bu
 
 \subsubsection[Discretisation and phylogenetic data export]{Discretisation and phylogenetic data export}\label{application discrete-phylogeny}
 
-Restricting the \code{vaas\_et\_al} example data set to the two biological replicates yields an orthogonal data set with 2$\times$10 replicates for each of the four strains for which we can calculate discretised parameters:
+Restricting the \code{vaas\_et\_al} example data set to the two biological replicates yields an orthogonal data set with $2 \times 10$ replicates for each of the four strains, for which we can calculate discretised parameters:
 
 <<label=discretise, results=hide>>=
 vaas.repl <- subset(vaas_et_al,
@@ -2363,13 +2364,16 @@ vaas.repl <- do_disc(vaas.repl)
 @
 
 Note that the resulting object is an \proglang{OPMS} object with \proglang{OPMD} objects as elements.
-Such objects contain discretised values, available \textit{via} \code{discretised}, and the discretisation settings used, which can be obtained using \code{disc\_settings}.
+Such objects contain discretised values, available \textit{via} \code{discretised}, as well as the discretisation settings used, available \textit{via} \code{disc\_settings}.
 This works much like \code{aggregated} and \code{aggr\_settings} explained above.
 \code{disc\_settings} also yields the computed discretisation cutoffs.
 The \code{subset} function has a \code{positive} argument that allows one to create a subset containing only the wells that were positive in at least one plate or in all plates, as well as a corresponding \code{negative} argument.
 The effect of either could be modified with \code{subset(invert = TRUE)}.
 For example, the command \code{xy\_plot(subset(vaas_4, positive = "all"), neg.ctrl = NULL)} would plot only those wells in which all curves have been classified by k-means partitioning to yield a positive reaction.
 Look up \code{opm::subset} in the manual for further information.
+
+
+%% CHECK BY MG OCTOBER 2015 END (start at beginning of document)
 
 
 \subsubsection[Discretisation and export of text]{Discretisation and export of text}\label{application discrete-text}
