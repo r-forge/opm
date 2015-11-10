@@ -17,7 +17,7 @@
 # Call this script with 'help' as first argument to get an overview of its
 # usage.
 #
-# Known incompatibilities:: roxgen2 > 2.2.2, stringr > 0.6.2 (must downgrade).
+# Known incompatibilities:: roxygen2 > 2.2.2, stringr > 0.6.2 (must downgrade).
 # For all other packages (and R itself) the newest versions are suggested.
 #
 # This script is distributed under the terms of the Gnu Public License V2.
@@ -1910,6 +1910,7 @@ case $RUNNING_MODE in
 	One frequently needs the following options:
 	  -c	Check the copy of the package directory.
 	  -i	Check and install the copy of the package directory.
+	  -n	Do not use sudo, install into the user's home directory.
 	  -o no-vignettes,no-build-vignettes	Skip the time-consuming parts.
 	  -o no-codoc,no-examples,no-tests,no-manual	Check vignettes only.
 	  -u	Turn off checking altogether (used together with -i or -y).
