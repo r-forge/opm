@@ -181,7 +181,6 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
   append[ok] <- paste0("_", append[ok])
   if (is.null(names(out.ext)))
     names(out.ext) <- out.ext
-  names(out.ext) <- toupper(names(out.ext))
   if (any(names(out.ext) %in% colnames(files)))
     stop("duplicate column names -- use (other) names of 'out.ext'")
 
