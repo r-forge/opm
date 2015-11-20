@@ -195,6 +195,39 @@ to_yaml <- function(files, opt) {
 }
 
 
+map_data_frame_values <- function(x, map) {
+  if (pos <- match(".", names(map), 0L)) {
+    names(x) <- pkgutils::map_values(names(x), unlist(map[[pos]]))
+    map <- map[-pos]
+  }
+  if (pos <- match("_", names(map), 0L)) {
+    add <- map[[pos]]
+    map <- map[-pos]
+  } else {
+    add <- NULL
+  }
+  if (pos <- match("-", names(map), 0L)) {
+    delete <- map[[pos]]
+    map <- map[-pos]
+  } else {
+    delete <- NULL
+  }
+  wanted <- names(x)[vapply(x, is.character, NA)]
+  if (!all(pos <- match(wanted, names(map), 0L)))
+    stop("column name '", wanted[!pos][[1L]], "' missing in map")
+  for (i in seq_along(wanted))
+    x[, wanted[[i]]] <- pkgutils::map_values(x[, wanted[[i]]],
+      unlist(map[[pos[[i]]]]))
+  if (length(delete))
+    for (name in names(delete))
+      if (any(pos <- x[, name] %in% delete[[name]]))
+        x <- x[!pos, , drop = FALSE]
+  if (length(add))
+    x <- cbind(x, as.data.frame(add))
+  x
+}
+
+
 process_specially <- function(files, opt) {
   merge_horizontally <- function(x, opt) {
     x <- apply(x, 1L, function(x) pkgutils::listing(x[nzchar(x)],
@@ -208,18 +241,22 @@ process_specially <- function(files, opt) {
       else
         join_unique, join = opt$join, simplify = TRUE)
   }
-  if (opt$rows)
+  if (opt$rows) {
     do_convert <- merge_horizontally
-  else if (opt$vertical)
+  } else if (opt$vertical) {
     do_convert <- merge_vertically
-  else if (opt$load)
+  } else if (opt$load) {
     do_convert <- function(x, opt) fill_randomly(x, opt$all)
-  else if (opt$zack)
+  } else if (opt$zack) {
     do_convert <- fill_downwards
-  else if (opt$widen)
+  } else if (opt$widen) {
     do_convert <- function(x, opt) unnest(x, opt$xcolumn, opt$join)
-  else
+  } else if (nzchar(opt$`map-table`)) {
+    opt$`map-table` <- yaml::yaml.load_file(opt$`map-table`)
+    do_convert <- function(x, opt) map_data_frame_values(x, opt$`map-table`)
+  } else {
     stop("invalid combination of options")
+  }
   for (file in files)
     do_write(do_convert(do_read(file, opt), opt), opt)
 }
@@ -362,7 +399,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Output headers even for input without headers [default: %default]",
     default = FALSE),
 
-  # M
+  optparse::make_option(c("-M", "--map-table"), type = "character",
+    help = "YAML file for table-mapping running mode [default: %default]",
+    default = "", metavar = "FILE"),
 
   optparse::make_option(c("-n", "--names"), action = "store_true",
     help = "Convert column names to syntactical names [default: %default]",
@@ -498,7 +537,8 @@ if (opt$help || !length(files)) {
 # generation; everything file-by-file, no merging between files
 #
 
-if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack) {
+if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack ||
+    nzchar(opt$`map-table`)) {
   process_specially(files, opt)
   quit()
 } else if (opt$yaml) {
