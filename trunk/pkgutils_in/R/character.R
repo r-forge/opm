@@ -193,7 +193,9 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' @param out.dir Character vector with one to several names of output
 #'   directories. Recycled if necessary.
 #' @param groups Integer scalar indicating the number of input file names to be
-#'   assumed in one group. Used in conjunction with the next argument.
+#'   assumed in one group. Used in conjunction with the next argument unless
+#'   \code{groups} is negative. If so, \code{assort} is ignored and all pairs
+#'   of names found in \code{x} are generated.
 #' @param assort Character scalar indicating how to assort input file names.
 #' \describe{
 #'   \item{lst}{All files of the first kind first, then all of the second kind,
@@ -366,6 +368,14 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
   file_ext <- function(x) sub(".*\\.", "", x, FALSE, TRUE)
 
   assort_files <- function(files, ngrp, how) {
+    all_pairs <- function(x, n = length(x)) {
+      if (n < 2L)
+        stop("cannot create pairs from less than two items")
+      n <- seq_len(n)
+      n <- do.call(rbind, mapply(FUN = cbind, USE.NAMES = FALSE,
+        SIMPLIFY = FALSE, X = n[-1L], Y = lapply(n[-1L] - 1L, seq_len)))
+      cbind(x[n[, 2L]], x[n[, 1L]])
+    }
     do_split <- function(files, ngrp) {
       cnt <- sort.int(table(ext <- file_ext(files)), NULL, NA, TRUE)
       if (!all(cnt[seq_len(ngrp)] == sum(cnt) * (ngrp - 1L) / ngrp))
@@ -382,6 +392,8 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
       }
       do.call(cbind, split.default(files, factor(ext, grps)))
     }
+    if (ngrp < 0L)
+      return(all_pairs(files))
     if (ngrp == 1L)
       return(cbind(files))
     if (length(files) %% ngrp)
@@ -399,13 +411,19 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
   }
 
   prepare_basename <- function(infiles) {
-    infiles <- basename(infiles)
+    join <- function(x) apply(X = x, MARGIN = 1L, FUN = paste0, collapse = "_")
+    infiles[] <- basename(infiles)
     x <- sub("\\.[^.]*(\\.(gz|xz|bz2|lzma))?$", "", infiles, TRUE, TRUE)
-    if (any(duplicated.default(x)[-1L]))
-      if (any(duplicated.default(x <- file_ext(infiles))[-1L]))
-        if (any(duplicated.default(x <- infiles)[-1L]))
-          stop("duplicate file names")
-    x
+    dim(x) <- dim(infiles)
+    if (!anyDuplicated.default(result <- join(x)))
+      return(result)
+    for (i in rev.default(seq_len(ncol(x))))
+      for (fun in list(file_ext, identity)) {
+        x[, i] <- fun(infiles[, i])
+        if (!anyDuplicated.default(result <- join(x)))
+          return(result)
+      }
+    stop("file names yield duplicate base names")
   }
 
   prepare_filename <- function(base, out.ext, append, out.dir) {
@@ -431,7 +449,7 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
       out.dir[ok] <- normalizePath(out.dir[ok])
   }
   if (!all(ok))
-    out.dir[!ok] <- dirname(x[!ok, 1L])
+    out.dir[!ok] <- dirname(files[!ok, 1L])
 
   append <- rep_len(append, length(out.ext))
   ok <- nzchar(append)
@@ -442,7 +460,7 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
     stop("duplicate column names -- use (other) names of 'out.ext'")
 
   files <- cbind(files, do.call(cbind, mapply(FUN = prepare_filename,
-    MoreArgs = list(base = prepare_basename(files[, 1L]), out.dir = out.dir),
+    MoreArgs = list(base = prepare_basename(files), out.dir = out.dir),
     out.ext = out.ext, append = append, SIMPLIFY = FALSE)))
   ok <- seq.int(1L, ncol(files) - length(out.ext))
   if (any(bad <- files[, ok] %in% files[, -ok]))

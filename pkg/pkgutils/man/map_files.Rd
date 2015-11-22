@@ -69,7 +69,9 @@
 
   \item{groups}{Integer scalar indicating the number of
   input file names to be assumed in one group. Used in
-  conjunction with the next argument.}
+  conjunction with the next argument unless \code{groups}
+  is negative. If so, \code{assort} is ignored and all
+  pairs of names found in \code{x} are generated.}
 
   \item{assort}{Character scalar indicating how to assort
   input file names. \describe{ \item{lst}{All files of the
