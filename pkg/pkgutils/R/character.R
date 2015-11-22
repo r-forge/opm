@@ -156,6 +156,8 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
     infiles[] <- basename(infiles)
     x <- sub("\\.[^.]*(\\.(gz|xz|bz2|lzma))?$", "", infiles, TRUE, TRUE)
     dim(x) <- dim(infiles)
+    x <- x[, !apply(matrix(apply(x, 1L, duplicated.default), ncol(x)), 1L, all),
+      drop = FALSE]
     if (!anyDuplicated.default(result <- join(x)))
       return(result)
     for (i in rev.default(seq_len(ncol(x))))
