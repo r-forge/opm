@@ -972,9 +972,11 @@ glob_to_regex.factor <- function(object) {
 #' @examples
 #' test.files <- opm_files("omnilog")
 #' if (length(test.files) > 0) { # if the folder is found
-#'   x <- read_opm(test.files, demo = TRUE) # check first what you would get
+#'   # check first what you *would* get
+#'   x <- read_opm(names = test.files, demo = TRUE)
 #'   stopifnot(identical(test.files, x))
-#'   x <- read_opm(test.files[1:2]) # these two have the same plate type
+#'   # these two have the same plate type
+#'   x <- read_opm(names = test.files[1:2], convert = "try")
 #'   class(x)
 #'   dim(x)
 #'   summary(x)
@@ -1016,7 +1018,7 @@ glob_to_regex.factor <- function(object) {
 #' }
 #'
 read_opm <- function(names = getwd(),
-    convert = c("try", "no", "yes", "sep", "grp"), gen.iii = opm_opt("gen.iii"),
+    convert = c("grp", "try", "no", "yes", "sep"), gen.iii = opm_opt("gen.iii"),
     include = list(), ..., force = FALSE, demo = FALSE) {
   do_split <- function(x) split(x, vapply(x, plate_type, ""))
   do_opms <- function(x) case(length(x), , x[[1L]], new("OPMS", plates = x))

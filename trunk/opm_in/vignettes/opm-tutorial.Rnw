@@ -952,7 +952,8 @@ Using \code{read\_opm}, from a given vector of file and/or directory names, file
 For instance, for reading the three example files in ``new style'' \ac{CSV} format (see Section~\ref{methods import}), use the following code.
 
 <<label=read-opm, results=hide>>=
-example.opm <- read_opm(files, include = "*Example_?.CSV.xz")
+example.opm <- read_opm(names = files, convert = "try",
+  include = "*Example_?.CSV.xz")
 summary(example.opm)
 @
 
@@ -1230,6 +1231,8 @@ metadata(example.opm[2]) <- list()
 metadata(example.opm)
 @
 
+% TODO: without convert = "try" this example.opm object 
+% yielded an error in the last code chunk -- clarify why.
 
 You may have noted that \code{metadata} always returns a list, not a data frame.
 This is because metadata need not contain the same entries, even within a single \proglang{OPMS} object, and can be nested.
