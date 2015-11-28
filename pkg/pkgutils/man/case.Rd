@@ -53,10 +53,9 @@ stopifnot(inherits(x, "try-error"))
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{collect}},
-  \code{\link{contains}},
-  \code{\link{flatten}}, \code{\link{listing}},
-  \code{\link{map_names}}, \code{\link{map_values}},
-  \code{\link{must}}
+    \code{\link{contains}}, \code{\link{flatten}},
+  \code{\link{listing}}, \code{\link{map_names}},
+  \code{\link{map_values}}, \code{\link{must}}
 }
 \keyword{utilities}
 

@@ -1,7 +1,8 @@
 \name{collect}
 \alias{collect}
 \alias{collect.list}
-\title{Collect information from a list}
+\alias{collect.matrix}
+\title{Collect information}
 \usage{
   collect(x, what, ...)
 
@@ -10,12 +11,16 @@
     min.cov = 1L, keep.unnamed = FALSE, dataframe = FALSE,
     optional = TRUE,
     stringsAsFactors = default.stringsAsFactors(), ...)
+
+  \method{collect}{matrix} (x, what = c("columns", "rows"),
+    empty = "?", ...)
 }
 \arguments{
-  \item{x}{List.}
+  \item{x}{List or matrix.}
 
   \item{what}{Character scalar indicating how to collect
-  information.  \describe{ \item{counts}{For all non-list
+  information. The following values are supported by the
+  list method: \describe{ \item{counts}{For all non-list
   elements of \code{x}, count their occurrences.}
   \item{occurrences}{Like \sQuote{counts}, but only
   indicate presence or absence.} \item{values}{Simplify all
@@ -30,7 +35,11 @@
   matrices, then merge them using rows and column names. In
   case of conflict, the last ones win.  Here, the behaviour
   of other arguments is special if all elements of \code{x}
-  are atomic. See below.} }}
+  are atomic. See below.} } The matrix method currently
+  only supports \code{columns}, which means assorting the
+  values to the columns anew based on the majority of their
+  occurrences, and \code{rows}, which does the same for the
+  rows.}
 
   \item{min.cov}{Numeric scalar indicating the minimal
   coverage required in the resulting presence-absence
@@ -55,6 +64,9 @@
   \item{stringsAsFactors}{See \code{as.data.frame} from the
   \pkg{base} package.}
 
+  \item{empty}{Character scalar used as intermediary
+  placeholder for empty and missing values.}
+
   \item{...}{Optional arguments passed to and from other
   methods (if requested to \code{as.data.frame}).}
 }
@@ -65,7 +77,8 @@
 }
 \description{
   Methods for collecting information from list-like objects
-  into a matrix or data frame.
+  into a matrix or data frame or for re-assigning values to
+  columns in a matrix.
 }
 \details{
   The list method of \code{flatten} is based on

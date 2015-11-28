@@ -751,7 +751,8 @@ reassign_args_using <- function(use) {
       assign("values", TRUE, parent.frame())
       assign("exact", TRUE, parent.frame())
     },
-    t =, T = assign("time", TRUE, parent.frame())
+    t =, T = assign("time", TRUE, parent.frame()),
+    c =, C = assign("common", TRUE, parent.frame())
   )
   invisible(NULL)
 }
@@ -1560,6 +1561,9 @@ insert.list <- function(object, other, ..., .force = FALSE, .strict = FALSE) {
 #'       use.}
 #'     \item{max.chars}{Integer scalar used when abbreviating full substrate
 #'       names. See \code{\link{wells}} for an example.}
+#'     \item{md.duration}{Default name of the key to be treated as overall
+#'       running time in the metadata. Currently only relevant for easing the
+#'       inclusion of the total measurement duration in the metadata.}
 #'     \item{md.id.name}{Default name of the key to be treated as \acronym{ID}
 #'       in the metadata. Currently only relevant for easing the inclusion of
 #'       plate-specific \acronym{ID}s in the metadata.}

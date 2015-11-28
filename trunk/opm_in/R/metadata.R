@@ -47,16 +47,22 @@
 #'   to be included in the metadata (if \code{NULL}, this metadata entry is
 #'   deleted).
 #'   \item If \code{key} is missing and \code{value} is a list but not a data
-#'   frame, all metadata are replaced by it. If \code{value} is of mode
+#'   frame, all metadata are replaced by it.
+#'   \item If \code{key} is missing and \code{value} is of mode
 #'   \sQuote{logical}, \code{TRUE} causes all \code{\link{csv_data}} entries
 #'   that are \emph{not} included in \code{\link{opm_opt}("csv.selection")} to
 #'   be included in the metadata; \code{FALSE} causes these entries, if any, to
-#'   be removed. If \code{value} is a character vector and it contains the
-#'   value given by \code{\link{opm_opt}("md.id.name")}, then by default a
-#'   globally unique \acronym{ID} identifying each plate is included in the
-#'   metadata. Uniqueness only holds per session and can be circumvented by
-#'   modifying \code{\link{opm_opt}("md.id.start")}. Other elements of a
-#'   character vector are not currently supported (they may get a special
+#'   be removed.
+#'   \item If \code{key} is missing and \code{value} is a character vector and
+#'   it contains the value given by \code{\link{opm_opt}("md.id.name")}, then by
+#'   default a globally unique \acronym{ID} identifying each plate is included
+#'   in the metadata. Uniqueness only holds per session and can be circumvented
+#'   by modifying \code{\link{opm_opt}("md.id.start")}. If \code{value} contains
+#'   the value given by \code{\link{opm_opt}("md.duration")}, then the overall
+#'   running time of each plate is included in the metadata. This is useful to
+#'   select plates based on the total running time, or to include the overall
+#'   measurement duration as explanatory variable in a model. Other elements of
+#'   a character vector are not currently supported (they may get a special
 #'   meaning later on).
 #'   \item If \code{key} is otherwise, \code{value} must be list of values to be
 #'   prepended, appended or set as metadata, either entirely or specifically,
@@ -196,6 +202,11 @@
 #' stopifnot(is.integer(metadata(copy, opm_opt("md.id.name"))))
 #' # to reset the start point to the number n, use opm_opt(md.id.start = n)
 #'
+#' # WMDS/missing/character method: setting the running time
+#' metadata(copy) <- opm_opt("md.duration") # set it
+#' metadata(copy, opm_opt("md.duration")) # receive it
+#' stopifnot(is.double(metadata(copy, opm_opt("md.duration"))))
+#'
 #' # WMDS/missing/logical method: storing or deleting csv_data() entries
 #' copy <- vaas_4
 #' metadata(copy) <- TRUE # store them
@@ -261,6 +272,17 @@ setMethod("metadata<-", c("WMD", "missing", "character"), function(object, key,
   if (length(value))
     stop("value '", value[[1L]], "' not understood")
   object
+}, sealed = SEALED)
+
+#' @name metadata.set
+#'
+setMethod("metadata<-", c("OPM", "missing", "character"), function(object, key,
+    value) {
+  if (found <- match(opm_opt("md.duration"), value, 0L)) {
+    object@metadata[[value[[found]]]] <- max(object@measurements[, HOUR])
+    value <- value[!found]
+  }
+  callNextMethod(object = object, value = value)
 }, sealed = SEALED)
 
 #' @name metadata.set
@@ -462,18 +484,8 @@ setMethod("metadata<-", c("WMDS", "missing", "WMDS"), function(object, key,
 #'
 setMethod("metadata<-", c("WMDS", "missing", "character"), function(object, key,
     value) {
-  if (found <- match(opm_opt("md.id.name"), value, 0L)) {
-    key <- value[[found]]
-    this <- opm_opt("md.id.start")
-    for (i in seq_along(object@plates)) {
-      object@plates[[i]]@metadata[[key]] <- this
-      this <- this + 1L
-    }
-    OPM_OPTIONS$md.id.start <- this
-    value <- value[!found]
-  }
-  if (length(value))
-    stop("value '", value[[1L]], "' not understood")
+  for (i in seq_along(object@plates))
+    metadata(object@plates[[i]]) <- value
   object
 }, sealed = SEALED)
 

@@ -957,11 +957,15 @@ example.opm <- read_opm(names = files, convert = "try",
 summary(example.opm)
 @
 
+Here \code{convert = "try"} causes the function to attempt to combine all input plates in a single \proglang{OPMS} object.
+This fails when there are several plate types.
+(The default is to group by plate type, yielding a \proglang{MOPMS} object, see below.)
 After performing this step, the \proglang{OPMS} object contains three plates, as indicated by the \code{summary} function.
 An example for inputting \ac{LIMS}-style \ac{CSV} is here:
 
 <<label=read-opm-lims, results=hide>>=
-example.lims <- read_opm(files, include = "*Example_LIMS_*.EXL.xz")
+example.lims <- read_opm(names = files, convert = "try",
+  include = "*Example_LIMS_*.EXL.xz")
 summary(example.lims)
 rm(example.lims)
 @
@@ -978,11 +982,11 @@ The reason is that comparing the same well positions from distinct plate types w
 
 If more than one plate of the same plate type was read, however, data from all files would automatically be integrated into a single \proglang{OPMS} object.
 To read plates from several types at once, the \code{convert} argument is useful.
-If one uses \code{read\_opm(..., convert = "grp")}, a named list is created with, as each list element, one \proglang{OPM} or \proglang{OPMS} object per plate type, depending on whether only a single plate of that plate type, or several such plates, have been found.
+If one uses \code{read\_opm(..., convert = "grp")} (the default), a named list is created with, as each list element, one \proglang{OPM} or \proglang{OPMS} object per plate type, depending on whether only a single plate of that plate type, or several such plates, have been found.
 For instance, for inputting all example files (except for the one with multiple plates), consider the following code:
 
 <<label=read-many-plates, results=hide>>=
-many.plates <- read_opm(files, exclude = "*Multiple*", convert = "grp")
+many.plates <- read_opm(names = files, exclude = "*Multiple*")
 summary(many.plates)
 summary(many.plates$PM01)
 rm(many.plates) # tidy up
