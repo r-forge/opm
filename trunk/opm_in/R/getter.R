@@ -1167,13 +1167,19 @@ setMethod("disc_settings", "MOPMX", function(object, join = NULL) {
 #' @param negative Character scalar. Like \code{positive}, but returns the
 #'   negative reactions. Using \code{invert} means selecting all positive or
 #'   weak reactions.
+#' @param common Logical scalar. If \code{TRUE}, this causes \code{query} to be
+#'   used to construct plate identifiers from the metadata; these plate
+#'   identifiers are used to reduce a \code{\link{MOPMX}} object to the plates
+#'   whose identifiers occur throughout all plate types. If applied to an
+#'   \code{\link{OPMX}} object this means returning \code{x} unmodified.
 #' @param use Character scalar. An alternative way to specify the settings.
 #'
 #'   If \sQuote{i} or \sQuote{I}, ignored. If \sQuote{t} or \sQuote{T},
 #'   \code{time} is set to \code{TRUE}. If \sQuote{p} or \sQuote{P},
 #'   \code{positive} is set to \sQuote{any} or \sQuote{all}, respectively. If
 #'   \sQuote{n} or \sQuote{N}, \code{negative} is set to \sQuote{any} or
-#'   \sQuote{all}, respectively.
+#'   \sQuote{all}, respectively. If \sQuote{c} or \sQuote{C}, \code{common} is
+#'   set to \code{TRUE}.
 #'
 #'   Otherwise, \code{use} is taken directly as the one-latter name of the infix
 #'   operators to use for plate selection, overriding \code{values} and
@@ -1281,11 +1287,15 @@ setMethod("subset", "OPMX", function(x, query, values = TRUE,
     invert = FALSE, exact = FALSE, time = FALSE,
     positive = c("ignore", "any", "all"),
     negative = c("ignore", "any", "all"),
-    use = c("i", "I", "k", "K", "n", "N", "p", "P", "q", "Q", "t", "T")) {
+    common = FALSE,
+    use = c("i", "I", "k", "K", "n", "N", "p", "P", "q", "Q", "t", "T",
+      "c", "C")) {
   if (missing(use))
-    LL(values, invert, exact, time)
+    LL(values, invert, exact, time, common)
   else
     reassign_args_using(match.arg(use))
+  if (common)
+    return(x)
   case(negative <- match.arg(negative),
     ignore = NULL,
     any =,
@@ -1315,8 +1325,30 @@ setMethod("subset", "OPMX", function(x, query, values = TRUE,
   do_select(x, query)
 }, sealed = SEALED)
 
-setMethod("subset", "MOPMX", function(x, query, ...) {
-  x@.Data <- lapply(X = x@.Data, FUN = subset, query = query, ...)
+setMethod("subset", "MOPMX", function(x, query, values = TRUE,
+    invert = FALSE, exact = FALSE, time = FALSE, positive = "ignore",
+    negative = "ignore", common = FALSE, use = "i", ...) {
+  reduce_to_common_subset <- function(x, what, ...) {
+    common_subset <- function(x, what, ...) {
+      md <- lapply(X = x, FUN = extract_columns, what = what, join = TRUE, ...)
+      ok <- table(do.call(c, lapply(md, unique.default)))
+      lapply(md, `%in%`, names(ok)[ok == length(md)])
+    }
+    wanted <- common_subset(x = x, what = what, ...)
+    some <- which(vapply(wanted, any, NA))
+    for (i in some)
+      x@.Data[[i]] <- x@.Data[[i]][wanted[[i]]]
+    x[some]
+  }
+  if (missing(use))
+    LL(common)
+  else
+    common <- all(match(use, c("c", "C"), 0L))
+  if (common)
+    return(reduce_to_common_subset(x = x, what = query, ...))
+  x@.Data <- lapply(X = x@.Data, FUN = subset, query = query, values = values,
+    invert = invert, exact = exact, time = time, positive = positive,
+    negative = negative, common = common, use = use)
   x@.Data <- close_index_gaps(x@.Data)
   x
 }, sealed = SEALED)

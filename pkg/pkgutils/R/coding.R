@@ -316,6 +316,45 @@ collect.list <- function(x,
   )
 }
 
+collect.matrix <- function(x, what = c("columns", "rows"), empty = "?", ...) {
+
+  assort_columns <- function(x, empty) {
+    assort <- function(x) {
+      result <- integer(nrow(x))
+      repeat {
+        if (all(result) || !(m <- max(x)))
+          break
+        pos <- which(x == m, TRUE)[1L, ]
+        result[pos[[1L]]] <- pos[[2L]]
+        x[pos[[1L]], ] <- x[, pos[[2L]]] <- 0
+      }
+      if (any(pos <- !result))
+        result[pos] <- setdiff(seq_len(ncol(x)), result)[seq_along(which(pos))]
+      result
+    }
+    stopifnot(is.matrix(x), is.character(x))
+    x[!nzchar(x) | is.na(x)] <- empty
+    n <- unique.default(x)
+    n <- matrix(0L, length(n), ncol(x), FALSE, list(n, colnames(x)))
+    for (i in seq_len(ncol(x))) {
+      cnt <- table(x[, i])
+      n[names(cnt), i] <- cnt[]
+    }
+    n <- sweep(n, 2L, colSums(n), "/")
+    n[match(empty, rownames(n), 0L), ] <- 0
+    for (i in seq_len(nrow(x)))
+      x[i, assort(n[x[i, ], , drop = FALSE])] <- x[i, ]
+    x[x == empty] <- ""
+    x
+  }
+
+  LL(empty)
+  case(match.arg(what),
+    columns = assort_columns(x, empty),
+    rows = t(assort_columns(t(x), empty))
+  )
+}
+
 prepare_class_names <- function(x) UseMethod("prepare_class_names")
 
 prepare_class_names.character <- function(x) {
@@ -337,13 +376,13 @@ setMethod("map_values", c("list", "character"), function(object, mapping,
     mapfun <- function(item) as(item, map_values(class(item), mapping))
   } else
     mapfun <- if (length(coerce) == 0L || all(coerce == "character"))
-      function(item) map_values(item, mapping)
-    else
-      function(item) {
-        result <- map_values(as.character(item), mapping)
-        mostattributes(result) <- attributes(item)
-        result
-      }
+        function(item) map_values(item, mapping)
+      else
+        function(item) {
+          result <- map_values(as.character(item), mapping)
+          mostattributes(result) <- attributes(item)
+          result
+        }
   map_values(object, mapping = mapfun, coerce = coerce)
 }, sealed = SEALED)
 
@@ -407,8 +446,9 @@ setMethod("map_values", c("data.frame", "character"), function(object, mapping,
     if (is.null(coerce <- names(mapping)))
       return(object)
     mapfun <- function(item) as(item, map_values(class(item), mapping))
-  } else
+  } else {
     mapfun <- function(item) map_values(as.character(item), mapping)
+  }
   map_values(object, mapping = mapfun, coerce = coerce)
 }, sealed = SEALED)
 
@@ -423,9 +463,9 @@ setMethod("map_values", c("data.frame", "NULL"), function(object, mapping,
 
 setMethod("map_values", c("data.frame", "missing"), function(object,
     coerce = character()) {
-  if (isTRUE(coerce))
+  if (isTRUE(coerce)) {
     result <- unlist(lapply(object, class))
-  else {
+  } else {
     coerce <- prepare_class_names(coerce)
     if (!"ANY" %in% coerce)
       object <- object[, vapply(object, inherits, NA, coerce),
@@ -451,9 +491,9 @@ setMethod("map_values", c("array", "character"), function(object, mapping,
 }, sealed = SEALED)
 
 setMethod("map_values", c("array", "missing"), function(object, coerce = TRUE) {
-  if (isTRUE(coerce))
+  if (isTRUE(coerce)) {
     result <- storage.mode(object)
-  else {
+  } else {
     coerce <- prepare_class_names(coerce)
     if (!identical("ANY", coerce) && !storage.mode(object) %in% coerce)
       stop("storage mode of 'object' not contained in 'coerce'")
@@ -559,9 +599,9 @@ setMethod("map_names", c("list", "function"), function(object, mapping, ...) {
   map_names_recursively <- function(item) {
     if (is.list(item)) {
       names(item) <- map_values(names(item), mapping, ...)
-      lapply(item, FUN = map_names_recursively)
-    } else
-      item
+      return(lapply(item, FUN = map_names_recursively))
+    }
+    item
   }
   map_names_recursively(object)
 }, sealed = SEALED)
@@ -570,9 +610,9 @@ setMethod("map_names", c("list", "character"), function(object, mapping) {
   map_names_recursively <- function(item) {
     if (is.list(item)) {
       names(item) <- map_values(names(item), mapping)
-      lapply(item, FUN = map_names_recursively)
-    } else
-      item
+      return(lapply(item, FUN = map_names_recursively))
+    }
+    item
   }
   map_names_recursively(object)
 }, sealed = SEALED)

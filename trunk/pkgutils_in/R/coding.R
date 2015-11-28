@@ -379,14 +379,14 @@ setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
 ################################################################################
 
 
-#' Collect information from a list
+#' Collect information
 #'
 #' Methods for collecting information from list-like objects into a matrix or
-#' data frame.
+#' data frame or for re-assigning values to columns in a matrix.
 #'
-#' @param x List.
-#' @param what Character scalar indicating how to collect information.
-#'   \describe{
+#' @param x List or matrix.
+#' @param what Character scalar indicating how to collect information. The
+#'   following values are supported by the list method: \describe{
 #'   \item{counts}{For all non-list elements of \code{x}, count their
 #'   occurrences.}
 #'   \item{occurrences}{Like \sQuote{counts}, but only indicate presence or
@@ -402,6 +402,9 @@ setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
 #'   Here, the behaviour of other arguments is special if all elements of
 #'   \code{x} are atomic. See below.}
 #'   }
+#'   The matrix method currently only supports \code{columns}, which means
+#'   assorting the values to the columns anew based on the majority of their
+#'   occurrences, and \code{rows}, which does the same for the rows.
 #' @param min.cov Numeric scalar indicating the minimal coverage required in the
 #'   resulting presence-absence matrix. Columns with a fewer number of non-zero
 #'   entries are removed.
@@ -415,6 +418,8 @@ setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
 #'   produced instead of a matrix.
 #' @param optional See \code{as.data.frame} from the \pkg{base} package.
 #' @param stringsAsFactors See \code{as.data.frame} from the \pkg{base} package.
+#' @param empty Character scalar used as intermediary placeholder for empty and
+#'   missing values.
 #' @param ... Optional arguments passed to and from other methods (if requested
 #'   to \code{as.data.frame}).
 #' @export
@@ -646,6 +651,49 @@ collect.list <- function(x,
       stringsAsFactors, verbose, ...),
     datasets = collect_matrices(x, keep.unnamed, dataframe, optional,
       stringsAsFactors, verbose, ...)
+  )
+}
+
+#' @rdname collect
+#' @method collect matrix
+#' @export
+#'
+collect.matrix <- function(x, what = c("columns", "rows"), empty = "?", ...) {
+
+  assort_columns <- function(x, empty) {
+    assort <- function(x) {
+      result <- integer(nrow(x))
+      repeat {
+        if (all(result) || !(m <- max(x)))
+          break
+        pos <- which(x == m, TRUE)[1L, ]
+        result[pos[[1L]]] <- pos[[2L]]
+        x[pos[[1L]], ] <- x[, pos[[2L]]] <- 0
+      }
+      if (any(pos <- !result))
+        result[pos] <- setdiff(seq_len(ncol(x)), result)[seq_along(which(pos))]
+      result
+    }
+    stopifnot(is.matrix(x), is.character(x))
+    x[!nzchar(x) | is.na(x)] <- empty
+    n <- unique.default(x)
+    n <- matrix(0L, length(n), ncol(x), FALSE, list(n, colnames(x)))
+    for (i in seq_len(ncol(x))) {
+      cnt <- table(x[, i])
+      n[names(cnt), i] <- cnt[]
+    }
+    n <- sweep(n, 2L, colSums(n), "/")
+    n[match(empty, rownames(n), 0L), ] <- 0
+    for (i in seq_len(nrow(x)))
+      x[i, assort(n[x[i, ], , drop = FALSE])] <- x[i, ]
+    x[x == empty] <- ""
+    x
+  }
+
+  LL(empty)
+  case(match.arg(what),
+    columns = assort_columns(x, empty),
+    rows = t(assort_columns(t(x), empty))
   )
 }
 
@@ -998,13 +1046,13 @@ setMethod("map_values", c("list", "character"), function(object, mapping,
     mapfun <- function(item) as(item, map_values(class(item), mapping))
   } else
     mapfun <- if (length(coerce) == 0L || all(coerce == "character"))
-      function(item) map_values(item, mapping)
-    else
-      function(item) {
-        result <- map_values(as.character(item), mapping)
-        mostattributes(result) <- attributes(item)
-        result
-      }
+        function(item) map_values(item, mapping)
+      else
+        function(item) {
+          result <- map_values(as.character(item), mapping)
+          mostattributes(result) <- attributes(item)
+          result
+        }
   map_values(object, mapping = mapfun, coerce = coerce)
 }, sealed = SEALED)
 
@@ -1070,8 +1118,9 @@ setMethod("map_values", c("data.frame", "character"), function(object, mapping,
     if (is.null(coerce <- names(mapping)))
       return(object)
     mapfun <- function(item) as(item, map_values(class(item), mapping))
-  } else
+  } else {
     mapfun <- function(item) map_values(as.character(item), mapping)
+  }
   map_values(object, mapping = mapfun, coerce = coerce)
 }, sealed = SEALED)
 
@@ -1086,9 +1135,9 @@ setMethod("map_values", c("data.frame", "NULL"), function(object, mapping,
 
 setMethod("map_values", c("data.frame", "missing"), function(object,
     coerce = character()) {
-  if (isTRUE(coerce))
+  if (isTRUE(coerce)) {
     result <- unlist(lapply(object, class))
-  else {
+  } else {
     coerce <- prepare_class_names(coerce)
     if (!"ANY" %in% coerce)
       object <- object[, vapply(object, inherits, NA, coerce),
@@ -1116,9 +1165,9 @@ setMethod("map_values", c("array", "character"), function(object, mapping,
 }, sealed = SEALED)
 
 setMethod("map_values", c("array", "missing"), function(object, coerce = TRUE) {
-  if (isTRUE(coerce))
+  if (isTRUE(coerce)) {
     result <- storage.mode(object)
-  else {
+  } else {
     coerce <- prepare_class_names(coerce)
     if (!identical("ANY", coerce) && !storage.mode(object) %in% coerce)
       stop("storage mode of 'object' not contained in 'coerce'")
@@ -1242,9 +1291,9 @@ setMethod("map_names", c("list", "function"), function(object, mapping, ...) {
   map_names_recursively <- function(item) {
     if (is.list(item)) {
       names(item) <- map_values(names(item), mapping, ...)
-      lapply(item, FUN = map_names_recursively)
-    } else
-      item
+      return(lapply(item, FUN = map_names_recursively))
+    }
+    item
   }
   map_names_recursively(object)
 }, sealed = SEALED)
@@ -1253,9 +1302,9 @@ setMethod("map_names", c("list", "character"), function(object, mapping) {
   map_names_recursively <- function(item) {
     if (is.list(item)) {
       names(item) <- map_values(names(item), mapping)
-      lapply(item, FUN = map_names_recursively)
-    } else
-      item
+      return(lapply(item, FUN = map_names_recursively))
+    }
+    item
   }
   map_names_recursively(object)
 }, sealed = SEALED)
@@ -1404,7 +1453,7 @@ setMethod("contains", c("list", "list"), function(object, other,
 ################################################################################
 
 
-# Used by map_values, character/numeric method
+# Used by map_values, character/numeric method and factor/numeric method.
 adist2map <- function(x, max.distance = 0.1, ignore.case = TRUE,
     exclude = "", partial = FALSE, useBytes = FALSE, ...) {
   single_linkage <- function(x) {
