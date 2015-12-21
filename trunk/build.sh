@@ -1863,7 +1863,7 @@ case $RUNNING_MODE in
 	Usage: $0 [mode] [options]
 
 	Possible values for 'mode':
-	  all     Combine full, cran, sql1, www, html, forgat and erase.
+	  all     Combine full, cran, sql1, www, html, forget and erase.
 	  ascii   Show lines that contain forbidden characters (such as non-ASCII).
 	  clean   Remove old, unused package archive files.
 	  cran    Run in all modes that should be run before a CRAN submission.
@@ -1877,7 +1877,7 @@ case $RUNNING_MODE in
 	  forget  Remove all .RData, .Rhistory and *.Rout files found.
 	  full    Full build of the opm package.
 	  help    Print this message.
-	  html    Generate HTML documentation und upload to the opm website.
+	  html    Generate HTML documentation and upload to the opm website.
 	  index   Clean and/or upload the HTML start page, not necessarily update it.
 	  method  Check for ambiguities in S4 method selection.
 	  norm    [DEFAULT] Normal build of the opm package.
