@@ -1235,7 +1235,7 @@ metadata(example.opm[2]) <- list()
 metadata(example.opm)
 @
 
-% TODO: without convert = "try" this example.opm object 
+% TODO: without convert = "try" this example.opm object
 % yielded an error in the last code chunk -- clarify why.
 
 You may have noted that \code{metadata} always returns a list, not a data frame.
