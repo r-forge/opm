@@ -1,0 +1,563 @@
+
+
+################################################################################
+
+
+#' Manipulate custom plate names or normalise predefined plate names
+#'
+#' Internal functions that must be in sync for manipulating custom plate names,
+#' and internal functions for normalising predefined plate names.
+#'
+#' @param x Character vector.
+#' @param subtype Logical scalar. See \code{\link{plate_type}}.
+#' @return Character or logical vector.
+#' @keywords internal
+#'
+custom_plate_is <- function(x) grepl("^Custom:", x, TRUE, TRUE)
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_proper <- function(x) substring(x, 8L, nchar(x))
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_prepend <- function(x) sprintf("CUSTOM:%s", x)
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_prepend_full <- function(x) sprintf("CUSTOM_FULL_NAME:%s", x)
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_normalize_proper <- function(x) {
+  x <- sub("\\W+$", "", sub("^\\W+", "", x, FALSE, TRUE), FALSE, TRUE)
+  toupper(gsub("\\W+", "-", x, FALSE, TRUE))
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_normalize <- function(x) {
+  custom_plate_prepend(custom_plate_normalize_proper(custom_plate_proper(x)))
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_normalize_all <- function(x) {
+  x <- ifelse(custom_plate_is(x), custom_plate_proper(x), x)
+  custom_plate_prepend(custom_plate_normalize_proper(x))
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_exists <- function(x) {
+  exists(x, MEMOIZED)
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_get <- function(x) {
+  get(x, MEMOIZED)
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_assert <- function(x, coords) {
+  if (custom_plate_exists(x)) {
+    if (any(bad <- !coords %in% names(custom_plate_get(x))))
+      stop("well coordinate missing from plate type '", x, "': ",
+        coords[bad][1L])
+  } else
+    stop("unknown user-defined plate type: ", x)
+  TRUE
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_set <- function(x, value) {
+  if (exists(x, MEMOIZED))
+    warning("overwriting well map for plate type ", x)
+  MEMOIZED[[x]] <- value
+  value
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+custom_plate_set_full <- function(x, value) {
+  key <- custom_plate_prepend_full(custom_plate_proper(x))
+  names(value) <- NULL
+  if (exists(key, MEMOIZED) && !identical(value, get(key, MEMOIZED)))
+    warning("overwriting full name for plate type ", x)
+  MEMOIZED[[key]] <- value
+  value
+}
+
+#' @rdname custom_plate_is
+#' @keywords internal
+#'
+normalize_predefined_plate <- function(object, subtype = FALSE) {
+  normalize_pm <- function(x, subtype) {
+    x <- sub("^PMM", "PM-M", x, FALSE, TRUE)
+    x <- sub("^PM-MTOX", "PM-M TOX", x, FALSE, TRUE)
+    x <- sub("([A-Z]+)$", if (subtype)
+      "-\\1"
+    else
+      "", x, FALSE, TRUE)
+    sub("([^\\d])(\\d)([^\\d]|$)", "\\10\\2\\3", x, FALSE, TRUE)
+  }
+  normalize_sf <- function(x, subtype) {
+    x <- if (subtype)
+      sub("-$", "", sub(SP_PATTERN, "\\1-\\2", x, FALSE, TRUE), FALSE, TRUE)
+    else
+      sub(SP_PATTERN, "\\1", x, FALSE, TRUE)
+    x <- sub("^(G|SF)([NP])", "SF-\\2", x, FALSE, TRUE)
+    sub("^GENIII", "Gen III", x, FALSE, TRUE)
+  }
+  result <- toupper(gsub("\\W", "", object, FALSE, TRUE))
+  pm <- grepl("^PM(M(TOX)?)?\\d+[A-Z]*$", result, FALSE, TRUE)
+  result[pm] <- normalize_pm(result[pm], subtype)
+  sf[sf] <- grepl(SP_PATTERN, result[sf <- !pm], FALSE, TRUE)
+  result[sf] <- normalize_sf(result[sf], subtype)
+  result[bad] <- object[bad <- !(pm | sf)]
+  result
+}
+
+
+################################################################################
+################################################################################
+#
+# Helper functions for package, plate, substrate, well, and curve parameter
+# names
+#
+
+
+#' Name of this package
+#'
+#' Generate character string describing this package, optionally with its
+#' version.
+#'
+#' @param version Logical scalar indicating whether or not to append version
+#'   information.
+#' @details The version might be wrong if this function is called after loading
+#'   the files with \code{source} instead of \code{library}. If it is
+#'   unavailable, it is silently ignored.
+#' @return One- or two-element character scalar.
+#' @keywords internal
+#'
+opm_string <- function(version = FALSE) {
+  x <- "opm"
+  if (!version)
+    return(x)
+  if (exists("opm.version", MEMOIZED))
+    y <- MEMOIZED$opm.version
+  else
+    MEMOIZED$opm.version <- y <- tryCatch(
+      as.character(packageVersion(x)), error = function(e) {
+        warning(sprintf("cannot find %s version", x))
+        UNKNOWN_VERSION
+      })
+  c(x, y)
+}
+
+
+################################################################################
+
+
+#' Check CAS number
+#'
+#' Check whether a \acronym{CAS} number is internally valid.
+#'
+#' @param x Character vector.
+#' @return Named logical vector. Input \code{NA} values yield \code{NA}.
+#' @details The check tolerates a prepended \sQuote{CAS} indicator, separated
+#'   by whitespace, but neither appended or prepended whitespace.
+#' @references \url{http://www.cas.org/content/chemical-substances/checkdig}
+#' @keywords internal
+#'
+is_cas <- function(x) {
+  ms <- function(x, m, i) { # get the substring from the chosen capture
+    start <- attr(m, "capture.start")[, i]
+    substr(x, start, start + attr(m, "capture.length")[, i] - 1L)
+  }
+  cmp <- function(digits, check) { # compare check digits
+    sum_up <- function(x) sum(seq.int(length(x), 1L) * as.numeric(x)) / 10
+    s <- vapply(strsplit(digits, "", TRUE), sum_up, 0)
+    abs(s - floor(s) - as.numeric(check) / 10) < .Machine$double.eps ^ 0.5
+  }
+  m <- regexpr("^(?:CAS\\s+)?(\\d{2,7})-(\\d{2})-(\\d)$", x, TRUE, TRUE)
+  f <- attr(m, "match.length") > 0L
+  ok <- f & !is.na(x)
+  f[ok] <- cmp(paste0(ms(x, m, 1L)[ok], ms(x, m, 2L)[ok]), ms(x, m, 3L)[ok])
+  structure(f, names = x)
+}
+
+
+################################################################################
+
+
+#' Curve-parameter mapping
+#'
+#' Create a mapping for names of curve parameters.
+#'
+#' @param subset \code{NULL} or character vector. Use only these values?
+#' @param ci Logical scalar. Also return CI names?
+#' @param plain Logical scalar. Return the plain base names only, ignoring
+#'   \code{subset} and \code{ci}?
+#' @param opm.fast Logical scalar. Produce the mapping for the
+#'   \sQuote{opm-fast} method instead?
+#' @param disc Logical scalar. Add the name used to select discretised values?
+#' @return Named list with old names as keys, new ones as values.
+#' @keywords internal
+#'
+map_param_names <- function(subset = NULL, ci = TRUE, plain = FALSE,
+    opm.fast = FALSE, disc = FALSE) {
+  part.1 <- as.list(CURVE_PARAMS)
+  names(part.1) <- if (opm.fast)
+    c("mu", "lambda", "A", "AUC")
+  else
+    c("mu", "lambda", "A", "integral")
+  if (disc)
+    part.1$disc <- DISC_PARAM
+  if (plain)
+    return(part.1)
+  if (length(subset) > 0L) {
+    subset <- match.arg(subset, part.1, several.ok = TRUE)
+    part.1 <- part.1[part.1 %in% subset]
+  }
+  if (ci) {
+    part.2 <- paste(part.1, "CI95 low")
+    part.3 <- paste(part.1, "CI95 high")
+    if (opm.fast) {
+      names(part.2) <- sprintf("%s.ci.low", names(part.1))
+      names(part.3) <- sprintf("%s.ci.high", names(part.1))
+    } else {
+      names(part.2) <- sprintf("ci95.%s.bt.lo", names(part.1))
+      names(part.3) <- sprintf("ci95.%s.bt.up", names(part.1))
+    }
+  } else {
+    part.2 <- NULL
+    part.3 <- NULL
+  }
+  if (opm.fast)
+    names(part.1) <- sprintf("%s.point.est", names(part.1))
+  else
+    names(part.1) <- sprintf("%s.spline", names(part.1))
+  c(part.1, part.2, part.3)
+}
+
+
+################################################################################
+
+
+#' Translate well coordinates (or names or plate positions).
+#'
+#' Translate well coordinates to numeric indexes, or clean well indexes given
+#' as character vector, or translate well names (which are basically their
+#' coordinates on the plate) to substrate names, given the name of the plate.
+#' (The user-level function for this is \code{\link{wells}}.) Alternatively,
+#' get the substrate from full well names, potentially containing well
+#' coordinate together with the substrate name.
+#'
+#' @param x Vector, formula or missing. Basically any \R object. The cleaning
+#'   functions expect a character vector.
+#' @param names Character vector. Ignored unless \code{x} is a formula.
+#' @param wells Character vector of original well names (coordinates on the
+#'   plate).
+#' @param plate Character scalar. The type of the plate. See
+#'   \code{\link{plate_type}}.
+#' @param in.parens Logical scalar. See \code{\link{wells}}.
+#' @param brackets Logical scalar. See \code{\link{wells}}.
+#' @param paren.sep Character scalar. See \code{\link{wells}}.
+#' @param downcase Logical scalar. See \code{\link{wells}}.
+#' @param rm.num Logical scalar. See \code{\link{wells}}.
+#' @param ... Arguments that can be passed to both \code{\link{add_in_parens}}
+#'   and \code{\link{trim_string}}.
+#' @return Either \code{x}, \code{TRUE} or (if a formula) the result of
+#'   evaluating \code{x} in the context of \code{names}, converted to a mapping
+#'   from elements to indexes. A character vector in the case of
+#'   \code{map_well_names}.
+#' @keywords internal
+#'
+well_index <- function(x, names) {
+  if (missing(x))
+    TRUE
+  else if (is.character(x))
+    clean_coords(x)
+  else if (inherits(x, "formula"))
+    eval(x[[length(x)]], structure(as.list(seq_along(names)), names = names))
+  else
+    x
+}
+
+#' @rdname well_index
+#'
+clean_coords <- function(x) {
+  do_clean <- function(x) {
+    x <- sub("\\s+$", "", sub("^\\s+", "", x, FALSE, TRUE), FALSE, TRUE)
+    sprintf("%s%02i", toupper(substr(x, 1L, 1L)),
+      as.integer(sub("^[A-Za-z]+", "", x, FALSE, TRUE)))
+  }
+  if (any(bad <- !grepl("^[A-Z]\\d{2,2}$", x, FALSE, TRUE)))
+    x[bad] <- do_clean(x[bad])
+  x
+}
+
+#' @rdname well_index
+#'
+clean_plate_positions <- function(x) {
+  x <- lapply(strsplit(x, "\\W+", FALSE, TRUE), function(s) s[nzchar(s)])
+  n <- as.integer(vapply(x, `[[`, "", 1L))
+  x <- toupper(substr(vapply(x, `[`, "", 2L), 1L, 1L))
+  x[is.na(x)] <- "?" # Microstation positions are only integers
+  sprintf("%02i-%s", n, x)
+}
+
+#' @rdname well_index
+#'
+map_well_names <- function(wells, plate, in.parens = FALSE, brackets = FALSE,
+    paren.sep = " ", downcase = FALSE, rm.num = FALSE,
+    max = opm_opt("max.chars"), ...) {
+  if ((L(paren.sep) == "@"))
+    return(sprintf("%s@%s", wells, plate))
+  if (custom_plate_is(plate)) {
+    if (custom_plate_exists(plate))
+      res <- custom_plate_get(plate)[wells]
+    else
+      res <- NULL
+  } else {
+    if (is.na(pos <- match(plate, colnames(WELL_MAP))))
+      res <- NULL
+    else
+      res <- WELL_MAP[wells, pos, "name"]
+  }
+  if (is.null(res)) {
+    warning("cannot find plate type ", plate)
+    return(trim_string(str = wells, max = max, ...))
+  }
+  if (rm.num)
+    res <- remove_concentration(res)
+  if (downcase)
+    res <- substrate_info(res, "downcase")
+  if (in.parens)
+    add_in_parens(str.1 = wells, str.2 = res, brackets = brackets,
+      paren.sep = paren.sep, max = max, ...)
+  else
+    trim_string(str = res, max = max, ...)
+}
+
+#' @rdname well_index
+#'
+well_to_substrate <- function(x, plate) {
+  get_name <- function(x, plate) wells(x, TRUE, FALSE, plate = plate)[, 1L]
+  if (length(plate)) {
+    if (all(grepl(SUBSTRATE_PATTERN[["any"]], x, FALSE, TRUE)))
+      get_name(substr(x, 1L, 3L), plate)
+    else
+      x # assume plain substrate names without wells as prefix
+  } else if (all(grepl("^[A-Z][0-9]{2}@", x, FALSE, TRUE))) {
+    plate <- as.factor(substr(x, 5L, nchar(x)))
+    pos <- split.default(seq_along(x), plate)
+    x <- split.default(substr(x, 1L, 3L), plate)
+    x <- mapply(get_name, x, names(x), SIMPLIFY = FALSE)
+    result <- character(length(plate))
+    for (i in seq_along(x))
+      result[pos[[i]]] <- x[[i]]
+    result
+  } else {
+    for (p in SUBSTRATE_PATTERN[c("paren", "bracket")]) {
+      m <- regexpr(p, x, FALSE, TRUE)
+      if (all(attr(m, "match.length") > 0L))
+        return(get_partial_match(1L, m, x))
+    }
+    x
+  }
+}
+
+
+################################################################################
+
+
+#' Create sentences
+#'
+#' Create a textual (listing-like) description.
+#'
+#' @param x Logical vector.
+#' @param html Logical scalar.
+#' @param ... Optional arguments passed to and from other methods.
+#' @return Character vector, one element per sentence.
+#' @keywords internal
+#'
+to_sentence <- function(x, ...) UseMethod("to_sentence")
+
+#' @rdname to_sentence
+#' @method to_sentence logical
+#' @export
+#'
+to_sentence.logical <- function(x, html, ...) {
+  sentence <- function(x, what) {
+    if (length(x)) {
+      if (html)
+        x <- substrate_info(x, "html")
+      sprintf("%s for %s.", what, listing(x, style = "sentence"))
+    } else
+      ""
+  }
+  LL(html)
+  isna <- is.na(x)
+  n <- c("Positive", "Negative", "Ambiguous")
+  result <- c(sentence(names(x)[x & !isna], n[1L]),
+    sentence(names(x)[!x & !isna], n[2L]), sentence(names(x)[isna], n[3L]))
+  if (html)
+    result <- sprintf("<div>%s</div>", result)
+  names(result) <- n
+  result
+}
+
+
+################################################################################
+
+
+#' Conduct a web query
+#'
+#' Search via a web service for substrate information, given the IDs.
+#'
+#' @param ids Vector of substrate IDs.
+#' @param what Character scalar indicating the web service to use.
+#' @return Dedicated kind of S3 object, depending on \code{what}.
+#' @details \acronym{KEGG} queries need the \pkg{KEGGREST} package.
+#' @seealso substrate_info
+#' @keywords internal
+#'
+web_query <- function(ids, what = c("kegg", "drug")) {
+  get_kegg <- function(x, prepend) {
+    compound_object <- function(x) {
+      pos <- match(c("EXACT_MASS", "MOL_WEIGHT"), names(x), 0L)
+      for (p in pos[pos > 0L])
+        x[[p]] <- as.numeric(x[[p]])
+      class(x) <- c("kegg_compound", "print_easy")
+      x
+    }
+    chunks <- function(x, n) split.default(x,
+      rep(seq_len(ceiling(length(x) / n)), each = n)[seq_along(x)])
+    run_keggrest <- function(x, prepend) {
+      result <- lapply(chunks(paste0(prepend, x), 10), KEGGREST::keggGet)
+      result <- lapply(unlist(result, FALSE), compound_object)
+      names(result) <- vapply(result, `[[`, "", "ENTRY")
+      found <- match(names(result), x, 0L)
+      if (!all(found > 0L))
+        stop("KEGG request yielded entries that do not match the query")
+      structure(result[found], names = x)
+    }
+    prepend <- paste0(match.arg(prepend, c("cpd", "drug")), ":")
+    got <- get_and_remember(x = x, prefix = "KEGG.", getfun = run_keggrest,
+      default = compound_object(list()), prepend = prepend)
+    structure(got, names = names(x), class = c("kegg_compounds", "print_easy"))
+  }
+  case(match.arg(what),
+    kegg = get_kegg(ids, "cpd"),
+    drug = get_kegg(ids, "drug")
+  )
+}
+
+
+################################################################################
+
+
+#' Collect information from KEGG objects
+#'
+#' @param x Object of class \sQuote{kegg_compounds}.
+#' @param what Character vector indicating which information to include.
+#'   Multiple values are possible; the default is to collect everything.
+#' @param missing.na Logical scalar indicating whether missing compounds should
+#'   be coded as \code{NA} (instead of zero).
+#' @return Numeric matrix.
+#' @name collect
+#' @keywords internal
+#'
+NULL
+
+#' @rdname collect
+#' @method collect kegg_compounds
+#'
+collect.kegg_compounds <- function(x,
+    what = c("pathway", "brite", "activity", "exact_mass"),
+    missing.na = TRUE, ...) {
+  partial_matrix <- function(name, x) {
+    convert <- list(
+      ACTIVITY = function(x) {
+        # notes in brackets make entries more specific; we use both variants
+        unique.default(c(x, sub("\\s+\\[.*", "", x, FALSE, TRUE)))
+      },
+      BRITE = function(x) {
+        if (!length(x))
+          return(character())
+        # remove the starting points of the classifications (which are just
+        # their names) and the end points (the substrates themselves)
+        m <- attr(regexpr("^\\s+", x, FALSE, TRUE), "match.length")
+        x <- x[!(m < 0L | c(m[-1L] < m[-length(m)], TRUE))]
+        gsub("\\s+", " ", sub("^\\s+", "", x, FALSE, TRUE), FALSE, TRUE)
+      },
+      PATHWAY = names,
+      EXACT_MASS = function(x) if (is.null(x))
+        NA_real_
+      else
+        x
+    )
+    result <- lapply(lapply(x, `[[`, name), convert[[name]])
+    if (name == "EXACT_MASS")
+      matrix(unlist(result), ncol = 1L, dimnames = list(NULL, tolower(name)))
+    else
+      pkgutils::collect(result, "occurrences")
+  }
+  what <- toupper(match.arg(what, several.ok = TRUE))
+  result <- do.call(cbind, lapply(what, partial_matrix, x))
+  if (L(missing.na))
+    result[!vapply(x, length, 0L), ] <- as(NA, typeof(result))
+  result
+}
+
+
+################################################################################
+
+
+# Separate methods are necessary because MOPMX inherits from the list class
+# and thus infinite recursion would occur if XOPMX was used.
+create_listing <- function(x, as.groups,
+    cutoff = opm_opt("min.mode"), downcase = TRUE, full = TRUE,
+    in.parens = FALSE, html = FALSE, sep = " ", ..., exact = TRUE,
+    strict = TRUE) {
+  add_stuff <- function(x, html, cutoff) {
+    class(x) <- "OPMS_Listing"
+    attr(x, "html") <- html
+    attr(x, "cutoff") <- cutoff
+    x
+  }
+  LL(cutoff, sep)
+  if (!length(as.groups)) {
+    res <- do.call(rbind, lapply(X = plates(x), FUN = listing, html = html,
+      downcase = downcase, full = full, in.parens = in.parens,
+      as.groups = NULL, ...))
+    rownames(res) <- seq_len(nrow(res))
+    return(add_stuff(res, html, cutoff))
+  }
+  res <- extract(object = x, subset = DISC_PARAM, as.groups = as.groups,
+    sep = sep, exact = exact, strict = strict, downcase = downcase,
+    full = full, in.parens = in.parens, dataframe = FALSE, as.labels = NULL,
+    ...)
+  res <- vapply(split.default(seq_len(nrow(res)), attr(res, "row.groups")),
+    function(idx) to_sentence(reduce_to_mode.matrix(res[idx, , drop = FALSE],
+      cutoff, TRUE), html), character(3L))
+  add_stuff(t(res), html, cutoff)
+}
+
+

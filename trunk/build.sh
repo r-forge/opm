@@ -354,6 +354,50 @@ check_R_tests()
 ################################################################################
 
 
+# Make sure the context listed in a "testthat" file with R code is in line with
+# the name of that file.
+#
+check_test_contexts()
+{
+  awk '
+    BEGIN {
+      FS = "\""
+      problems = 0
+      map["kmeans"]="k-means"
+      map["splinefit"]="spline-fit"
+      map["io"]="I/O"
+      map["dbio"]="database I/O"
+    }
+    $1 == "context(" {
+      basename = FILENAME
+      sub(/^.*\//, "", basename)
+      sub(/\.[^.]+$/, "", basename)
+      if ((basename ~ /-aux$/ && $2 !~ / helper /) ||
+          (basename !~ /-aux$/ && $2 ~ / helper /)) {
+        printf "wrong context (helper/non-helper) in file \"%s\"\n",
+          FILENAME > "/dev/stderr"
+        problems++
+      }
+      sub(/^test_/, "", basename)
+      sub(/-aux$/, "", basename)
+      if (basename in map)
+        basename = map[basename]
+      if (!index($2, basename)) {
+        printf "wrong context (title of file) in file \"%s\"\n",
+          FILENAME > "/dev/stderr"
+        problems++
+      }
+    }
+    END {
+      exit(problems)
+    }
+  ' "$@"
+}
+
+
+################################################################################
+
+
 # Check "@family" tag entries in Roxygen comments. They must be present in the
 # documentation of exported functions with normal names, and must refer to the
 # filename.
@@ -405,6 +449,19 @@ check_roxygen_tags()
           printf "missing @family tag in \"%s\" (line %i in file \"%s\")\n",
             title, position, FILENAME > "/dev/stderr"
           problems++
+        }
+        if (value["@keywords"] == "internal") {
+          if (FILENAME !~ /-aux\.R$/) {
+            printf "\"%s\" in non-auxiliary file (line %i in file \"%s\")\n",
+              title, position, FILENAME > "/dev/stderr"
+            problems++
+          }
+        } else {
+          if (FILENAME ~ /-aux\.R$/) {
+            printf "\"%s\" in auxiliary file (line %i in file \"%s\")\n",
+              title, position, FILENAME > "/dev/stderr"
+            problems++
+          }
         }
       }
       title = ""
@@ -2104,8 +2161,12 @@ export_gs_location ||
 check_graphics_files graphics "$PKG_DIR/vignettes" || :
 check_vignettes "$PKG_DIR" || :
 if [ "$CHECK_R_TESTS" ]; then
-  if ! check_R_tests "$PKG_DIR"/R/*; then
+  if ! check_R_tests "$PKG_DIR"/R/*.R; then
     echo "something wrong with the tests in '$PKG_DIR', exiting now" >&2
+    exit 1
+  fi
+  if ! check_test_contexts "$PKG_DIR"/inst/tests/*.R; then
+    echo "something wrong with the test contexts in '$PKG_DIR', exiting now" >&2
     exit 1
   fi
 else

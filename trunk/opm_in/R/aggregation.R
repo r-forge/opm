@@ -1,6 +1,4 @@
 
-
-
 ################################################################################
 ################################################################################
 #
@@ -8,225 +6,79 @@
 #
 
 
-#' Times or data for grofit
+#' @title Spline options
+#' @description Function to set up spline options which can be passed to
+#'   \code{\link{do_aggr}}. %and \code{\link{fit_spline}}.
 #'
-#' Construct time-points data frame as required by \code{grofit} or data frame
-#' with measurements as required by \code{grofit}.
+#' @param type Character scalar. Specifies the spline type which should be
+#'   fitted. This can be either thin plate splines (\kbd{tp.spline}), penalised
+#'   B-splines (i.e, P-splines \kbd{p.spline}) or smoothing splines
+#'   (\kbd{smooth.spline}).
+#' @param knots Integer scalar. Determines the number of knots. Per default, the
+#'   number of knots is chosen adaptively to the number of unique observations.
+#'   The default number also depends on the spline \code{type}.
+#' @param gamma Integer scalar. Specifies a constant multiplier to inflate the
+#'   degrees of freedom in the \code{"GCV"} \code{method} to increase
+#'   penalisation of models that are too close to the data and thus not
+#'   smooth enough.
+#' @param est.method Character scalar. The smoothing parameter estimation
+#'   method. Currently, only \code{"REML"}, code{"ML"} and \code{"GCV"} are
+#'   supported. This argument is ignored for \code{type = "smooth.spline"}. For
+#'   details see \code{\link[mgcv]{gam}} and \code{\link[mgcv]{gamm}}
+#'   (see package \pkg{mgcv}).
+#' @param s.par list. Further arguments to be passed to the smoother
+#'   \code{\link[mgcv]{s}} (see package \pkg{mgcv}). Note that the \pkg{mgcv}
+#'   options \code{k} and \code{bs} are specified using \code{type} and
+#'   \code{knots} in \pkg{opm}.
+#' @param correlation An optional \code{"corStruct"} object (see the help topic
+#'   \code{corClasses} in the \pkg{nlme} package) as used to define correlation
+#'   structures in package \pkg{nlme}. For better coverage of confidence
+#'   intervals and slightly improved spline fits it is advised to use an AR
+#'   process of order 1 or 2. However, this correction for auto-correlated error
+#'   terms results in increased run time.
+#' @param save.models Should the models be saved (on the disk) for further
+#'   inspections and plotting?
+#' @param filename File name of the models. Per default a name is auto-generated
+#'   based on date and time. The file is always generated in the current working
+#'   directory.
+#' @param ... Additional arguments to be passed to \code{\link[mgcv]{gam}} or
+#'   \code{\link{smooth.spline}}.
+#' @return List of options.
 #'
-#' @param object \code{\link{OPM}} object.
-#' @return Data frame with time points in each row, repeated for each well
-#'   (number of rows is number of wells). Alternatively, data frame with
-#'   columns: (i) well ID, (ii) plate ID, (iii) dummy concentration,
-#'   (iv - end) measurements, one row for each well.
-#' @keywords internal
-#'
-setGeneric("to_grofit_time",
-  function(object, ...) standardGeneric("to_grofit_time"))
-
-setMethod("to_grofit_time", "OPM", function(object) {
-  tp <- hours(object, "all")
-  as.data.frame(matrix(rep.int(tp, length(wells(object))), ncol = length(tp),
-    byrow = TRUE))
-}, sealed = SEALED)
-
-#= to_grofit_data to_grofit_time
-
-#' @rdname to_grofit_time
-#'
-setGeneric("to_grofit_data",
-  function(object, ...) standardGeneric("to_grofit_data"))
-
-setMethod("to_grofit_data", "OPM", function(object) {
-  w <- wells(object)
-  names <- matrix(nrow = length(w), ncol = 3L,
-    dimnames = list(well = w, value = c("well", "plate_id", "concentration")))
-  names[, 1L] <- w
-  names[, 2L] <- paste(csv_data(object, what = "setup_time"),
-    csv_data(object, what = "position"), collapse = "-")
-  names <- as.data.frame(names, stringsAsFactors = FALSE)
-  names[, 3L] <- 1L # dummy concentration
-  cbind(names, as.data.frame(t(measurements(object)[, -1L, drop = FALSE])))
-}, sealed = SEALED)
-
-
-################################################################################
-
-
-## NOTE: Not an S4 method because 'grofit' is an S3 class
-
-#' Parameter extraction
-#'
-#' Extract and rename estimated curve parameters.
-#'
-#' @param x Object of class \sQuote{grofit} or \sQuote{opm_model}.
-#' @param all Logic. Should [TODO]
-#' @param ... Additional arguments.
-#' @return Matrix.
-#' @keywords internal
-#'
-extract_curve_params <- function(x, ...) UseMethod("extract_curve_params")
-
-#' @rdname extract_curve_params
-#' @method extract_curve_params grofit
-#' @export
-#'
-extract_curve_params.grofit <- function(x, ...) {
-  settings <- c(x$control)
-  x <- summary(x$gcFit)
-  map <- map_param_names()
-  structure(t(as.matrix(x[, names(map)])),
-    dimnames = list(map, x[, "TestId"]), settings = settings)
-}
-
-#' @rdname extract_curve_params
-#' @method extract_curve_params fake_opm_model
-#' @export
-#'
-extract_curve_params.fake_opm_model <- function(x, ...) {
-  as.data.frame(as.list(c(mu = NA_real_, lambda = NA_real_, A = x[[3L]],
-    AUC = (x[[2L]] - x[[1L]]) * x[[3L]])))
-}
-
-#' @rdname extract_curve_params
-#' @method extract_curve_params opm_model
-#' @export
-#'
-extract_curve_params.opm_model <- function(x, all = FALSE, ...) {
-  if (!inherits(x, "smooth.spline"))
-    x <- as.gam(x)
-  pred <- fitted(x)
-  x <- get_data(x)[, 1L]
-  ## quick and dirty
-  deriv <- diff(pred) / diff(x)
-  slope <- max(deriv, na.rm = TRUE)
-  ## index of max. slope
-  idx <- which.max(deriv):(which.max(deriv) + 1L)
-  ## x-value of max. slope
-  x_ms <- mean(x[idx])
-  ## y-value of max. slope
-  y_ms <- mean(pred[idx])
-  ## intercept
-  intercept <- y_ms - slope * x_ms
-  ## lag
-  lag <- - (intercept / slope)
-  ## maximum
-  maximum <- max(pred)
-  ## AUC
-  AUC <- AUC(x, pred)
-  if (all)
-      return(list(mu = slope, lambda = lag, A = maximum, AUC = AUC,
-        derivative = deriv, intercept = intercept))
-  return(data.frame(mu = slope, lambda = lag, A = maximum, AUC = AUC))
-}
-
-################################################################################
-
-## NOTE: Not an S4 method
-
-#' Summary method for bootstraped splines
-#'
-#' Function for internal use; Creates confidence intervals based on bootstrap
-#' replicates.
-#'
-#' @param object An object of class \code{splines_bootstrap}.
-#' @param ... Further arguments. Currently not used.
-#' @return vector of bootstrap confidence intervals
+#' @keywords misc
+#' @family aggregation-functions
 #' @author Benjamin Hofner
-#' @keywords internal
-#'
-summary.splines_bootstrap <- function (object, ...) {
-
-  cnames <- unlist(map_param_names(), use.names = FALSE)
-
-  res <- data.frame(t(sapply(object, extract_curve_params)))
-  res$mu <- unlist(res$mu)
-  res$lambda <- unlist(res$lambda)
-  res$A <- unlist(res$A)
-  res$AUC <- unlist(res$AUC)
-
-  mu <- mean(res$mu, na.rm = TRUE)
-  lambda <- mean(res$lambda, na.rm = TRUE)
-  A <- mean(res$A, na.rm = TRUE)
-  AUC <- mean(res$AUC, na.rm = TRUE)
-  mu.sd <- sd(res$mu, na.rm = TRUE)
-  lambda.sd <- sd(res$lambda, na.rm = TRUE)
-  A.sd <- sd(res$A, na.rm = TRUE)
-  AUC.sd <- sd(res$AUC, na.rm = TRUE)
-  table <- c(mu, lambda, A, AUC,
-    mu - qnorm(0.975) * mu.sd,
-    lambda - qnorm(0.975) * lambda.sd,
-    A - qnorm(0.975) * A.sd,
-    AUC - qnorm(0.975) * AUC.sd,
-    mu + qnorm(0.975) * mu.sd,
-    lambda + qnorm(0.975) * lambda.sd,
-    A + qnorm(0.975) * A.sd,
-    AUC + qnorm(0.975) * AUC.sd)
-  table <- data.frame(t(table))
-  colnames(table) <- cnames
-  return(table)
-}
-
-
-################################################################################
-
-
-#' \acronym{CI} and point-estimate calculation
-#'
-#' Get point estimates and \acronym{CI}s (if possible) from the result of
-#' \code{boot}.
-#'
-#' @param x Object of class \sQuote{boot}.
-#' @param ci Numeric scalar. See \code{\link{do_aggr}}.
-#' @param as.pe Character scalar. See \code{\link{do_aggr}}.
-#' @param type Character scalar. See \code{\link{boot.ci}} from the \pkg{boot}
-#'   package.
-#' @param fill.nas Logical scalar. Assume that if the \acronym{CI} borders are
-#'   both \code{NA} bootstrapping yielded constant values if the point estimate
-#'   is not \code{NA}, and replace the \acronym{CI} borders by the point
-#'   estimate in such cases.
-#' @param ... Optional arguments passed to \code{\link{boot.ci}} from the
-#'   \pkg{boot} package.
-#' @return See \code{\link{do_aggr}}.
-#'
-#' @keywords internal
-#'
-pe_and_ci <- function(x, ...) UseMethod("pe_and_ci")
-
-#' @rdname pe_and_ci
-#' @method pe_and_ci boot
 #' @export
 #'
-pe_and_ci.boot <- function(x, ci = 0.95, as.pe = c("median", "mean", "pe"),
-    type = c("basic", "perc", "norm"), fill.nas = FALSE, ...) {
-  LL(ci, fill.nas)
-  as.pe <- match.arg(as.pe)
+set_spline_options <- function(type = c("tp.spline",
+    "p.spline", "smooth.spline"),
+    knots = NULL, gamma = 1, est.method = c("REML", "ML", "GCV"), s.par = NULL,
+    correlation = NULL, save.models = FALSE, filename = NULL, ...) {
+
+  if (!missing(...))
+    warning(sQuote("..."), " currently not passed to fitting functions")
   type <- match.arg(type)
-  if (nrow(x$t)) {
-    cis <- lapply(seq_along(x$t0), FUN = boot.ci, boot.out = x, conf = ci,
-      type = type, ...)
-    ok <- !vapply(cis, is.null, NA)
-    cis[!ok] <- list(c(NA_real_, NA_real_))
-    cis[ok] <- lapply(cis[ok], `[[`, type, exact = FALSE)
-    cis[ok] <- lapply(lapply(cis[ok], c), tail, 2L)
-    cis <- do.call(cbind, cis)
-  } else {
-    if (as.pe != "pe") {
-      warning("zero bootstrap replicates -- using real point estimate")
-      as.pe <- "pe"
-    }
-    cis <- matrix(nrow = 2L, ncol = length(x$t0), data = NA_real_)
+  class <- ifelse(type == "tp.spline", "tp",
+    ifelse(type == "p.spline", "psp", "smooth.spline"))
+
+  method <- match.arg(est.method)
+  if (est.method == "ML" && is.null(correlation))
+    stop(sQuote(paste0("est.method = ", dQuote("ML"))), " can only be used if ",
+      sQuote("correlation"), " is specified")
+  if (est.method == "GCV" && !is.null(correlation))
+    stop(sQuote(paste0("est.method = ", dQuote("GCV"))),
+      " can only be used if no ", sQuote("correlation"), " is specified")
+  if (type == "smoothing-splines" && !is.null(s.par))
+    warning(sQuote("s.par"), " ignored if ",
+      sQuote('type = "smoothing-splines"'))
+  if (!is.null(filename) && !save.models) {
+    save.models <- TRUE
+    warning(sQuote("filename"), " specified, ", sQuote("save.models"),
+      " set to TRUE")
   }
-  rownames(cis) <- c("ci.low", "ci.high")
-  point.est <- case(as.pe,
-    median = apply(x$t, 2L, median),
-    mean = colMeans(x$t),
-    pe = x$t0
-  )
-  if (fill.nas) {
-    boot.nas <- !is.na(x$t0) & is.na(cis[1L, ]) & is.na(cis[2L, ])
-    cis[2L, boot.nas] <- cis[1L, boot.nas] <- x$t0[boot.nas]
-  }
-  rbind(point.est, cis)
+  list(type = type, knots = knots, gamma = gamma, est.method = method,
+    s.par = s.par, correlation = correlation, save.models = save.models,
+    filename = filename, class = class, ...)
 }
 
 
