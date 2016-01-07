@@ -1,10 +1,9 @@
 library(testthat)
-context("Testing the auxiliary functions of the pkgutils package")
+context("Testing the coding helper functions of the pkgutils package")
 
 
 ################################################################################
 
 
-## run_ruby
+## prepare_class_names
 ## UNTESTED
-

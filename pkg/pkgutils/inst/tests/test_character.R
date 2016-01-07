@@ -14,7 +14,7 @@ context("Testing the character functions of the pkgutils package")
 ## map_filenames
 test_that("we can create pairs of file names", {
   x <- paste0(letters[seq_len(4L)], ".txt")
-  got <- map_filenames(x, "out", "test", "", -1L)
+  expect_warning(got <- map_filenames(x, "out", "test", "", -1L))
   expect_equal(dim(got), c(6L, 3L))
 })
 

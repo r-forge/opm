@@ -367,6 +367,7 @@ check_test_contexts()
       map["splinefit"]="spline-fit"
       map["io"]="I/O"
       map["dbio"]="database I/O"
+      map["rd"]="Rd"
     }
     $1 == "context(" {
       basename = FILENAME

@@ -5,9 +5,6 @@ context("Testing the dbtables functions of the pkgutils package")
 ################################################################################
 
 
-## print
-## UNTESTED
-
 ## fkeys
 ## UNTESTED
 

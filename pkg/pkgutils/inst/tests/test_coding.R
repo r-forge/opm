@@ -1,5 +1,5 @@
 library(testthat)
-context("Testing the auxiliary coding of the pkgutils package")
+context("Testing the coding functions of the pkgutils package")
 
 
 ################################################################################
@@ -46,14 +46,6 @@ test_that("LL works as expected", {
 
 ## collect
 ## UNTESTED
-
-
-################################################################################
-
-
-## prepare_class_names
-## UNTESTED
-
 
 ## map_values
 test_that("values in character vectors can be mapped", {

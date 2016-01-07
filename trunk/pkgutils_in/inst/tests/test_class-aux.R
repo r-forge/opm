@@ -1,5 +1,5 @@
 library(testthat)
-context("Testing the class functions of the pkgutils package")
+context("Testing the class helper functions of the pkgutils package")
 
 
 ################################################################################
