@@ -1201,6 +1201,33 @@ show_lines_with_forbidden_characters()
 ################################################################################
 
 
+# Compare the version in each linked archive file with the one in the according
+# DESCRIPTION file.
+#
+check_linked_version()
+{
+  local errs=0
+  local infile
+  local pkgdir
+  local pversion
+  local lversion
+  for infile in `find "$BUILT_PACKAGES" -type l -exec readlink -f \{\} \;`; do
+    pkgdir=${infile##*/}
+    pkgdir=${pkgdir%_*}_in
+    pversion=`awk '$1 == "Version:" {print $2; exit}' "$pkgdir/DESCRIPTION"`
+    lversion=${infile##*_}
+    lversion=${lversion%.tar.gz}
+    [ "$pversion" = "$lversion" ] && continue
+    echo "version mismatch for '$pkgdir': $pversion <=> $lversion" >&2
+    errs=$(($errs + 1))
+  done
+  return $errs
+}
+
+
+################################################################################
+
+
 # Modify the version entry within opm-generated JSON files.
 #
 change_json_version()
@@ -1937,6 +1964,7 @@ case $RUNNING_MODE in
 	  help    Print this message.
 	  html    Generate HTML documentation and upload to the opm website.
 	  index   Clean and/or upload the HTML start page, not necessarily update it.
+	  link    Compare the linked archive files with the DESCRIPTION file version.
 	  method  Check for ambiguities in S4 method selection.
 	  norm    [DEFAULT] Normal build of the opm package.
 	  plex    Open the PDF files with plots produced from the examples, if any.
@@ -2015,6 +2043,10 @@ ____EOF
     esac
     exit $?
   ;;
+  link )
+    check_linked_version
+    exit $?
+  ;;
   method )
     :
   ;;
@@ -2081,7 +2113,7 @@ ____EOF
     CHECK_R_TESTS=yes
   ;;
   www )
-    update_html_startpage "$HTML_STARTPAGE" &&
+    update_html_startpage "$HTML_STARTPAGE" && check_linked_version &&
       upload_to_server "$HTML_STARTPAGE" "$HTML_LINKED_FILES" \
       "$HELPER_SCRIPTS/install_opm.R" "$BUILT_PACKAGES"/*_latest.tar.gz
     exit $?
