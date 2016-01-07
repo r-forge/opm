@@ -1,6 +1,6 @@
 Package: pkgutils
-Version: 0.7.14
-Date: 2015-11-28
+Version: 0.7.15
+Date: 2016-01-07
 Title: Utilities for Creating R Packages
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
@@ -16,8 +16,9 @@ Description: Tools for creating R packages, particularly for checking
         for some text editors are contained.
 License: GPL (>= 2)
 URL: http://opm.dsmz.de/
-Collate: 'imports.R' 'constants.R' 'data.R' 'auxiliary.R' 'coding.R'
-        'character.R' 'package.R' 'class.R' 'directory.R' 'rd.R'
-        'plotting.R'
+Collate: 'imports.R' 'constants.R' 'data.R' 'auxiliary-aux.R'
+        'auxiliary.R' 'coding-aux.R' 'coding.R' 'character.R'
+        'package.R' 'class-aux.R' 'directory.R' 'rd.R' 'plotting.R'
+        'dbtables-aux.R' 'dbtables.R'
 LazyData: yes
 LazyDataCompression: bzip2
