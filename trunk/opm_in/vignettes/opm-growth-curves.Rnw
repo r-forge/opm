@@ -532,6 +532,8 @@ xy_plot(tecan, theor.max = FALSE, include = "Strain",
   main = list(in.parens = FALSE), ylab = "OD at 690nm", rm.num = TRUE)
 @
 
+Moreover, a numeric (non-integer) value provided as \code{theor.max} argument would directly be used as upper limit of the y-axis.
+
 \begin{figure}
 \centering
 \scalebox{0.9}{
