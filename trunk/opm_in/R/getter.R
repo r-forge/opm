@@ -1034,7 +1034,8 @@ setMethod("aggr_settings", "MOPMX", function(object, join = NULL) {
 #' \code{\link{do_disc}} for generating discretised data.)
 #'
 #' @param object \code{\link{OPMD}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
-#'   object.
+#'   object. \code{disc_settings} methods for other classes are helpers for
+#'   generating raw settings lists.
 #' @param full Logical scalar passed to \code{\link{wells}}. This and the
 #'   following arguments affect the names of the resulting vector.
 #' @param in.parens Logical scalar also passed to that function.
@@ -1115,6 +1116,24 @@ setMethod("disc_settings", "MOPMX", function(object, join = NULL) {
     do.call(rbind, result)
   else
     result
+}, sealed = SEALED)
+
+setMethod("disc_settings", "character", function(object, ...) {
+  result <- c(list(object, list(...)), opm_string(TRUE))
+  names(result) <- c(METHOD, OPTIONS, SOFTWARE, VERSION)
+  result
+}, sealed = SEALED)
+
+setMethod("disc_settings", "NULL", function(object, ...) {
+  disc_settings(object = "best-cutoff", ...)
+}, sealed = SEALED)
+
+setMethod("disc_settings", "numeric", function(object, ...) {
+  disc_settings(object = "direct", ...)
+}, sealed = SEALED)
+
+setMethod("disc_settings", "logical", function(object, ...) {
+  disc_settings(object = "kmeans", ...)
 }, sealed = SEALED)
 
 
