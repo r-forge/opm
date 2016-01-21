@@ -23,7 +23,7 @@
 # This script is distributed under the terms of the Gnu Public License V2.
 # For further information, see http://www.gnu.org/licenses/gpl.html
 #
-# (C) 2012-2015 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
+# (C) since 2012 by Markus Goeker (markus [DOT] goeker [AT] dsmz [DOT] de)
 #
 ################################################################################
 
@@ -34,6 +34,11 @@
 # changed only if great care is taken.
 #
 EXTERNAL_TEST_DIR=external_tests
+
+
+# The subdirectory of the R package directories in which the tests are placed.
+#
+TEST_SUBDIR=inst/tests
 
 
 # The folder in which a variety of 'miscellaneous' files are placed. Some of
@@ -243,7 +248,7 @@ check_vignettes()
 
 # Make sure all functions and constants (package-wide variables) in the R code
 # either have a test or are annotated as being untested. (See the files in the
-# folder inst/tests for how this annotation works.)
+# folder $TEST_SUBDIR for how this annotation works.)
 #
 check_R_tests()
 {
@@ -251,9 +256,9 @@ check_R_tests()
   local testfile
   local errs=0
   for infile; do
-    testfile=${infile%/R/*}/inst/tests/test_${infile##*/R/}
-    if ! [ -s "$testfile" ]; then
-      echo "test file for '$infile' does not exist or is empty" >&2
+    testfile=${infile%/R/*}/$TEST_SUBDIR/test_${infile##*/R/}
+    if ! [ -e "$testfile" ]; then
+      echo "ERROR: test file for '$infile' does not exist" >&2
       errs=$((errs + 1))
     elif ! awk -v rfile="$infile" '
         BEGIN {
@@ -348,6 +353,44 @@ check_R_tests()
     fi
   done
   return $errs
+}
+
+
+################################################################################
+
+
+# Create templates of test files, containing all testable items marked as
+# untested. Must be run twice if the files do not initially exist. Can be run
+# later on to add markings for single items.
+#
+create_test_templates()
+{
+  local pkg
+  local item
+  local codefile
+  local testfile
+  for pkg; do
+    check_R_tests "$pkg"/R/* 2>&1 | awk '
+        $1 == "WARNING:" && NF == 6 {
+          print substr($4, 2, length($4) - 2), $3
+          next
+        }
+        $1 == "ERROR:" && NF == 8 {
+          print substr($5, 2, length($5) - 2)
+        }
+      ' | while read codefile item; do
+        testfile=${codefile%/R/*}/$TEST_SUBDIR/test_${codefile##*/R/}
+        if [ "$item" ]; then
+          echo "## $item" >> "$testfile"
+          echo "## UNTESTED" >> "$testfile"
+          echo "" >> "$testfile"
+        else
+          mkdir -p "${testfile%/*}"
+          echo "library(testthat)" >> "$testfile"
+          echo "" >> "$testfile"
+        fi
+      done
+  done
 }
 
 
@@ -1978,6 +2021,7 @@ case $RUNNING_MODE in
 	  sql1    SQL-based tests. Call '$0 sql1 -h' for a description.
 	  sql2    Like sql1, but not only the SQL code, also the associated R code.
 	  tags    Get list of Roxygen2 tags used, with counts of occurrences.
+	  temp    Create test template files for the given packages directories.
 	  test    Test the 'run_opm.R' script. Call '$0 test -h' for details.
 	  time    Show the timings of the last examples, if any, in order.
 	  todo    Show TODO entries (literally!) in all R source files found.
@@ -2095,6 +2139,10 @@ ____EOF
     count_roxygen_tags
     exit $?
   ;;
+  temp )
+    create_test_templates "$@"
+    exit $?
+  ;;
   test )
     run_external_tests "$@"
     exit $?
@@ -2198,7 +2246,7 @@ if [ "$CHECK_R_TESTS" ]; then
     echo "something wrong with the tests in '$PKG_DIR', exiting now" >&2
     exit 1
   fi
-  if ! check_test_contexts "$PKG_DIR"/inst/tests/*.R; then
+  if ! check_test_contexts "$PKG_DIR"/$TEST_SUBDIR/*.R; then
     echo "something wrong with the test contexts in '$PKG_DIR', exiting now" >&2
     exit 1
   fi
