@@ -721,7 +721,7 @@ collect.matrix <- function(x, what = c("columns", "rows"), empty = "?", ...) {
 #'   attribute, not the \sQuote{names} attribute is considered.
 #'
 #' @param mapping When mapping values, a character vector, function, expression,
-#'   numeric scalar, \code{NULL} or missing.
+#'   numeric scalar, list, \code{NULL} or missing.
 #'   \itemize{
 #'   \item If a character vector, used as a mapping from its names to its
 #'   values. Values from \code{object} are searched for in the \code{names}
@@ -747,6 +747,16 @@ collect.matrix <- function(x, what = c("columns", "rows"), empty = "?", ...) {
 #'   \item If \code{mapping} is a numeric scalar and \code{object} is a
 #'   character vector or factor, a mapping (named character vector) is created
 #'   that translates groups of similar strings to their most frequent member.
+#'   \item If \code{mapping} is a list and \code{object} is a data frame, the
+#'   names of \code{mapping} specify the columns of \code{object} to map. Only
+#'   factors and character vectors within \code{object} are modified, and it is
+#'   an error if \code{mapping} does not list all of them, or has no names at
+#'   all. Three potential names of \code{mapping} are special. \code{.} must
+#'   refer to a named character vector and is used for mapping the column names
+#'   of \code{object}. \code{_}, containing a named list, is used for adding
+#'   columns. \code{-} pointing to a character vector provides a set of columns
+#'   to delete. Behaviour is special if \code{mapping} is an empty list; in that
+#'   case, a template for a real mapping list is generated.
 #'   }
 #'
 #'   When mapping names, a mapping function that takes a character vector as
@@ -1117,6 +1127,47 @@ setMethod("map_values", c("data.frame", "missing"), function(object,
     result <- unlist(lapply(object, as.character))
   }
   map_values(result)
+}, sealed = SEALED)
+
+setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
+  wanted <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
+  wanted <- names(object)[wanted]
+  if (!length(mapping)) {
+    mapping <- vector("list", length(wanted))
+    mapping[] <- list(structure(.Data = character(), names = character()))
+    names(mapping) <- wanted
+    return(mapping)
+  }
+  if (is.null(names(mapping)))
+    stop("cannot accept unnamed list as 'mapping' argument")
+  if (pos <- match(".", names(mapping), 0L)) { # mapping of column names
+    names(object) <- map_values(names(object), unlist(mapping[[pos]]))
+    mapping <- mapping[-pos]
+  }
+  if (pos <- match("_", names(mapping), 0L)) { # addition of columns
+    add <- mapping[[pos]]
+    mapping <- mapping[-pos]
+  } else {
+    add <- NULL
+  }
+  if (pos <- match("-", names(mapping), 0L)) { # deletion of rows
+    delete <- mapping[[pos]] # must refer to new column names
+    mapping <- mapping[-pos]
+  } else {
+    delete <- NULL
+  }
+  if (!all(pos <- match(wanted, names(mapping), 0L)))
+    stop("column name '", wanted[!pos][[1L]], "' missing in mapping")
+  for (i in seq_along(wanted))
+    object[, wanted[[i]]] <- map_values(object[, wanted[[i]]],
+      unlist(mapping[[pos[[i]]]]))
+  if (length(delete))
+    for (name in names(delete))
+      if (any(pos <- object[, name] %in% delete[[name]]))
+        object <- object[!pos, , drop = FALSE]
+  if (length(add))
+    object <- cbind(object, as.data.frame(add))
+  object
 }, sealed = SEALED)
 
 #-------------------------------------------------------------------------------
