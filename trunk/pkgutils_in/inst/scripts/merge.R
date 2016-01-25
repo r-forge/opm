@@ -25,8 +25,11 @@ INSERTED_COLUMNS <- character()
 
 
 do_write <- function(x, opt) {
-  write.table(x, sep = opt$separator, row.names = FALSE, na = opt$prune,
-    quote = !opt$unquoted, col.names = !opt$bald || opt$`make-header`)
+  if (is.data.frame(x) || is.matrix(x))
+    write.table(x = x, sep = opt$separator, row.names = FALSE, na = opt$prune,
+      quote = !opt$unquoted, col.names = !opt$bald || opt$`make-header`)
+  else
+    write(x = yaml::as.yaml(x), file = "")
 }
 
 
@@ -107,15 +110,15 @@ make_unique <- function(x) {
 }
 
 
-join_unique <- function(x, join) {
-  x <- unlist(strsplit(as.character(x), join, TRUE), FALSE, FALSE)
-  paste0(unique.default(x[nzchar(x) & !is.na(x)]), collapse = join)
+join_unique <- function(x, collapse) {
+  x <- unlist(strsplit(as.character(x), collapse, TRUE), FALSE, FALSE)
+  paste0(unique.default(x[nzchar(x) & !is.na(x)]), collapse = collapse)
 }
 
 
-join_most_frequent <- function(x, join) {
-  best <- table(unlist(strsplit(as.character(x), join, TRUE), FALSE, FALSE))
-  paste0(names(best[best == max(best)]), collapse = join)
+join_most_frequent <- function(x, collapse) {
+  best <- table(unlist(strsplit(as.character(x), collapse, TRUE), FALSE, FALSE))
+  paste0(names(best[best == max(best)]), collapse = collapse)
 }
 
 
@@ -195,39 +198,6 @@ to_yaml <- function(files, opt) {
 }
 
 
-map_data_frame_values <- function(x, map) {
-  if (pos <- match(".", names(map), 0L)) {
-    names(x) <- pkgutils::map_values(names(x), unlist(map[[pos]]))
-    map <- map[-pos]
-  }
-  if (pos <- match("_", names(map), 0L)) {
-    add <- map[[pos]]
-    map <- map[-pos]
-  } else {
-    add <- NULL
-  }
-  if (pos <- match("-", names(map), 0L)) {
-    delete <- map[[pos]]
-    map <- map[-pos]
-  } else {
-    delete <- NULL
-  }
-  wanted <- names(x)[vapply(x, is.character, NA)]
-  if (!all(pos <- match(wanted, names(map), 0L)))
-    stop("column name '", wanted[!pos][[1L]], "' missing in map")
-  for (i in seq_along(wanted))
-    x[, wanted[[i]]] <- pkgutils::map_values(x[, wanted[[i]]],
-      unlist(map[[pos[[i]]]]))
-  if (length(delete))
-    for (name in names(delete))
-      if (any(pos <- x[, name] %in% delete[[name]]))
-        x <- x[!pos, , drop = FALSE]
-  if (length(add))
-    x <- cbind(x, as.data.frame(add))
-  x
-}
-
-
 process_specially <- function(files, opt) {
   merge_horizontally <- function(x, opt) {
     x <- apply(x, 1L, function(x) pkgutils::listing(x[nzchar(x)],
@@ -238,8 +208,10 @@ process_specially <- function(files, opt) {
     aggregate(x = x[, -match(opt$xcolumn, colnames(x), 0L), drop = FALSE],
       by = x[, opt$xcolumn, drop = FALSE], FUN = if (opt$good)
         join_most_frequent
+      else if (opt$all)
+        paste0
       else
-        join_unique, join = opt$join, simplify = TRUE)
+        join_unique, collapse = opt$join, simplify = TRUE)
   }
   if (opt$rows) {
     do_convert <- merge_horizontally
@@ -252,8 +224,11 @@ process_specially <- function(files, opt) {
   } else if (opt$widen) {
     do_convert <- function(x, opt) unnest(x, opt$xcolumn, opt$join)
   } else if (nzchar(opt$`map-table`)) {
-    opt$`map-table` <- yaml::yaml.load_file(opt$`map-table`)
-    do_convert <- function(x, opt) map_data_frame_values(x, opt$`map-table`)
+    opt$`map-table` <- if (opt$`map-table` == "_")
+        list()
+      else
+        yaml::yaml.load_file(opt$`map-table`)
+    do_convert <- function(x, opt) pkgutils::map_values(x, opt$`map-table`)
   } else {
     stop("invalid combination of options")
   }
@@ -320,7 +295,8 @@ include_approximate_matches <- function(x, y, options, idx) {
 option.parser <- optparse::OptionParser(option_list = list(
 
   optparse::make_option(c("-a", "--all"), action = "store_true",
-    help = "Keep non-matching lines of file 2, too [default: %default]",
+    help = paste0("Keep non-matching lines of file 2, too; with -v, keep all ",
+      "(even duplicated) entries [default: %default]"),
     default = FALSE),
 
   # A

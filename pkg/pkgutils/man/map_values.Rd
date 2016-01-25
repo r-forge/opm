@@ -20,9 +20,9 @@
   \sQuote{names} attribute is considered.}
 
   \item{mapping}{When mapping values, a character vector,
-  function, expression, numeric scalar, \code{NULL} or
-  missing.  \itemize{ \item If a character vector, used as
-  a mapping from its names to its values. Values from
+  function, expression, numeric scalar, list, \code{NULL}
+  or missing.  \itemize{ \item If a character vector, used
+  as a mapping from its names to its values. Values from
   \code{object} are searched for in the \code{names}
   attribute of \code{mapping}; those found are replaced by
   the corresponding values of \code{mapping}.  \item If
@@ -50,7 +50,20 @@
   is a numeric scalar and \code{object} is a character
   vector or factor, a mapping (named character vector) is
   created that translates groups of similar strings to
-  their most frequent member.  }
+  their most frequent member.  \item If \code{mapping} is a
+  list and \code{object} is a data frame, the names of
+  \code{mapping} specify the columns of \code{object} to
+  map. Only factors and character vectors within
+  \code{object} are modified, and it is an error if
+  \code{mapping} does not list all of them, or has no names
+  at all. Three potential names of \code{mapping} are
+  special. \code{.} must refer to a named character vector
+  and is used for mapping the column names of
+  \code{object}. \code{_}, containing a named list, is used
+  for adding columns. \code{-} pointing to a character
+  vector provides a set of columns to delete. Behaviour is
+  special if \code{mapping} is an empty list; in that case,
+  a template for a real mapping list is generated.  }
 
   When mapping names, a mapping function that takes a
   character vector as first argument, or character vector
@@ -371,6 +384,7 @@ stopifnot(y == c("a", "b"), names(y) == y)
 \alias{map_values,data.frame,NULL-method}
 \alias{map_values,data.frame,character-method}
 \alias{map_values,data.frame,function-method}
+\alias{map_values,data.frame,list-method}
 \alias{map_values,data.frame,missing-method}
 \alias{map_values,factor,character-method}
 \alias{map_values,factor,function-method}
@@ -413,6 +427,7 @@ stopifnot(y == c("a", "b"), names(y) == y)
   \S4method{map_values}{data.frame,NULL}(object, mapping, coerce = character(), ...)
   \S4method{map_values}{data.frame,character}(object, mapping, coerce = character())
   \S4method{map_values}{data.frame,function}(object, mapping, coerce = character(), ...)
+  \S4method{map_values}{data.frame,list}(object, mapping) 
   \S4method{map_values}{data.frame,missing}(object, coerce = character())
   \S4method{map_values}{factor,character}(object, mapping) 
   \S4method{map_values}{factor,function}(object, mapping, ...)
