@@ -1500,7 +1500,7 @@ setMethod("duplicated", c("OPM", "ANY"), function(x, incomparables, ...) {
 
 setMethod("duplicated", c("OPMS", "ANY"), function(x, incomparables,
     what = c("all", "csv", "metadata"), exact = TRUE, strict = FALSE, ...) {
-  selection <- tryCatch(match.arg(what), error = function(e) "other")
+  selection <- tryCatch(expr = match.arg(what), error = function(e) "other")
   duplicated(x = case(selection,
     all = x@plates,
     csv = cbind(csv_data(x, what = "setup_time"),
@@ -1517,7 +1517,7 @@ setMethod("duplicated", c("MOPMX", "missing"), function(x, incomparables, ...) {
 setMethod("duplicated", c("MOPMX", "ANY"), function(x, incomparables,
     what = c("all", "plate.type", "metadata"), exact = TRUE, strict = FALSE,
     ...) {
-  selection <- tryCatch(match.arg(what), error = function(e) "other")
+  selection <- tryCatch(expr = match.arg(what), error = function(e) "other")
   duplicated(x = case(selection,
     all = x@.Data,
     metadata = metadata(x),
@@ -1807,14 +1807,14 @@ setMethod("%k%", c("WMD", "WMD"), function(x, table) {
 }, sealed = SEALED)
 
 setMethod("%k%", c("formula", "WMD"), function(x, table) {
-  tryCatch({
+  tryCatch(expr = {
     eval(x[[length(x)]], table@metadata, parent.frame(2L))
     TRUE
   }, error = function(e) FALSE)
 }, sealed = SEALED)
 
 setMethod("%k%", c("expression", "WMD"), function(x, table) {
-  tryCatch({
+  tryCatch(expr = {
     eval(x, table@metadata, parent.frame(2L))
     TRUE
   }, error = function(e) FALSE)
@@ -1833,7 +1833,7 @@ setGeneric("%K%", function(x, table) standardGeneric("%K%"))
 setMethod("%K%", c("character", "WMD"), function(x, table) {
   if (!length(x))
     return(TRUE) # for consistency with %k%
-  tryCatch(!is.null(table@metadata[[x]]), error = function(e) FALSE)
+  tryCatch(expr = !is.null(table@metadata[[x]]), error = function(e) FALSE)
 }, sealed = SEALED)
 
 setMethod("%K%", c("list", "WMD"), function(x, table) {
@@ -1845,14 +1845,14 @@ setMethod("%K%", c("WMD", "WMD"), function(x, table) {
 }, sealed = SEALED)
 
 setMethod("%K%", c("formula", "WMD"), function(x, table) {
-  tryCatch({
+  tryCatch(expr = {
     eval(x[[length(x)]], table@metadata, baseenv())
     TRUE
   }, error = function(e) FALSE)
 }, sealed = SEALED)
 
 setMethod("%K%", c("expression", "WMD"), function(x, table) {
-  tryCatch({
+  tryCatch(expr = {
     eval(x, table@metadata, baseenv())
     TRUE
   }, error = function(e) FALSE)

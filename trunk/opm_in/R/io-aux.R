@@ -67,7 +67,7 @@ read_new_opm <- function(filename) {
       comments[CSV_NAMES[["PLATE_TYPE"]]] <- SPECIAL_PLATES[["gen.iii"]]
       x <- repair_oth(x)
     }
-    new("OPM", measurements = x, metadata = list(), csv_data = comments)
+    new(Class = "OPM", measurements = x, metadata = list(), csv_data = comments)
   }
   x <- as.matrix(read.table(file = filename, colClasses = "character",
     sep = ",", fileEncoding = opm_opt("file.encoding")))
@@ -122,7 +122,8 @@ read_lims_opm <- function(filename) {
   x[[1L]] <- lapply(x[[1L]][-pos], type.convert, "NA", TRUE)
   x[[2L]] <- to_measurements(x[[2L]][-1L])
   x[[2L]][, 1L] <- (x[[2L]][, 1L] - 1) * get("read_interval", x[[1L]]) / 60
-  new("OPM", measurements = x[[2L]], csv_data = x[[3L]], metadata = x[[1L]])
+  new(Class = "OPM", measurements = x[[2L]], csv_data = x[[3L]],
+    metadata = x[[1L]])
 }
 
 
@@ -156,7 +157,7 @@ read_old_opm <- function(filename) {
       comments[CSV_NAMES[["PLATE_TYPE"]]] <- SPECIAL_PLATES[["gen.iii"]]
       x <- repair_oth(x)
     }
-    new("OPM", measurements = x, metadata = list(), csv_data = comments)
+    new(Class = "OPM", measurements = x, metadata = list(), csv_data = comments)
   }
 
   con <- file(filename, "", TRUE, opm_opt("file.encoding"))
@@ -303,7 +304,7 @@ process_io <- function(files, io.fun, fun.args = list(),
   conduct_conversion <- function(infile, outfile, fun, fun.args) {
     if (!create_parent(outfile))
       return("could not create parent directory")
-    problem <- tryCatch({
+    problem <- tryCatch(expr = {
       do.call(fun, c(infile = infile, outfile = outfile, fun.args))
       ""
     }, error = conditionMessage)
@@ -355,7 +356,7 @@ finish_template <- function(object, outfile, sep, previous, md.args, demo) {
     return(invisible(object))
   }
   if (length(previous))
-    tryCatch(suppressWarnings(
+    tryCatch(expr = suppressWarnings(
         previous <- do.call(to_metadata, c(list(object = previous), md.args))
       ), error = function(e) {
         if (identical(outfile, previous))
