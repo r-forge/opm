@@ -29,11 +29,11 @@ L <- function(x, .wanted = 1L, .msg = "need object '%s' of length %i",
 LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
     .domain = NULL) {
   arg.names <- as.character(match.call())[-1L][seq_along(items <- list(...))]
-  invisible(mapply(function(item, name) {
+  invisible(mapply(FUN = function(item, name) {
     if (!identical(length(item), .wanted))
       stop(sprintf(.msg, name, .wanted), call. = FALSE, domain = .domain)
     name
-  }, items, arg.names, SIMPLIFY = TRUE, USE.NAMES = FALSE))
+  }, item = items, name = arg.names, USE.NAMES = FALSE))
 }
 
 setGeneric("listing", function(x, ...) standardGeneric("listing"))
@@ -112,7 +112,7 @@ setMethod("listing", "character", function(x, header = NULL, footer = NULL,
   if ((is.null(names(x)) && style != "insert") || force.numbers)
     names(x) <- seq_along(x)
   if (inherits(style, "AsIs"))
-    x <- structure(names(x), names = x)
+    x <- structure(.Data = names(x), names = x)
   switch(style,
     table =,
     list = x <- do_prepend(formatDL(x = x, style = style, ...), prepend),
@@ -276,7 +276,7 @@ collect.list <- function(x,
       else
         x <- lapply(x, keep_validly_named_only)
     } else
-      x <- lapply(x, data.frame, stringsAsFactors = FALSE,
+      x <- lapply(X = x, FUN = data.frame, stringsAsFactors = FALSE,
         check.names = !optional)
     rn <- sort.int(unique.default(unlist(lapply(x, rownames))))
     cn <- sort.int(unique.default(unlist(lapply(x, colnames))))
@@ -405,7 +405,7 @@ setMethod("map_values", c("list", "missing"), function(object, mapping,
     classes <- prepare_class_names(coerce)
     mapfun <- as.character
   }
-  map_values(rapply(object, mapfun, classes = classes))
+  map_values(rapply(object, mapfun, classes))
 }, sealed = SEALED)
 
 setMethod("map_values", c("list", "expression"), function(object, mapping,
@@ -554,7 +554,7 @@ setMethod("map_values", c("character", "character"), function(object, mapping) {
 
 setMethod("map_values", c("character", "missing"), function(object) {
   object <- sort.int(unique.default(object))
-  structure(object, names = object)
+  structure(.Data = object, names = object)
 }, sealed = SEALED)
 
 setMethod("map_values", c("character", "NULL"), function(object, mapping) {
@@ -630,7 +630,7 @@ setMethod("map_names", c("list", "function"), function(object, mapping, ...) {
   map_names_recursively <- function(item) {
     if (is.list(item)) {
       names(item) <- map_values(names(item), mapping, ...)
-      return(lapply(item, FUN = map_names_recursively))
+      return(lapply(item, map_names_recursively))
     }
     item
   }
@@ -641,7 +641,7 @@ setMethod("map_names", c("list", "character"), function(object, mapping) {
   map_names_recursively <- function(item) {
     if (is.list(item)) {
       names(item) <- map_values(names(item), mapping)
-      return(lapply(item, FUN = map_names_recursively))
+      return(lapply(item, map_names_recursively))
     }
     item
   }
@@ -651,7 +651,7 @@ setMethod("map_names", c("list", "character"), function(object, mapping) {
 setMethod("map_names", c("list", "missing"), function(object) {
   get_names_recursively <- function(item) {
     if (is.list(item))
-      c(names(item), unlist(lapply(item, FUN = get_names_recursively)))
+      c(names(item), unlist(lapply(item, get_names_recursively)))
     else
       character()
   }
@@ -761,7 +761,7 @@ adist2map <- function(x, max.distance = 0.1, ignore.case = TRUE,
   if (nzchar(exclude))
     x <- grep(exclude, x, FALSE, TRUE, TRUE, FALSE, useBytes, TRUE)
   if (!length(x))
-    return(structure(character(), names = character()))
+    return(structure(.Data = character(), names = character()))
   s <- table(x[!is.na(x) & nzchar(x)])
   s <- s[order(s, nchar(names(s)))]
   d <- adist(x = names(s), y = NULL, ignore.case = ignore.case,

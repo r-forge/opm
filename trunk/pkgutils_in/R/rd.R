@@ -118,7 +118,7 @@ repair_docu.character <- function(x, ignore = NULL, drop.internal = FALSE,
   }
   LL(drop.internal)
   x <- pkg_files(x, what = "man", installed = FALSE, ignore = ignore)
-  invisible(sapply(x, do_repair, simplify = drop.internal))
+  invisible(sapply(X = x, FUN = do_repair, simplify = drop.internal))
 }
 
 #' @rdname repair_docu
@@ -197,7 +197,7 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
       return(x) # keep lists as-is if they were already empty
     if (is.null(this.tag <- attr(x, "Rd_tag")))
       this.tag <- ".empty"
-    y <- lapply(x, repair_recursively, parent.tags = c(this.tag, parent.tags))
+    y <- lapply(x, repair_recursively, c(this.tag, parent.tags))
     y[vapply(y, is.null, NA)] <- NULL
     if (!length(y))
       return(NULL)

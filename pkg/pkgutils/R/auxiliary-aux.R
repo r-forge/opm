@@ -15,7 +15,7 @@ NULL
 subset.Rd <- function(x, subset, values = FALSE, ...) {
   prepend <- !grepl("^\\\\", subset, FALSE, TRUE)
   subset[prepend] <- sprintf("\\%s", subset[prepend])
-  y <- vapply(x, attr, "", which = "Rd_tag") %in% subset
+  y <- vapply(x, attr, "", "Rd_tag") %in% subset
   if (L(values)) {
     x[!y] <- NULL
     x
@@ -25,7 +25,7 @@ subset.Rd <- function(x, subset, values = FALSE, ...) {
 
 subset.pack_desc <- function(x, ...) {
   result <- c("Depends", "Imports", "Suggests", "Enhances", "Collate")
-  result <- structure(vector("list", length(result)), names = result)
+  result <- structure(.Data = vector("list", length(result)), names = result)
   for (name in c("Depends", "Imports", "Suggests", "Enhances"))
     if (!is.null(y <- x[[name]])) {
       y <- unlist(strsplit(y, "\\s*,\\s*", FALSE, TRUE), FALSE, FALSE)
@@ -49,9 +49,9 @@ subset.pack_descs <- function(x, ...) {
 run_pkgutils_ruby <- function(x, ...) UseMethod("run_pkgutils_ruby")
 
 run_pkgutils_ruby.character <- function(x, script, ignore, sargs = NULL, ...) {
-  aux.file <- pkg_files("pkgutils", what = "auxiliary")
+  aux.file <- pkg_files("pkgutils", "auxiliary")
   aux.file <- L(aux.file[tolower(basename(aux.file)) == tolower(script)])
-  x <- pkg_files(x, what = "R", installed = FALSE, ignore = ignore)
+  x <- pkg_files(x = x, what = "R", installed = FALSE, ignore = ignore)
   errs <- run_ruby(x = c(aux.file, x, prepare_options(sargs)), ...)
   if (is.integer(errs) && !identical(errs, 0L))
     run_ruby(x = 1.9, ...) # to show Ruby version problems, if any
@@ -75,7 +75,7 @@ prepare_options.character <- function(x) {
 puts <- function(x, file, ...) UseMethod("puts")
 
 puts.classes_desc <- function(x, file, ...) {
-  invisible(structure(mapply(FUN = puts, x = x, file = file,
+  invisible(structure(.Data = mapply(FUN = puts, x = x, file = file,
     MoreArgs = list(...), SIMPLIFY = FALSE), class = oldClass(x)))
 }
 
@@ -95,7 +95,7 @@ puts.pack_desc <- function(x, file, ...) {
 }
 
 puts.pack_descs <- function(x, file, ...) {
-  invisible(structure(mapply(FUN = puts, x = x, file = file,
+  invisible(structure(.Data = mapply(FUN = puts, x = x, file = file,
     MoreArgs = list(...), SIMPLIFY = FALSE), class = oldClass(x)))
 }
 
@@ -115,8 +115,8 @@ problem.character <- function(x, infile = NULL, line = NULL, ...) {
 source_files <- function(x, ...) UseMethod("source_files")
 
 source_files.character <- function(x, ...) {
-  doit <- function(file) sys.source(file = file, ...)
-  invisible(sapply(x, doit, simplify = FALSE))
+  doit <- function(file, ...) sys.source(file = file, ...)
+  invisible(sapply(X = x, FUN = doit, simplify = FALSE, ...))
 }
 
 source_files.pack_descs <- function(x, demo = FALSE, ...) {
@@ -134,8 +134,8 @@ source_files.pack_desc <- function(x, demo = FALSE, ...) {
   if (L(demo))
     return(y)
   for (pkg in unlist(y[c("Depends", "Imports")]))
-    suppressPackageStartupMessages(require(pkg, character.only = TRUE,
-      quietly = TRUE, warn.conflicts = FALSE))
+    suppressPackageStartupMessages(require(package = pkg,
+      character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE))
   invisible(source_files.character(x = y$Collate, ...))
 }
 
