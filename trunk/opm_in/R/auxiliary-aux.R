@@ -59,7 +59,8 @@ get_and_remember <- function(x, prefix, default, getfun, single = FALSE, ...) {
       warning(listing(x[need][bad], "could not find ", style = "sentence"))
       result[need][bad] <- rep.int(list(default), sum(bad))
     }
-    list2env(structure(result[need][!bad], names = keys[need][!bad]), envir)
+    list2env(structure(.Data = result[need][!bad], names = keys[need][!bad]),
+      envir)
     result
   }
   if (!is.character(x))
@@ -92,8 +93,8 @@ get_and_remember <- function(x, prefix, default, getfun, single = FALSE, ...) {
 setGeneric("pick_from", function(object, ...) standardGeneric("pick_from"))
 
 setMethod("pick_from", "data.frame", function(object, selection) {
-  matches <- lapply(names(selection), FUN = function(name) {
-    m <- lapply(selection[[name]], `==`, y = object[, name])
+  matches <- lapply(names(selection), function(name) {
+    m <- lapply(selection[[name]], `==`, object[, name])
     apply(do.call(cbind, m), 1L, any)
   })
   matches <- apply(do.call(cbind, matches), 1L, all)
@@ -436,7 +437,7 @@ setMethod("is_constant", "CMAT", function(x, strict, digits = opm_opt("digits"),
         uniq_list_const
       else
         no_set_overlap),
-      double = apply(x, 2L, all_distrib_overlap, fac = 2L - strict)
+      double = apply(x, 2L, all_distrib_overlap, 2L - strict)
     )
   )
 }, sealed = SEALED)
@@ -558,7 +559,8 @@ metadata_key.default <- function(x, to.formula = FALSE, remove = NULL, ...) {
 #' @export
 #'
 metadata_key.factor <- function(x, ...) {
-  metadata_key.character(structure(as.character(x), names = names(x)), ...)
+  metadata_key.character(structure(.Data = as.character(x), names = names(x)),
+    ...)
 }
 
 #' @rdname metadata_key
@@ -624,7 +626,7 @@ metadata_key.formula <- function(x, to.formula = FALSE, remove = NULL,
   combine <- new.env(parent = emptyenv())
   comb_list <- function(...) {
     if (length(keys <- flatten(x <- list(...))) > 1L) {
-      keys <- vapply(keys, paste0, "",
+      keys <- vapply(X = keys, FUN = paste0, FUN.VALUE = "",
         collapse = get("key.join", OPM_OPTIONS))
       combine[[paste0(keys,
         collapse = get("comb.key.join", OPM_OPTIONS))]] <- keys
@@ -928,7 +930,7 @@ list2html <- function(x, level = 1L, fmt = opm_opt("html.class"), fac = 2L) {
     else
       n[!nzchar(n)] <- sprintf(fmt, level)
     n <- ifelse(nzchar(n), safe_labels(n, "html"), NA_character_)
-    x <- vapply(x, list2html, "", level = level + 1L, fmt = fmt)
+    x <- vapply(x, list2html, "", level + 1L, fmt)
     x <- paste0(x, indent)
     x <- hmakeTag("div", x, class = n, title = n, newline = TRUE)
     paste0(indent, x, collapse = "")
@@ -970,9 +972,9 @@ html_head <- function(title, css, meta, embed) {
 
   if (length(css <- css[nzchar(css)]))
     if (embed) {
-      x <- lapply(css, readLines, warn = FALSE)
+      x <- lapply(X = css, FUN = readLines, warn = FALSE)
       css <- html_comment(paste("CSS from user-defined file", css))
-      css <- mapply(c, css, single_tag("style", type = "text/css"), x,
+      css <- mapply(FUN = c, css, single_tag("style", type = "text/css"), x,
         MoreArgs = list("</style>", ""), SIMPLIFY = FALSE, USE.NAMES = FALSE)
       css <- unlist(css, FALSE, FALSE)
     } else {

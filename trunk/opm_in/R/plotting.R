@@ -1006,7 +1006,7 @@ setMethod("heat_map", "matrix", function(object,
     groups <- as.factor(groups)
     if (length(colors) < length(levels(groups)))
       stop("more groups than colours given")
-    structure(colors[groups], names = as.character(groups))
+    structure(.Data = colors[groups], names = as.character(groups))
   }
 
   do_asqr <- function(x, percent) {
@@ -1044,8 +1044,8 @@ setMethod("heat_map", "matrix", function(object,
 
   case(match.arg(use.fun),
     gplots = {
-      if (suppressMessages(suppressWarnings(require(gplots, quietly = TRUE,
-          warn.conflicts = FALSE)))) {
+      if (suppressMessages(suppressWarnings(require(package = gplots,
+          quietly = TRUE, warn.conflicts = FALSE)))) {
         arg.list <- insert(arg.list, trace = "none", .force = FALSE)
         heatmap_fun <- gplots::heatmap.2
       } else {
@@ -1230,7 +1230,7 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
   adapt_colors <- function(x, colors) {
     if (length(colors) < length(levels(f <- as.factor(x))))
       stop("not enough colours provided")
-    structure(colors[f], names = x)
+    structure(.Data = colors[f], names = x)
   }
 
   LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch, group.col)

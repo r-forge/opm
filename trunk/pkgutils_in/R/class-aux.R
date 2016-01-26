@@ -114,13 +114,14 @@ class_rdfiles.character <- function(pkg, classes,
     if (file.exists(pkg)) {
       pack_desc(pkg, "source")
       FALSE
-    } else if (pkg %in% .packages())
+    } else if (pkg %in% .packages()) {
       FALSE
-    else if (require(pkg, quietly = TRUE, warn.conflicts = FALSE,
-        character.only = TRUE))
+    } else if (require(package = pkg, quietly = TRUE, warn.conflicts = FALSE,
+        character.only = TRUE)) {
       TRUE
-    else
+    } else {
       stop(sprintf("package '%s' can neither be source'd nor require'd", pkg))
+    }
   }
   must.detach <- FALSE
   on.exit(if (must.detach)
@@ -135,15 +136,15 @@ class_rdfiles.character <- function(pkg, classes,
     },
     update = {
       must.detach <- get_package(pkg)
-      cd <- classes_desc(sapply(classes, promptClass, filename = NA,
-        simplify = FALSE))
+      cd <- classes_desc(sapply(X = classes, FUN = promptClass,
+        filename = NA, simplify = FALSE))
       cd <- update(object = cd, ...)
       puts(cd, default_rdfile_name(pkg, classes))
     },
     content = {
       must.detach <- get_package(pkg)
-      classes_desc(sapply(classes, promptClass, filename = NA,
-        simplify = FALSE))
+      classes_desc(sapply(X = classes, FUN = promptClass,
+        filename = NA, simplify = FALSE))
     }
   )
 }
@@ -236,7 +237,8 @@ NULL
 #' @export
 #'
 update.classes_desc <- function(object, ...) {
-  structure(lapply(X = object, FUN = update, ...), class = oldClass(object))
+  structure(.Data = lapply(X = object, FUN = update, ...),
+    class = oldClass(object))
 }
 
 #' @rdname update
@@ -285,7 +287,8 @@ update.pack_desc <- function(object, version = TRUE, date.format = "%Y-%m-%d",
 #' @export
 #'
 update.pack_descs <- function(object, ...) {
-  structure(lapply(X = object, FUN = update, ...), class = oldClass(object))
+  structure(.Data = lapply(X = object, FUN = update, ...),
+    class = oldClass(object))
 }
 
 #' @rdname update
@@ -298,7 +301,7 @@ update.numeric_version <- function(object, ...) {
       x[n] <- x[n] + 1L
     x
   }
-  object[] <- rapply(object, incr, classes = "integer", how = "replace")
+  object[] <- rapply(object, incr, "integer", NULL, "replace")
   object
 }
 

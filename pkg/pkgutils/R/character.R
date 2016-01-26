@@ -19,7 +19,7 @@ sections.logical <- function(x, include = TRUE, ...) {
     x
   }
   if (!length(x))
-    return(structure(factor(ordered = TRUE), names = names(x)))
+    return(structure(.Data = factor(ordered = TRUE), names = names(x)))
   if (anyNA(x))
     stop("'x' must not contain NA values")
   if (is.na(L(include))) {
@@ -36,7 +36,7 @@ sections.logical <- function(x, include = TRUE, ...) {
     else
       result[x] <- NA_integer_
   }
-  structure(as.ordered(result), names = names(x))
+  structure(.Data = as.ordered(result), names = names(x))
 }
 
 sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
@@ -95,9 +95,11 @@ map_files.character <- function(x, mapfun, ..., .attr = ".filename",
   )
   mapfun <- match.fun(mapfun)
   if (!length(x))
-    return(structure(logical(), names = character(), errors = character()))
+    return(structure(.Data = logical(), names = character(),
+      errors = character()))
   result <- do.call(rbind, lapply(x, doit))
-  structure(unlist(result[, 1L]), names = x, errors = unlist(result[, 2L]))
+  structure(.Data = unlist(result[, 1L]), names = x,
+    errors = unlist(result[, 2L]))
 }
 
 map_filenames <- function(x, ...) UseMethod("map_filenames")
@@ -230,7 +232,7 @@ clean_filenames.character <- function(x, overwrite = FALSE, demo = FALSE,
   }
   clean_basenames <- function(x) {
     x <- lapply(strsplit(x, ".", TRUE), clean_parts)
-    unlist(lapply(x, paste0, collapse = "."), FALSE, FALSE)
+    unlist(lapply(X = x, FUN = paste0, collapse = "."), FALSE, FALSE)
   }
   LL(overwrite, demo, empty.tmpl)
   x <- unique.default(as.character(x))
@@ -241,7 +243,7 @@ clean_filenames.character <- function(x, overwrite = FALSE, demo = FALSE,
   result <- clean_basenames(basename(x))
   result <- ifelse(dirname(x) == ".", result, file.path(dirname(x), result))
   different <- result != x
-  result <- structure(result[different], names = x[different])
+  result <- structure(.Data = result[different], names = x[different])
   if (!overwrite) {
     result <- result[!duplicated(result)]
     result <- result[!file.exists(result)]

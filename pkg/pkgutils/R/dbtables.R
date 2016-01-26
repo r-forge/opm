@@ -23,7 +23,7 @@ setGeneric("pkeys", function(object) standardGeneric("pkeys"))
 
 setMethod("pkeys", "DBTABLES", function(object) {
   x <- slotNames(object)
-  structure(rep.int("id", length(x)), names = x)
+  structure(.Data = rep.int("id", length(x)), names = x)
 }, sealed = SEALED)
 
 setGeneric("fkeys_valid",
@@ -35,7 +35,7 @@ setMethod("fkeys_valid", "DBTABLES", function(object) {
   bad <- is.na(x[, "from.col"])
   errs <- sprintf("no references in slot '%s'", x[bad, "from.tbl"])
   x <- x[!bad, , drop = FALSE]
-  bad <- apply(x, 1L, function(row) tryCatch({
+  bad <- apply(x, 1L, function(row) tryCatch(expr = {
       other <- slot(object, row["to.tbl"])[, row["to.col"]]
       self <- slot(object, row["from.tbl"])[, row["from.col"]]
       if (!all(self %in% other))
@@ -58,7 +58,7 @@ setGeneric("pkeys_valid",
 
 setMethod("pkeys_valid", "DBTABLES", function(object) {
   pk <- pkeys(object)
-  result <- mapply(function(slotname, colname) tryCatch({
+  result <- mapply(function(slotname, colname) tryCatch(expr = {
       if (anyDuplicated.default(slot(object, slotname)[, colname]))
         stop("non-unique IDs")
       NA_character_
@@ -72,7 +72,7 @@ setMethod("pkeys_valid", "DBTABLES", function(object) {
 setGeneric("summary")
 
 setMethod("summary", "DBTABLES", function(object) {
-  structure(list(Class = class(object), Size = length(object),
+  structure(.Data = list(Class = class(object), Size = length(object),
     Crossrefs = fkeys(object)), class = "DBTABLES_Summary")
 }, sealed = SEALED)
 
@@ -188,7 +188,7 @@ setMethod("split", c("DBTABLES", "ANY", "missing"), function(x, f, drop) {
 }, sealed = SEALED)
 
 setMethod("split", c("DBTABLES", "ANY", "logical"), function(x, f, drop) {
-  id2pos <- function(x, i) structure(rep.int(i, length(x)), names = x)
+  id2pos <- function(x, i) structure(.Data = rep.int(i, length(x)), names = x)
   get_mapping <- function(x, key, text) {
     if (!is.list(x))
       stop("ordering problem encountered ", paste0(text, collapse = "->"))

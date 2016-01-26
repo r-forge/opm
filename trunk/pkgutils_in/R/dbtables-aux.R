@@ -29,7 +29,7 @@ print.DBTABLES_Summary <- function(x, ...) {
   cat("Defined cross-references between tables:\n")
   cr <- x$Crossrefs
   cr[is.na(cr)] <- "<MISSING>"
-  cr <- structure(paste(cr[, "to.tbl"], cr[, "to.col"], sep = "."),
+  cr <- structure(.Data = paste(cr[, "to.tbl"], cr[, "to.col"], sep = "."),
     names = paste(cr[, "from.tbl"], cr[, "from.col"], sep = "."))
   cat(formatDL(cr), ..., sep = "\n")
   invisible(x)
