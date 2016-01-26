@@ -318,7 +318,7 @@ logfile.character <- function(x) {
   old <- PKGUTILS_OPTIONS$logfile
   PKGUTILS_OPTIONS$logfile <- L(x[!is.na(x)])
   if (nzchar(x))
-    tryCatch(cat(sprintf("\nLOGFILE RESET AT %s\n", date()), file = x,
+    tryCatch(expr = cat(sprintf("\nLOGFILE RESET AT %s\n", date()), file = x,
       append = TRUE), error = function(e) {
         PKGUTILS_OPTIONS$logfile <- old
         stop(e)
