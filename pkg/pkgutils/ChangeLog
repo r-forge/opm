@@ -5,6 +5,8 @@
 
 - listing() and flatten() are now S4 generics
 
+- dependency on R >= 3.2.0
+
 
 2015-09-01
 
