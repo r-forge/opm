@@ -67,7 +67,7 @@ read_and_create_unique_column_names <- function(files, options) {
   selection[[1L]] <- options$xcolumn
 
   if (nzchar(options$insert)) {
-    insert <- vapply(data, ncol, 0L) <= vapply(selection, length, 0L)
+    insert <- vapply(data, ncol, 0L) <= lengths(selection, FALSE)
     insert <- ifelse(insert, join(options$insert, suffix), "")
   } else {
     insert <- character(length(data))
@@ -200,7 +200,7 @@ to_yaml <- function(files, opt) {
 
 process_specially <- function(files, opt) {
   merge_horizontally <- function(x, opt) {
-    x <- apply(x, 1L, function(x) pkgutils::listing(x[nzchar(x)],
+    x <- apply(x, 1L, function(x) pkgutils::listing(x = x[nzchar(x)],
       style = "%s: %s", collapse = opt$join))
     matrix(x, length(x), 1L, FALSE, list(NULL, COLUMN_DEFAULT_NAME))
   }

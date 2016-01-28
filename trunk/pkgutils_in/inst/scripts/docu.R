@@ -31,15 +31,15 @@ local(for (pkg in c("utils", "methods", "pkgutils", "roxygen2"))
 
 copy_dir <- function(from, to, delete) {
   LL(from, to, delete)
-  files <- list.files(from, recursive = TRUE, full.names = TRUE)
+  files <- list.files(path = from, recursive = TRUE, full.names = TRUE)
   files <- c(files, list.files(pattern = "\\.Rbuildignore", full.names = TRUE,
     all.files = TRUE, recursive = TRUE))
   if (nzchar(delete))
     files <- files[!grepl(delete, files, TRUE, TRUE)]
-  dirs <- sub(from, to, unique.default(dirname(files)), fixed = TRUE)
-  unlink(to, recursive = TRUE)
-  vapply(dirs[order(nchar(dirs))], dir.create, NA, recursive = TRUE)
-  file.copy(files, sub(from, to, files, fixed = TRUE))
+  dirs <- sub(from, to, unique.default(dirname(files)), FALSE, FALSE, TRUE)
+  unlink(to, TRUE)
+  vapply(dirs[order(nchar(dirs))], dir.create, NA, TRUE, TRUE)
+  file.copy(files, sub(from, to, files, FALSE, FALSE, TRUE))
 }
 
 
@@ -84,7 +84,7 @@ check_S4_methods <- function(pkg) {
 
   methods_sealed <- function(f, pkg, where = sprintf("package:%s", pkg), ...) {
 
-    fm <- function(f, ...) tryCatch(findMethodSignatures(f = f, ...),
+    fm <- function(f, ...) tryCatch(expr = findMethodSignatures(f = f, ...),
       condition = function(cond) NULL) # skip non-generic functions, if any
 
     ism <- function(f, s, pkg, where) {
@@ -97,7 +97,7 @@ check_S4_methods <- function(pkg) {
     }
 
     x <- structure(lapply(X = f, FUN = fm, where = where, ...), names = f)
-    x <- x[vapply(x, length, 0L) > 0L]
+    x <- x[lengths(x, FALSE) > 0L]
     if (!length(x))
       return(NULL)
     do.call(rbind, mapply(FUN = ism, f = names(x), USE.NAMES = FALSE,
@@ -140,7 +140,7 @@ check_S4_methods <- function(pkg) {
 
 run_sweave <- function(files, opt) {
   sum(vapply(files, function(file) {
-    tryCatch({
+    tryCatch(expr = {
       Sweave(file = file, encoding = opt$encoding)
       0L
     }, error = function(e) {

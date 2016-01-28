@@ -257,7 +257,7 @@ update.class_desc <- function(object,
   others <- list(description = description, ...)
   others <- others[names(others) %in% names(object)]
   others <- others[!names(others) %in% outcomment]
-  others <- others[vapply(others, length, 0L) > 0L]
+  others <- others[lengths(others, FALSE) > 0L]
   for (name in names(others))
     object[[name]] <- as.character(others[[name]])
   object
