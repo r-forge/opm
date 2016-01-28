@@ -518,7 +518,7 @@ collect.list <- function(x,
     oneify <- function(x) {
       if (is.atomic(x))
         return(x)
-      size <- vapply(x, length, 0L)
+      size <- lengths(x, FALSE)
       x[!size] <- NA
       x[size > 1L] <- lapply(x[size > 1L], list)
       x
@@ -1050,7 +1050,7 @@ setMethod("map_values", c("list", "NULL"), function(object, mapping,
     if (!is.list(x))
       return(x)
     x <- lapply(x, clean_recursively)
-    x[vapply(x, length, 0L) > 0L]
+    x[lengths(x, FALSE) > 0L]
   }
   if (length(coerce))
     object <- rapply(object, as.character, prepare_class_names(coerce), NULL,

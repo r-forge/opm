@@ -1,10 +1,10 @@
 Package: pkgutils
-Version: 0.7.19
-Date: 2016-01-27
+Version: 0.7.20
+Date: 2016-01-28
 Title: Utilities for Creating R Packages
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
-Depends: R (>= 3.1.0)
+Depends: R (>= 3.2.0)
 Imports: tools, methods
 Suggests: testthat
 Enhances: roxygen2
