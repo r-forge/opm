@@ -253,7 +253,7 @@ list2matrix <- function(x, how = c("yaml", "json", "rcode")) {
 #' @rdname reduce_to_mode
 #'
 sub_indexes <- function(x) {
-  x <- lengths(x, FALSE)
+  x <- lengths(x, TRUE)
   add <- c(0L, cumsum(x))
   x <- lapply(x, seq_len)
   for (i in seq_along(x)[-1L])

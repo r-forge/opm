@@ -31,7 +31,7 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
   }
   cum_parts <- function(x) {
     x <- strsplit(x, ".", TRUE)
-    x <- x[vapply(x, length, 0L) > 0L]
+    x <- x[lengths(x, FALSE) > 0L]
     unlist(lapply(x, function(y) {
       vapply(seq_along(y),
         function(i) paste0(y[seq.int(1L, i)], collapse = "."), "")
