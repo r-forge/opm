@@ -274,24 +274,16 @@ test_that("a list can be queried with a list with missing names", {
 ################################################################################
 
 
-## adist2map
-test_that("we can create maps from string similarities", {
-  x <- c("fibroblast", "fibroblast", "oth", letters[13:20], "FIB", "", " ",
-    "fibroblasts", "fib", "control", "CONT", "other", "other", "FIBRO", "fib ",
-    NA_character_, "fibroblasts ")
-  got <- adist2map(x)
-  exp <- c(FIB = "fib", fibroblasts = "fibroblast",
-    `fibroblasts ` = "fibroblast")
-  expect_equal(got, exp)
-  got <- adist2map(x, partial = TRUE)
-  exp <- c(FIB = "fib", fibroblasts = "fibroblasts ")
-  expect_equal(got, exp)
-  got <- adist2map(x, exclude = "FIB")
-  exp <- c(fibroblasts = "fibroblast", `fibroblasts ` = "fibroblast")
-  expect_equal(got, exp)
-  got <- adist2map(character())
-  expect_equal(got, structure(character(), names = character()))
+## check
+test_that("data-frame columns are correctly checked", {
+  x <- data.frame(A = letters, B = 1:2, C = 9.3, stringsAsFactors = FALSE)
+  e <- c(B = "integer", C = "numeric", A = "character")
+  got <- check(x, e)
+  expect_equal(length(got), 0L)
+  e <- c(B = "integer", C = "numeric", D = "character", A = "character")
+  got <- check(x, e)
+  expect_equal(length(got), 1L)
+  e <- c(B = "integer", C = "factor", A = "character")
+  got <- check(x, e)
+  expect_equal(length(got), 1L)
 })
-
-
-
