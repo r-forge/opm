@@ -7,10 +7,7 @@
 #' Multiple comparison of group means
 #'
 #' This function provides linear-hypothesis testing and multiple comparisons for
-#' group means of curve parameters. Note that for most \code{output} modes (see
-#' below) it would be an error if this function was called and the package
-#' \pkg{multcomp} was unavailable (even though that package is not formally a
-#' dependency of \pkg{opm}).
+#' group means of curve parameters based on the \pkg{multcomp} package.
 #'
 #' @param object Either an \code{\link{OPMS}} object, or a data frame derived
 #'   via \code{\link{extract}} containing factor variables that determine
