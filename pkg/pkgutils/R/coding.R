@@ -736,45 +736,34 @@ setMethod("contains", c("list", "list"), function(object, other,
   TRUE
 }, sealed = SEALED)
 
-adist2map <- function(x, max.distance = 0.1, ignore.case = TRUE,
-    exclude = "", partial = FALSE, useBytes = FALSE, ...) {
-  single_linkage <- function(x) {
-    result <- seq_len(nrow(x))
-    for (i in result) {
-      j <- result %in% result[x[i, ]]
-      result[j] <- max(result[j])
-    }
-    result
+setGeneric("check", function(object, against) standardGeneric("check"))
+
+setMethod("check", c("data.frame", "character"), function(object, against) {
+  element_is <- function(x, name, classfun) classfun(x[[name]])
+  ok <- names(against) %in% names(object)
+  result <- sprintf("element '%s' is missing", names(against)[!ok])
+  against <- against[ok]
+  ok <- mapply(classfun = lapply(sprintf("is.%s", against), match.fun),
+    FUN = element_is, name = names(against), MoreArgs = list(x = object))
+  c(result, sprintf("element '%s' is not of class '%s'",
+    names(against)[!ok], against[!ok]))
+}, sealed = SEALED)
+
+match_parts <- function(x, pattern, ignore.case = FALSE) {
+  m <- regexpr(pattern, x, ignore.case, TRUE)
+  f <- m > 0L
+  if (is.null(attr(m, "capture.start"))) {
+    result <- rep.int(NA_character_, length(x))
+    result[f] <- substr(x[f], m[f], m[f] + attr(m, "match.length")[f] - 1L)
+    names(result) <- names(x)
+    return(result)
   }
-  complete_linkage <- function(x) {
-    result <- seq_len(nrow(x))
-    for (i in rev.default(result[-1L])) {
-      group <- result == result[[i]]
-      for (j in rev.default(which(x[i, seq_len(i - 1L)])))
-        if (all(x[j, group])) {
-          result[[j]] <- result[[i]]
-          group[[j]] <- TRUE
-        }
-    }
-    result
-  }
-  if (nzchar(exclude))
-    x <- grep(exclude, x, FALSE, TRUE, TRUE, FALSE, useBytes, TRUE)
-  if (!length(x))
-    return(structure(.Data = character(), names = character()))
-  s <- table(x[!is.na(x) & nzchar(x)])
-  s <- s[order(s, nchar(names(s)))]
-  d <- adist(x = names(s), y = NULL, ignore.case = ignore.case,
-    useBytes = useBytes, partial = partial, ...)
-  n <- nchar(names(s), if (useBytes) "bytes" else "chars")
-  f <- if (partial) pmin else pmax
-  for (i in seq_len(nrow(d)))
-    d[i, ] <- d[i, ] / f(n[[i]], n)
-  f <- if (partial) complete_linkage else single_linkage
-  d <- f(d <= max.distance)
-  n <- names(s)
-  n[seq_along(d)] <- n[d]
-  names(n) <- names(s)
-  n[names(n) != n]
+  cs <- attr(m, "capture.start")[f, , drop = FALSE]
+  cl <- attr(m, "capture.length")[f, , drop = FALSE]
+  result <- matrix(NA_character_, length(x), ncol(cs), FALSE,
+    list(names(x), attr(m, "capture.names")))
+  for (i in seq_len(ncol(result)))
+    result[f, i] <- substr(x[f], cs[, i], cs[, i] + cl[, i] - 1L)
+  result
 }
 

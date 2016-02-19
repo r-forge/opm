@@ -1508,3 +1508,56 @@ setMethod("check", c("data.frame", "character"), function(object, against) {
 }, sealed = SEALED)
 
 
+################################################################################
+
+
+#' Partial matches
+#'
+#' Helper function to collect partial (or complete) matches of (Perl-compatible)
+#' regular expressions.
+#'
+#' @param x Character vector. If it has names, these names will be used as row
+#'   names or vector names in the output.
+#' @param pattern Character scalar with regular expression that defines one to
+#'   several capturing groups (partial matches) in parentheses. If they are
+#'   named, these names will be used as column names in the output.
+#'   Alternatively, if no capturing groups are present and thus no partial
+#'   matches occur, the complete matches are returned as vector.
+#' @param ignore.case Logical scalar passed to \code{regexpr}.
+#' @return If capturing groups are used, a matrix of mode \sQuote{character}
+#'   with the number of rows equal to the length of \code{x} and one column per
+#'   capturing group. If these were named, their names appear as column names.
+#'   If no capturing groups were present, a character vector of the same length
+#'   as \code{x} is returned, containing the complete matches, if any.
+#'   Non-matches are always represented as \code{NA}.
+#' @details For discarding regular expression groups in the output, use
+#'   non-capturing groups such as \code{(?:left|right)}.
+#' @family coding
+#' @seealso base::regmatches
+#' @export
+#' @keywords character
+#' @examples
+#' x <- structure(letters, names = LETTERS)
+#' (m <- match_parts(x, "(?<pos1>.)"))
+#' stopifnot(m == letters,
+#'   colnames(m) == "pos1", rownames(m) == LETTERS)
+#'
+match_parts <- function(x, pattern, ignore.case = FALSE) {
+  m <- regexpr(pattern, x, ignore.case, TRUE)
+  f <- m > 0L
+  if (is.null(attr(m, "capture.start"))) {
+    result <- rep.int(NA_character_, length(x))
+    result[f] <- substr(x[f], m[f], m[f] + attr(m, "match.length")[f] - 1L)
+    names(result) <- names(x)
+    return(result)
+  }
+  cs <- attr(m, "capture.start")[f, , drop = FALSE]
+  cl <- attr(m, "capture.length")[f, , drop = FALSE]
+  result <- matrix(NA_character_, length(x), ncol(cs), FALSE,
+    list(names(x), attr(m, "capture.names")))
+  for (i in seq_len(ncol(result)))
+    result[f, i] <- substr(x[f], cs[, i], cs[, i] + cl[, i] - 1L)
+  result
+}
+
+

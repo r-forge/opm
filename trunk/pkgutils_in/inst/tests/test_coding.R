@@ -287,3 +287,12 @@ test_that("data-frame columns are correctly checked", {
   got <- check(x, e)
   expect_equal(length(got), 1L)
 })
+
+
+################################################################################
+
+
+## match_parts
+## UNTESTED
+
+

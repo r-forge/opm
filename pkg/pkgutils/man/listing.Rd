@@ -141,9 +141,9 @@ stopifnot(identical(letters, flatten(letters)))
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},
-    \code{\link{collect}},   \code{\link{contains}},
-  \code{\link{map_names}}, \code{\link{map_values}},
-  \code{\link{must}}
+    \code{\link{check}}, \code{\link{collect}},
+    \code{\link{contains}}, \code{\link{map_names}},
+  \code{\link{map_values}}, \code{\link{must}}
 }
 \keyword{utilities}
 
