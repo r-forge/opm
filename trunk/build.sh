@@ -566,7 +566,7 @@ do_test()
   local inext=
   local inext2=
   local logfile=/dev/stderr
-  local pattern=
+  local pattern='Asa Nisi Masa'
 
   local opt
   OPTIND=1
@@ -1476,15 +1476,15 @@ ____EOF
       -k 'TIME:Setup Time,ID' >> "$outfile" &&
         cat "$tmpfile" >> "$errfile"
 
-    echo "Testing split mode..."
-    # This test only guarantees that if there is nothing to split the original
-    # file results.
-    do_test -i csv -d "$testfile_dir" \
-      -w "$testfile_dir"/%s.csv -l "$tmpfile" \
-      -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
-      Rscript --vanilla "$run_opm" -p "$np" -s , -r split -d "$tmpdir" \
-      -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
-        cat "$tmpfile" >> "$errfile"
+#    echo "Testing split mode..."
+#    # This test only guarantees that if there is nothing to split the original
+#    # file results.
+#    do_test -i csv -d "$testfile_dir" \
+#      -w "$testfile_dir"/%s.csv -l "$tmpfile" \
+#      -f "$tmpdir/%s-00001.csv" -q "$failedfile_dir" \
+#      Rscript --vanilla "$run_opm" -p "$np" -s , -r split -d "$tmpdir" \
+#      -i '*.csv' -k 'TIME:Setup Time,ID' >> "$outfile" &&
+#        cat "$tmpfile" >> "$errfile"
 
     echo "Testing template-collection mode with machine ID and normalization..."
     do_test -i csv -d "$testfile_dir" \

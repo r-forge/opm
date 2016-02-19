@@ -18,6 +18,9 @@
 #'   well(s). Wells are originally named \sQuote{A01} to \sQuote{H12} but might
 #'   have been subset beforehand. \code{i} can also be a formula, allowing for
 #'   sequences of well coordinates. See the examples.
+#' @param logt0 Logical scalar. Treat the data like cell counts and calculate
+#'   \code{log(N/N0)}? This is useful to let the estimated slope represent
+#'   the specific growth rate.
 #' @param drop Logical scalar. If only a single well was selected, simplify it
 #'   to a vector?
 #' @param use.names Logical scalar indicating whether the time points should
@@ -104,13 +107,19 @@
 setGeneric("measurements",
   function(object, ...) standardGeneric("measurements"))
 
-setMethod("measurements", "OPM", function(object, i) {
-  if (missing(i))
-    object@measurements
-  else
-    cbind(object@measurements[, 1L, drop = FALSE],
-      object@measurements[, -1L, drop = FALSE][,
-        well_index(i, colnames(object@measurements)[-1L]), drop = FALSE])
+setMethod("measurements", "OPM", function(object, i, logt0 = FALSE) {
+  result <- if (missing(i))
+      object@measurements
+    else
+      cbind(object@measurements[, 1L, drop = FALSE],
+        object@measurements[, -1L, drop = FALSE][,
+          well_index(i, colnames(object@measurements)[-1L]), drop = FALSE])
+  if (L(logt0)) {
+    result[, -1L] <- log(result[, -1L])
+    result[, -1L] <- sweep(result[, -1L], 2L,
+      result[which.min(result[, 1L]), -1L], `-`)
+  }
+  result
 }, sealed = SEALED)
 
 #= well measurements
