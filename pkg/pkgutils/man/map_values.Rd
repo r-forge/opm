@@ -347,9 +347,9 @@ stopifnot(y == c("a", "b"), names(y) == y)
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{case}},
-    \code{\link{collect}},   \code{\link{contains}},
-  \code{\link{flatten}}, \code{\link{listing}},
-  \code{\link{must}}
+    \code{\link{check}}, \code{\link{collect}},
+    \code{\link{contains}}, \code{\link{flatten}},
+  \code{\link{listing}}, \code{\link{must}}
 }
 \keyword{list}
 \keyword{manip}

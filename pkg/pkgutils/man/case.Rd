@@ -52,10 +52,11 @@ stopifnot(inherits(x, "try-error"))
   base::switch
 
   Other coding-functions: \code{\link{L}},
-  \code{\link{LL}}, \code{\link{collect}},
-    \code{\link{contains}}, \code{\link{flatten}},
-  \code{\link{listing}}, \code{\link{map_names}},
-  \code{\link{map_values}}, \code{\link{must}}
+  \code{\link{LL}}, \code{\link{check}},
+  \code{\link{collect}},   \code{\link{contains}},
+  \code{\link{flatten}}, \code{\link{listing}},
+  \code{\link{map_names}}, \code{\link{map_values}},
+  \code{\link{must}}
 }
 \keyword{utilities}
 
