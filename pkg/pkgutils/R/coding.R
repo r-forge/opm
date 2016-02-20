@@ -736,9 +736,9 @@ setMethod("contains", c("list", "list"), function(object, other,
   TRUE
 }, sealed = SEALED)
 
-setGeneric("check", function(object, against) standardGeneric("check"))
+setGeneric("check", function(object, against, ...) standardGeneric("check"))
 
-setMethod("check", c("data.frame", "character"), function(object, against) {
+setMethod("check", c("list", "character"), function(object, against) {
   element_is <- function(x, name, classfun) classfun(x[[name]])
   ok <- names(against) %in% names(object)
   result <- sprintf("element '%s' is missing", names(against)[!ok])
