@@ -92,11 +92,11 @@ stopifnot(is.character(x), is.character(y))
 %% BEGIN INSERTION BY repair_S4_docu.rb
 \docType{methods}
 \alias{check-methods}
-\alias{check,data.frame,character-method}
+\alias{check,list,character-method}
 \alias{contains-methods}
 \alias{contains,list,list-method}
 \usage{
-  \S4method{check}{data.frame,character}(object, against) 
+  \S4method{check}{list,character}(object, against) 
 
   \S4method{contains}{list,list}(object, other, values = TRUE, exact = FALSE, ...)
 }
