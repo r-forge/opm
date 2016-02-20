@@ -16,6 +16,7 @@
 % causing the spellchecker to ignore its content.
 %
 \def\Surname{}
+\def\Forename{}
 \def\German{}
 
 % Acronyms
@@ -31,6 +32,7 @@
 \acrodef{DSMZ}{\German{Deutsche Sammlung von Mikroorganismen und Zellkulturen}}
 \acrodef{FAU}{\German{Friedrich-Alexander-Universit\"{a}t Erlangen-N\"{u}rnberg}}
 \acrodef{FM}{Fresh Mass}
+\acrodef{IME}{Institute for Molecular Biology and Applied Ecology}
 \acrodef{PM}{Phenotype Microarray}
 
 %% Add Revision Control System (RCS) Markups
@@ -108,6 +110,7 @@ This convention is not an oddity but rather the appropriate means to enable the 
 We also show how \ac{PM} data with user-defined plate types can be analysed.
 These include plates suitable for an OmniLog\textregistered \ \ac{PM} system but measured with another instrument.
 Analysing such data visually and statistically requires in some cases adaptations of function arguments whose defaults are targeting \ac{PM} data.
+(For instance, the specific growth rate can be estimated after log-transforming cell-count data.)
 All these practically relevant issues are explained in detail.
 }
 
@@ -147,12 +150,12 @@ All these practically relevant issues are explained in detail.
 \section{Introduction}\label{introduction}
 
 A detailed description of the OmniLog\textregistered \ \ac{PM} system, its measuring procedure and data characteristics are found in the vignette ``\pkg{opm}: An R Package for Analysing Phenotype Microarray and Growth Curve Data'' (called ``main tutorial'' in the following).
-How substrate information stored within \pkg{opm} can be accessed and used for advanced visual and statistical analyses is explained in the vignette ``Working with substrate information in \pkg{opm}'' (called ``substrate tutorial'' in the following).
+How substrate information stored within \pkg{opm} \citep{Vaas2013} can be accessed and used for advanced visual and statistical analyses is explained in the vignette ``Working with substrate information in \pkg{opm}'' (called ``substrate tutorial'' in the following).
 The description of the methods below do not presuppose that the user is already familiar with the usage of \pkg{opm}.
 But for details on its approaches to visualisation and statistical analysis we will refer to the main tutorial, the substrate tutorial as well as the entries of the \pkg{opm} manual.
 Especially the concepts behind the different classes of \pkg{opm} objects are only explained in the main tutorial, and the methods available for these classes are only explained in the main and substrate tutorial.
 
-In addition to visual inspection or statistical comparative analyses of \ac{PM} data, as described in the main tutorial and the substrate tutorial, users might be interested in analysing data other than \ac{PM} data, or analysing \ac{PM} with user-defined plate types.
+In addition to visual inspection \citep{vaas} or statistical comparative analyses \citep{Hofner2015} of \ac{PM} data, as described in the main tutorial and the substrate tutorial, users might be interested in analysing data other than \ac{PM} data, or analysing \ac{PM} with user-defined plate types.
 To work with user-defined \ac{PM} plates only requires registering these plates, i.e. storing a mapping from well coordinates to substrate names, and optionally also a full, descriptive name for the plate.
 The analysis of data other than \ac{PM} data, such as growth curves, additionally requires inputting these data and converting them to \proglang{OPMX} objects.
 If these data are not really structured into plates and wells, a \textit{virtual} arrangement into plates and wells must be established, as well as a virtual positioning of the plates in a reader, which is used for identifying each plate.
@@ -182,7 +185,7 @@ As usual, \pkg{opm} must be loaded before any analysis can begin:
 
 <<label=load-library>>=
 if ("package:opm" %in% search())
-  detach(package:opm, unload = TRUE)
+  detach(name = package:opm, unload = TRUE)
 library("opm")
 @
 
@@ -203,10 +206,14 @@ The ``long'' format was deliberately chosen for demonstrating the use of the \co
 We reshape separately for the \ac{DM} and \ac{FM} measurements within the data set:
 
 <<label=reshape-potatoes>>=
-potato.fm <- reshape(potato, v.names = "FM", drop = "DM", direction = "wide",
-  idvar = c("Genotype", "Treatment", "Replicate"), timevar = "Time")
-potato.dm <- reshape(potato, v.names = "DM", drop = "FM", direction = "wide",
-  idvar = c("Genotype", "Treatment", "Replicate"), timevar = "Time")
+potato.fm <- reshape(data = potato, direction = "wide",
+  v.names = "FM", drop = "DM",
+  idvar = c("Genotype", "Treatment", "Replicate"),
+  timevar = "Time")
+potato.dm <- reshape(data = potato, direction = "wide",
+  v.names = "DM", drop = "FM",
+  idvar = c("Genotype", "Treatment", "Replicate"),
+  timevar = "Time")
 @
 
 For \code{reshape}, ``long'' format means that each measurement is stored in a separate record with one entry per row (see above).
@@ -226,10 +233,12 @@ The main function for converting user-defined data frames to \proglang{OPMX} or 
 This works because the ``horizontal'' input format of \code{opmx} corresponds to the ``wide'' format of \code{reshape}.
 
 <<label=potatoes-to-opmx>>=
-potato.fm <- opmx(potato.fm, position = c("Genotype", "Replicate"),
+potato.fm <- opmx(object = potato.fm,
+  position = c("Genotype", "Replicate"),
   well = "Treatment", prefix = "FM.",
   full.name = c(fm = "Growth experiment, fresh mass"))
-potato.dm <- opmx(potato.dm, position = c("Genotype", "Replicate"),
+potato.dm <- opmx(object = potato.dm,
+  position = c("Genotype", "Replicate"),
   well = "Treatment", prefix = "DM.",
   full.name = c(dm = "Growth experiment, dry mass"))
 @
@@ -348,7 +357,8 @@ It can be found, and input into \proglang{R}, as follows:
 
 <<label=input-tecan>>=
 tecan.file <- opm_files("growth")
-tecan.file <- grep("tecan", tecan.file, ignore.case = TRUE, value = TRUE)
+tecan.file <- grep(pattern = "tecan", x = tecan.file,
+  ignore.case = TRUE, value = TRUE)
 tecan <- read.table(tecan.file)
 head(tecan)
 @
@@ -359,8 +369,8 @@ After recording the data, the Magellan\textsuperscript{TM} software generates su
 The resulting format is not particularly useful within \proglang{R} but can be converted using the ``rectangular'' mode of \code{opmx}:
 
 <<label=opmx-rectangular>>=
-tecan <- opmx(tecan, "rectangular", plate.type = "growth", position = "1A",
-  interval = 1)
+tecan <- opmx(object = tecan, format = "rectangular",
+  plate.type = "growth", position = "1A", interval = 1)
 tecan
 @
 
@@ -396,7 +406,8 @@ The output of that reader is regular but contains a tab-separated part as well a
 
 <<label=look-at-perkin-elmer>>=
 pe.file <- opm_files("growth")
-pe.file <- grep("perkin_elmer", pe.file, ignore.case = TRUE, value = TRUE)
+pe.file <- grep(pattern = "perkin_elmer", x = pe.file,
+  ignore.case = TRUE, value = TRUE)
 pe <- readLines(pe.file)
 cat(head(pe), sep = "\n")
 cat(tail(pe), sep = "\n")
@@ -406,13 +417,14 @@ Moreover, the comma has been used decimal separator (the data were probably meas
 Special care is needed when inputting such data, but as we know that two measurements of a 96-well-plate are contained, we can actually use the \code{read.table} function that comes with \proglang{R}.
 
 <<label=input-perkin-elmer>>=
-pe <- read.table(pe.file, strip.white = TRUE, sep = "\t",
+pe <- read.table(file = pe.file, header = TRUE,
+  strip.white = TRUE, sep = "\t",
   # fix the column data types and skip some columns
   colClasses = c("integer", "integer", "character", "NULL", "NULL", "numeric"),
   # re-use names but adapt last column to opmx()
   col.names = c("Plate", "Repeat", "Well", "Skip", "Skip", "T_1"),
   # skip all irregular rows after the tab-separated part
-  nrows = 192L, header = TRUE,
+  nrows = 192L,
   # use comma as decimal separator
   dec = ",")
 head(pe)
@@ -425,7 +437,8 @@ This makes sense because the scale is distinct from an OmniLog\textregistered \ 
 # copy the plate type
 register_plate(myeco = wells(plate = "eco"))
 # convert to OPMS
-pe <- opmx(pe, "horizontal", full.name = c("custom:myeco" = "Ecoplate"),
+pe <- opmx(object = pe, format = "horizontal",
+  full.name = c("custom:myeco" = "Ecoplate"),
   position = "Repeat", well = "Well", file = pe.file)
 pe <- do_aggr(pe)
 @
@@ -459,7 +472,8 @@ And now the split:
 
 <<label=plot-perkin-elmer-split-code, eval=FALSE>>=
 pe.sep <- split(pe)
-heat_map(pe.sep, NULL, extract.args = list(rm.num = TRUE))
+heat_map(object = pe.sep, as.labels = NULL,
+  extract.args = list(rm.num = TRUE))
 @
 
 \begin{figure}
@@ -497,10 +511,10 @@ For instance, the expected maximum for \ac{PM} data can seldom be used for delim
 
 <<label=potato-growth-code, eval=FALSE>>=
 library("gridExtra")
-plot.fm <- xy_plot(potato.fm, theor.max = FALSE, rcr = 1,
+plot.fm <- xy_plot(x = potato.fm, theor.max = FALSE, rcr = 1,
   include = "Genotype", main = list(in.parens = FALSE),
   ylab = "Fresh cell mass [mg]", neg.ctrl = FALSE)
-plot.dm <- xy_plot(potato.dm, theor.max = FALSE, rcr = 1,
+plot.dm <- xy_plot(x = potato.dm, theor.max = FALSE, rcr = 1,
   include = "Genotype", main = list(in.parens = FALSE),
   ylab = "Dry mass [mg]", neg.ctrl = FALSE)
 grid.arrange(plot.fm, plot.dm, ncol = 2)
@@ -528,7 +542,7 @@ The TECAN data (which contain a negative control) can be visualised in the same 
 Note the \code{rm.num} argument, which causes the removal of the numbering from the end of the full well names (which is not needed any more after applying the \code{split} function as described in Section~\ref{tecan-input}):
 
 <<label=xy-plot-coli-code, eval=FALSE>>=
-xy_plot(tecan, theor.max = FALSE, include = "Strain",
+xy_plot(x = tecan, theor.max = FALSE, include = "Strain",
   main = list(in.parens = FALSE), ylab = "OD at 690nm", rm.num = TRUE)
 @
 
@@ -554,7 +568,16 @@ The plot indicates that one of the strains outgrows the other unless high concen
 
 The next step is the estimation of curve parameters using \code{do_aggr}.
 See Section~\ref*{tutorial-methods aggregating} and Section~\ref*{tutorial-application aggregating} in the main tutorial for details on aggregation methods.
-The main difference with respect to user-entered growth-curve data is that these may contain much fewer time points than \ac{PM} measurements.
+The first major difference between user-entered growth-curve data and \ac{PM} data is that the former can have any kind of scale.
+We have already seen in Section~\ref*{visualisation} that this makes adaptations of the y-axis necessary when plotting.
+Moreover, the interpretation of the estimated curve parameters can differ.
+The highest slope of the curve is estimated as \acs{mu} value \citep{Zwietering01061990}, which is normally interpreted as \acl{mu}.
+In the case of cell counts, it can be interpreted as specific growth rate, but in the rather unusual form $(N - N_{0}) / t$, with $N$ representing the finally obtained number of cells and $N_{0}$ representing the number of cells at he beginning of the measurements.
+For this reason, the \code{do\_aggr} functions has a \code{logt0} argument, which when set to \code{TRUE} causes the data to be transformed into $log(N / N_{0})$ prior to estimating parameters.
+The estimated \acs{mu} value then directly corresponds to the usual $(log(N) - log(N_{0})) / t$.
+Negative \ac{lambda} values are not an error, they just indicate that the growth started prior to the beginning of the measurements.
+
+The second main difference with respect to user-entered growth-curve data is that these may contain much fewer time points than \ac{PM} measurements.
 Hence the question arises which spline estimation is optimal for such measurements, because all spline-fitting procedures have been optimised for estimating parameters from \ac{PM} data.
 The following (informal) comparison, however, illustrates the differences, if any, between the methods.
 We first define a helper function for plotting parameters obtained with distinct approaches:
@@ -566,13 +589,13 @@ plot_param_diff <- function(...) {
   if (is.null(names(x)))
     names(x) <- seq_along(x)
   for (param in rev(param_names())) {
-    y <- lapply(lapply(x, aggregated, param, ci = FALSE), unlist)
+    y <- lapply(lapply(x, aggregated, param, FALSE), unlist)
     n <- names(y)
     for (i in seq_along(y)[-1L])
       for (j in seq.int(1L, i - 1L)) {
-        plot(y[[i]], y[[j]], pch = 19L, col = "darkgrey",
+        plot(x = y[[i]], y = y[[j]], pch = 19L, col = "darkgrey",
           main = sprintf("%s, %s/%s", param, n[[i]], n[[j]]))
-        abline(line(y[[i]], y[[j]]), lty = "dashed")
+        abline(a = line(y[[i]], y[[j]]), lty = "dashed")
       }
   }
   invisible(NULL)
@@ -582,11 +605,11 @@ plot_param_diff <- function(...) {
 In the next step, the distinct spline-fitting approaches have to be applied.
 
 <<label=agg-opm-spline>>=
-tp.tecan <- do_aggr(tecan, method = "splines",
+tp.tecan <- do_aggr(object = tecan, method = "splines",
   options = set_spline_options(type = "tp.spline"))
-p.tecan <- do_aggr(tecan, method = "splines",
+p.tecan <- do_aggr(object = tecan, method = "splines",
   options = set_spline_options(type = "p.spline"))
-sm.tecan <- do_aggr(tecan, method = "splines",
+sm.tecan <- do_aggr(object = tecan, method = "splines",
   options = set_spline_options(type = "smooth.spline"))
 @
 
@@ -630,9 +653,9 @@ For the forthcoming analyses we accordingly restrict ourselves to the results ob
 <<label=select-splines>>=
 tecan <- tp.tecan
 rm(tp.tecan, p.tecan, sm.tecan) # tidy up
-potato.fm <- do_aggr(potato.fm, method = "splines",
+potato.fm <- do_aggr(object = potato.fm, method = "splines",
   options = set_spline_options(type = "smooth.spline"))
-potato.dm <- do_aggr(potato.dm, method = "splines",
+potato.dm <- do_aggr(object = potato.dm, method = "splines",
   options = set_spline_options(type = "smooth.spline"))
 @
 
@@ -648,9 +671,9 @@ The \code{opm\_mcp} method is extensively documented in Section~\ref*{tutorial-m
 The following code answers the main question regarding the potato data sets, i.e. for which treatment (well) significant or insignificant differences between the genotypes are found, and how large the according effect size is.
 
 <<label=potato-mcp>>=
-dm.mcp <- opm_mcp(potato.dm, ~ J(Well, Genotype), m.type = "aov",
+dm.mcp <- opm_mcp(object = potato.dm, ~ J(Well, Genotype), m.type = "aov",
   linfct = c(Pairs.Well = 1), max = 7, in.parens = FALSE)
-fm.mcp <- opm_mcp(potato.fm, ~ J(Well, Genotype), m.type = "aov",
+fm.mcp <- opm_mcp(object = potato.fm, ~ J(Well, Genotype), m.type = "aov",
   linfct = c(Pairs.Well = 1), max = 7, in.parens = FALSE)
 @
 
@@ -686,8 +709,8 @@ See the publication by \citet{ijms140715141} for an in-depth interpretation of t
 The TECAN data can be analysed in an analogous fashion.
 
 <<label=tecan-mcp>>=
-tecan.mcp <- opm_mcp(tecan, ~ J(Well, Strain), m.type = "aov",
-  linfct = c(Pairs.Well = 1), full = FALSE)
+tecan.mcp <- opm_mcp(object = tecan, ~ J(Well, Strain),
+  m.type = "aov", linfct = c(Pairs.Well = 1), full = FALSE)
 @
 
 Plotting the object accordingly yields Figure~\ref{fig:tecan-mcp}:
@@ -720,8 +743,8 @@ This can be confirmed with the \code{opm\_mcp} analysis (Figure~\ref{fig:tecan-m
 
 \section{Acknowledgements}
 The author is grateful to Victoria Michael (\ac{DSMZ}) for providing growth curves measured with a TECAN instrument.
-Cordial thanks are addressed to Lea A.I. \German{Vaas} (\ac{DSMZ}) for providing the potato growth measurements and background information on these data, as well as for clarifying some technical issues related to the TECAN data.
-This tutorial did benefit from discussions on the application of spline-fitting with Benjamin \German{Hofner} (\ac{FAU}) and Johannes \German{Sikorski} (\ac{DSMZ}).
+Cordial thanks are addressed to Lea A.I. \German{Vaas} (\ac{IME}) for providing the potato growth measurements and background information on these data, as well as for clarifying some technical issues related to the TECAN data.
+This tutorial did benefit from discussions on the application of spline-fitting with Benjamin \German{Hofner} (\ac{FAU}) and Johannes \German{Sikorski} (\ac{DSMZ}) and on growth curves with \Forename{Frederiek-Maarten} \Surname{Kerckhof} (University of Ghent).
 
 
 \bibliography{opm}
