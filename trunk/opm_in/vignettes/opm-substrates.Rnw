@@ -607,9 +607,11 @@ Remember that the vector \code{e.subs.pos} contains the positions of the substra
 It can thus directly be used to subset \code{OPMX} objects.
 
 <<label=e-coli-single-ci-figure-code, eval=FALSE>>=
-ci_plot(coli.sub[, , e.subs.pos],
+old.mar <- par(mar = c(3, 2, 2, 2)) # adapt plotting settings
+ci_plot(object = coli.sub[, , e.subs.pos],
   as.labels = list("Species", "Strain"), subset = "A", x = "bottomright",
-  draw.legend = T, crr = 1.33)
+  draw.legend = TRUE, crr = 1.33, legend.field = NULL)
+par(old.mar) # reset plotting settings
 @
 
 
@@ -819,12 +821,14 @@ data <- annotated(opm_mcp(coli.sub1,
   ~ Strain + Experiment + Slot + 'Plate number',
   output = "data", in.parens = FALSE), how = "data.frame")
 data <- data[complete.cases(data),
-  !(names(data) %in% c("Well", "Parameter"))]
+  names(data) %in% c("Plate.number", "Strain", "Experiment",
+    "Slot", "Value") | grepl("^map", names(data))]
 
 ## add an ID per biological / technical replicate for usage of
 ## brandom (subject-specific random effect, see below):
 data$ID <- extract_columns(data, c("Plate.number", "Strain", "Experiment"),
   direct = TRUE, factor = TRUE)
+
 ## now the plate number is not needed any more
 data$Plate.number <- NULL
 
