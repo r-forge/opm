@@ -36,9 +36,14 @@ do_write <- function(x, opt) {
 do_read <- function(infile, opt) {
   if (infile == "-")
     infile <- file("stdin")
-  read.delim(infile, sep = opt$separator, check.names = opt$names,
+  x <- read.delim(infile, sep = opt$separator, check.names = opt$names,
     strip.white = !opt$keep, header = !opt$bald, na.strings = opt$prune,
     stringsAsFactors = FALSE, fileEncoding = opt$encoding)
+  if (any(dup <- duplicated.data.frame(x))) {
+    warning("removing ", sum(dup), " duplicate row(s)")
+    x <- x[!dup, , drop = FALSE]
+  }
+  x
 }
 
 
