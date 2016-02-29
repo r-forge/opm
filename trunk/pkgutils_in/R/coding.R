@@ -1497,13 +1497,18 @@ setMethod("contains", c("list", "list"), function(object, other,
 setGeneric("check", function(object, against, ...) standardGeneric("check"))
 
 setMethod("check", c("list", "character"), function(object, against) {
-  element_is <- function(x, name, classfun) classfun(x[[name]])
+  # additional tests
+  is.available <- function(x) !anyNA(x)
+  is.positive <- function(x) is.numeric(x) && all(x > 0, na.rm = TRUE)
+  is.natural <- function(x) is.numeric(x) && all(x >= 0, na.rm = TRUE)
+  # main part
+  element_is <- function(x, name, checkfun) checkfun(x[[name]])
   ok <- names(against) %in% names(object)
   result <- sprintf("element '%s' is missing", names(against)[!ok])
   against <- against[ok]
-  ok <- mapply(classfun = lapply(sprintf("is.%s", against), match.fun),
+  ok <- mapply(checkfun = lapply(sprintf("is.%s", against), match.fun),
     FUN = element_is, name = names(against), MoreArgs = list(x = object))
-  c(result, sprintf("element '%s' is not of class '%s'",
+  c(result, sprintf("element '%s' fails test 'is.%s'",
     names(against)[!ok], against[!ok]))
 }, sealed = SEALED)
 
