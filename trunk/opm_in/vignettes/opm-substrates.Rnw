@@ -880,11 +880,7 @@ $X(\text{strain}_1) \cdot \beta_{5,j} - (X(\text{strain}_2) \cdot \beta_{5,j}) =
 
 Now we can set up and estimate the model. Be careful as this takes a while.
 <<model_code, eval = false>>=
-## re-define liner base-learner to have only 1 degrees of freedom and no
-## additional intercept term ...
-bols1 <- function(a, by = NULL, ...)
-  bols(a, by = by, intercept = FALSE, df = 1, ...)
-## ... and 2 degrees of freedom (with intercept term)
+## re-define linear base-learner to have 2 degrees of freedom
 bols2 <- function(a, ...)
   bols(a, df = 2, ...)
 
@@ -898,16 +894,15 @@ offsetmod <- gamboost(log(Value) ~ ., data = data, baselearner = bols2,
 options(contrasts = c("contr.sum", "contr.poly"))
 
 ## set up model formula
-fm <- as.formula(paste(c("log(Value) ~ Strain",
+fm <- as.formula(paste(c("log(Value) ~ bols(Strain, intercept = FALSE, df = 1)",
     ## add variables as main effects
-    names(data)[-c(1, 4)],
+    sprintf("bols(%s, intercept = FALSE, df = 1)", names(data)[-c(1, 4)]),
     ## add the interaction terms (i.e. strain-specific effects)
-    sprintf("bols1(%s, by = Strain)", names(data)[-c(1, 4)])),
+    sprintf("bols(%s, by = Strain, intercept = FALSE, df = 1)", names(data)[-c(1, 4)])),
   collapse = " + "))
 
 ## estimate model
-mod <- gamboost(fm, data = data, baselearner = bols1,
-  offset = fitted(offsetmod),
+mod <- gamboost(fm, data = data, offset = fitted(offsetmod),
   control = boost_control(mstop = 250, nu = 0.2))
 options(contrasts = c("contr.treatment", "contr.poly"))
 @
@@ -1039,7 +1034,7 @@ the one obtained from cross-validation.
 nms <- gsub(", ", " by ", variable.names(mod))
 ## adapt plotting settings
 old.par <- par(mar = c(4, 0.1, 0.1, 11.5), mfrow = c(1, 2))
-plot(stab, main = "", labels = nms)
+plot(stab, type = "paths", main = "", labels = nms)
 par(mar = c(4, 11.5, 0.1, 0.1))
 plot(stab, type = "maxsel", main = "", np = 20, labels = nms)
 par(old.par) # reset plotting settings
