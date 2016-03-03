@@ -898,7 +898,8 @@ fm <- as.formula(paste(c("log(Value) ~ bols(Strain, intercept = FALSE, df = 1)",
     ## add variables as main effects
     sprintf("bols(%s, intercept = FALSE, df = 1)", names(data)[-c(1, 4)]),
     ## add the interaction terms (i.e. strain-specific effects)
-    sprintf("bols(%s, by = Strain, intercept = FALSE, df = 1)", names(data)[-c(1, 4)])),
+    sprintf("bols(%s, by = Strain, intercept = FALSE, df = 1)",
+      names(data)[-c(1, 4)])),
   collapse = " + "))
 
 ## estimate model
