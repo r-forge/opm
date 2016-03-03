@@ -118,7 +118,7 @@ set_spline_options <- function(type = c("tp.spline",
 #'   \code{grofit.control} in that package. The \code{boot} and \code{verbose}
 #'   settings, as the most important ones, are added separately (see above). The
 #'   verbose mode is not very useful in parallel processing. With \code{method}
-#'   \dQuote{spline.fit}, options can be specified using the function
+#'   \code{"splines"}, options can be specified using the function
 #'   \code{\link{set_spline_options}}.
 #' @param method Character scalar. The aggregation method to use. Currently
 #'   only the following methods are supported:
