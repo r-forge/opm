@@ -4,6 +4,33 @@ context("Testing the coding functions of the pkgutils package")
 
 ################################################################################
 
+## assert
+test_that("we can make assertions", {
+
+  x <- 1:10
+
+  got <- assert(cond = x > 5L, quiet = TRUE)
+  expect_equal(got, "assertion 'x > 5L' failed in 5 of 10 cases")
+  expect_error(assert(cond = x > 5L, quiet = FALSE))
+
+  got <- assert(cond = function(x) x > 2L, orig = x, quiet = TRUE)
+  expect_is(got, "character")
+  expect_equal(length(got), 2L)
+  expect_error(assert(function(x) x > 2L, orig = x, quiet = FALSE))
+
+  got <- assert(cond = x > 5L, msg = "not larger than 5", quiet = TRUE)
+  expect_equal(got, "not larger than 5 in 5 of 10 cases")
+  expect_error(assert(cond = x > 5L, msg = "not larger than 5", quiet = FALSE))
+
+  got <- assert(cond = x > 5L, msg = "%s is not larger than 5", orig = x,
+    quiet = TRUE)
+  expect_is(got, "character")
+  expect_equal(length(got), 5L)
+  expect_error(assert(cond = x > 5L, msg = "%s is not larger than 5", orig = x,
+    quiet = FALSE))
+
+})
+
 
 ## case
 test_that("case works as expected", {

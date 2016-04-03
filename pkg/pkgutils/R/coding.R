@@ -1,3 +1,33 @@
+assert <- function(cond, orig, msg, quiet = FALSE, ...) {
+  if (is.character(cond)) {
+    if (missing(msg) || !length(msg))
+      msg <- sprintf("assertion '%s' failed for '%%s'", cond)
+    cond <- match.fun(cond)(orig, ...)
+  } else if (is.function(cond)) {
+    if (missing(msg) || !length(msg))
+      msg <- sprintf("assertion '%s' failed for '%%s'",
+        deparse(match.call()$cond))
+    cond <- cond(orig, ...)
+  }
+  if (!anyNA(cond) && all(cond))
+    return(TRUE)
+  cond[is.na(cond)] <- FALSE
+  if (missing(msg) || !length(msg)) {
+    msg <- paste0("assertion '", deparse(match.call()$cond), "' failed")
+    msg <- if (missing(orig) || !length(orig))
+        sprintf(paste0(msg, " in %i of %i cases"), sum(!cond), length(cond))
+      else
+        paste0(msg, " for ", orig[!cond])
+  } else if (missing(orig) || !length(orig)) {
+    msg <- sprintf(paste0(msg, " in %i of %i cases"), sum(!cond), length(cond))
+  } else {
+    msg <- sprintf(msg, orig[!cond])
+  }
+  if (quiet)
+    return(msg)
+  stop(paste0(msg, collapse = "\n"))
+}
+
 case <- function(EXPR, ...) UseMethod("case")
 
 case.numeric <- function(EXPR, ...) {

@@ -51,11 +51,12 @@ stopifnot(x == c("letters", "LETTERS"))
 \seealso{
   base::stop
 
-  Other coding-functions: \code{\link{case}},
-    \code{\link{check}}, \code{\link{collect}},
-    \code{\link{contains}}, \code{\link{flatten}},
-  \code{\link{listing}}, \code{\link{map_names}},
-  \code{\link{map_values}}, \code{\link{must}}
+  Other coding-functions: \code{\link{assert}},
+  \code{\link{case}},   \code{\link{check}},
+  \code{\link{collect}},   \code{\link{contains}},
+  \code{\link{flatten}}, \code{\link{listing}},
+  \code{\link{map_names}}, \code{\link{map_values}},
+  \code{\link{must}}
 }
 \keyword{utilities}
 
