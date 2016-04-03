@@ -140,10 +140,11 @@ stopifnot(identical(letters, flatten(letters)))
   base::message base::warning base::stop base::formatDL
 
   Other coding-functions: \code{\link{L}},
-  \code{\link{LL}}, \code{\link{case}},
-    \code{\link{check}}, \code{\link{collect}},
-    \code{\link{contains}}, \code{\link{map_names}},
-  \code{\link{map_values}}, \code{\link{must}}
+  \code{\link{LL}}, \code{\link{assert}},
+  \code{\link{case}},   \code{\link{check}},
+  \code{\link{collect}},   \code{\link{contains}},
+  \code{\link{map_names}}, \code{\link{map_values}},
+  \code{\link{must}}
 }
 \keyword{utilities}
 

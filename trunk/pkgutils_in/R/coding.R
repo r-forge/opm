@@ -1,3 +1,72 @@
+################################################################################
+
+
+#' Make assertions
+#'
+#' A function similar to \code{stopifnot} reporting more details on vector
+#' elements.
+#'
+#' @param cond A logical vector, character scalar or function. If a character
+#'   scalar, converted to a function with \code{match.fun}. If a function,
+#'   \code{orig} is passed to it as its first argument. The function should
+#'   return a logical vector of the length of \code{orig}.
+#' @param orig Mandatory if \code{cond} is (the name of) a function, otherwise
+#'   ignored when empty or missing. Otherwise a vector of the length of
+#'   \code{cond} if \code{cond} is a logical vector, or the single argument of
+#'   \code{cond} if it is (the name of) a function.
+#' @param msg When empty or missing, an error message is constructed
+#'   automatically in the case of failure. Otherwise either are \code{sprintf}
+#'   template to be applied to the failing elements of \code{orig}, or a
+#'   character scalar directly providing the error message.
+#' @param quiet Logical scalar indicating whether, in the case of failure, an
+#'   exception should be raised or a character vector with descriptions of the
+#'   problems should be returned.
+#' @param ... Optional arguments passed to \code{cond} when it is (the name of)
+#'   a function.
+#' @return The return value is \code{TRUE} when all elements of \code{cond} are
+#'   \code{TRUE}. Otherwise either an error is raised or a character vector with
+#'   the description of the problems is returned.
+#' @details Compared to \code{stopifnot} this function can only conduct a test
+#'   on a single object but can report element-specific details of failures.
+#' @export
+#' @seealso base::stopifnot base::match.fun base::sprintf
+#' @family coding-functions
+#' @keywords utilities
+#' @examples
+#' stopifnot(assert(function(x) x > 0, 1:10))
+#' (x <- try(assert(function(x) x > 0, -1:8), TRUE))
+#' stopifnot(inherits(x, "try-error"))
+#'
+assert <- function(cond, orig, msg, quiet = FALSE, ...) {
+  if (is.character(cond)) {
+    if (missing(msg) || !length(msg))
+      msg <- sprintf("assertion '%s' failed for '%%s'", cond)
+    cond <- match.fun(cond)(orig, ...)
+  } else if (is.function(cond)) {
+    if (missing(msg) || !length(msg))
+      msg <- sprintf("assertion '%s' failed for '%%s'",
+        deparse(match.call()$cond))
+    cond <- cond(orig, ...)
+  }
+  if (!anyNA(cond) && all(cond))
+    return(TRUE)
+  cond[is.na(cond)] <- FALSE
+  if (missing(msg) || !length(msg)) {
+    msg <- paste0("assertion '", deparse(match.call()$cond), "' failed")
+    msg <- if (missing(orig) || !length(orig))
+        sprintf(paste0(msg, " in %i of %i cases"), sum(!cond), length(cond))
+      else
+        paste0(msg, " for ", orig[!cond])
+  } else if (missing(orig) || !length(orig)) {
+    msg <- sprintf(paste0(msg, " in %i of %i cases"), sum(!cond), length(cond))
+  } else {
+    msg <- sprintf(msg, orig[!cond])
+  }
+  if (quiet)
+    return(msg)
+  stop(paste0(msg, collapse = "\n"))
+}
+
 
 ################################################################################
 
