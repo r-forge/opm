@@ -10,7 +10,7 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
     cond <- cond(orig, ...)
   }
   if (!anyNA(cond) && all(cond))
-    return(TRUE)
+    return(if (quiet) character() else TRUE)
   cond[is.na(cond)] <- FALSE
   if (missing(msg) || !length(msg)) {
     msg <- paste0("assertion '", deparse(match.call()$cond), "' failed")

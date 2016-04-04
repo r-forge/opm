@@ -23,9 +23,10 @@
 #'   problems should be returned.
 #' @param ... Optional arguments passed to \code{cond} when it is (the name of)
 #'   a function.
-#' @return The return value is \code{TRUE} when all elements of \code{cond} are
-#'   \code{TRUE}. Otherwise either an error is raised or a character vector with
-#'   the description of the problems is returned.
+#' @return The return value is \code{TRUE} (for \code{quiet = FALSE}) or an
+#'   empty character vector (for \code{quiet = TRUE}) when all elements of
+#'   \code{cond} are \code{TRUE}. Otherwise either an error is raised or a
+#'   character vector with the description of the problems is returned.
 #' @details Compared to \code{stopifnot} this function can only conduct a test
 #'   on a single object but can report element-specific details of failures.
 #' @export
@@ -49,7 +50,7 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
     cond <- cond(orig, ...)
   }
   if (!anyNA(cond) && all(cond))
-    return(TRUE)
+    return(if (quiet) character() else TRUE)
   cond[is.na(cond)] <- FALSE
   if (missing(msg) || !length(msg)) {
     msg <- paste0("assertion '", deparse(match.call()$cond), "' failed")

@@ -32,10 +32,11 @@
   it is (the name of) a function.}
 }
 \value{
-  The return value is \code{TRUE} when all elements of
-  \code{cond} are \code{TRUE}. Otherwise either an error is
-  raised or a character vector with the description of the
-  problems is returned.
+  The return value is \code{TRUE} (for \code{quiet =
+  FALSE}) or an empty character vector (for \code{quiet =
+  TRUE}) when all elements of \code{cond} are \code{TRUE}.
+  Otherwise either an error is raised or a character vector
+  with the description of the problems is returned.
 }
 \description{
   A function similar to \code{stopifnot} reporting more
