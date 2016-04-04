@@ -110,6 +110,16 @@ do_split <- function(x) {
 }
 
 
+make_combination_unique <- function(x, wanted, sep = "\a") {
+  y <- do.call(paste, c(x[, wanted, drop = FALSE], list(sep = sep)))
+  y <- do.call(rbind, strsplit(make.unique(y, " #"), sep, TRUE))
+  if (ncol(y) != length(wanted))
+    stop("unexpected number of columns -- other separator needed")
+  x[, wanted[[length(wanted)]]] <- y[, ncol(y)]
+  x
+}
+
+
 make_unique <- function(x) {
   make.unique(as.character(x), " #")
 }
@@ -218,7 +228,9 @@ process_specially <- function(files, opt) {
       else
         join_unique, collapse = opt$join, simplify = TRUE)
   }
-  if (opt$rows) {
+  if (opt$duplicates) {
+    do_convert <- function(x, opt) make_combination_unique(x, opt$xcolumn)
+  } else if (opt$rows) {
     do_convert <- merge_horizontally
   } else if (opt$vertical) {
     do_convert <- merge_vertically
@@ -322,7 +334,10 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Delete non-matching lines of file 1 [default: %default]",
     default = FALSE),
 
-  # D
+  optparse::make_option(c("-D", "--duplicates"), action = "store_true",
+    help = paste0("Remove duplicates of the specified combination of ",
+      "columns, skip normal run [default: %default]"),
+    default = FALSE),
 
   optparse::make_option(c("-e", "--encoding"), type = "character",
     help = "Encoding to be assumed in input files [default: '%default']",
@@ -519,7 +534,7 @@ if (opt$help || !length(files)) {
 #
 
 if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack ||
-    nzchar(opt$`map-table`)) {
+    opt$duplicates || nzchar(opt$`map-table`)) {
   process_specially(files, opt)
   quit()
 } else if (opt$yaml) {
