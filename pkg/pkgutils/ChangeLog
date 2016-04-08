@@ -1,4 +1,5 @@
 - moved function clean_filenames() from 'opm' to 'pkgutils'
+- new function unnest()
 
 - sections() gets more 'include' options
 - collect() gets a matrix method

@@ -176,20 +176,6 @@ fill_downwards <- function(x, ...) {
 }
 
 
-unnest <- function(x, col, sep = "; ", fixed = TRUE) {
-  result <- lapply(x[, col, drop = FALSE], strsplit, sep, fixed, !fixed)
-  result <- as.data.frame(do.call(cbind, result))
-  result <- cbind(x[, setdiff(colnames(x), col), drop = FALSE], result)
-  col <- colnames(result)
-  args <- list(check.names = FALSE, stringsAsFactors = FALSE)
-  result <- lapply(seq.int(nrow(result)),
-    function(i) do.call(data.frame, c(result[i, , drop = FALSE], args)))
-  for (i in seq_along(result))
-    colnames(result[[i]]) <- col
-  do.call(rbind, result)
-}
-
-
 to_yaml <- function(files, opt) {
   dataframe_to_map <- function(x, from) {
     to_map <- function(x, from) {
@@ -239,7 +225,8 @@ process_specially <- function(files, opt) {
   } else if (opt$zack) {
     do_convert <- fill_downwards
   } else if (opt$widen) {
-    do_convert <- function(x, opt) unnest(x, opt$xcolumn, opt$join)
+    do_convert <- function(x, opt) pkgutils::unnest(object = x, sep = opt$join,
+      col = opt$xcolumn)
   } else if (nzchar(opt$`map-table`)) {
     opt$`map-table` <- if (opt$`map-table` == "_")
         list()

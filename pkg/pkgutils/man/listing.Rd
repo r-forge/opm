@@ -1,11 +1,13 @@
 \name{listing}
 \alias{flatten}
 \alias{listing}
-\title{Nicer message listings and flattening of objects}
+\alias{unnest}
+\title{Nicer message listings and flattening or expansion of objects}
 \arguments{
   \item{object}{Usually a list. The default method just
   returns \code{object} if it is atomic but raises an error
-  otherwise.}
+  otherwise. For \code{unnest}, a data frame or character
+  vector.}
 
   \item{use.names}{Logical scalar passed to \code{unlist}
   from the \pkg{base} package.}
@@ -78,16 +80,29 @@
   \code{header} and \code{footer} (if provided).}
 
   \item{...}{Optional other arguments passed to
-  \code{formatDL}.}
+  \code{formatDL}. For \code{unnest}, optional arguments
+  passed to \code{data.frame}.}
+
+  \item{sep}{Character scalar passed as \code{split}
+  argument to \code{strsplit}.}
+
+  \item{col}{Character vector with the names of the columns
+  to be passed to \code{strsplit} for splitting.}
+
+  \item{fixed}{Logical scalar passed to \code{strsplit}.}
+
+  \item{stringsAsFactors}{Logical scalar passed to
+  \code{data.frame}.}
 }
 \value{
-  Character scalar.
+  Character scalar in the case of \code{listing}, data
+  frame in the case of \code{unnest}.
 }
 \description{
   Create some kind of listing, used, e.g., in (error)
   messages or warnings. Alternatively, make an object
   \sQuote{flat}, such as by creating a non-nested list from
-  a list.
+  a list, or expand it after splitting certain components.
 }
 \examples{
 ## listing()
@@ -159,6 +174,9 @@ stopifnot(identical(letters, flatten(letters)))
 \alias{listing,factor-method}
 \alias{listing,list-method}
 \alias{listing,numeric-method}
+\alias{unnest-methods}
+\alias{unnest,character-method}
+\alias{unnest,data.frame-method}
 \usage{
   \S4method{flatten}{ANY}(object, ...) 
   \S4method{flatten}{list}(object, use.names = TRUE, ...) 
@@ -174,5 +192,10 @@ stopifnot(identical(letters, flatten(letters)))
   \S4method{listing}{factor}(x, ...) 
   \S4method{listing}{list}(x, ...) 
   \S4method{listing}{numeric}(x, ...) 
+
+  \S4method{unnest}{character}(object, sep, fixed = TRUE,
+    stringsAsFactors = FALSE, ...) 
+  \S4method{unnest}{data.frame}(object, sep, col = colnames(object),
+    fixed = TRUE, stringsAsFactors = FALSE, ...) 
 }
 %% END INSERTION BY repair_S4_docu.rb
