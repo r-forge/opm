@@ -71,6 +71,9 @@ test_that("LL works as expected", {
 ## flatten
 ## UNTESTED
 
+## unnest
+## UNTESTED
+
 ## collect
 ## UNTESTED
 

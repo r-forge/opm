@@ -85,7 +85,7 @@ stopifnot(is.character(x), is.character(y))
   \code{\link{case}},   \code{\link{collect}},
     \code{\link{flatten}}, \code{\link{listing}},
   \code{\link{map_names}}, \code{\link{map_values}},
-  \code{\link{must}}
+  \code{\link{must}}, \code{\link{unnest}}
 }
 \keyword{attribute}
 \keyword{list}

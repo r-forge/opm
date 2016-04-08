@@ -10,7 +10,7 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
     cond <- cond(orig, ...)
   }
   if (!anyNA(cond) && all(cond))
-    return(if (quiet) character() else TRUE)
+    return(if (is.na(quiet) || !quiet) TRUE else character())
   cond[is.na(cond)] <- FALSE
   if (missing(msg) || !length(msg)) {
     msg <- paste0("assertion '", deparse(match.call()$cond), "' failed")
@@ -23,9 +23,14 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
   } else {
     msg <- sprintf(msg, orig[!cond])
   }
-  if (quiet)
-    return(msg)
-  stop(paste0(msg, collapse = "\n"))
+  if (is.na(quiet)) {
+    warning(paste0(msg, collapse = "\n"))
+    invisible(msg)
+  } else if (quiet) {
+    msg
+  } else {
+    stop(paste0(msg, collapse = "\n"))
+  }
 }
 
 case <- function(EXPR, ...) UseMethod("case")
@@ -172,6 +177,33 @@ setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
     object <- unlist(object, FALSE, use.names)
   }
   object
+}, sealed = SEALED)
+
+setGeneric("unnest", function(object, ...) standardGeneric("unnest"))
+
+setMethod("unnest", "data.frame", function(object, sep, col = colnames(object),
+    fixed = TRUE, stringsAsFactors = FALSE, ...) {
+  x <- lapply(object[, col, drop = FALSE], strsplit, sep, fixed, !fixed)
+  x <- as.data.frame(do.call(cbind, x)) # yields columns of type 'list'
+  x <- cbind(object[, setdiff(colnames(object), col), drop = FALSE], x)
+  col <- colnames(x)
+  args <- list(check.names = FALSE, stringsAsFactors = stringsAsFactors, ...)
+  x <- lapply(seq.int(nrow(x)),
+    function(i) do.call(data.frame, c(x[i, , drop = FALSE], args)))
+  for (i in seq_along(x))
+    colnames(x[[i]]) <- col
+  do.call(rbind, x)
+}, sealed = SEALED)
+
+setMethod("unnest", "character", function(object, sep, fixed = TRUE,
+    stringsAsFactors = FALSE, ...) {
+  x <- strsplit(object, sep, fixed, !fixed)
+  id <- mapply(FUN = rep.int, x = seq_along(x), times = lengths(x),
+    SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  x <- data.frame(ID = unlist(id, FALSE, FALSE), X = unlist(x, FALSE, FALSE),
+    stringsAsFactors = stringsAsFactors, ...)
+  attr(x, "total") <- length(id)
+  x
 }, sealed = SEALED)
 
 collect <- function(x, what, ...) UseMethod("collect")

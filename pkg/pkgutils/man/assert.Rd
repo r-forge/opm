@@ -26,7 +26,8 @@
   \item{quiet}{Logical scalar indicating whether, in the
   case of failure, an exception should be raised or a
   character vector with descriptions of the problems should
-  be returned.}
+  be returned. If \code{quiet} is \code{NA}, a warning is
+  issued instead of an error.}
 
   \item{...}{Optional arguments passed to \code{cond} when
   it is (the name of) a function.}
@@ -60,7 +61,8 @@ stopifnot(inherits(x, "try-error"))
     \code{\link{check}}, \code{\link{collect}},
     \code{\link{contains}}, \code{\link{flatten}},
   \code{\link{listing}}, \code{\link{map_names}},
-  \code{\link{map_values}}, \code{\link{must}}
+  \code{\link{map_values}}, \code{\link{must}},
+  \code{\link{unnest}}
 }
 \keyword{utilities}
 

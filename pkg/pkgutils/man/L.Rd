@@ -56,7 +56,7 @@ stopifnot(x == c("letters", "LETTERS"))
   \code{\link{collect}},   \code{\link{contains}},
   \code{\link{flatten}}, \code{\link{listing}},
   \code{\link{map_names}}, \code{\link{map_values}},
-  \code{\link{must}}
+  \code{\link{must}}, \code{\link{unnest}}
 }
 \keyword{utilities}
 

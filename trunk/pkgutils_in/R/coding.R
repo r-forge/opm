@@ -20,7 +20,8 @@
 #'   character scalar directly providing the error message.
 #' @param quiet Logical scalar indicating whether, in the case of failure, an
 #'   exception should be raised or a character vector with descriptions of the
-#'   problems should be returned.
+#'   problems should be returned. If \code{quiet} is \code{NA}, a warning is
+#'   issued instead of an error.
 #' @param ... Optional arguments passed to \code{cond} when it is (the name of)
 #'   a function.
 #' @return The return value is \code{TRUE} (for \code{quiet = FALSE}) or an
@@ -50,7 +51,7 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
     cond <- cond(orig, ...)
   }
   if (!anyNA(cond) && all(cond))
-    return(if (quiet) character() else TRUE)
+    return(if (is.na(quiet) || !quiet) TRUE else character())
   cond[is.na(cond)] <- FALSE
   if (missing(msg) || !length(msg)) {
     msg <- paste0("assertion '", deparse(match.call()$cond), "' failed")
@@ -63,9 +64,14 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
   } else {
     msg <- sprintf(msg, orig[!cond])
   }
-  if (quiet)
-    return(msg)
-  stop(paste0(msg, collapse = "\n"))
+  if (is.na(quiet)) {
+    warning(paste0(msg, collapse = "\n"))
+    invisible(msg)
+  } else if (quiet) {
+    msg
+  } else {
+    stop(paste0(msg, collapse = "\n"))
+  }
 }
 
 
@@ -218,15 +224,16 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 ################################################################################
 
 
-#' Nicer message listings and flattening of objects
+#' Nicer message listings and flattening or expansion of objects
 #'
 #' Create some kind of listing, used, e.g., in (error) messages or warnings.
 #' Alternatively, make an object \sQuote{flat}, such as by creating a non-nested
-#' list from a list.
+#' list from a list, or expand it after splitting certain components.
 #'
 #' @inheritParams pack_desc
 #' @param object Usually a list. The default method just returns \code{object}
-#'   if it is atomic but raises an error otherwise.
+#'   if it is atomic but raises an error otherwise. For \code{unnest}, a data
+#'   frame or character vector.
 #' @param use.names Logical scalar passed to \code{unlist} from the \pkg{base}
 #'   package.
 #' @param x For the default method, an object convertible via \code{unclass} to
@@ -278,8 +285,16 @@ LL <- function(..., .wanted = 1L, .msg = "need object '%s' of length %i",
 #' @param hf.collapse Character scalar or empty. If distinct from
 #'   \code{collapse}, used for separately for joining \code{header} and
 #'   \code{footer} (if provided).
-#' @param ... Optional other arguments passed to \code{formatDL}.
-#' @return Character scalar.
+#' @param ... Optional other arguments passed to \code{formatDL}. For
+#'   \code{unnest}, optional arguments passed to \code{data.frame}.
+#' @param sep Character scalar passed as \code{split} argument to
+#'   \code{strsplit}.
+#' @param col Character vector with the names of the columns to be passed to
+#'   \code{strsplit} for splitting.
+#' @param fixed Logical scalar passed to \code{strsplit}.
+#' @param stringsAsFactors Logical scalar passed to \code{data.frame}.
+#' @return Character scalar in the case of \code{listing}, data frame in the
+#'   case of \code{unnest}.
 #' @export
 #' @seealso base::message base::warning base::stop base::formatDL
 #' @family coding-functions
@@ -443,6 +458,38 @@ setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
     object <- unlist(object, FALSE, use.names)
   }
   object
+}, sealed = SEALED)
+
+#= unnest listing
+
+#' @rdname listing
+#' @export
+#'
+setGeneric("unnest", function(object, ...) standardGeneric("unnest"))
+
+setMethod("unnest", "data.frame", function(object, sep, col = colnames(object),
+    fixed = TRUE, stringsAsFactors = FALSE, ...) {
+  x <- lapply(object[, col, drop = FALSE], strsplit, sep, fixed, !fixed)
+  x <- as.data.frame(do.call(cbind, x)) # yields columns of type 'list'
+  x <- cbind(object[, setdiff(colnames(object), col), drop = FALSE], x)
+  col <- colnames(x)
+  args <- list(check.names = FALSE, stringsAsFactors = stringsAsFactors, ...)
+  x <- lapply(seq.int(nrow(x)),
+    function(i) do.call(data.frame, c(x[i, , drop = FALSE], args)))
+  for (i in seq_along(x))
+    colnames(x[[i]]) <- col
+  do.call(rbind, x)
+}, sealed = SEALED)
+
+setMethod("unnest", "character", function(object, sep, fixed = TRUE,
+    stringsAsFactors = FALSE, ...) {
+  x <- strsplit(object, sep, fixed, !fixed)
+  id <- mapply(FUN = rep.int, x = seq_along(x), times = lengths(x),
+    SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  x <- data.frame(ID = unlist(id, FALSE, FALSE), X = unlist(x, FALSE, FALSE),
+    stringsAsFactors = stringsAsFactors, ...)
+  attr(x, "total") <- length(id)
+  x
 }, sealed = SEALED)
 
 
