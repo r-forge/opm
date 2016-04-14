@@ -9,7 +9,8 @@
 #' @param cond A logical vector, character scalar or function. If a character
 #'   scalar, converted to a function with \code{match.fun}. If a function,
 #'   \code{orig} is passed to it as its first argument. The function should
-#'   return a logical vector of the length of \code{orig}.
+#'   return a logical vector of the length of \code{orig}. Contained \code{NA}
+#'   values, if any, are replaced by \code{FALSE}.
 #' @param orig Mandatory if \code{cond} is (the name of) a function, otherwise
 #'   ignored when empty or missing. Otherwise a vector of the length of
 #'   \code{cond} if \code{cond} is a logical vector, or the single argument of
@@ -18,16 +19,21 @@
 #'   automatically in the case of failure. Otherwise either are \code{sprintf}
 #'   template to be applied to the failing elements of \code{orig}, or a
 #'   character scalar directly providing the error message.
-#' @param quiet Logical scalar indicating whether, in the case of failure, an
-#'   exception should be raised or a character vector with descriptions of the
-#'   problems should be returned. If \code{quiet} is \code{NA}, a warning is
-#'   issued instead of an error.
+#' @param quiet Logical scalar determining the type of output in case of success
+#'   (i.e., all values of \code{cond} are \code{TRUE}) or failure. \describe{
+#'   \item{FALSE}{\code{TRUE} is returned when successful, an error is raised
+#'   otherwise.}
+#'   \item{NA}{\code{cond} is returned or the resulting logical vector when
+#'   \code{cond} is (the name of) a function. In case of failure, a warning is
+#'   issued. This can be used to drop parts of objects such as data frames,
+#'   with a warning.}
+#'   \item{TRUE}{A character vector with the descriptions of the problems is
+#'   returned. This vector is empty in case of success.}
+#'   }
 #' @param ... Optional arguments passed to \code{cond} when it is (the name of)
 #'   a function.
-#' @return The return value is \code{TRUE} (for \code{quiet = FALSE}) or an
-#'   empty character vector (for \code{quiet = TRUE}) when all elements of
-#'   \code{cond} are \code{TRUE}. Otherwise either an error is raised or a
-#'   character vector with the description of the problems is returned.
+#' @return The type of return value depends on the values of \code{quiet} and
+#'   \code{cond}.
 #' @details Compared to \code{stopifnot} this function can only conduct a test
 #'   on a single object but can report element-specific details of failures.
 #' @export
@@ -51,7 +57,12 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
     cond <- cond(orig, ...)
   }
   if (!anyNA(cond) && all(cond))
-    return(if (is.na(quiet) || !quiet) TRUE else character())
+    return(if (is.na(quiet))
+        cond
+      else if (quiet)
+        character()
+      else
+        TRUE)
   cond[is.na(cond)] <- FALSE
   if (missing(msg) || !length(msg)) {
     msg <- paste0("assertion '", deparse(match.call()$cond), "' failed")
@@ -65,8 +76,8 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
     msg <- sprintf(msg, orig[!cond])
   }
   if (is.na(quiet)) {
-    warning(paste0(msg, collapse = "\n"))
-    invisible(msg)
+    warning(paste0(msg, collapse = "\n"), call. = FALSE)
+    cond
   } else if (quiet) {
     msg
   } else {

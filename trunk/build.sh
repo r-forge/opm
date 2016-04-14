@@ -92,6 +92,10 @@ RESCUED_MANUALS=$MISC_DIR/manuals
 WHITELIST_MANUAL=$MISC_DIR/whitelist-manual.txt
 WHITELIST_VIGNETTE=$MISC_DIR/whitelist-vignette.txt
 
+# Relative path to the final location in the case of a full build.
+#
+FINAL_DIR=../pkg
+
 
 ################################################################################
 ################################################################################
@@ -2014,6 +2018,7 @@ case $RUNNING_MODE in
 	  pdf     Reduce size of PDF files either in ./graphics or given as arguments.
 	  pfull   Full build of the pkgutils package.
 	  pnorm   Normal build of the pkgutils package.
+	  revert  Revert files that are updated automatically w/o changes in the code.
 	  rnw     Run R CMD Stangle on all *.Rnw files found.
 	  rout    Show results of the examples, if any, for given function names.
 	  space   Remove trailing whitespace from all R and Rnw code files found.
@@ -2106,6 +2111,13 @@ ____EOF
   ;;
   plex )
     show_example_pdf_files
+    exit $?
+  ;;
+  revert )
+    for pkg; do
+      svn revert "$pkg"_in/DESCRIPTION "$FINAL_DIR/$pkg"/DESCRIPTION \
+        "$FINAL_DIR/$pkg"/inst/doc/*.pdf
+    done
     exit $?
   ;;
   rnw )
@@ -2288,7 +2300,7 @@ show_test_warnings "$OUT_DIR"
 #
 if [ "$RUNNING_MODE" = full ]; then
   if [ -d "$OUT_DIR" ]; then
-    target=../pkg/$OUT_DIR
+    target=$FINAL_DIR/$OUT_DIR
     if mkdir -p "$target"; then
       reduce_vignette_Rnw_files "$OUT_DIR"
       cp -pur "$OUT_DIR"/* "$target" && rm -r "$OUT_DIR"
