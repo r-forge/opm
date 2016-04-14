@@ -4,6 +4,7 @@ context("Testing the coding functions of the pkgutils package")
 
 ################################################################################
 
+
 ## assert
 test_that("we can make assertions", {
 
@@ -28,6 +29,11 @@ test_that("we can make assertions", {
   expect_equal(length(got), 5L)
   expect_error(assert(cond = x > 5L, msg = "%s is not larger than 5", orig = x,
     quiet = FALSE))
+
+  cond <- x > 5L
+  expect_warning(got <- assert(cond = cond, msg = "%s is not larger than 5",
+    orig = x, quiet = NA))
+  expect_equal(got, cond)
 
 })
 

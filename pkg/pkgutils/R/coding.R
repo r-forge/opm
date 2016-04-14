@@ -10,7 +10,12 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
     cond <- cond(orig, ...)
   }
   if (!anyNA(cond) && all(cond))
-    return(if (is.na(quiet) || !quiet) TRUE else character())
+    return(if (is.na(quiet))
+        cond
+      else if (quiet)
+        character()
+      else
+        TRUE)
   cond[is.na(cond)] <- FALSE
   if (missing(msg) || !length(msg)) {
     msg <- paste0("assertion '", deparse(match.call()$cond), "' failed")
@@ -24,8 +29,8 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
     msg <- sprintf(msg, orig[!cond])
   }
   if (is.na(quiet)) {
-    warning(paste0(msg, collapse = "\n"))
-    invisible(msg)
+    warning(paste0(msg, collapse = "\n"), call. = FALSE)
+    cond
   } else if (quiet) {
     msg
   } else {
