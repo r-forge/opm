@@ -3,7 +3,8 @@
 \alias{contains}
 \title{Query an object with another object}
 \arguments{
-  \item{object}{List or data frame containing the data.}
+  \item{object}{List or data frame containing the data, or
+  character vector describing problems, if any.}
 
   \item{against}{Character vector whose names indicate
   column names of \code{object} and whose values indicate
@@ -32,7 +33,7 @@
 \value{
   \code{contains} yields a logical scalar, \code{check} a
   (potentially empty) character vector describing each
-  failed assertion.
+  failed assertion when \code{object} is a list.
 }
 \description{
   One use of \code{contains} is to test whether all names
@@ -59,6 +60,10 @@
   \code{is.<name>} returns \code{TRUE}, which \code{<name>}
   given by the according element of \code{against}. It is
   an error if the function \code{is.<name>} does not exist.
+
+  The \code{check} method for character vectors is a simple
+  helper method that raises an error unless the vector is
+  empty.
 }
 \examples{
 # contains() list/list method
@@ -93,10 +98,12 @@ stopifnot(is.character(x), is.character(y))
 %% BEGIN INSERTION BY repair_S4_docu.rb
 \docType{methods}
 \alias{check-methods}
+\alias{check,character,missing-method}
 \alias{check,list,character-method}
 \alias{contains-methods}
 \alias{contains,list,list-method}
 \usage{
+  \S4method{check}{character,missing}(object, against) 
   \S4method{check}{list,character}(object, against) 
 
   \S4method{contains}{list,list}(object, other, values = TRUE, exact = FALSE, ...)
