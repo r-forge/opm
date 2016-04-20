@@ -4,6 +4,7 @@ context("Testing the coding functions of the pkgutils package")
 
 ################################################################################
 
+
 ## assert
 test_that("we can make assertions", {
 

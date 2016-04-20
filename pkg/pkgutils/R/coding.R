@@ -34,7 +34,7 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
   } else if (quiet) {
     msg
   } else {
-    stop(paste0(msg, collapse = "\n"))
+    stop(paste0(msg, collapse = "\n"), call. = FALSE)
   }
 }
 
@@ -808,6 +808,7 @@ setGeneric("check", function(object, against, ...) standardGeneric("check"))
 setMethod("check", c("list", "character"), function(object, against) {
   # additional tests
   is.available <- function(x) !anyNA(x)
+  is.unique <- function(x) !anyDuplicated.default(x[!is.na(x)])
   is.positive <- function(x) is.numeric(x) && all(x > 0, na.rm = TRUE)
   is.natural <- function(x) is.numeric(x) && all(x >= 0, na.rm = TRUE)
   # main part
@@ -819,6 +820,12 @@ setMethod("check", c("list", "character"), function(object, against) {
     FUN = element_is, name = names(against), MoreArgs = list(x = object))
   c(result, sprintf("element '%s' fails test 'is.%s'",
     names(against)[!ok], against[!ok]))
+}, sealed = SEALED)
+
+setMethod("check", c("character", "missing"), function(object, against) {
+  if (length(object))
+    stop(paste0(object, collapse = "\n"))
+  invisible(TRUE)
 }, sealed = SEALED)
 
 match_parts <- function(x, pattern, ignore.case = FALSE) {

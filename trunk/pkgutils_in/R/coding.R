@@ -81,7 +81,7 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
   } else if (quiet) {
     msg
   } else {
-    stop(paste0(msg, collapse = "\n"))
+    stop(paste0(msg, collapse = "\n"), call. = FALSE)
   }
 }
 
@@ -1530,7 +1530,8 @@ setMethod("map_names", c("ANY", "missing"), function(object) {
 #' elements; this principle is applied recursively to all contained lists. The
 #' \code{check} methods apply various tests to objects.
 #'
-#' @param object List or data frame containing the data.
+#' @param object List or data frame containing the data, or character vector
+#'   describing problems, if any.
 #' @param against Character vector whose names indicate column names of
 #'   \code{object} and whose values indicate types or classes to assert.
 #' @param other List used as query.
@@ -1548,7 +1549,8 @@ setMethod("map_names", c("ANY", "missing"), function(object) {
 #'   \code{exact} is \code{TRUE}.
 #' @export
 #' @return \code{contains} yields a logical scalar, \code{check} a (potentially
-#'   empty) character vector describing each failed assertion.
+#'   empty) character vector describing each failed assertion when \code{object}
+#'   is a list.
 #' @details  Non-list elements are ignored by \code{contains} if \code{values}
 #'   is \code{FALSE}. Otherwise the comparison is done using \code{identical} if
 #'   \code{exact} is \code{TRUE}. If \code{exact} is \code{FALSE}, the value(s)
@@ -1562,6 +1564,9 @@ setMethod("map_names", c("ANY", "missing"), function(object) {
 #'   it checks whether \code{is.<name>} returns \code{TRUE}, which \code{<name>}
 #'   given by the according element of \code{against}. It is an error if the
 #'   function \code{is.<name>} does not exist.
+#'
+#'   The \code{check} method for character vectors is a simple helper method
+#'   that raises an error unless the vector is empty.
 #' @family coding-functions
 #' @seealso base::list base::as.list base::`[` base::`[[` base::match
 #' @seealso base::identity
@@ -1627,6 +1632,7 @@ setGeneric("check", function(object, against, ...) standardGeneric("check"))
 setMethod("check", c("list", "character"), function(object, against) {
   # additional tests
   is.available <- function(x) !anyNA(x)
+  is.unique <- function(x) !anyDuplicated.default(x[!is.na(x)])
   is.positive <- function(x) is.numeric(x) && all(x > 0, na.rm = TRUE)
   is.natural <- function(x) is.numeric(x) && all(x >= 0, na.rm = TRUE)
   # main part
@@ -1638,6 +1644,12 @@ setMethod("check", c("list", "character"), function(object, against) {
     FUN = element_is, name = names(against), MoreArgs = list(x = object))
   c(result, sprintf("element '%s' fails test 'is.%s'",
     names(against)[!ok], against[!ok]))
+}, sealed = SEALED)
+
+setMethod("check", c("character", "missing"), function(object, against) {
+  if (length(object))
+    stop(paste0(object, collapse = "\n"))
+  invisible(TRUE)
 }, sealed = SEALED)
 
 
