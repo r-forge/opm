@@ -7,27 +7,23 @@
 #
 
 
-#' @import methods grofit mgcv nlme pkgutils DBI
-#'
-NULL
-
-#' @importFrom stats aggregate optimize kmeans heatmap reshape var
-#'
-NULL
-
-#' @importFrom stats lm glm aov confint coef
-#'
-NULL
-
-#' @importFrom parallel mclapply mcmapply detectCores
-#'
-NULL
-
 #' @importFrom boot boot boot.ci norm.ci
 #'
 NULL
 
 #' @importFrom Ckmeans.1d.dp Ckmeans.1d.dp
+#'
+NULL
+
+#' @importFrom graphics abline axis hist legend lines par plot points segments
+#'
+NULL
+
+#' @importFrom graphics text
+#'
+NULL
+
+#' @importFrom grDevices colorRampPalette dev.off rgb
 #'
 NULL
 
@@ -43,11 +39,19 @@ NULL
 #'
 NULL
 
-#' @importFrom plotrix radial.plot
+#' @import methods grofit mgcv nlme pkgutils DBI
 #'
 NULL
 
-#' @importFrom yaml as.yaml yaml.load yaml.load_file
+#' @importFrom multcomp glht
+#'
+NULL
+
+#' @importFrom parallel mclapply mcmapply detectCores
+#'
+NULL
+
+#' @importFrom plotrix radial.plot
 #'
 NULL
 
@@ -59,6 +63,27 @@ NULL
 #'
 NULL
 
-#' @importFrom multcomp glht
+#' @importFrom stats aggregate optimize kmeans heatmap reshape var as.formula
 #'
 NULL
+
+#' @importFrom stats lm glm aov confint coef dist fitted formula hclust mad
+#'
+NULL
+
+#' @importFrom stats median na.exclude na.fail predict qnorm rmultinom sd
+#'
+NULL
+
+#' @importFrom utils URLencode as.relistable browseURL data glob2rx write.table
+#'
+NULL
+
+#' @importFrom utils packageVersion read.delim read.table relist type.convert
+#'
+NULL
+
+#' @importFrom yaml as.yaml yaml.load yaml.load_file
+#'
+NULL
+
