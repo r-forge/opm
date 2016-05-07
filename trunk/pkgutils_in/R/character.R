@@ -176,7 +176,7 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #'   file as first argument, with the name of the file added as attribute with
 #'   the name given using \code{.attr}.
 #' @param ... Optional additional arguments passed to \code{fun} (in the case
-#'   of \code{map_files} or between other methods.
+#'   of \code{map_files}) or between other methods.
 #' @param .attr Character scalar. See description to \code{mapfun}.
 #' @param .encoding Passed to \code{readLines} as \sQuote{encoding} argument.
 #' @param .sep \code{NULL} or character scalar. If empty, ignored. Otherwise
@@ -188,7 +188,7 @@ sections.character <- function(x, pattern, invert = FALSE, include = TRUE,
 #' @param out.ext Character vector with one to several output file extensions.
 #'   Recycled if necessary.
 #' @param append Character vector appended after the base name of the input file
-#'   name (separated from ti with an underscore) but before the output file
+#'   name (separated from it with an underscore) but before the output file
 #'   extension. Recycled if necessary but ignored where equal the empty string.
 #' @param out.dir Character vector with one to several names of output
 #'   directories. Recycled if necessary.
