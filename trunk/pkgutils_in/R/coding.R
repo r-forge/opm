@@ -1632,6 +1632,8 @@ setGeneric("check", function(object, against, ...) standardGeneric("check"))
 setMethod("check", c("list", "character"), function(object, against) {
   # additional tests
   is.available <- function(x) !anyNA(x)
+  is.nonempty <- function(x) !is.character(x) ||
+    all(nzchar(x, TRUE), na.rm = TRUE)
   is.unique <- function(x) !anyDuplicated.default(x[!is.na(x)])
   is.positive <- function(x) is.numeric(x) && all(x > 0, na.rm = TRUE)
   is.natural <- function(x) is.numeric(x) && all(x >= 0, na.rm = TRUE)
