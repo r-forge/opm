@@ -37,7 +37,7 @@
   \code{.attr}.}
 
   \item{...}{Optional additional arguments passed to
-  \code{fun} (in the case of \code{map_files} or between
+  \code{fun} (in the case of \code{map_files}) or between
   other methods.}
 
   \item{.attr}{Character scalar. See description to
@@ -59,7 +59,7 @@
   output file extensions.  Recycled if necessary.}
 
   \item{append}{Character vector appended after the base
-  name of the input file name (separated from ti with an
+  name of the input file name (separated from it with an
   underscore) but before the output file extension.
   Recycled if necessary but ignored where equal the empty
   string.}
