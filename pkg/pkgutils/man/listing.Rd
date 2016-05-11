@@ -6,8 +6,8 @@
 \arguments{
   \item{object}{Usually a list. The default method just
   returns \code{object} if it is atomic but raises an error
-  otherwise. For \code{unnest}, a data frame or character
-  vector.}
+  otherwise. For \code{unnest}, a data frame, list or
+  character vector.}
 
   \item{use.names}{Logical scalar passed to \code{unlist}
   from the \pkg{base} package.}
@@ -177,6 +177,7 @@ stopifnot(identical(letters, flatten(letters)))
 \alias{unnest-methods}
 \alias{unnest,character-method}
 \alias{unnest,data.frame-method}
+\alias{unnest,list-method}
 \usage{
   \S4method{flatten}{ANY}(object, ...) 
   \S4method{flatten}{list}(object, use.names = TRUE, ...) 
@@ -193,9 +194,10 @@ stopifnot(identical(letters, flatten(letters)))
   \S4method{listing}{list}(x, ...) 
   \S4method{listing}{numeric}(x, ...) 
 
-  \S4method{unnest}{character}(object, sep, fixed = TRUE,
-    stringsAsFactors = FALSE, ...) 
+  \S4method{unnest}{character}(object, sep, fixed = TRUE, ...,
+    stringsAsFactors = FALSE) 
   \S4method{unnest}{data.frame}(object, sep, col = colnames(object),
-    fixed = TRUE, stringsAsFactors = FALSE, ...) 
+    fixed = TRUE, ..., stringsAsFactors = FALSE) 
+  \S4method{unnest}{list}(object, ..., stringsAsFactors = FALSE) 
 }
 %% END INSERTION BY repair_S4_docu.rb

@@ -187,7 +187,7 @@ setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
 setGeneric("unnest", function(object, ...) standardGeneric("unnest"))
 
 setMethod("unnest", "data.frame", function(object, sep, col = colnames(object),
-    fixed = TRUE, stringsAsFactors = FALSE, ...) {
+    fixed = TRUE, ..., stringsAsFactors = FALSE) {
   x <- lapply(object[, col, drop = FALSE], strsplit, sep, fixed, !fixed)
   x <- as.data.frame(do.call(cbind, x)) # yields columns of type 'list'
   x <- cbind(object[, setdiff(colnames(object), col), drop = FALSE], x)
@@ -200,15 +200,20 @@ setMethod("unnest", "data.frame", function(object, sep, col = colnames(object),
   do.call(rbind, x)
 }, sealed = SEALED)
 
-setMethod("unnest", "character", function(object, sep, fixed = TRUE,
-    stringsAsFactors = FALSE, ...) {
-  x <- strsplit(object, sep, fixed, !fixed)
-  id <- mapply(FUN = rep.int, x = seq_along(x), times = lengths(x),
+setMethod("unnest", "list", function(object, ..., stringsAsFactors = FALSE) {
+  id <- mapply(FUN = rep.int, x = seq_along(object), times = lengths(object),
     SIMPLIFY = FALSE, USE.NAMES = FALSE)
-  x <- data.frame(ID = unlist(id, FALSE, FALSE), X = unlist(x, FALSE, FALSE),
-    stringsAsFactors = stringsAsFactors, ...)
-  attr(x, "total") <- length(id)
+  x <- unlist(object, FALSE, FALSE)
+  x <- data.frame(ID = unlist(id, FALSE, FALSE),
+    X = if (is.list(x)) I(x) else x, ..., stringsAsFactors = stringsAsFactors)
+  attr(x, "total") <- length(object)
   x
+}, sealed = SEALED)
+
+setMethod("unnest", "character", function(object, sep, fixed = TRUE, ...,
+    stringsAsFactors = FALSE) {
+  unnest(object = strsplit(object, sep, fixed, !fixed), ...,
+    stringsAsFactors = stringsAsFactors)
 }, sealed = SEALED)
 
 collect <- function(x, what, ...) UseMethod("collect")
