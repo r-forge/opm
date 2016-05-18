@@ -523,13 +523,14 @@ setMethod("oapply", "MOPMX", function(object, fun, ...,
 #'   \code{\link{metadata}}. If a character vector of length one, \code{by} is
 #'   passed as \sQuote{what} argument to \code{\link{csv_data}}. If longer,
 #'   passed step-by-step to \code{\link{csv_data}} as \code{keys} argument.
+#'   When identical to \sQuote{hours}, \code{by} triggers sorting according to
+#'   the overall measurement time.
 #'
 #'   For \code{\link{MOPMX}} objects, either \sQuote{plate.type}, which sorts
 #'   according to the plate types, \sQuote{length}, which sorts the elements
 #'   according to their lengths (i.e., number of plates), or a metadata query
 #'   that yields, for each element of \code{x}, a vector to which \code{max}
 #'   can be applied. Sorting \code{x} is then done according to these maxima.
-#'
 #' @param parse Logical scalar. Convert the \code{setup_time} via
 #'   \code{strptime} before ordering? Has only an effect if \code{by} is
 #'   \sQuote{setup_time}. It is an error if the time format is not recognised.
@@ -602,6 +603,10 @@ setMethod("oapply", "MOPMX", function(object, fun, ...,
 #' stopifnot(!is.unsorted(csv_data(copy, what = "position")))
 #' stopifnot(is.unsorted(csv_data(vaas_4, what = "position")))
 #'
+#' # sorting accoring to overall measurement duration
+#' stopifnot(identical(sort(vaas_4, TRUE, "hours"), vaas_4))
+#' # (uniform measurements durations in this object)
+#'
 #' # making OPMS objects unique
 #' dim(x <- unique(vaas_4))
 #' stopifnot(identical(x, vaas_4))
@@ -656,27 +661,33 @@ setMethod("sort", c("OPMS", "missing"), function(x, decreasing, ...) {
 }, sealed = SEALED)
 
 setMethod("sort", c("OPMS", "ANY"), function(x, decreasing, by = "setup_time",
-    parse = by == "setup_time", exact = TRUE, strict = TRUE, na.last = TRUE) {
+    parse = identical(by, "setup_time"), exact = TRUE, strict = TRUE,
+    na.last = TRUE) {
   if (is.list(by)) {
     keys <- lapply(X = by, FUN = metadata, object = x, exact = exact,
       strict = strict)
     if (!strict)
       if (!length(keys <- keys[!vapply(keys, is.null, NA)]))
         return(x)
-  } else if (is.character(by))
+  } else if (is.character(by)) {
     case(length(by),
       stop("if a character scalar, 'by' must not be empty"),
-      {
-        keys <- csv_data(x, what = by)
-        if (L(parse))
-          keys <- must(parse_time(keys))
-        keys <- list(keys)
-      },
+      switch(by,
+        hours = keys <- list(hours(x, "max")),
+        {
+          keys <- csv_data(object = x, what = by)
+          if (L(parse))
+            keys <- must(parse_time(keys))
+          keys <- list(keys)
+        }
+      ),
+      # note that this works via the 'keys' argument, not the 'by' argument
       keys <- lapply(X = by, FUN = csv_data, object = x)
     )
-  else
+  } else {
     stop("'by' must be a list or a character vector")
-  keys <- insert(keys, decreasing = decreasing, na.last = na.last,
+  }
+  keys <- insert(object = keys, decreasing = decreasing, na.last = na.last,
     .force = TRUE)
   x@plates <- x@plates[do.call(order, keys)]
   x
