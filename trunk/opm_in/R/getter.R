@@ -817,18 +817,28 @@ setMethod("csv_data", "MOPMX", function(object, ...) {
 #' Check whether aggregated or discretised data are present. (See
 #' \code{\link{do_aggr}} and \code{\link{do_disc}} for generating such data.)
 #' This always returns \code{FALSE} for the \code{\link{OPM}} class, but not
-#' necessarily for its child classes.
+#' necessarily for its child classes. Alternatively, check for \code{NA} values
+#' in the metadata or the estimated parameters.
 #'
 #' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
 #'   object.
+#' @param x \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
+#'   object.
+#' @param recursive Logical scalar. When \code{FALSE}, the aggregated and
+#'   discretized values, if available, are checked for \code{NA} values (except
+#'   for the confidence intervals); \code{\link{OPM}} objects yield \code{FALSE}
+#'   in that case. When \code{TRUE}, the metadata are checked
+#'   recursively for \code{NA} values.
 #' @param ... Optional arguments passed between the methods.
-#' @return Logical vector, one element per plate.
+#' @return Logical vector, one element per plate, or logical scalar (in the
+#'   case of \code{anyNA}).
 #' @export
 #' @family getter-functions
 #' @keywords attribute
 #' @examples
 #' stopifnot(has_aggr(vaas_1), has_disc(vaas_1)) # OPM methods
 #' stopifnot(has_aggr(vaas_4), has_disc(vaas_4)) # OPMS methods
+#' stopifnot(!anyNA(vaas_1), !anyNA(vaas_4))
 #'
 setGeneric("has_aggr", function(object, ...) standardGeneric("has_aggr"))
 
@@ -846,6 +856,44 @@ setGeneric("has_disc", function(object, ...) standardGeneric("has_disc"))
 setMethod("has_disc", "OPM", function(object) {
   .hasSlot(object, "discretized")
 }, sealed = SEALED)
+
+#= anyNA has_aggr
+
+#' @rdname has_aggr
+#' @export
+#'
+setMethod("anyNA", "OPM", function(x, recursive = TRUE) {
+  if (L(recursive))
+    return(anyNA(x@metadata, TRUE))
+  FALSE
+})
+
+setMethod("anyNA", "OPMA", function(x, recursive = TRUE) {
+  if (L(recursive))
+    return(anyNA(x@metadata, TRUE))
+  anyNA(x@measurements[CURVE_PARAMS, , drop = FALSE], FALSE)
+})
+
+setMethod("anyNA", "OPMD", function(x, recursive = TRUE) {
+  if (L(recursive))
+    return(anyNA(x@metadata, TRUE))
+  anyNA(x@measurements[CURVE_PARAMS, , drop = FALSE], FALSE) ||
+    anyNA(x@discretized, FALSE)
+})
+
+setMethod("anyNA", "OPMS", function(x, recursive = TRUE) {
+  for (plate in x@plates)
+    if (anyNA(plate, recursive))
+      return(TRUE)
+  FALSE
+})
+
+setMethod("anyNA", "MOPMX", function(x, recursive = TRUE) {
+  for (item in x@.Data)
+    if (anyNA(item, recursive))
+      return(TRUE)
+  FALSE
+})
 
 
 ################################################################################
