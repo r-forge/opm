@@ -110,12 +110,16 @@ do_split <- function(x) {
 }
 
 
-make_combination_unique <- function(x, wanted, sep = "\a") {
+make_combination_unique <- function(x, wanted, remove, sep = "\a") {
   y <- do.call(paste, c(x[, wanted, drop = FALSE], list(sep = sep)))
-  y <- do.call(rbind, strsplit(make.unique(y, " #"), sep, TRUE))
-  if (ncol(y) != length(wanted))
-    stop("unexpected number of columns -- other separator needed")
-  x[, wanted[[length(wanted)]]] <- y[, ncol(y)]
+  if (remove) {
+    x <- x[!duplicated.default(y), , drop = FALSE]
+  } else {
+    y <- do.call(rbind, strsplit(make.unique(y, " #"), sep, TRUE))
+    if (ncol(y) != length(wanted))
+      stop("unexpected number of columns -- other separator needed")
+    x[, wanted[[length(wanted)]]] <- y[, ncol(y)]
+  }
   x
 }
 
@@ -192,10 +196,9 @@ to_yaml <- function(files, opt) {
       stop("length of 'from' argument must be 0 or 1")
     )
   }
-  from <- c(list(opt$xcolumn), rep.int(list(opt$ycolumn), length(files) - 1L))
   for (i in seq_along(files))
     write(yaml::as.yaml(dataframe_to_map(do_read(files[[i]], opt),
-      from[[i]])), "")
+      opt$xcolumn)), "")
 }
 
 
@@ -215,7 +218,8 @@ process_specially <- function(files, opt) {
         join_unique, collapse = opt$join, simplify = TRUE)
   }
   if (opt$duplicates) {
-    do_convert <- function(x, opt) make_combination_unique(x, opt$xcolumn)
+    do_convert <- function(x, opt) make_combination_unique(x, opt$xcolumn,
+      opt$good)
   } else if (opt$rows) {
     do_convert <- merge_horizontally
   } else if (opt$vertical) {
@@ -278,14 +282,14 @@ assort_strings <- function(x, y, cutoff = Inf, ...) {
 # merge columns as well as the edit distance between the strings.
 #
 include_approximate_matches <- function(x, y, options, idx) {
-  ycol <- options$ycolumn[1L]
-  m <- assort_strings(x[, options$xcolumn[1L]], y[, ycol], options$threshold)
+  ycol <- options$ycolumn[[1L]]
+  m <- assort_strings(x[, options$xcolumn[[1L]]], y[, ycol], options$threshold)
   m <- m[match(y[, ycol], m$Y), , drop = FALSE]
   ncol <- paste(ycol, c("ORIG", "DIST"), options$threshold, idx, sep = "_")
-  colnames(y)[colnames(y) == ycol] <- ncol[1L]
-  y[, c(ycol, ncol[2L])] <- m[, c("X", "D")]
+  colnames(y)[colnames(y) == ycol] <- ncol[[1L]]
+  y[, c(ycol, ncol[[2L]])] <- m[, c("X", "D")]
   if (options$all && any(isna <- is.na(y[, ycol])))
-    y[isna, ycol] <- y[isna, ncol[1L]]
+    y[isna, ycol] <- y[isna, ncol[[1L]]]
   y
 }
 
@@ -342,7 +346,7 @@ option.parser <- optparse::OptionParser(option_list = list(
 
   optparse::make_option(c("-G", "--good"), action = "store_true",
     help = paste0("Use case-insensitive matching; with -v, keep only most ",
-      "frequent entries [default: %default]"),
+      "frequent entries; with -D, delete duplicate lines [default: %default]"),
     default = FALSE),
 
   optparse::make_option(c("-h", "--help"), action = "store_true",
@@ -510,7 +514,7 @@ if (opt$bald) {
 
 if (opt$help || !length(files)) {
   optparse::print_help(option.parser)
-  quit("default", 1L)
+  quit("no", 1L)
 }
 
 
@@ -539,39 +543,60 @@ if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack ||
 data <- read_and_create_unique_column_names(files, opt)
 
 if (opt$good) {
-  data[[1L]][, opt$xcolumn] <- toupper(trunc_zeros(data[[1L]][, opt$xcolumn]))
+  for (col in opt$xcolumn)
+    data[[1L]][, col] <- toupper(trunc_zeros(data[[1L]][, col]))
   for (i in seq_along(data)[-1L])
-    data[[i]][, opt$ycolumn] <- toupper(trunc_zeros(data[[i]][, opt$ycolumn]))
+    for (col in opt$ycolumn)
+      data[[i]][, col] <- toupper(trunc_zeros(data[[i]][, col]))
 }
 
 if (opt$unique) {
-  data[[1L]][, opt$xcolumn] <- make_unique(data[[1L]][, opt$xcolumn])
+  for (col in opt$xcolumn)
+    data[[1L]][, col] <- make_unique(data[[1L]][, col])
   for (i in seq_along(data)[-1L])
-    data[[i]][, opt$ycolumn] <- make_unique(data[[i]][, opt$ycolumn])
+    for (col in opt$ycolumn)
+      data[[i]][, col] <- make_unique(data[[i]][, col])
 }
 
-x <- data[[1L]]
-for (i in seq_along(data)[-1L]) {
-  if (opt$threshold >= 0)
-    data[[i]] <- include_approximate_matches(x, data[[i]], opt, i)
-  x <- merge(x, data[[i]], by.x = opt$xcolumn, by.y = opt$ycolumn,
-    all.x = !opt$delete, all.y = opt$all, sort = !opt$conserve)
+match_successively <- function(x, y, xcol, ycol, opt) {
+  result <- cbind(x, y[match(x[, xcol], y[, ycol[[1L]]]), , drop = FALSE])
+  bad <- is.na(result[, ycol[[1L]]])
+  for (yc2 in ycol[-1L]) {
+    if (!any(bad))
+      break
+    result[bad, colnames(y)] <- y[match(x[bad, xcol], y[, yc2]), , drop = FALSE]
+    bad <- bad & is.na(result[, yc2])
+  }
+  if (!opt$conserve)
+    result <- result[order(bad, result[, xcol]), , drop = FALSE]
+  rownames(result) <- NULL
+  result
 }
 
-if (opt$conserve) {
-  found <- match(previous <- data[[1L]][, opt$xcolumn], x[, opt$xcolumn], 0L)
-  if (all(found > 0L) && all(x[, opt$xcolumn] %in% previous)) {
-    # appending the row index avoids duplicate row names
-    rownames(x) <- paste(x[, opt$xcolumn], seq.int(nrow(x)))
-    x <- x[paste(previous, found), , drop = FALSE]
-    rownames(x) <- NULL
+if (length(opt$ycolumn) > length(opt$xcolumn)) {
+  stopifnot(length(opt$xcolumn) == 1L)
+  x <- data[[1L]]
+  for (item in data[-1L])
+    x <- match_successively(x, item, opt$xcolumn, opt$ycolumn, opt)
+} else if (length(opt$xcolumn) > length(opt$ycolumn)) {
+  stopifnot(length(opt$ycolumn) == 1L)
+  x <- data[[1L]]
+  for (item in data[-1L])
+    x <- match_successively(item, x, opt$ycolumn, opt$xcolumn, opt)
+} else {
+  x <- data[[1L]]
+  for (i in seq_along(data)[-1L]) {
+    if (opt$threshold >= 0)
+      data[[i]] <- include_approximate_matches(x, data[[i]], opt, i)
+    x <- merge(x, data[[i]], by.x = opt$xcolumn, by.y = opt$ycolumn,
+      all.x = !opt$delete, all.y = opt$all, sort = !opt$conserve)
   }
 }
 
+# In presence-indicating columns, NA means FALSE.
 for (name in INSERTED_COLUMNS) {
   x[is.na(x[, name]), name] <- FALSE
 }
-
 
 do_write(x, opt)
 
