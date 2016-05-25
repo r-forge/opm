@@ -825,7 +825,7 @@ setMethod("csv_data", "MOPMX", function(object, ...) {
 #' @param x \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
 #'   object.
 #' @param recursive Logical scalar. When \code{FALSE}, the aggregated and
-#'   discretized values, if available, are checked for \code{NA} values (except
+#'   discretised values, if available, are checked for \code{NA} values (except
 #'   for the confidence intervals); \code{\link{OPM}} objects yield \code{FALSE}
 #'   in that case. When \code{TRUE}, the metadata are checked
 #'   recursively for \code{NA} values.
