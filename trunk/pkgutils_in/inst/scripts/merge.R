@@ -473,8 +473,12 @@ option.parser <- optparse::OptionParser(option_list = list(
 ), usage = "%prog [options] csv_file_1 csv_file_2 ...", prog = "merge.R",
   add_help_option = FALSE, description = paste("\nMerge CSV files",
     "rows or columns in such files", "or fill rows randomly.", sep = ", "),
-  epilogue = paste0(
-    "In default mode, providing less than two files makes not much sense.\n")
+  epilogue = paste(
+    "In default mode, providing less than two files makes not much sense. It",
+    "is possible to provide unequal numbers of X and Y columns, but then the",
+    "behaviour is special, as the multiple columns are used subsequently until",
+    "matching succeeds, whereas some other merging options are not available.",
+    "", sep = "\n")
 )
 
 

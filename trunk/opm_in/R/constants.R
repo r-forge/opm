@@ -200,13 +200,13 @@ COLORS <- list(
     "mediumvioletred", "violetred3", "deeppink3", "lightcoral", "pink1",
     "indianred3", "magenta1"
     ),
-  # Colours from two ColorBrewer palettes, sorted so as to maximize contrast
-  # between adjacent colors.
+  # Colours from the two qualitative ColorBrewer (http://colorbrewer2.org/)
+  # palettes, in order.
   BREWER = c(
-    "#CAB2D6", "#A6CEE3", "#80B1D3", "#CCEBC5", "#FDB462", "#8DD3C7",
-    "#33A02C", "#B3DE69", "#B15928", "#FF7F00", "#1F78B4", "#B2DF8A",
-    "#6A3D9A", "#E31A1C", "#FFED6F", "#FFFF99", "#FB8072", "#FFFFB3",
-    "#FDBF6F", "#D9D9D9", "#FB9A99", "#FCCDE5", "#BC80BD", "#BEBADA"
+    "#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C",
+    "#FDBF6F", "#FF7F00", "#CAB2D6", "#6A3D9A", "#FFFF99", "#B15928",
+    "#8DD3C7", "#FFFFB3", "#BEBADA", "#FB8072", "#80B1D3", "#FDB462",
+    "#B3DE69", "#FCCDE5", "#D9D9D9", "#BC80BD", "#CCEBC5", "#FFED6F"
   ),
   # from http://godsnotwheregodsnot.blogspot.de/2012/09/
   # color-distribution-methodology.html (converted from RGB)
