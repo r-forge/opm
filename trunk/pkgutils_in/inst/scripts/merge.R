@@ -204,9 +204,18 @@ to_yaml <- function(files, opt) {
 
 process_specially <- function(files, opt) {
   merge_horizontally <- function(x, opt) {
-    x <- apply(x, 1L, function(x) pkgutils::listing(x = x[nzchar(x)],
-      style = "%s: %s", collapse = opt$join))
-    matrix(x, length(x), 1L, FALSE, list(NULL, COLUMN_DEFAULT_NAME))
+    if (opt$good) {
+      for (i in seq_along(opt$xcolumn)[-1L]) {
+        bad <- is.na(x[, opt$xcolumn[[1L]]])
+        x[bad, opt$xcolumn[[1L]]] <- x[bad, opt$xcolumn[[i]]]
+        x[, opt$xcolumn[[i]]] <- NULL
+      }
+      x
+    } else {
+      x <- apply(x, 1L, function(x) pkgutils::listing(x = x[nzchar(x)],
+        style = "%s: %s", collapse = opt$join))
+      matrix(x, length(x), 1L, FALSE, list(NULL, COLUMN_DEFAULT_NAME))
+    }
   }
   merge_vertically <- function(x, opt) {
     aggregate(x = x[, -match(opt$xcolumn, colnames(x), 0L), drop = FALSE],
@@ -346,7 +355,8 @@ option.parser <- optparse::OptionParser(option_list = list(
 
   optparse::make_option(c("-G", "--good"), action = "store_true",
     help = paste0("Use case-insensitive matching; with -v, keep only most ",
-      "frequent entries; with -D, delete duplicate lines [default: %default]"),
+      "frequent entries; with -D, delete duplicate lines; with -r, ",
+      "carefully merge only the selected columns [default: %default]"),
     default = FALSE),
 
   optparse::make_option(c("-h", "--help"), action = "store_true",

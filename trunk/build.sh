@@ -1985,6 +1985,10 @@ case $RUNNING_MODE in
     CHECK_R_TESTS=yes
     remind_of_external_tests=yes
   ;;
+  half )
+    "$0" sql1 && "$0" www && "$0" html && "$0" forget && "$0" erase
+    exit $?
+  ;;
   help )
     cat >&2 <<-____EOF
 	$0 -- build or test the opm package or one of its auxiliary packages.
@@ -2008,6 +2012,7 @@ case $RUNNING_MODE in
 	  example Extract R code from the examples within specified Rd files.
 	  forget  Remove all .RData, .Rhistory and *.Rout files found.
 	  full    Full build of the opm package.
+	  half    Like 'all', but only HTML generation and upload.
 	  help    Print this message.
 	  html    Generate HTML documentation and upload to the opm website.
 	  index   Clean and/or upload the HTML start page, not necessarily update it.
