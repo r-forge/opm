@@ -51,7 +51,7 @@ case.character <- function(EXPR, ...) {
 
 must <- function(expr, msg = NULL, ..., domain = NULL) {
   # For some reason, using stop() directly results in errors that cannot be
-  # catched with tryCatch() any more.
+  # caught with tryCatch() any more.
   tryCatch(expr = expr, warning = function(w) stop(if (length(msg))
     msg
   else
@@ -404,7 +404,7 @@ collect.list <- function(x,
       stringsAsFactors, verbose, ...),
     datasets = collect_matrices(x, keep.unnamed, dataframe, optional,
       stringsAsFactors, verbose, FALSE, ...),
-    rows = collect_matrices(x, keep.unnamed, dataframe, optional,
+    rows = collect_matrices(x, TRUE, dataframe, optional,
       stringsAsFactors, verbose, TRUE, ...)
   )
 }

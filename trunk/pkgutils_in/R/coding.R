@@ -807,7 +807,7 @@ collect.list <- function(x,
       stringsAsFactors, verbose, ...),
     datasets = collect_matrices(x, keep.unnamed, dataframe, optional,
       stringsAsFactors, verbose, FALSE, ...),
-    rows = collect_matrices(x, keep.unnamed, dataframe, optional,
+    rows = collect_matrices(x, TRUE, dataframe, optional,
       stringsAsFactors, verbose, TRUE, ...)
   )
 }
