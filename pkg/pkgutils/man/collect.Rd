@@ -7,8 +7,8 @@
   collect(x, what, ...)
 
   \method{collect}{list} (x,
-    what = c("counts", "occurrences", "values", "elements", "datasets"),
-    min.cov = 1L, keep.unnamed = FALSE, dataframe = FALSE,
+    what = c("counts", "occurrences", "values", "elements", "datasets", "rows"),
+        min.cov = 1L, keep.unnamed = FALSE, dataframe = FALSE,
     optional = TRUE,
     stringsAsFactors = default.stringsAsFactors(), ...)
 
@@ -35,11 +35,14 @@
   matrices, then merge them using rows and column names. In
   case of conflict, the last ones win.  Here, the behaviour
   of other arguments is special if all elements of \code{x}
-  are atomic. See below.} } The matrix method currently
-  only supports \code{columns}, which means assorting the
-  values to the columns anew based on the majority of their
+  are atomic. See below.} \item{rows}{Like \code{datasets},
+  but all rows are kept. This is like \code{rbind} from the
+  \pkg{base} package but it also augments missing columns
+  where necessary.} } The matrix method currently only
+  supports \code{columns}, which means assorting the values
+  to the columns anew based on the majority of their
   occurrences, and \code{rows}, which does the same for the
-  rows.}
+  rows. This can be used to clean up messy data.}
 
   \item{min.cov}{Numeric scalar indicating the minimal
   coverage required in the resulting presence-absence
@@ -132,7 +135,7 @@ m2 <- matrix(1:4, ncol = 2, dimnames = list(c("C", "B"), c("x", "z")))
 stopifnot(dim(got) == c(3, 3), anyNA(got))
 }
 \seealso{
-  base::unlist base::as.data.frame
+  base::unlist base::as.data.frame base::rbind
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{assert}},

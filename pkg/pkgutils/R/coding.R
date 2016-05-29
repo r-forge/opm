@@ -219,7 +219,7 @@ setMethod("unnest", "character", function(object, sep, fixed = TRUE, ...,
 collect <- function(x, what, ...) UseMethod("collect")
 
 collect.list <- function(x,
-    what = c("counts", "occurrences", "values", "elements", "datasets"),
+    what = c("counts", "occurrences", "values", "elements", "datasets", "rows"),
     min.cov = 1L, keep.unnamed = FALSE, dataframe = FALSE, optional = TRUE,
     stringsAsFactors = default.stringsAsFactors(), ...) {
 
@@ -309,7 +309,12 @@ collect.list <- function(x,
 
   # collecting 'datasets'
   collect_matrices <- function(x, keep.unnamed, dataframe, optional,
-      stringsAsFactors, verbose, ...) {
+      stringsAsFactors, verbose, all.rows, ...) {
+    unfactor <- function(x) {
+      for (i in which(vapply(x, is.factor, NA)))
+        x[, i] <- as.character(x[, i])
+      x
+    }
     keep_validly_named_only <- function(x) {
       if (is.null(colnames(x)) || is.null(rownames(x)))
         NULL
@@ -339,6 +344,11 @@ collect.list <- function(x,
       colnames(x) <- enforce(colnames(x), ncol(x))
       x
     }
+    add_columns <- function(x, wanted) {
+      if (length(n <- setdiff(wanted, colnames(x))))
+        x <- cbind(x, matrix(NA, nrow(x), length(n), FALSE, list(NULL, n)))
+      x[, wanted, drop = FALSE]
+    }
     if (all.atomic <- all(vapply(x, is.atomic, NA))) {
       x <- lapply(x, as.matrix)
       if (keep.unnamed)
@@ -347,25 +357,34 @@ collect.list <- function(x,
         x <- lapply(x, keep_validly_named_only_but_complain)
       else
         x <- lapply(x, keep_validly_named_only)
-    } else
-      x <- lapply(X = x, FUN = data.frame, stringsAsFactors = FALSE,
-        check.names = !optional)
-    rn <- sort.int(unique.default(unlist(lapply(x, rownames))))
-    cn <- sort.int(unique.default(unlist(lapply(x, colnames))))
-    result <- matrix(NA, length(rn), length(cn), FALSE, list(rn, cn))
-    if (!all.atomic)
-      result <- as.data.frame(result, stringsAsFactors = FALSE,
-        optional = optional)
-    for (mat in x)
-      result[rownames(mat), colnames(mat)] <- mat
+    } else {
+      x <- lapply(lapply(X = x, FUN = data.frame, stringsAsFactors = FALSE,
+        check.names = !optional), unfactor)
+    }
+    if (all.rows) {
+      cn <- unique.default(unlist(lapply(x, colnames), FALSE, FALSE))
+      result <- do.call(rbind, lapply(x, add_columns, cn))
+      if (is.null(result))
+        result <- matrix(NA, 0L, length(cn), FALSE, list(NULL, cn))
+    } else {
+      rn <- sort.int(unique.default(unlist(lapply(x, rownames), FALSE, FALSE)))
+      cn <- sort.int(unique.default(unlist(lapply(x, colnames), FALSE, FALSE)))
+      result <- matrix(NA, length(rn), length(cn), FALSE, list(rn, cn))
+      if (!all.atomic)
+        result <- as.data.frame(result, stringsAsFactors = FALSE,
+          optional = optional)
+      for (mat in x)
+        result[rownames(mat), colnames(mat)] <- mat
+    }
     if (dataframe) {
-      if (all.atomic)
+      if (all.atomic || !is.data.frame(result))
         result <- as.data.frame(result)
       if (stringsAsFactors)
         for (i in which(vapply(result, is.character, NA)))
           result[, i] <- as.factor(result[, i])
-    } else if (!all.atomic)
+    } else if (!all.atomic || is.data.frame(result)) {
       result <- as.matrix(result)
+    }
     if (!optional)
       colnames(result) <- make.names(colnames(result))
     result
@@ -384,7 +403,9 @@ collect.list <- function(x,
     values = insert_into_matrix(x, FALSE, keep.unnamed, dataframe, optional,
       stringsAsFactors, verbose, ...),
     datasets = collect_matrices(x, keep.unnamed, dataframe, optional,
-      stringsAsFactors, verbose, ...)
+      stringsAsFactors, verbose, FALSE, ...),
+    rows = collect_matrices(x, keep.unnamed, dataframe, optional,
+      stringsAsFactors, verbose, TRUE, ...)
   )
 }
 

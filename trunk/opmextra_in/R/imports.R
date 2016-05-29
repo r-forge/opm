@@ -3,4 +3,6 @@
 #'
 NULL
 
-
+#' @importFrom stats cor
+#'
+NULL

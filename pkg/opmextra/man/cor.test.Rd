@@ -40,17 +40,22 @@
   \code{corrplot} function from the \pkg{corrplot} package.
 }
 \examples{
-(x <- cor.test(vaas_4[, , 1:10]))
-stopifnot(is.matrix(x), dim(x) == 10)
+(x <- cor.test(vaas_4[, , 1:20]))
+stopifnot(is.matrix(x), dim(x) == 20)
+# adapt default text size to a full 96-well plate
+my_corrplot <- function(corr, tl.col = "grey30", tl.cex = 0.4,
+    mar = c(2, 2, 2, 2), ...) {
+  corrplot::corrplot(corr = corr, tl.col = tl.col,
+    tl.cex = tl.cex, mar = mar, ...)
+}
+my_corrplot(x)
 }
 \seealso{
   stats::cor stats::cor.test corrplot::corrplot
 
-  Other plotting-functions: \code{\link{ci_plot}},
-  \code{\link{heat_map}}, \code{\link{level_plot}},
-  \code{\link{parallel_plot}}, \code{\link{parallelplot}},
-  \code{\link{radial_plot}}, \code{\link{summary}},
-  \code{\link{xy_plot}}
+  Other res: \code{\link{opm_dbclear}},
+  \code{\link{opm_dbfind}}, \code{\link{opm_dbget}},
+  \code{\link{opm_dbnext}}, \code{\link{opm_dbput}}
 }
 \keyword{regression}
 

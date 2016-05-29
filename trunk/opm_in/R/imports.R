@@ -71,7 +71,7 @@ NULL
 #'
 NULL
 
-#' @importFrom stats median na.exclude na.fail predict qnorm rmultinom sd cor
+#' @importFrom stats median na.exclude na.fail predict qnorm rmultinom sd
 #'
 NULL
 
