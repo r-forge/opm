@@ -169,7 +169,7 @@ case.character <- function(EXPR, ...) {
 #'
 must <- function(expr, msg = NULL, ..., domain = NULL) {
   # For some reason, using stop() directly results in errors that cannot be
-  # catched with tryCatch() any more.
+  # caught with tryCatch() any more.
   tryCatch(expr = expr, warning = function(w) stop(if (length(msg))
     msg
   else
