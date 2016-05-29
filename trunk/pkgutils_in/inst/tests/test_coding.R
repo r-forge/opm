@@ -81,7 +81,15 @@ test_that("LL works as expected", {
 ## UNTESTED
 
 ## collect
-## UNTESTED
+test_that("we can collect rows", {
+  x <- list(data.frame(A = 1:3, B = letters[1:3]),
+    data.frame(B = letters[4:6], A = 4:6))
+  got <- collect(x = x, what = "rows", dataframe = TRUE)
+  expect_is(got, "data.frame")
+  expect_equal(dim(got), c(6L, 2L))
+  expect_equal(got[, "A"], 1:6)
+})
+
 
 ## map_values
 test_that("values in character vectors can be mapped", {

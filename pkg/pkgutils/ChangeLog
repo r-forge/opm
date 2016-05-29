@@ -2,7 +2,7 @@
 - new function unnest()
 
 - sections() gets more 'include' options
-- collect() gets a matrix method
+- collect() gets a matrix method; the list methods gets more 'what' options
 
 - listing() and flatten() are now S4 generics
 

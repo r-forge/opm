@@ -1081,8 +1081,9 @@ setMethod("to_metadata", "WMDS", function(object, stringsAsFactors = FALSE,
 
 setMethod("to_metadata", "MOPMX", function(object, stringsAsFactors = FALSE,
     optional = TRUE, sep = "\t", strip.white = FALSE, ...) {
-  collect_rows(lapply(X = object, FUN = to_metadata, optional = optional,
-    sep = sep, stringsAsFactors = stringsAsFactors, strip.white = FALSE, ...))
+  collect(x = lapply(X = object, FUN = to_metadata, optional = optional,
+    sep = sep, stringsAsFactors = FALSE, strip.white = FALSE, ...),
+    what = "rows", dataframe = TRUE, stringsAsFactors = stringsAsFactors)
 }, sealed = SEALED)
 
 
