@@ -92,8 +92,6 @@ if (interactive())
 }
 \seealso{
   DBI::make.db.names pkgutils::by opm::opm_dbcheck
-
-  Other res: \code{\link{cor.test}}
 }
 \keyword{database}
 

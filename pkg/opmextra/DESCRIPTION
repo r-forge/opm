@@ -26,6 +26,5 @@ Collate:
     'constants.R'
     'auxiliary.R'
     'dbio.R'
-    'plotting.R'
 LazyData: yes
 LazyDataCompression: bzip2
