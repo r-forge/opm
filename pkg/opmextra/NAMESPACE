@@ -1,3 +1,4 @@
+exportMethods(cor.test)
 exportMethods(opm_dbclear)
 exportMethods(opm_dbfind)
 exportMethods(opm_dbget)
