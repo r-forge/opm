@@ -132,9 +132,12 @@ setMethod("$<-", c("MOPMX", "ANY"), function(x, name, value) {
 #' @param recursive Logical scalar. See \code{c} from the \pkg{base} package.
 #' @param e1 \code{\link{OPMX}} object. If \code{e2} is a \code{\link{MOPMX}}
 #'   object, anything that can be converted with \code{as} to that class.
-#' @param e2 \code{\link{OPMX}} object, or list. If \code{e1} is a
-#'   \code{\link{MOPMX}} object, anything that can be converted with \code{as}
-#'   to that class.
+#' @param e2 \code{\link{OPMX}} object, list or numeric scalar. If \code{e1} is
+#'   a \code{\link{MOPMX}} object, anything that can be converted with \code{as}
+#'   to that class. If \code{e2} is a numeric scalar, the time points are
+#'   modified to yield this as interval (and zero as first time point,
+#'   irrespective of the previous value). This is only needed in the case of
+#'   recording artefacts and should be used with caution.
 #' @export
 #' @return
 #'   The \code{\link{OPMX}} method of \code{c} creates an \code{\link{OPMS}}
@@ -232,6 +235,13 @@ setMethod("+", c("OPM", "list"), function(e1, e2) {
   new(Class = "OPMS", plates = c(list(e1), e2))
 }, sealed = SEALED)
 
+setMethod("+", c("OPM", "numeric"), function(e1, e2) {
+  idx <- seq_len(nrow(e1@measurements))
+  e2 <- e2 * (idx - 1L)
+  e1@measurements[, HOUR] <- e2[idx]
+  e1
+}, sealed = SEALED)
+
 setMethod("+", c("OPMS", "OPMS"), function(e1, e2) {
   e1@plates[seq_along(e2@plates) + length(e1@plates)] <- e2@plates
   validObject(e1)
@@ -253,6 +263,11 @@ setMethod("+", c("OPMS", "list"), function(e1, e2) {
   new(Class = "OPMS", plates = c(e1@plates, e2)) # unnaming also needed
 }, sealed = SEALED)
 
+setMethod("+", c("OPMS", "numeric"), function(e1, e2) {
+  e1@plates <- lapply(e1@plates, "+", e2)
+  e1
+}, sealed = SEALED)
+
 setMethod("+", c("MOPMX", "OPMX"), function(e1, e2) {
   e1@.Data <- c(e1@.Data, list(e2))
   e1
@@ -263,9 +278,26 @@ setMethod("+", c("MOPMX", "ANY"), function(e1, e2) {
   e1
 }, sealed = SEALED)
 
+setMethod("+", c("MOPMX", "numeric"), function(e1, e2) {
+  e1@.Data <- lapply(e1@.Data, "+", e2)
+  e1
+}, sealed = SEALED)
+
 setMethod("+", c("ANY", "MOPMX"), function(e1, e2) {
   e2@.Data <- c(as(e1, class(e2))@.Data, e2@.Data)
   e2
+}, sealed = SEALED)
+
+setMethod("+", c("numeric", "OPM"), function(e1, e2) {
+  e2 + e1
+}, sealed = SEALED)
+
+setMethod("+", c("numeric", "OPMS"), function(e1, e2) {
+  e2 + e1
+}, sealed = SEALED)
+
+setMethod("+", c("numeric", "MOPMX"), function(e1, e2) {
+  e2 + e1
 }, sealed = SEALED)
 
 
