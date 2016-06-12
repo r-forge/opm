@@ -60,7 +60,7 @@
   Alternatively, list the working directories stored by
   using \code{\link{swd}}, or just the current working
   directory if \code{\link{swd}} has not been called yet.
-  These is mainly convenience functions for interactive
+  These are mainly convenience functions for interactive
   sessions.
 }
 \examples{
