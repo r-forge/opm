@@ -303,6 +303,17 @@ well_index <- function(x, names) {
 
 #' @rdname well_index
 #'
+time_index <- function(x, times) {
+  if (missing(x))
+    TRUE
+  else if (inherits(x, "formula"))
+    times <= x[[length(x)]]
+  else
+    x
+}
+
+#' @rdname well_index
+#'
 clean_coords <- function(x) {
   do_clean <- function(x) {
     x <- sub("\\s+$", "", sub("^\\s+", "", x, FALSE, TRUE), FALSE, TRUE)
