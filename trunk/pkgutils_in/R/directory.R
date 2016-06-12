@@ -8,7 +8,7 @@
 #' Set the working directory to, e.g., a parent directory of the current one, or
 #' to a directory visited earlier. Alternatively, list the working directories
 #' stored by using \code{\link{swd}}, or just the current working directory if
-#' \code{\link{swd}} has not been called yet. These is mainly convenience
+#' \code{\link{swd}} has not been called yet. These are mainly convenience
 #' functions for interactive sessions.
 #'
 #' @param x For \code{swd}, a numeric scalar indicating how often to move
