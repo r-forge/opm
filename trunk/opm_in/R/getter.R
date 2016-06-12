@@ -186,7 +186,9 @@ setMethod("hours", "OPM", function(object,
 #'
 #' @param x \code{\link{OPM}}, \code{\link{OPMA}} or \code{\link{OPMS}} object.
 #' @param i Vector or missing. For the \code{\link{OPM}} and \code{\link{OPMA}}
-#'   method, the indexes of one to several time points.
+#'   method, the indexes of one to several time points. In that case, \code{i}
+#'   can also be a formula whose right side indicates an upper boundary of the
+#'   running time.
 #'
 #'   For the \code{\link{OPMS}} method, the indexes of one to several plates. A
 #'   warning is issued if indexing goes beyond the range. If \code{i} is neither
@@ -211,7 +213,8 @@ setMethod("hours", "OPM", function(object,
 #'   points. In that case, if \code{j} is a list, its values are passed to the
 #'   respective \code{\link{OPM}} object separately, allowing for individual
 #'   choices of time points. Otherwise \code{j} is used as the \code{i} argument
-#'   of the \code{\link{OPM}} and \code{\link{OPMA}} method.
+#'   of the \code{\link{OPM}} and \code{\link{OPMA}} method (and can also be a
+#'   formula, see above.)
 #'   }
 #' @param k Vector or missing. The \code{\link{OPMS}} method passes \code{k} as
 #'   \code{j} argument of the \code{\link{OPM}} and \code{\link{OPMA}} method.
@@ -334,6 +337,7 @@ setMethod("hours", "OPM", function(object,
 setMethod("[", c("OPM", "ANY", "ANY", "ANY"), function(x, i, j, ...,
     drop = FALSE) {
   mat <- x@measurements[, -1L, drop = FALSE]
+  i <- time_index(i, x@measurements[, 1L])
   mat <- mat[i, well_index(j, colnames(mat)), ..., drop = FALSE]
   if (!all(dim(mat)))
     stop("selection resulted in empty matrix")
@@ -349,8 +353,8 @@ setMethod("[", c("OPMA", "ANY", "ANY", "ANY"), function(x, i, j, ...,
   if (drop)
     return(as(x, "OPM"))
   if (!missing(j))
-    x@aggregated <- x@aggregated[, well_index(j, colnames(x@aggregated)), ...,
-      drop = FALSE]
+    x@aggregated <- x@aggregated[, well_index(j, colnames(x@aggregated)),
+      ..., drop = FALSE]
   x
 }, sealed = SEALED)
 
@@ -389,9 +393,10 @@ setMethod("[", c("OPMS", "ANY", "ANY", "ANY"), function(x, i, j, k, ...,
   } else if (is.list(j)) {
     y <- mapply(FUN = `[`, x = y, i = j, MoreArgs = list(j = k, drop = drop),
       SIMPLIFY = FALSE, USE.NAMES = FALSE)
-  } else
+  } else {
     y <- mapply(FUN = `[`, x = y, MoreArgs = list(i = j, j = k, drop = drop),
       SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  }
   if (length(y) == 1L)
     return(y[[1L]])
   x@plates <- y
@@ -1222,8 +1227,8 @@ setMethod("disc_settings", "logical", function(object, ...) {
 #'   \code{\link{infix.largeq}} (when \code{TRUE})? See these functions and
 #'   \code{\link{contains}}  for details.
 #' @param time Logical scalar. If \code{TRUE}, all other arguments are ignored
-#'   and the object is reduced to the common subset of time points (measurement
-#'   hours and minutes).
+#'   and the object is reduced to the common subset of time points (usually
+#'   measurement hours and minutes).
 #' @param positive Character scalar. If \sQuote{ignore}, not used. Otherwise all
 #'   previous arguments except \code{object} are ignored, and the function
 #'   yields an error unless \code{object} has been discretised throughout, i.e.
@@ -1410,12 +1415,16 @@ setMethod("subset", "MOPMX", function(x, query, values = TRUE,
       x@.Data[[i]] <- x@.Data[[i]][wanted[[i]]]
     x[some]
   }
-  if (missing(use))
-    LL(common)
-  else
+  if (missing(use)) {
+    LL(common, time)
+  } else {
+    time <- all(match(use, c("t", "T"), 0L))
     common <- all(match(use, c("c", "C"), 0L))
+  }
   if (common)
     return(reduce_to_common_subset(x = x, what = query, ...))
+  if (time)
+    return(common_times(x))
   x@.Data <- lapply(X = x@.Data, FUN = subset, query = query, values = values,
     invert = invert, exact = exact, time = time, positive = positive,
     negative = negative, common = common, use = use)
