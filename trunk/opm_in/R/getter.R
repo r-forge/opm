@@ -54,6 +54,9 @@
 #'
 #'   The return value of \code{hours} is dependent on the \code{what} argument;
 #'   see there.
+#' @note For quickly obtaining an overview of the running times in a
+#'   \code{\link{MOPMX}} object see \code{\link{extract}} and
+#'   \code{\link{heat_map}}.
 #' @export
 #' @family getter-functions
 #' @keywords attribute

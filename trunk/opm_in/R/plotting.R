@@ -903,6 +903,9 @@ setMethod("ci_plot", "MOPMX", function(object, ...) {
 #'   abbreviated before plotting. Note that abbreviation is done by shortening
 #'   words and ending them with a dot, so there is no guarantee that a certain
 #'   maximum length will be obtained.
+#' @param plot.na Character scalar with the name of an optional attribute that
+#'   contains replacement values for \code{NA} that are inserted prior to
+#'   plotting.
 #'
 #' @param ... Optional arguments passed to \code{heatmap} or \code{heatmap.2}.
 #'   Note that some defaults of \code{heatmap.2} are overwritten even though
@@ -965,7 +968,7 @@ setMethod("heat_map", "matrix", function(object,
     else
       c(5, 5),
     col = opm_opt("heatmap.colors"), asqr = FALSE, log1 = FALSE, lmap = 1L:3L,
-    abbrev = c("none", "row", "column", "both"),
+    abbrev = c("none", "row", "column", "both"), plot.na = "plot.NA",
     ...,
     use.fun = c("gplots", "stats")) {
 
@@ -1024,6 +1027,8 @@ setMethod("heat_map", "matrix", function(object,
     asin(sqrt(x))
   }
 
+  plot.na <- attr(object, plot.na)
+
   case(match.arg(abbrev),
     none = NULL,
     row = rownames(object) <- shorten(rownames(object)),
@@ -1074,6 +1079,9 @@ setMethod("heat_map", "matrix", function(object,
   } else if (log1) {
     object[] <- log1p(object)
   }
+
+  if (length(plot.na))
+    object[is.na(object)] <- plot.na
 
   result <- do.call(heatmap_fun, c(list(x = object), arg.list))
   result$colColMap <- col.side.colors
