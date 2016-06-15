@@ -112,6 +112,8 @@ mypdf.character <- function(file, paper = "a4r", prop = 0.9, ...) {
   paper.size <- paper_size(paper)
   width <- prop[1L] * paper.size[, "width"]
   height <- prop[length(prop)] * paper.size[, "height"]
+  if (dirname(file) == ".")
+    file <- file.path(getOption("pdf_store", getwd()), file)
   pdf(file = file, paper = paper, width = width, height = height, ...)
 }
 
