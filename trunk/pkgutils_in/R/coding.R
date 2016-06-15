@@ -1738,3 +1738,60 @@ match_parts <- function(x, pattern, ignore.case = FALSE) {
 }
 
 
+################################################################################
+
+
+#' Assign values only when needed
+#'
+#' A helper function for avoiding long-running computations if the object to be
+#' generated is either already present or can be read from an \code{Rda} file.
+#'
+#' @param name Character scalar indicating the name of an object to be assigned.
+#' @param expr Expression that will only be evaluated if \code{name} does not
+#'   yet exist and, optionally, cannot be read from an \code{Rda} file.
+#' @param template Character scalar with a template as used by \code{sprintf}
+#'   from the base package, with the placeholder, if any, referring to
+#'   \code{name}. Set this to an empty object to turn of the \code{Rda} file
+#'   mechanism.
+#' @param env Passed as \code{envir} argument to \code{assign}.
+#' @param inherits Passed as \code{inherits} argument to \code{assign}.
+#' @return An invisible returned integer code indicating what has been done.
+#' \describe{
+#' \item{0}{The object already existed, nothing was done.}
+#' \item{1}{The result of \code{expr} was assigned to the object, the \code{Rda}
+#' file mechanism was not used.}
+#' \item{2}{The the given \code{Rda} file was found and its content assigned to
+#' the object.}
+#' \item{3}{The given\code{Rda} file was not found. The result of \code{expr}
+#' was assigned to the object and was also stored in the given \code{Rda} file.}
+#' }
+#' @details If the \code{Rda} file name has no directory component, it is
+#'   assumed to be located in the directory given by
+#'   \code{getOption("rda_store")} and, if this does not exist, in the
+#'   \code{getwd()}.
+#' @family coding-functions
+#' @seealso base::assign base::readRDS base::saveRDS
+#' @examples
+#' ## TODO
+#
+set <- function(name, expr, template = "%s.Rda", env = parent.frame(),
+    inherits = TRUE) {
+  if (exists(name, NULL, env, NULL, "any", inherits))
+    return(invisible(0L))
+  if (!length(template)) {
+    assign(name, expr, NULL, env, inherits)
+    return(invisible(1L))
+  }
+  if (dirname(rda <- sprintf(template, name)) == ".")
+    rda <- file.path(getOption("rda_store", getwd()), rda)
+  if (file.exists(rda)) {
+    assign(name, readRDS(rda), NULL, env, inherits)
+    return(invisible(2L))
+  }
+  result <- expr
+  saveRDS(result, rda)
+  assign(name, result, NULL, env, inherits)
+  invisible(3L)
+}
+
+

@@ -340,3 +340,7 @@ test_that("data-frame columns are correctly checked", {
 ## UNTESTED
 
 
+## set
+## UNTESTED
+
+
