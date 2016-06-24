@@ -43,8 +43,6 @@ test_that("case works as expected", {
   expect_equal(case(0, "a", "b"), "a")
   expect_equal(case(1, "a", "b"), "b")
   expect_equal(case(10, "a", "b"), "b")
-  expect_error(case(NA_real_, "a", "b"))
-  expect_error(case(-1, "a", "b"))
   expect_equal(case("a", a = "a", b = "b"), "a")
   expect_equal(case("b", a = "a", b = "b"), "b")
   expect_error(case("c", a = "a", b = "b"))
@@ -342,5 +340,11 @@ test_that("data-frame columns are correctly checked", {
 
 ## set
 ## UNTESTED
+
+
+## sql
+## UNTESTED
+
+
 
 
