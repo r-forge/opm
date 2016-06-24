@@ -1,12 +1,15 @@
 \name{case}
 \alias{case}
 \alias{case.character}
-\alias{case.numeric}
+\alias{case.double}
+\alias{case.integer}
 \title{Modified switch function}
 \usage{
   case(EXPR, ...)
 
-  \method{case}{numeric} (EXPR, ...)
+  \method{case}{double} (EXPR, ...)
+
+  \method{case}{integer} (EXPR, ...)
 
   \method{case}{character} (EXPR, ...)
 }
@@ -57,7 +60,8 @@ stopifnot(inherits(x, "try-error"))
     \code{\link{contains}}, \code{\link{flatten}},
   \code{\link{listing}}, \code{\link{map_names}},
   \code{\link{map_values}}, \code{\link{must}},
-  \code{\link{unnest}}
+  \code{\link{set}}, \code{\link{sql}},
+    \code{\link{unnest}}
 }
 \keyword{utilities}
 

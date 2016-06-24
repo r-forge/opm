@@ -87,10 +87,11 @@ stopifnot(is.character(x), is.character(y))
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{assert}},
-  \code{\link{case}},   \code{\link{collect}},
-    \code{\link{flatten}}, \code{\link{listing}},
-  \code{\link{map_names}}, \code{\link{map_values}},
-  \code{\link{must}}, \code{\link{unnest}}
+  \code{\link{case}},     \code{\link{collect}},   \code{\link{flatten}},
+  \code{\link{listing}}, \code{\link{map_names}},
+  \code{\link{map_values}}, \code{\link{must}},
+  \code{\link{set}}, \code{\link{sql}},
+    \code{\link{unnest}}
 }
 \keyword{attribute}
 \keyword{list}
