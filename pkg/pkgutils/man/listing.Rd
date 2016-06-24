@@ -156,11 +156,11 @@ stopifnot(identical(letters, flatten(letters)))
 
   Other coding-functions: \code{\link{L}},
   \code{\link{LL}}, \code{\link{assert}},
-  \code{\link{case}},   \code{\link{check}},
-  \code{\link{collect}},   \code{\link{contains}},
-  \code{\link{map_names}}, \code{\link{map_values}},
-  \code{\link{must}}
-}
+  \code{\link{case}},     \code{\link{check}}, \code{\link{collect}},
+    \code{\link{contains}}, \code{\link{map_names}},
+  \code{\link{map_values}}, \code{\link{must}},
+  \code{\link{set}}, \code{\link{sql}},
+  }
 \keyword{utilities}
 
 %% BEGIN INSERTION BY repair_S4_docu.rb
@@ -196,7 +196,7 @@ stopifnot(identical(letters, flatten(letters)))
 
   \S4method{unnest}{character}(object, sep, fixed = TRUE, ...,
     stringsAsFactors = FALSE) 
-  \S4method{unnest}{data.frame}(object, sep, col = colnames(object),
+  \S4method{unnest}{data.frame}(object, sep, col = names(object),
     fixed = TRUE, ..., stringsAsFactors = FALSE) 
   \S4method{unnest}{list}(object, ..., stringsAsFactors = FALSE) 
 }

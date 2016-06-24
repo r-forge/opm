@@ -1767,9 +1767,9 @@ match_parts <- function(x, pattern, ignore.case = FALSE) {
 #' \item{0}{The object already existed, nothing was done.}
 #' \item{1}{The result of \code{expr} was assigned to the object, the \code{Rda}
 #' file mechanism was not used.}
-#' \item{2}{The the given \code{Rda} file was found and its content assigned to
-#' the object.}
-#' \item{3}{The given\code{Rda} file was not found. The result of \code{expr}
+#' \item{2}{The given \code{Rda} file was found and its content assigned to the
+#' object.}
+#' \item{3}{The given \code{Rda} file was not found. The result of \code{expr}
 #' was assigned to the object and was also stored in the given \code{Rda} file.}
 #' }
 #' @details If the \code{Rda} file name has no directory component, it is

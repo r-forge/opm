@@ -43,8 +43,6 @@ test_that("case works as expected", {
   expect_equal(case(0, "a", "b"), "a")
   expect_equal(case(1, "a", "b"), "b")
   expect_equal(case(10, "a", "b"), "b")
-  expect_error(case(NA_real_, "a", "b"))
-  expect_error(case(-1, "a", "b"))
   expect_equal(case("a", a = "a", b = "b"), "a")
   expect_equal(case("b", a = "a", b = "b"), "b")
   expect_error(case("c", a = "a", b = "b"))
@@ -339,4 +337,52 @@ test_that("data-frame columns are correctly checked", {
 ## match_parts
 ## UNTESTED
 
+
+## set
+## UNTESTED
+
+
+## sql
+test_that("SQL generation from formulas works", {
+
+  # without selection arguments
+  x <- sql(~ mytable)
+  expect_equal(x, "SELECT * FROM mytable;")
+  x <- sql(~ mytable(col1, col2))
+  expect_equal(x, "SELECT col1, col2 FROM mytable;")
+  x <- sql(~ mytable(`col 1`, col2))
+  expect_equal(x, "SELECT \"col 1\", col2 FROM mytable;")
+
+  # named selection arguments
+  x <- sql(mytable ~ foo == NULL)
+  expect_equal(x, "SELECT * FROM mytable WHERE foo IS NULL;")
+  x <- sql(mytable ~ foo == NULL & bar != NULL)
+  expect_equal(x,
+    "SELECT * FROM mytable WHERE foo IS NULL AND bar IS NOT NULL;")
+  x <- sql(mytable ~ foo & !baz)
+  expect_equal(x, "SELECT * FROM mytable WHERE foo AND NOT baz;")
+  x <- sql(mytable ~ !(foo & baz))
+  expect_equal(x, "SELECT * FROM mytable WHERE NOT (foo AND baz);")
+  x <- sql(mytable ~ foo & baz)
+  x <- sql(mytable ~ if (foo > 0) bar else baz)
+  expect_equal(x,
+    "SELECT * FROM mytable WHERE CASE WHEN foo > 0 THEN bar ELSE baz END;")
+
+  expect_warning(x <- sql(~ my_table(id = my_id,
+    value = function(c, a = 1, ..., b = 10) NULL)))
+  expect_equal(x, paste("SELECT my_id AS id, CASE WHEN c OR a THEN 1",
+    "WHEN b THEN 10 ELSE NULL END AS value FROM my_table;"))
+
+  x <- sql(~ sites(id, convert(b = name, k), coalesce(location, "here")))
+  expect_equal(x,
+    "SELECT id, convert(b := name, k), coalesce(location, 'here') FROM sites;")
+
+  x <- sql(~ my_table(id = my_id, value = while (TRUE) next))
+  expect_equal(x,
+    "SELECT my_id AS id, while(TRUE, next()) AS value FROM my_table;")
+  x <- sql(~ my_table(id = my_id, value = for (i in 1:10) print(i)))
+  expect_equal(x,
+    "SELECT my_id AS id, for(i, 1 : 10, print(i)) AS value FROM my_table;")
+
+})
 
