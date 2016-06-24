@@ -124,12 +124,19 @@ assert <- function(cond, orig, msg, quiet = FALSE, ...) {
 case <- function(EXPR, ...) UseMethod("case")
 
 #' @rdname case
-#' @method case numeric
+#' @method case double
 #' @export
 #'
-case.numeric <- function(EXPR, ...) {
-  stopifnot(EXPR >= 0L, nargs() > 1L)
-  switch(EXPR = pmin(EXPR, nargs() - 2L) + 1L, ...)
+case.double <- function(EXPR, ...) {
+  case.integer(EXPR = as.integer(EXPR), ...)
+}
+
+#' @rdname case
+#' @method case integer
+#' @export
+#'
+case.integer <- function(EXPR, ...) {
+  switch(EXPR = min(EXPR, nargs() - 2L) + 1L, ...)
 }
 
 #' @rdname case
@@ -478,12 +485,12 @@ setMethod("flatten", "list", function(object, use.names = TRUE, ...) {
 #'
 setGeneric("unnest", function(object, ...) standardGeneric("unnest"))
 
-setMethod("unnest", "data.frame", function(object, sep, col = colnames(object),
+setMethod("unnest", "data.frame", function(object, sep, col = names(object),
     fixed = TRUE, ..., stringsAsFactors = FALSE) {
   x <- lapply(object[, col, drop = FALSE], strsplit, sep, fixed, !fixed)
   x <- as.data.frame(do.call(cbind, x)) # yields columns of type 'list'
-  x <- cbind(object[, setdiff(colnames(object), col), drop = FALSE], x)
-  col <- colnames(x)
+  x <- cbind(object[, setdiff(names(object), col), drop = FALSE], x)
+  col <- names(x)
   args <- list(check.names = FALSE, stringsAsFactors = stringsAsFactors, ...)
   x <- lapply(seq.int(nrow(x)),
     function(i) do.call(data.frame, c(x[i, , drop = FALSE], args)))
@@ -1504,12 +1511,12 @@ setMethod("map_names", c("list", "missing"), function(object) {
 
 setMethod("map_names", c("data.frame", "function"), function(object, mapping,
     ...) {
-  dimnames(object) <- map_values(dimnames(object), mapping, ...)
+  names(object) <- map_values(names(object), mapping, ...)
   object
 }, sealed = SEALED)
 
 setMethod("map_names", c("data.frame", "character"), function(object, mapping) {
-  dimnames(object) <- map_values(dimnames(object), mapping)
+  names(object) <- map_values(names(object), mapping)
   object
 }, sealed = SEALED)
 
@@ -1770,6 +1777,7 @@ match_parts <- function(x, pattern, ignore.case = FALSE) {
 #'   \code{getOption("rda_store")} and, if this does not exist, in the
 #'   \code{getwd()}.
 #' @family coding-functions
+#' @keywords IO utilities
 #' @seealso base::assign base::readRDS base::saveRDS
 #' @examples
 #' ## TODO
@@ -1794,4 +1802,286 @@ set <- function(name, expr, template = "%s.Rda", env = parent.frame(),
   invisible(3L)
 }
 
+
+################################################################################
+
+
+#' Create \acronym{SQL} \code{SELECT} and \code{UPDATE} statements
+#'
+#' Helper function converting \R code into \acronym{SQL} \code{SELECT}
+#' statements and data frames into \code{UPDATE} statements.
+#'
+#' @param x Data frame or formula.
+#' @param where Character vector giving the name of the data frame and database
+#'   table columns used to select rows.
+#' @param table Character scalar indicating the name of the database table
+#'   to be updated.
+#' @param set Character vector giving the name of the data frame and database
+#'   table columns to be updated.
+#' @param ... Optional arguments passed between methods.
+#' @return Character vector.
+#' @details The formula method saves some typing, particularly in the case of
+#'   complex queries, but it does not support joins. \R operators are mostly
+#'   directly translated except for those with the highest precedence. Infix
+#'   operators are translated literally. The control structures \code{if} and
+#'   \code{function} yield \code{CASE} constructs.
+#'
+#'   To use the data frame method to update a column, say, \code{"x"} that is
+#'   also used to select rows, include \code{"x"} in the \code{where} argument
+#'   and \code{"new.x"} in the \code{update} argument.
+#' @export
+#' @family coding-functions
+#' @keywords character database
+#' @examples
+#'
+#' ## formula method
+#' x <- projects(id, strain = strain_number, if (gram_stain == "N.D.")
+#'     "?"
+#'   else
+#'     gram_stain) ~ project_name == "KMG-1" &
+#'   (coalesce(strain_number, 3) > -4000 | !is_type_strain) &
+#'   img_object_id == NULL
+#' (y <- sql(x))
+#' stopifnot(is.character(y), length(y) == 1L)
+#'
+sql <- function(x, ...) UseMethod("sql")
+
+#' @rdname sql
+#' @method sql data.frame
+#' @export
+#'
+sql.data.frame <- function(x, where, table, set = setdiff(colnames(x), where),
+    ...) {
+
+  dquote <- function(x) {
+    ifelse(grepl("^[a-z][a-z_0-9]+$", x, FALSE, TRUE), x,
+      sprintf('"%s"', gsub('"', '""', x, FALSE, FALSE, TRUE)))
+  }
+
+  sql_array <- function(x) {
+    if (is.list(x))
+      x <- vapply(x, sql_array, "")
+    else if (is.character(x))
+      x <- ifelse(is.na(x), "NULL",
+        sprintf('"%s"', gsub('"', '\"', x, FALSE, FALSE, TRUE)))
+    else if (is.atomic(x))
+      x <- ifelse(is.na(x), "NULL", as.character(x))
+    else
+      stop("conversion of mode '", typeof(x), "' is not implemented")
+    sprintf("{%s}", paste0(x, collapse = ","))
+  }
+
+  squote <- function(x, modify) {
+    if (is.character(x))
+      return(ifelse(is.na(x), "NULL", sprintf("'%s'",
+        gsub("'", "''", x, FALSE, FALSE, TRUE))))
+    if (is.atomic(x))
+      return(ifelse(is.na(x), "NULL", x))
+    if (is.list(x)) {
+      if (modify)
+        return(sprintf("'%s'", vapply(x, sql_array, "")))
+      x <- lapply(x, squote)
+      x <- vapply(X = x, FUN = paste0, FUN.VALUE = "", collapse = ", ")
+      x <- sprintf("(%s)", ifelse(nzchar(x), x, "NULL"))
+      attr(x, "list") <- TRUE
+      return(x)
+    }
+    stop("conversion of mode '", typeof(x), "' is not implemented")
+  }
+
+  equals <- function(what, value, modify) {
+    value <- squote(value, modify)
+    sep <- if (modify)
+        "="
+      else if (isTRUE(attr(value, "list")))
+        "IN"
+      else
+        ifelse(value == "NULL", "IS", "=")
+    paste(what, sep, value)
+  }
+
+  join <- function(x, modify) {
+    if (!ncol(x))
+      stop("no columns chosen for ", if (modify) "update" else "selection")
+    x <- mapply(FUN = equals, what = dquote(colnames(x)), value = x,
+      MoreArgs = list(modify = modify), SIMPLIFY = FALSE, USE.NAMES = FALSE)
+    do.call(paste, c(x, list(sep = if (modify) ", " else " AND ")))
+  }
+
+  create_map <- function(x) {
+    x <- x[grepl("^new\\.(?<=.)", x, FALSE, TRUE) &
+      match(substr(x, 5L, nchar(x)), x, 0L)]
+    structure(.Data = substr(x, 5L, nchar(x)), names = x)
+  }
+
+  for (i in which(vapply(x, is.factor, NA)))
+    x[, i] <- as.character(x[, i])
+
+  map <- create_map(colnames(x))
+
+  sprintf("UPDATE %s SET %s WHERE %s;", dquote(table),
+    join(x[, set, drop = FALSE], TRUE),
+    join(map_names(x[, where, drop = FALSE], map), FALSE))
+
+}
+
+#' @rdname sql
+#' @method sql formula
+#' @export
+#'
+sql.formula <- function(x, ...) {
+
+  double_quote <- function(x) {
+    if (any(bad <- !grepl("^[a-z][a-z_0-9]*$", x, FALSE, TRUE)))
+      x[bad] <- sprintf('"%s"', gsub('"', '""', x[bad], FALSE, FALSE, TRUE))
+    x
+  }
+
+  identifier_or_literal <- function(x) {
+    if (is.character(x))
+      return(sprintf("'%s'", gsub("'", "''", x, FALSE, FALSE, TRUE)))
+    if (is.null(x))
+      return("NULL")
+    if (is.atomic(x))
+      return(as.character(x))
+    if (!is.name(x))
+      stop("expected symbol or atomic vector, got ", typeof(x))
+    double_quote(as.character(x))
+  }
+
+  operator <- function(x) {
+    infix_operator <- function(x)
+      if (grepl("^[a-z]+(\\s+[a-z]+)*$", x, TRUE, TRUE))
+        toupper(x)
+      else if (grepl("^[!#%&*+/<=>?@^|~`-]+$", x, FALSE, TRUE) &&
+          !grepl("--|/[*]", x, FALSE, TRUE) &&
+          !grepl("[^~!@#%^&|`?][+-]$", x, FALSE, TRUE))
+        x
+      else
+        stop("invalid infix operator ", x)
+    switch(x,
+      # high-precedence operators that get another meaning
+      `:::` =, `::` =, `@` =, `$` = x,
+      # high-precedence operators with similar meaning in PostgreSQL
+      `:` =, `(` =, `{` =, `[` =, `[[` =, `^` =, `-` =, `+` =, `*` =, `/` =,
+        `<` =, `>` =, `<=` =, `>=` =, `!=` =, `||` =, `&&` = x,
+      # equality, as it is likely to be used in R code
+      `==` = "=",
+      # logical operators
+      `!` = "NOT", `&` = "AND", `|` = "OR",
+      # low-precedence operators unlikely to be used but possible
+      `~` =, `->` =, `<-` =, `->>` =, `<<-` =, `=` =, `?` = x,
+      # reserved words that are kept
+      `function` =, `if` = x,
+      # infix operators enclosed in '%'
+      `%%` = "%",
+      if (grepl("^%.+%$", x, FALSE, TRUE))
+        infix_operator(substr(x, 2L, nchar(x) - 1L))
+      else
+        NULL
+    )
+  }
+
+  rec_sql <- function(x) {
+
+    convert_pairlist <- function(x) {
+      if (bad <- match("...", names(x), 0L)) {
+        warning("removing '...' argument")
+        x <- x[-bad]
+      }
+      if (!length(x))
+        return(NULL)
+      keys <- double_quote(names(x))
+      if (any(present <- vapply(x, typeof, "") != "symbol" | nzchar(x))) {
+        groups <- unclass(rev.default(pkgutils::sections(rev.default(present))))
+        groups[is.na(groups)] <- seq_along(which(is.na(groups))) +
+          max(groups, na.rm = TRUE)
+        keys <- split.default(keys, match(groups, groups))
+        keys <- vapply(keys, paste0, "", collapse = " OR ")
+        values <- unlist(lapply(x[present], rec_sql), FALSE, FALSE)
+        if (length(keys) > length(values))
+          values <- c(values, "NULL")
+      } else {
+        keys <- paste0(keys, collapse = " OR ")
+        values <- "NULL"
+      }
+      paste0(sprintf("WHEN %s THEN %s", keys, values), collapse = " ")
+    }
+
+    join <- function(x) paste0(unlist(x, FALSE, FALSE), collapse = ", ")
+
+    named_join <- function(x, n) paste0(ifelse(nzchar(n), sprintf("%s := ",
+      double_quote(n)), n), unlist(x, FALSE, FALSE), collapse = ", ")
+
+    if (!is.call(x))
+      return(identifier_or_literal(x))
+
+    if (is.null(op <- operator(as.character(x[[1L]]))))
+      return(sprintf("%s(%s)", rec_sql(x[[1L]]),
+        if (is.null(names(x)))
+          join(lapply(x[-1L], rec_sql))
+        else
+          named_join(lapply(x[-1L], rec_sql), names(x)[-1L])))
+
+    switch(op,
+      `if` = if (length(x) > 3L)
+        sprintf("CASE WHEN %s THEN %s ELSE %s END", rec_sql(x[[2L]]),
+          rec_sql(x[[3L]]), rec_sql(x[[4L]]))
+      else
+        sprintf("CASE WHEN %s THEN %s END", rec_sql(x[[2L]]), rec_sql(x[[3L]])),
+      `function` = if (is.null(args <- convert_pairlist(x[[2L]])))
+          rec_sql(x[[3L]])
+        else
+          sprintf("CASE %s ELSE %s END", args, rec_sql(x[[3L]])),
+      `::` = sprintf("%s.%s", rec_sql(x[[2L]]), rec_sql(x[[3L]])),
+      `:::` = sprintf("(%s).%s", rec_sql(x[[2L]]), rec_sql(x[[3L]])),
+      `$` = sprintf("%s :: %s", rec_sql(x[[2L]]), rec_sql(x[[3L]])),
+      `@` = sprintf("CAST(%s AS %s)", rec_sql(x[[2L]]), rec_sql(x[[3L]])),
+      `(` = sprintf("(%s)", rec_sql(x[[2L]])), # always only one argument
+      `{` = if (length(x) > 1L)
+        sprintf("(%s)", join(lapply(x[-1L], rec_sql)))
+      else
+        "NULL",
+      `[` = sprintf("%s[%s]", rec_sql(x[[2L]]),
+        join(lapply(x[-c(1L, 2L)], rec_sql))),
+      `[[` = sprintf("%s[[%s]]", rec_sql(x[[2L]]),
+        join(lapply(x[-c(1L, 2L)], rec_sql))),
+      if (length(x) > 2L) {
+        if (identical(right <- rec_sql(x[[3L]]), "NULL"))
+          switch(op, `=` = op <- "IS", `!=` = op <- "IS NOT",
+            warning("NULL on right side of operator ", op))
+        sprintf("%s %s %s", rec_sql(x[[2L]]), op, right)
+      } else {
+        sprintf("%s %s", op, rec_sql(x[[2L]]))
+      }
+    )
+
+  }
+
+  selection <- function(x) {
+    if (is.call(x)) {
+      tablename <- identifier_or_literal(x[[1L]])
+      if (length(x) > 1L) {
+        columns <- unlist(lapply(x[-1L], rec_sql), FALSE, FALSE)
+        map <- allNames(x)[-1L]
+        map <- ifelse(nzchar(map), paste0(" AS ", double_quote(map)), map)
+        columns <- paste0(columns, map, collapse = ", ")
+      } else {
+        columns <- "*"
+      }
+    } else {
+      tablename <- identifier_or_literal(x)
+      columns <- "*"
+    }
+    sprintf("SELECT %s FROM %s", columns, tablename)
+  }
+
+  if (length(x) > 2L)
+    sprintf("%s WHERE %s;", selection(x[[2L]]), rec_sql(x[[3L]]))
+  else
+    sprintf("%s;", selection(x[[2L]]))
+}
+
+
+################################################################################
 
