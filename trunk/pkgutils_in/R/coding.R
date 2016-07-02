@@ -1774,14 +1774,21 @@ match_parts <- function(x, pattern, ignore.case = FALSE) {
 #' }
 #' @details If the \code{Rda} file name has no directory component, it is
 #'   assumed to be located in the directory given by
-#'   \code{getOption("rda_store")} and, if this does not exist, in the
-#'   \code{getwd()}.
+#'   \code{getOption("rda_store")} and, if this does not exist, in the directory
+#'   given by \code{getwd()}.
+#' @export
 #' @family coding-functions
 #' @keywords IO utilities
 #' @seealso base::assign base::readRDS base::saveRDS
 #' @examples
-#' ## TODO
-#
+#' the_answer <- function() {
+#'   print("answer requested")
+#'   42L
+#' }
+#' set("answer", the_answer(), NULL) # prints 'answer requested'
+#' set("answer", the_answer(), NULL) # does not print
+#' answer # 42
+#'
 set <- function(name, expr, template = "%s.Rda", env = parent.frame(),
     inherits = TRUE) {
   if (exists(name, NULL, env, NULL, "any", inherits))
