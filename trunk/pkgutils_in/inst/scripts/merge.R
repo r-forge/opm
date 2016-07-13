@@ -26,7 +26,10 @@ INSERTED_COLUMNS <- character()
 
 do_write <- function(x, opt) {
   if (is.data.frame(x) || is.matrix(x))
-    write.table(x = x, sep = opt$separator, row.names = FALSE, na = opt$prune,
+    write.table(x = x, sep = if (nzchar(opt$separator))
+        opt$separator
+      else
+        "\t", row.names = FALSE, na = opt$prune,
       quote = !opt$unquoted, col.names = !opt$bald || opt$`make-header`)
   else
     write(x = yaml::as.yaml(x), file = "")
@@ -36,9 +39,10 @@ do_write <- function(x, opt) {
 do_read <- function(infile, opt) {
   if (infile == "-")
     infile <- file("stdin")
-  x <- read.delim(infile, sep = opt$separator, check.names = opt$names,
+  x <- read.table(file = infile, sep = opt$separator, check.names = opt$names,
     strip.white = !opt$keep, header = !opt$bald, na.strings = opt$prune,
-    stringsAsFactors = FALSE, fileEncoding = opt$encoding)
+    stringsAsFactors = FALSE, fileEncoding = opt$encoding, fill = TRUE,
+    comment.char = "", quote = "\"")
   if (any(dup <- duplicated.data.frame(x))) {
     warning("removing ", sum(dup), " duplicate row(s)")
     x <- x[!dup, , drop = FALSE]
@@ -180,6 +184,19 @@ fill_downwards <- function(x, ...) {
 }
 
 
+narrow <- function(x, opt) {
+  get_cols <- function(col1, col2, x, insert) {
+    x <- x[, c(col2, col1), drop = FALSE]
+    colnames(x)[ncol(x)] <- COLUMN_DEFAULT_NAME
+    x[, insert] <- col1
+    x
+  }
+  xcol <- opt$xcolumn
+  inam <- opt$insert
+  do.call(rbind, lapply(setdiff(colnames(x), xcol), get_cols, xcol, x, inam))
+}
+
+
 to_yaml <- function(files, opt) {
   dataframe_to_map <- function(x, from) {
     to_map <- function(x, from) {
@@ -238,8 +255,11 @@ process_specially <- function(files, opt) {
   } else if (opt$zack) {
     do_convert <- fill_downwards
   } else if (opt$widen) {
-    do_convert <- function(x, opt) pkgutils::unnest(object = x, sep = opt$join,
-      col = opt$xcolumn)
+    do_convert <- if (opt$all)
+        narrow
+      else
+        function(x, opt) pkgutils::unnest(object = x, sep = opt$join,
+          col = opt$xcolumn)
   } else if (nzchar(opt$`map-table`)) {
     opt$`map-table` <- if (opt$`map-table` == "_")
         list()
@@ -313,7 +333,8 @@ option.parser <- optparse::OptionParser(option_list = list(
 
   optparse::make_option(c("-a", "--all"), action = "store_true",
     help = paste0("Keep non-matching lines of file 2, too; with -v, keep all ",
-      "(even duplicated) entries [default: %default]"),
+      "(even duplicated) entries; with -w, create 'long' format",
+      " [default: %default]"),
     default = FALSE),
 
   # A
@@ -372,7 +393,7 @@ option.parser <- optparse::OptionParser(option_list = list(
   optparse::make_option(c("-I", "--insert"), type = "character",
     help = paste("Prefix for name of column to insert if only -x/-y columns",
       "are present [default: '%default']"),
-    metavar = "NAME", default = "present"),
+    metavar = "NAME", default = "Present"),
 
   optparse::make_option(c("-j", "--join-by"), type = "character",
     help = "Join character(s) for -r/-v [default: '%default']",
@@ -455,7 +476,8 @@ option.parser <- optparse::OptionParser(option_list = list(
   # V
 
   optparse::make_option(c("-w", "--widen"), action = "store_true",
-    help = "Widen (unnest) selected column(s) [default: %default]",
+    help = paste0("Widen (unnest) selected column(s); with -a, create 'long'",
+    " format [default: %default]"),
     default = FALSE),
 
   # W
