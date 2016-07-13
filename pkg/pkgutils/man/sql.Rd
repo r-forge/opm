@@ -48,12 +48,8 @@
 }
 \examples{
 ## formula method
-x <- projects(id, strain = strain_number, if (gram_stain == "N.D.")
-    "?"
-  else
-    gram_stain) ~ project_name == "KMG-1" &
-  (coalesce(strain_number, 3) > -4000 | !is_type_strain) &
-  img_object_id == NULL
+x <- mytable(a, b, if (c1 > 15 | c2 == NULL) c1 else c2) ~
+  b < 69 & a \%in\% c("x", "y")
 (y <- sql(x))
 stopifnot(is.character(y), length(y) == 1L)
 }
