@@ -148,7 +148,7 @@ join_most_frequent <- function(x, collapse) {
 to_numbered_header <- function(x) {
   x[x == COLUMN_DEFAULT_NAME] <- "1"
   x <- sub("^\\s*V", "", x, TRUE, TRUE)
-  sprintf("V%i", tryCatch(as.integer(x), warning = stop))
+  sprintf("V%i", tryCatch(expr = as.integer(x), warning = stop))
 }
 
 
@@ -331,7 +331,7 @@ include_approximate_matches <- function(x, y, options, idx) {
 
 option.parser <- optparse::OptionParser(option_list = list(
 
-  optparse::make_option(c("-a", "--all"), action = "store_true",
+  optparse::make_option(opt_str = c("-a", "--all"), action = "store_true",
     help = paste0("Keep non-matching lines of file 2, too; with -v, keep all ",
       "(even duplicated) entries; with -w, create 'long' format",
       " [default: %default]"),
@@ -339,34 +339,34 @@ option.parser <- optparse::OptionParser(option_list = list(
 
   # A
 
-  optparse::make_option(c("-b", "--bald"), action = "store_true",
+  optparse::make_option(opt_str = c("-b", "--bald"), action = "store_true",
     help = "Assume files have no headers [default: %default]",
     default = FALSE),
 
   # B
 
-  optparse::make_option(c("-c", "--conserve"), action = "store_true",
+  optparse::make_option(opt_str = c("-c", "--conserve"), action = "store_true",
     help = "Conserve input column order, do not sort [default: %default]",
     default = FALSE),
 
   # C
 
-  optparse::make_option(c("-d", "--delete"), action = "store_true",
+  optparse::make_option(opt_str = c("-d", "--delete"), action = "store_true",
     help = "Delete non-matching lines of file 1 [default: %default]",
     default = FALSE),
 
-  optparse::make_option(c("-D", "--duplicates"), action = "store_true",
+  optparse::make_option(opt_str = c("-D", "--duplicates"),
+    action = "store_true", default = FALSE,
     help = paste0("Remove duplicates of the specified combination of ",
-      "columns, skip normal run [default: %default]"),
-    default = FALSE),
+      "columns, skip normal run [default: %default]")),
 
-  optparse::make_option(c("-e", "--encoding"), type = "character",
+  optparse::make_option(opt_str = c("-e", "--encoding"), type = "character",
     help = "Encoding to be assumed in input files [default: '%default']",
     metavar = "NAME", default = ""),
 
   # E
 
-  optparse::make_option(c("-f", "--first"), action = "store_true",
+  optparse::make_option(opt_str = c("-f", "--first"), action = "store_true",
     help = "Do not adapt column names of file 1 [default: %default]",
     default = FALSE),
 
@@ -374,129 +374,129 @@ option.parser <- optparse::OptionParser(option_list = list(
 
   # g
 
-  optparse::make_option(c("-G", "--good"), action = "store_true",
+  optparse::make_option(opt_str = c("-G", "--good"), action = "store_true",
     help = paste0("Use case-insensitive matching; with -v, keep only most ",
       "frequent entries; with -D, delete duplicate lines; with -r, ",
       "carefully merge only the selected columns [default: %default]"),
     default = FALSE),
 
-  optparse::make_option(c("-h", "--help"), action = "store_true",
+  optparse::make_option(opt_str = c("-h", "--help"), action = "store_true",
     help = "Print help message and exit [default: %default]",
     default = FALSE),
 
   # H
 
-  optparse::make_option(c("-i", "--indices"), action = "store_true",
+  optparse::make_option(opt_str = c("-i", "--indices"), action = "store_true",
     help = "Use indices for adapting column names [default: %default]",
     default = FALSE),
 
-  optparse::make_option(c("-I", "--insert"), type = "character",
+  optparse::make_option(opt_str = c("-I", "--insert"), type = "character",
     help = paste("Prefix for name of column to insert if only -x/-y columns",
       "are present [default: '%default']"),
     metavar = "NAME", default = "Present"),
 
-  optparse::make_option(c("-j", "--join-by"), type = "character",
+  optparse::make_option(opt_str = c("-j", "--join-by"), type = "character",
     help = "Join character(s) for -r/-v [default: '%default']",
     metavar = "SEP", default = "; "),
 
   # J
 
-  optparse::make_option(c("-k", "--keep"), action = "store_true",
+  optparse::make_option(opt_str = c("-k", "--keep"), action = "store_true",
     help = "Keep whitespace surrounding the separators [default: %default]",
     default = FALSE),
 
   # K
 
-  optparse::make_option(c("-l", "--load"), action = "store_true",
+  optparse::make_option(opt_str = c("-l", "--load"), action = "store_true",
     help = "Randomly replace missing by present values [default: %default]",
     default = FALSE),
 
   # L
 
-  optparse::make_option(c("-m", "--make-header"), action = "store_true",
+  optparse::make_option(opt_str = c("-m", "--make-header"),
     help = "Output headers even for input without headers [default: %default]",
-    default = FALSE),
+    default = FALSE, action = "store_true"),
 
-  optparse::make_option(c("-M", "--map-table"), type = "character",
+  optparse::make_option(opt_str = c("-M", "--map-table"), type = "character",
     help = "YAML file for table-mapping running mode [default: %default]",
     default = "", metavar = "FILE"),
 
-  optparse::make_option(c("-n", "--names"), action = "store_true",
+  optparse::make_option(opt_str = c("-n", "--names"), action = "store_true",
     help = "Convert column names to syntactical names [default: %default]",
     default = FALSE),
 
   # N
 
-  optparse::make_option(c("-o", "--onename"), action = "store_true",
+  optparse::make_option(opt_str = c("-o", "--onename"), action = "store_true",
     help = paste("Do not split arguments of '-x' and '-y' at ','",
       "[default: %default]"), default = FALSE),
 
   # O
 
-  optparse::make_option(c("-p", "--prune"), type = "character",
+  optparse::make_option(opt_str = c("-p", "--prune"), type = "character",
     help = "Value to prune by treating as NA [default: %default]",
     default = "NA", metavar = "STR"),
 
   # P
 
-  optparse::make_option(c("-q", "--unique"), action = "store_true",
+  optparse::make_option(opt_str = c("-q", "--unique"), action = "store_true",
     help = "Make entries in join column unique [default: %default]",
     default = FALSE),
 
   # Q
 
-  optparse::make_option(c("-r", "--rows"), action = "store_true",
+  optparse::make_option(opt_str = c("-r", "--rows"), action = "store_true",
     help = "Merge each row horizontally, file by file [default: %default]",
     default = FALSE),
 
   # R
 
-  optparse::make_option(c("-s", "--separator"), type = "character",
+  optparse::make_option(opt_str = c("-s", "--separator"), type = "character",
     help = "Field separator in CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
 
   # S
 
-  optparse::make_option(c("-t", "--threshold"), type = "numeric",
+  optparse::make_option(opt_str = c("-t", "--threshold"), type = "numeric",
     help = "Threshold for error-tolerant matching [default: %default]",
     metavar = "NUM", default = -1),
 
   # T
 
-  optparse::make_option(c("-u", "--unquoted"), action = "store_true",
+  optparse::make_option(opt_str = c("-u", "--unquoted"), action = "store_true",
     help = "Do not quote fields in output [default: %default]",
     default = FALSE),
 
   # U
 
-  optparse::make_option(c("-v", "--vertical"), action = "store_true",
+  optparse::make_option(opt_str = c("-v", "--vertical"), action = "store_true",
     help = "Merge vertically, file by file [default: %default]",
     default = FALSE),
 
   # V
 
-  optparse::make_option(c("-w", "--widen"), action = "store_true",
+  optparse::make_option(opt_str = c("-w", "--widen"), action = "store_true",
     help = paste0("Widen (unnest) selected column(s); with -a, create 'long'",
     " format [default: %default]"),
     default = FALSE),
 
   # W
 
-  optparse::make_option(c("-x", "--xcolumn"), type = "character",
+  optparse::make_option(opt_str = c("-x", "--xcolumn"), type = "character",
     help = "Name of the merge column(s) in file 1 [default: '%default']",
     default = COLUMN_DEFAULT_NAME, metavar = "COLUMNS"),
 
   # X
 
-  optparse::make_option(c("-y", "--ycolumn"), type = "character",
+  optparse::make_option(opt_str = c("-y", "--ycolumn"), type = "character",
     help = "Name of the merge column(s) in file 2 [default: like file 1]",
     default = "", metavar = "COLUMNS"),
 
-  optparse::make_option(c("-Y", "--yaml"), action = "store_true",
+  optparse::make_option(opt_str = c("-Y", "--yaml"), action = "store_true",
     help = "Produce YAML mappings, skip normal run [default: %default]",
     default = FALSE),
 
-  optparse::make_option(c("-z", "--zack"), action = "store_true",
+  optparse::make_option(opt_str = c("-z", "--zack"), action = "store_true",
     help = "Fill (sack) column(s) downwards [default: %default]",
     default = FALSE)
 
@@ -514,7 +514,7 @@ option.parser <- optparse::OptionParser(option_list = list(
 )
 
 
-opt <- optparse::parse_args(option.parser, positional_arguments = TRUE)
+opt <- optparse::parse_args(object = option.parser, positional_arguments = TRUE)
 files <- opt$args
 opt <- opt$options
 
@@ -624,7 +624,7 @@ if (length(opt$ycolumn) > length(opt$xcolumn)) {
   for (i in seq_along(data)[-1L]) {
     if (opt$threshold >= 0)
       data[[i]] <- include_approximate_matches(x, data[[i]], opt, i)
-    x <- merge(x, data[[i]], by.x = opt$xcolumn, by.y = opt$ycolumn,
+    x <- merge(x = x, y = data[[i]], by.x = opt$xcolumn, by.y = opt$ycolumn,
       all.x = !opt$delete, all.y = opt$all, sort = !opt$conserve)
   }
 }
