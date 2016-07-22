@@ -190,8 +190,10 @@ setMethod("hours", "OPM", function(object,
 #' @param x \code{\link{OPM}}, \code{\link{OPMA}} or \code{\link{OPMS}} object.
 #' @param i Vector or missing. For the \code{\link{OPM}} and \code{\link{OPMA}}
 #'   method, the indexes of one to several time points. In that case, \code{i}
-#'   can also be a formula whose right side indicates an upper boundary of the
-#'   running time.
+#'   can also be a formula whose right side should be numeric to indicate an
+#'   upper boundary of the running time (use \code{NA} to cause the removal of
+#'   duplicate time points, which might occur as an artefact from generating
+#'   subsets or from applying the \code{\link{merge}} method).
 #'
 #'   For the \code{\link{OPMS}} method, the indexes of one to several plates. A
 #'   warning is issued if indexing goes beyond the range. If \code{i} is neither
