@@ -35,20 +35,18 @@
   a graphical user interface such as <a href=
   "http://www.rstudio.com/">RStudio</a>. Both are freely available;
   instructions for installation are given on their websites. Maria
-  del Carmen Montero Calasanz has compiled a <a href=
+  del Carmen Montero-Calasanz has compiled a <a href=
   "linked/opm_installation_windows.pdf">detailed description</a> of
   the installation of <code>opm</code> etc. under Windows. The
   shown use of graphical user interfaces is similar on other
   systems.</p>
 
-  <p>There are two recommended installation options for
-  <code>opm</code> and its dependencies. The first way is to visit
-  the <a href=
+  <p>There are three ways to install <code>opm</code> and its
+  dependencies. The first way is to visit the <a href=
   "https://r-forge.r-project.org/R/?group_id=1573"><code>opm</code>
   R-Forge site</a>, download the source files or Windows binaries
-  and install them locally.</p>
-
-  <p>Alternatively, at the <code>R</code> prompt, enter:</p>
+  and install them locally. Alternatively, at the <code>R</code>
+  prompt, enter:</p>
   <pre>
 <code class="r">
   source("http://www.goeker.org/opm/install_opm.R")
@@ -56,29 +54,57 @@
 </pre>
 
   <p>You will then be asked for what exactly to install. In our
-  experience this also works under Windows, if otherwise please let
-  us know. <code>Rtools</code> is <em>not</em> needed to install
-  the package, but we have observed that old <code>Rtools</code>
-  versions might yield errors with the <code>opm</code>
-  installation script. If so, either deinstall or upgrade
-  <code>Rtools</code> before running the script. The same holds for
-  outdated <code>R</code> packages on which <code>opm</code> or the
-  installation script depend. For instance, <a href=
-  "https://www.bioconductor.org/install/">biocLite</a> is a
-  convenient tool to update many packages at once. In the case of
-  errors that cannot be resolved, please send us the
-  <em>complete</em> output generated when loading the installation
-  file.</p>
-
-  <p><code>opm</code> and its helper packages can, of course, also
-  be downloaded as described below and installed manually (and
-  optionally checked beforehand).</p>
-
-  <p>Documentation comes with the packages but is also linked
-  below. <!--  Occasional error messages found in the
+  experience this works well under Windows, if otherwise please let
+  us know. (But please first see the troubleshooting section.)
+  Third, <code>opm</code> and its helper packages can be downloaded
+  using the links further below on this page and installed manually
+  (and optionally checked beforehand). Documentation comes with the
+  packages but is also linked below. 
+  <!--  Occasional error messages found in the
   <acronym>HTML</acronym> documentation, if any, are specific to
   applying <code>knitr</code> to the packages. We would not
   normally upload packages that failed any of the checks. --></p>
+
+  <h2>Troubleshooting</h2>
+
+  <p>The only somewhat more frequently encountered problems we are
+  aware of when attempting to install <code>opm</code> and its
+  dependencies are the following.</p>
+
+  <dl>
+    <dt>Outdated <code>R</code> environment</dt>
+
+    <dd>There is only one solution to this problem, to download and
+    install a newer version of <a href=
+    "https://cran.r-project.org/"><code>R</code></a>. Detailed
+    instructions on how to do this are given <a href=
+    "https://cran.r-project.org/">elsewhere</a>.</dd>
+
+    <dt>Outdated <code>R</code> packages</dt>
+
+    <dd>Outdated <code>R</code> packages on which <code>opm</code>
+    or the installation script depend hinder the installation. To
+    solve this we recommend <a href=
+    "https://www.bioconductor.org/install/">biocLite</a> as a
+    convenient tool to install not only <code>Bioconductor</code>
+    but also core packages, and to update many packages at once. To
+    use <code>biocLite</code> just copy and paste the code snippet
+    shown <a href="https://www.bioconductor.org/install/">there</a>
+    into the <code>R</code> prompt.</dd>
+
+    <dt><code>Rtools</code> on Windows</dt>
+
+    <dd><code>Rtools</code> is <em>not needed</em> to install the
+    <code>opm</code> package (not even under Windows), but we have
+    observed that old <code>Rtools</code> versions might yield
+    errors with the <code>opm</code> installation script. If so,
+    either deinstall or upgrade <code>Rtools</code> before running
+    the script.</dd>
+  </dl>
+
+  <p>In the case of errors that cannot be resolved, please send us
+  the <em>complete</em> output generated when loading the
+  installation file.</p>
 
   <h2>Tutorials</h2>
 
