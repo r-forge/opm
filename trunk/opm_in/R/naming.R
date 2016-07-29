@@ -580,14 +580,14 @@ setMethod("register_plate", "list", function(object, ...) {
 #' @param word.wise Logical scalar. If \code{TRUE}, abbreviation works by
 #'   truncating each word separately, and removing vowels first.
 #' @param paren.sep Character scalar. What to insert before the opening
-#'   parenthesis (or bracket). Currently only zero to many whitespace characters
-#'   are allowed. The ability to insert a line break is the main purpose of this
-#'   argument. Using the \sQuote{at sign} as value is the only alternative and
-#'   also special, as it causes the plate name itself to be appended to the well
-#'   coordinate (after an \sQuote{at sign}, without parentheses or brackets). So
-#'   mapping is not actually done in that case but the resulting names are
-#'   understood by certain other \pkg{opm} methods which can conduct the mapping
-#'   at a later stage.
+#'   parenthesis (or bracket) if \code{full} is chosen. Currently only zero to
+#'   many whitespace characters are allowed. The ability to insert a line break
+#'   is the main purpose of this argument. Using the \sQuote{at sign} as value
+#'   is the only alternative and also special, as it causes the plate name
+#'   itself to be appended to the well coordinate (after an \sQuote{at sign},
+#'   without parentheses or brackets). So mapping is not actually done in that
+#'   case but the resulting names are understood by certain other \pkg{opm}
+#'   methods which can conduct the mapping at a later stage.
 #' @param downcase Logical scalar indicating whether full names should be
 #'   (carefully) converted to lower case. This uses \code{\link{substrate_info}}
 #'   in \kbd{downcase} mode; see there for details.
@@ -598,6 +598,9 @@ setMethod("register_plate", "list", function(object, ...) {
 #'   \code{object} is of class \code{\link{OPM}} or \code{\link{OPMS}}.
 #'   Normalisation as in \code{\link{plate_type}} is applied before searching
 #'   for the substrate names but otherwise the match must be exact.
+#' @param prefix Logical scalar indicating whether the (short) plate name should
+#'   be prepended to the well name. Only works in conjunction with \code{full}
+#'   and \code{in.parens}.
 #' @param simplify Logical scalar indicating whether the result should be
 #'   simplified to a vector. This will never be done if more than a single
 #'   column is contained, i.e. if data for more than a single plate type are
@@ -730,7 +733,7 @@ setGeneric("wells", function(object, ...) standardGeneric("wells"))
 setMethod("wells", "OPM", function(object, full = FALSE, in.parens = TRUE,
     max = opm_opt("max.chars"), brackets = FALSE, clean = TRUE,
     word.wise = FALSE, paren.sep = " ", downcase = FALSE, rm.num = FALSE,
-    plate = plate_type(object), simplify = TRUE) {
+    plate = plate_type(object), prefix = FALSE, simplify = TRUE) {
   LL(full, simplify, plate)
   x <- colnames(object@measurements)[-1L]
   if (!missing(plate))
@@ -739,9 +742,10 @@ setMethod("wells", "OPM", function(object, full = FALSE, in.parens = TRUE,
     else
       normalize_predefined_plate(plate)
   if (full)
-    x <- structure(.Data = map_well_names(x, plate, in.parens = in.parens,
-      max = max, brackets = brackets, clean = clean, word.wise = word.wise,
-      paren.sep = paren.sep, downcase = downcase, rm.num = rm.num), names = x)
+    x <- structure(.Data = map_well_names(wells = x, plate = plate,
+      in.parens = in.parens, max = max, brackets = brackets, clean = clean,
+      word.wise = word.wise, paren.sep = paren.sep, downcase = downcase,
+      rm.num = rm.num, prefix = prefix), names = x)
   if (simplify)
     return(x)
   x <- matrix(x, length(x), 1L, FALSE, list(names(x), plate))
@@ -752,7 +756,7 @@ setMethod("wells", "OPM", function(object, full = FALSE, in.parens = TRUE,
 setMethod("wells", "ANY", function(object, full = TRUE, in.parens = FALSE,
     max = opm_opt("max.chars"), brackets = FALSE, clean = TRUE,
     word.wise = FALSE, paren.sep = " ", downcase = FALSE, rm.num = FALSE,
-    plate = "PM01", simplify = FALSE) {
+    plate = "PM01", prefix = FALSE, simplify = FALSE) {
   LL(full, simplify)
   x <- well_index(object, rownames(WELL_MAP))
   if (!is.character(x))
@@ -765,9 +769,10 @@ setMethod("wells", "ANY", function(object, full = TRUE, in.parens = FALSE,
   x[, !ok] <- NA_character_
   if (full)
     for (i in which(ok))
-      x[, i] <- map_well_names(x[, i], colnames(x)[i], in.parens = in.parens,
-        max = max, brackets = brackets, clean = clean, word.wise = word.wise,
-        paren.sep = paren.sep, downcase = downcase, rm.num = rm.num)
+      x[, i] <- map_well_names(wells = x[, i], plate = colnames(x)[i],
+        in.parens = in.parens, max = max, brackets = brackets, clean = clean,
+        word.wise = word.wise, paren.sep = paren.sep, downcase = downcase,
+        rm.num = rm.num, prefix = prefix)
   if (simplify && ncol(x) == 1L)
     return(x[, 1L])
   class(x) <- "well_coords_map"
