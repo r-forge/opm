@@ -176,6 +176,7 @@ repair_docu.Rd <- function(x, remove.dups = FALSE, text.dups = FALSE,
       },
       COMMENT =,
       VERB = x,
+      USERMACRO =,
       RCODE = {
         switch(parent.tags[[1L]],
           `\\usage` = {
