@@ -906,6 +906,10 @@ setMethod("ci_plot", "MOPMX", function(object, ...) {
 #' @param plot.na Character scalar with the name of an optional attribute that
 #'   contains replacement values for \code{NA} that are inserted prior to
 #'   plotting.
+#' @param reorderfun Function passed to \code{heatmap} or \code{heatmap.2}. The
+#'   modification from their defaults is intended to yield an ordering that
+#'   more strongly reflects row and column sums (instead of also taking cluster
+#'   size into consideration).
 #'
 #' @param ... Optional arguments passed to \code{heatmap} or \code{heatmap.2}.
 #'   Note that some defaults of \code{heatmap.2} are overwritten even though
@@ -969,7 +973,7 @@ setMethod("heat_map", "matrix", function(object,
       c(5, 5),
     col = opm_opt("heatmap.colors"), asqr = FALSE, log1 = FALSE, lmap = 1L:3L,
     abbrev = c("none", "row", "column", "both"), plot.na = "plot.NA",
-    ...,
+    reorderfun = function(d, w) reorder(d, w, mean), ...,
     use.fun = c("gplots", "stats")) {
 
   shorten <- function(x, n1 = 0L, n2 = 3L) {

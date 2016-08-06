@@ -75,6 +75,10 @@ NULL
 #'
 NULL
 
+#' @importFrom stats reorder
+#'
+NULL
+
 #' @importFrom utils URLencode as.relistable browseURL data glob2rx write.table
 #'
 NULL

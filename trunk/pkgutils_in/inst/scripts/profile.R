@@ -13,14 +13,10 @@
 ################################################################################
 
 
-for (lib in c("tools", "optparse"))
-  library(lib, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)
-
-
 make_outfiles <- function(x, opt) {
   if (opt$stdout)
     return(rep.int("/dev/stdout", length(x)))
-  x <- sprintf("%s.%s", file_path_sans_ext(x, TRUE), opt$extension)
+  x <- sprintf("%s.%s", tools::file_path_sans_ext(x, TRUE), opt$extension)
   if (nzchar(opt$directory))
     file.path(opt$directory, basename(x))
   else
@@ -36,30 +32,30 @@ parse_arg_listing <- function(x) {
 ################################################################################
 
 
-option.parser <- OptionParser(option_list = list(
+option.parser <- optparse::OptionParser(option_list = list(
 
-  make_option(c("-d", "--directory"), type = "character", default = ".",
+  optparse::make_option(opt_str = c("-d", "--directory"), type = "character",
     help = "Output directory (empty => input directory) [default: %default]",
+    metavar = "STR", default = "."),
+
+  optparse::make_option(opt_str = c("-e", "--extension"), type = "character",
+    help = "Output file extension [default: %default]", default = "out",
     metavar = "STR"),
 
-  make_option(c("-e", "--extension"), type = "character", default = "out",
-    help = "Output file extension [default: %default]",
-    metavar = "STR"),
-
-  make_option(c("-f", "--files"), type = "character", default = "",
+  optparse::make_option(opt_str = c("-f", "--files"), type = "character",
     help = "Comma-separated list of *.rda files to load [default: %default]",
-    metavar = "STR"),
+    metavar = "STR", default = ""),
 
-  make_option(c("-l", "--libraries"), type = "character", default = "",
+  optparse::make_option(opt_str = c("-l", "--libraries"), type = "character",
     help = "Comma-separated list of R libraries to load [default: %default]",
-    metavar = "STR"),
+    metavar = "STR", default = ""),
 
-  make_option(c("-r", "--replicates"), type = "integer", default = 100L,
+  optparse::make_option(opt_str = c("-r", "--replicates"), type = "integer",
     help = "Number of replicates when profiling [default: %default]",
-    metavar = "NUM"),
+    metavar = "NUM", default = 100L),
 
-  make_option(c("-s", "--stdout"), action = "store_true", default = FALSE,
-    help = "Send output to STDOUT [default: %default]")
+  optparse::make_option(opt_str = c("-s", "--stdout"), action = "store_true",
+    help = "Send output to STDOUT [default: %default]", default = FALSE)
 
 ))
 
@@ -67,22 +63,22 @@ option.parser <- OptionParser(option_list = list(
 ################################################################################
 
 
-opt <- parse_args(option.parser, positional_arguments = TRUE)
+opt <- optparse::parse_args(object = option.parser, positional_arguments = TRUE)
 infiles <- opt$args
 opt <- opt$options
 
-
 if (opt$help || !length(infiles)) {
-  print_help(option.parser)
-  quit(status = 1L)
+  optparse::print_help(option.parser)
+  quit("no", 1L)
 }
 
-
+opt$files <- parse_arg_listing(opt$files)
 opt$libraries <- parse_arg_listing(opt$libraries)
+opt$replicates <- seq_len(opt$replicates)
+
 invisible(lapply(X = opt$libraries, FUN = require, quietly = TRUE,
   warn.conflicts = FALSE, character.only = TRUE))
-
-for (file in opt$files <- parse_arg_listing(opt$files))
+for (file in opt$files)
   load(file)
 
 
@@ -95,9 +91,9 @@ for (file in opt$files <- parse_arg_listing(opt$files))
 outfiles <- make_outfiles(infiles, opt)
 
 for (i in seq_along(infiles)) {
-  expr <- parse(infiles[i])
-  Rprof(outfiles[i])
-  for (i in seq_len(opt$replicates))
+  expr <- parse(infiles[[i]])
+  Rprof(outfiles[[i]])
+  for (j in opt$replicates)
     eval(expr)
   Rprof(NULL)
 }
