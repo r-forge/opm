@@ -17,6 +17,8 @@ COLUMN_DEFAULT_NAME <- "Object"
 
 INSERTED_COLUMNS <- character()
 
+options(warn = 1L)
+
 
 ################################################################################
 #
@@ -24,15 +26,15 @@ INSERTED_COLUMNS <- character()
 #
 
 
-do_write <- function(x, opt) {
+do_write <- function(x, opt, file = "") {
   if (is.data.frame(x) || is.matrix(x))
-    write.table(x = x, sep = if (nzchar(opt$separator))
+    write.table(x = x, file = file, sep = if (nzchar(opt$separator))
         opt$separator
       else
         "\t", row.names = FALSE, na = opt$prune,
       quote = !opt$unquoted, col.names = !opt$bald || opt$`make-header`)
   else
-    write(x = yaml::as.yaml(x), file = "")
+    write(x = yaml::as.yaml(x), file = file)
 }
 
 
@@ -58,6 +60,41 @@ truncate <- function(files) {
 
 trunc_zeros <- function(x) {
   gsub("(?<!\\d)0+(?=\\d)", "", x, FALSE, TRUE)
+}
+
+
+read_sheets <- function(file, header, na.strings) {
+  read_ods <- function(file, header, na.strings) {
+    sheets <- readODS::ods_sheets(file)
+    sapply(X = sheets, FUN = readODS::read_ods, path = file, na = na.strings,
+      col_names = header, formula_as_formula = TRUE, simplify = FALSE)
+  }
+  read_xls <- function(file, header) {
+    wb <- XLConnect::loadWorkbook(file)
+    sheets <- XLConnect::getSheets(wb)
+    sapply(X = sheets, FUN = XLConnect::readWorksheet, object = wb,
+      header = header, check.names = FALSE, readStrategy = "fast",
+      autofitRow = TRUE, autofitCol = TRUE, simplify = FALSE)
+  }
+  switch(tolower(ext <- tools::file_ext(file)),
+    ods = read_ods(file, header, na.strings),
+    xls =,
+    xlsx = read_xls(file, header),
+    stop(sprintf("file extension \"%s\" not recognized", ext))
+  )
+}
+
+
+process_spreadsheets <- function(files, options) {
+  outext <- switch(options$separator, `;` = "ssv", `\t` = "tsv", "csv")
+  files <- pkgutils::map_filenames(files, outext, "SHEET_%s")
+  for (i in seq_len(nrow(files))) {
+    x <- read_sheets(files[i, 1L], !options$bald, options$prune)
+    names(x) <- chartr(".", "_", make.names(names(x), TRUE))
+    mapply(FUN = do_write, x = x, file = sprintf(files[i, 2L], names(x)),
+      MoreArgs = list(opt = options), SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  }
+  files
 }
 
 
@@ -434,7 +471,7 @@ option.parser <- optparse::OptionParser(option_list = list(
   # O
 
   optparse::make_option(opt_str = c("-p", "--prune"), type = "character",
-    help = "Value to prune by treating as NA [default: %default]",
+    help = "Value to prune by treating as NA [default: '%default']",
     default = "NA", metavar = "STR"),
 
   # P
@@ -455,7 +492,10 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Field separator in CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
 
-  # S
+  optparse::make_option(opt_str = c("-S", "--spreadsheets"),
+    help = paste0("Split LibreOffice/OpenOffice/Excel spreadsheet files",
+      ", skip normal run [default: %default]"),
+    action = "store_true", default = FALSE),
 
   optparse::make_option(opt_str = c("-t", "--threshold"), type = "numeric",
     help = "Threshold for error-tolerant matching [default: %default]",
@@ -560,13 +600,16 @@ if (opt$help || !length(files)) {
 # generation; everything file-by-file, no merging between files
 #
 
-if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack ||
+if (opt$spreadsheets) {
+  process_spreadsheets(files, opt)
+  quit("no", 0L)
+} else if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack ||
     opt$duplicates || nzchar(opt$`map-table`)) {
   process_specially(files, opt)
-  quit()
+  quit("no", 0L)
 } else if (opt$yaml) {
   to_yaml(files, opt)
-  quit()
+  quit("no", 0L)
 }
 
 
