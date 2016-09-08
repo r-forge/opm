@@ -33,6 +33,10 @@ do_write <- function(x, opt, file = "") {
       else
         "\t", row.names = FALSE, na = opt$prune,
       quote = !opt$unquoted, col.names = !opt$bald || opt$`make-header`)
+  else if (is.list(x) && !is.null(names(x)) &&
+      all(vapply(x, is.data.frame, NA)))
+    mapply(FUN = do_write, x = x, file = names(x), MoreArgs = list(opt = opt),
+      SIMPLIFY = FALSE, USE.NAMES = FALSE)
   else
     write(x = yaml::as.yaml(x), file = file)
 }
@@ -63,6 +67,11 @@ trunc_zeros <- function(x) {
 }
 
 
+output_extension <- function(options) {
+  switch(options$separator, `;` = "ssv", `\t` = "tsv", "csv")
+}
+
+
 read_sheets <- function(file, header, na.strings) {
   read_ods <- function(file, header, na.strings) {
     sheets <- readODS::ods_sheets(file)
@@ -86,8 +95,7 @@ read_sheets <- function(file, header, na.strings) {
 
 
 process_spreadsheets <- function(files, options) {
-  outext <- switch(options$separator, `;` = "ssv", `\t` = "tsv", "csv")
-  files <- pkgutils::map_filenames(files, outext, "SHEET_%s")
+  files <- pkgutils::map_filenames(files, output_extension(options), "SHEET_%s")
   for (i in seq_len(nrow(files))) {
     x <- read_sheets(files[i, 1L], !options$bald, options$prune)
     names(x) <- chartr(".", "_", make.names(names(x), TRUE))
@@ -303,6 +311,13 @@ process_specially <- function(files, opt) {
       else
         yaml::yaml.load_file(opt$`map-table`)
     do_convert <- function(x, opt) pkgutils::map_values(x, opt$`map-table`)
+  } else if (opt$fission) {
+    do_convert <- function(x, opt) {
+      x <- split.data.frame(x, x[, opt$xcolumn])
+      names(x) <- chartr(".", "_", make.names(names(x), TRUE))
+      names(x) <- sprintf("%s.%s", names(x), output_extension(opt))
+      x
+    }
   } else {
     stop("invalid combination of options")
   }
@@ -407,7 +422,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Do not adapt column names of file 1 [default: %default]",
     default = FALSE),
 
-  # F
+  optparse::make_option(opt_str = c("-F", "--fission"), action = "store_true",
+    help = "Fission each file by the chosen column(s) [default: %default]",
+    default = FALSE),
 
   # g
 
@@ -604,7 +621,7 @@ if (opt$spreadsheets) {
   process_spreadsheets(files, opt)
   quit("no", 0L)
 } else if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack ||
-    opt$duplicates || nzchar(opt$`map-table`)) {
+    opt$duplicates || opt$fission || nzchar(opt$`map-table`)) {
   process_specially(files, opt)
   quit("no", 0L)
 } else if (opt$yaml) {
