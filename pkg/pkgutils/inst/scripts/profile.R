@@ -46,8 +46,8 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Comma-separated list of *.rda files to load [default: %default]",
     metavar = "STR", default = ""),
 
-  optparse::make_option(opt_str = c("-l", "--libraries"), type = "character",
-    help = "Comma-separated list of R libraries to load [default: %default]",
+  optparse::make_option(opt_str = c("-p", "--packages"), type = "character",
+    help = "Comma-separated list of R packages to load [default: %default]",
     metavar = "STR", default = ""),
 
   optparse::make_option(opt_str = c("-r", "--replicates"), type = "integer",
@@ -73,10 +73,10 @@ if (opt$help || !length(infiles)) {
 }
 
 opt$files <- parse_arg_listing(opt$files)
-opt$libraries <- parse_arg_listing(opt$libraries)
+opt$packages <- parse_arg_listing(opt$packages)
 opt$replicates <- seq_len(opt$replicates)
 
-invisible(lapply(X = opt$libraries, FUN = require, quietly = TRUE,
+invisible(lapply(X = opt$packages, FUN = require, quietly = TRUE,
   warn.conflicts = FALSE, character.only = TRUE))
 for (file in opt$files)
   load(file)
