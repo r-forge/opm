@@ -378,8 +378,6 @@ setMethod("xy_plot", "OPMS", function(x, col = opm_opt("colors"), lwd = 1,
   # OPMS-specific addition of defaults
   legend.fmt <- insert(as.list(legend.fmt), space = space, .force = FALSE)
 
-  # Selection of a colour set
-  col <- try_select_colors(col)
 
   # Conversion
   data <- flatten(x, ...)
@@ -387,8 +385,14 @@ setMethod("xy_plot", "OPMS", function(x, col = opm_opt("colors"), lwd = 1,
   # Assignment of colours to plates
   param <- flattened_to_factor(object = data, sep = legend.sep)
   key.text <- levels(param)
+
+  if (nzchar(col)) # selection of a colour set, "" is special
+    col <- length(key.text)
+  col <- try_select_colors(col)
+
   if (length(col) < length(key.text))
-    stop("colour should be by plate or metadata, but there are too few colours")
+    stop("colour should be by plate or metadata (", length(key.text),
+      " variants), but there are too few colours (", length(col), ")")
   key.col <- col[seq_along(key.text)]
   col <- col[param]
 
