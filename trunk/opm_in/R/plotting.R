@@ -153,13 +153,13 @@ setMethod("str", "CMAT", function(object, ...) {
 #'
 #'   For the \code{\link{OPMS}} method, either a character vector with colour
 #'   codes or one of the arguments of \code{\link{select_colors}} (for picking
-#'   one of the predefined colour sets).
+#'   one of the predefined colour sets). When \code{col} is the empty string,
+#'   it is automatically replaced by the number of plate grouping levels. See
+#'   \code{\link{select_colors}} for details.
 #'
 #'   It is an error if fewer colours are chosen than the number of plate
 #'   grouping levels (see the \code{\dots} argument below). For user-chosen
-#'   colour sets, keep in mind that the sets are not checked for duplicates, and
-#'   see \code{max_rgb_contrast} from the \pkg{pkgutils} package as a method for
-#'   optimally arranging user-defined colours.
+#'   colour sets, keep in mind that the sets are not checked for duplicates.
 #' @param lwd Numeric scalar determining the line width.
 #'
 #' @param neg.ctrl Determine the height of a horizontal baseline drawn in each
@@ -386,7 +386,7 @@ setMethod("xy_plot", "OPMS", function(x, col = opm_opt("colors"), lwd = 1,
   param <- flattened_to_factor(object = data, sep = legend.sep)
   key.text <- levels(param)
 
-  if (nzchar(col)) # selection of a colour set, "" is special
+  if (!nzchar(col)) # selection of a colour set, "" is special
     col <- length(key.text)
   col <- try_select_colors(col)
 
@@ -461,10 +461,14 @@ setMethod("xy_plot", "data.frame", function(x, f, groups,
   x$`_GROUPING` <- as.factor(x$`_GROUPING`)
 
   # Assignment of colours
-  col <- try_select_colors(col)
   key.text <- levels(x$`_GROUPING`)
+  if (!nzchar(col)) # selection of a colour set, "" is special
+    col <- length(key.text)
+  col <- try_select_colors(col)
   if (length(key.text) > length(col))
-    stop("number of colours must be at least as large as number of groups")
+    stop("number of colours (", length(col),
+      ") must be at least as large as number of groups (",
+      length(key.text), ")")
   key.col <- col[seq_along(key.text)]
   col <- key.col
 
@@ -1017,10 +1021,13 @@ setMethod("heat_map", "matrix", function(object,
     } else {
       groups <- as.character(groups)
     }
-    colors <- try_select_colors(colors)
     groups <- as.factor(groups)
+    if (!nzchar(colors))
+      colors <- length(levels(groups))
+    colors <- try_select_colors(colors)
     if (length(colors) < length(levels(groups)))
-      stop("more groups than colours given")
+      stop("more groups (", length(levels(groups)),
+        ") than colours (", length(colors), ") given")
     structure(.Data = colors[groups], names = as.character(groups))
   }
 
@@ -1255,7 +1262,11 @@ setMethod("radial_plot", "matrix", function(object, as.labels = NULL,
   }
 
   LL(radlab, show.centroid, show.grid.labels, draw.legend, xpd, pch, group.col)
+  if (!nzchar(line.col))
+    line.col <- "w3c"
   line.col <- try_select_colors(line.col)
+  if (!nzchar(point.col))
+    point.col <- "w3c"
   point.col <- try_select_colors(point.col)
   changed.par <- NULL
   on.exit(if (!is.null(changed.par))
@@ -1635,10 +1646,13 @@ setMethod("parallel_plot", c("OPMX", "ANY"), function(x, data, groups = 1L,
   legend.fmt <- insert(as.list(legend.fmt), space = space, .force = FALSE)
 
   # Legend text and colours
-  col <- try_select_colors(col)
   key.text <- levels(x$`_GROUPING`)
+  if (!nzchar(col))
+    col <- length(key.text)
+  col <- try_select_colors(col)
   if (length(col) < length(key.text))
-    stop("colour should be by plate or metadata, but there are too few colours")
+    stop("colour should be by plate or metadata (", length(key.text),
+      " variants), but there are too few colours (", length(col), ")")
   col <- col[seq_along(key.text)]
 
   # Build basic formula and process 'panel.var'
