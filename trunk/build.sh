@@ -107,12 +107,12 @@ FINAL_DIR=../pkg
 #
 find_R_script()
 {
-  local result=`which "$1"`
+  local result=$(which "$1")
   if [ "$result" ] && [ -s "$result" ]; then
     echo "$result"
     return 0
   fi
-  local r_dir=`R RHOME`
+  local r_dir=$(R RHOME)
   local subdir
   for subdir in library site-library; do
     result=$r_dir/$subdir/$2/scripts/$1
@@ -121,7 +121,7 @@ find_R_script()
       return 0
     fi
   done
-  for result in "$HOME"/R/*/*/"$2"/scripts/"$1"; do
+  for result in "$HOME"/R/*/*/"$2/scripts/$1"; do
     if [ -s "$result" ]; then
       echo "$result"
       return 0
@@ -197,7 +197,7 @@ check_graphics_files()
     if [ "$target_file" -ot "$source_file" ]; then
       echo "WARNING: '$target_file' missing or older than '$source_file'" >&2
       echo >&2
-      errs=$(($errs + 1))
+      errs=$((errs + 1))
     fi
   done
   return $errs
@@ -233,7 +233,7 @@ check_vignettes()
           echo "WARNING: '$pdf_file' missing or older than '$sweave_file'" >&2
           echo "create or update '$built_pdf_file' to fix this" >&2
           echo >&2
-          errs=$(($errs + 1))
+          errs=$((errs + 1))
         fi
       fi
       if grep -q '^\\SweaveOpts{concordance=TRUE}' "$sweave_file"; then
@@ -353,7 +353,7 @@ check_R_tests()
       ' "$testfile"
     then
       echo "error in call to awk -- is a modern awk installed?" >&2
-      errs=$(($errs + 1))
+      errs=$((errs + 1))
     fi
   done
   return $errs
@@ -532,8 +532,8 @@ check_roxygen_tags()
 correct_num_cpus()
 {
   local wanted=$(($1 + 0))
-  local got=`grep -wc processor /proc/cpuinfo 2> /dev/null || echo 0`
-  if [ $got -lt $wanted ]; then
+  local got=$(grep -wc processor /proc/cpuinfo 2> /dev/null || echo 0)
+  if [ "$got" -lt "$wanted" ]; then
     echo "WARNING: number of used CPUs reduced from $wanted to $got" >&2
     echo >&2
     echo "$got"
@@ -552,7 +552,7 @@ format_basename()
 {
   local filename=${1##*/}
   filename=${filename%.[bgx]z}
-  printf "$2" ${filename%.*}
+  printf "$2" "${filename%.*}"
 }
 
 
@@ -587,7 +587,7 @@ do_test()
       * ) return 1;;
     esac
   done
-  shift $(($OPTIND - 1))
+  shift $((OPTIND - 1))
 
   if [ $# -eq 0 ] || [ -z "$outfmt" ] || [ -z "$wantedfmt" ] ||
     [ -z "$indir" ] || [ -z "$inext" ] || [ -z "$qdir" ]
@@ -608,8 +608,8 @@ do_test()
   local lastfile=
 
   for infile in "$indir"/*."$inext"; do
-    wantfile=`format_basename "$infile" "$wantedfmt"`
-    gotfile=`format_basename "$infile" "$outfmt"`
+    wantfile=$(format_basename "$infile" "$wantedfmt")
+    gotfile=$(format_basename "$infile" "$outfmt")
     [ "$lastfile" ] && [ "$lastfile" = "$gotfile" ] && continue
     lastfile=$gotfile
     echo
@@ -646,7 +646,7 @@ show_files_of()
 {
   local files
   mkdir -p "$1"
-  files=`ls "$1"`
+  files=$(ls "$1")
   if [ "$files" ]; then
     echo "File(s) within '$1':"
     local f
@@ -682,14 +682,14 @@ reyaml()
 compare_files_of()
 {
   local failed
-  failed=`find "$1" -type f -name "*.$3"`
+  failed=$(find "$1" -type f -name "*.$3")
   if [ -z "$failed" ]; then
     echo "No files with extension '$3' found." >&2
     return 1
   fi
   local failed_file
   local other_file
-  local tmpfile=`mktemp --tmpdir`
+  local tmpfile=$(mktemp --tmpdir)
   for failed_file in $failed; do
     other_file=$2/${failed_file##*/}
     echo "$failed_file"
@@ -865,9 +865,9 @@ remove_trailing_whitespace()
   # omit \r to avoid any problems with Mac or Windows line breaks.
   local pat='v; s/[ \t\v\a\f]\+$//'
   find . -type f -name '*.R' -exec sed -i "$pat" \{\} +
-  local tmpfile=`mktemp --tmpdir`
+  local tmpfile=$(mktemp --tmpdir)
   local rnw_file
-  for rnw_file in `find . -type f -name '*.Rnw'`; do
+  for rnw_file in $(find . -type f -name '*.Rnw'); do
     # this avoids unnecessary updates, which would trigger warnings once these
     # Rnw files were compared with the according PDF files
     sed "$pat" "$rnw_file" > "$tmpfile" &&
@@ -925,12 +925,12 @@ remove_dirs_carefully()
     gooddir=${indir%_*}_in
     if [ "$indir" = "$gooddir" ]; then
       echo "directory '$indir' cannot be removed" >&2
-      errs=$(($errs + 1))
+      errs=$((errs + 1))
     elif [ -d "$gooddir" ]; then
       rm -rf "$indir"
     else
       echo "directory '$indir' given, but '$gooddir' is missing" >&2
-      errs=$(($errs + 1))
+      errs=$((errs + 1))
     fi
   done
   return $errs
@@ -945,7 +945,7 @@ remove_dirs_carefully()
 remove_generated_graphics()
 {
   local rnw_file
-  for rnw_file in `find . -type f -iname '*.Rnw'`; do
+  for rnw_file in $(find . -type f -iname '*.Rnw'); do
     rm -f "${rnw_file%.*}"-*
   done
 }
@@ -1077,7 +1077,7 @@ reduce_pdf_size()
     return 1
   fi
   local infile
-  local tmpfile=`mktemp --tmpdir`
+  local tmpfile=$(mktemp --tmpdir)
   for infile; do
     if pdfcrop "$infile" "$tmpfile" > /dev/null && qpdf "$tmpfile" "$infile"
     then
@@ -1101,7 +1101,7 @@ show_example_pdf_files()
   local pdf_viewer
   local name
   for name in evince acroread; do
-    pdf_viewer=`which "$name"`
+    pdf_viewer=$(which "$name")
     [ -x "$pdf_viewer" ] && break
   done
   if [ ! -x "$pdf_viewer" ]; then
@@ -1109,7 +1109,7 @@ show_example_pdf_files()
     return 1
   fi
   local pdf_file
-  for pdf_file in `find . -type f -name '*-Ex.pdf'`; do
+  for pdf_file in $(find . -type f -name '*-Ex.pdf'); do
     "$pdf_viewer" "$pdf_file" &
   done
 }
@@ -1123,7 +1123,7 @@ show_example_pdf_files()
 #
 clean_whitelists()
 {
-  local tmpfile=`mktemp --tmpdir`
+  local tmpfile=$(mktemp --tmpdir)
   local infile
   for infile in "$WHITELIST_MANUAL" "$WHITELIST_VIGNETTE"; do
     awk 'NF == 1 {print $1}' "$infile" | sort -u - > "$tmpfile" &&
@@ -1186,7 +1186,7 @@ reduce_vignette_Rnw_files()
   local indir
   local vignette
   local pdf_file
-  local tmpdir=`mktemp -d --tmpdir`
+  local tmpdir=$(mktemp -d --tmpdir)
   for indir; do
     for vignette in "$indir"/vignettes/*.Rnw; do
       [ -f "$vignette" ] || continue 2
@@ -1258,15 +1258,15 @@ check_linked_version()
   local pkgdir
   local pversion
   local lversion
-  for infile in `find "$BUILT_PACKAGES" -type l -exec readlink -f \{\} \;`; do
+  for infile in $(find "$BUILT_PACKAGES" -type l -exec readlink -f \{\} \;); do
     pkgdir=${infile##*/}
     pkgdir=${pkgdir%_*}_in
-    pversion=`awk '$1 == "Version:" {print $2; exit}' "$pkgdir/DESCRIPTION"`
+    pversion=$(awk '$1 == "Version:" {print $2; exit}' "$pkgdir/DESCRIPTION")
     lversion=${infile##*_}
     lversion=${lversion%.tar.gz}
     [ "$pversion" = "$lversion" ] && continue
     echo "version mismatch for '$pkgdir': $pversion <=> $lversion" >&2
-    errs=$(($errs + 1))
+    errs=$((errs + 1))
   done
   return $errs
 }
@@ -1293,7 +1293,7 @@ change_json_version()
 change_yaml_version()
 {
   local version=$1
-  local tmpfile=`mktemp --tmpdir`
+  local tmpfile=$(mktemp --tmpdir)
   shift
   local infile
   for infile; do
@@ -1350,14 +1350,14 @@ run_external_tests()
       d ) testdir=$OPTARG;;
       f ) output_mode=show_failed;;
       h ) help_msg=yes;;
-      p ) np=$(($OPTARG + 0));;
+      p ) np=$((OPTARG + 0));;
       s ) run_opm=$OPTARG;;
       v ) version=$OPTARG;;
       w ) output_mode=compare_failed; extension=$OPTARG; ignore_ws=yes;;
       * ) return 1;;
     esac
   done
-  shift $(($OPTIND - 1))
+  shift $((OPTIND - 1))
 
   if [ "$help_msg" ] || [ $# -gt 0 ]; then
     cat >&2 <<-____EOF
@@ -1419,12 +1419,12 @@ ____EOF
 
   if ! [ "$run_opm" ]; then
     case $testmode in
-      opm ) run_opm=`find_R_script run_opm.R opm || :`;;
+      opm ) run_opm=$(find_R_script run_opm.R opm || :);;
       * ) echo "unknown test mode '$testmode', exiting now"; return 1;;
     esac
   fi
   if [ -s "$run_opm" ]; then
-    echo "Using script '$run_opm' (`stat -c %y "$run_opm"`)..." >&2
+    echo "Using script '$run_opm' ($(stat -c %y "$run_opm"))..." >&2
     echo "NOTE: Make sure this is the opm version you want to test!" >&2
     echo >&2
   else
@@ -1434,18 +1434,18 @@ ____EOF
 
   if [ "$version" ]; then
     [ -s "$version" ] &&
-      version=`awk '$1 == "Version:" {print $2; exit}' "$version"`
+      version=$(awk '$1 == "Version:" {print $2; exit}' "$version")
   else
     echo "opm version to insert not found and not provided, exiting now" >&2
     return 1
   fi
 
-  np=`correct_num_cpus "$np"`
+  np=$(correct_num_cpus "$np")
 
   rm -rf "$failedfile_dir"/*
   rm -f "$errfile" "$outfile"
-  local tmpdir=`mktemp --tmpdir -d`
-  local tmpfile=`mktemp --tmpdir`
+  local tmpdir=$(mktemp --tmpdir -d)
+  local tmpfile=$(mktemp --tmpdir)
 
   case $testmode in
   
@@ -1541,17 +1541,17 @@ ____EOF
 
   rm -rf "$tmpdir" "$tmpfile"
 
-  local errors=`grep -F -c '<<<ERROR>>>' "$outfile"`
-  local failed_files=`ls "$failedfile_dir" | wc -l`
+  local errors=$(grep -F -c '<<<ERROR>>>' "$outfile")
+  local failed_files=$(ls "$failedfile_dir" | wc -l)
 
   echo
   printf "RESULT: "
-  printf "`grep -F -c '<<<SUCCESS>>>' "$outfile"` successes, "
-  printf "`grep -F -c '<<<FAILURE>>>' "$outfile"` failures, "
+  printf "$(grep -F -c '<<<SUCCESS>>>' "$outfile") successes, "
+  printf "$(grep -F -c '<<<FAILURE>>>' "$outfile") failures, "
   echo "$errors errors, $failed_files quarantined files."
   echo
 
-  [ $(($errors + $failed_files)) -gt 0 ] && return 1 || return 0
+  [ $((errors + failed_files)) -gt 0 ] && return 1 || return 0
 }
 
 
@@ -1563,11 +1563,11 @@ ____EOF
 #
 test_demos()
 {
-  local wdir=`pwd`
+  local wdir=$(pwd)
   local pkgdir
   local errs=0
   for pkgdir; do
-    local tmpdir=`mktemp -d --tmpdir`
+    local tmpdir=$(mktemp -d --tmpdir)
     cd "$tmpdir"
     # BEGIN specific for opm
     if [ "$pkgdir" = opm_in ]; then
@@ -1585,8 +1585,10 @@ test_demos()
     for rscript in "$wdir"/"$pkgdir"/demo/*.R; do
       [ -s "$rscript" ] || continue
       # BEGIN specific for opm
-      [ "$pkgdir" = opm_in ] && echo "${rscript##*/}" | grep -q 'SQL\|ODBC' &&
-        continue || true
+      if [ "$pkgdir" = opm_in ] && echo "${rscript##*/}" | grep -q 'SQL\|ODBC'
+      then
+        continue
+      fi
       # END specific for opm
       echo "TESTING ${rscript##*/}..."
       if R CMD BATCH "$rscript"; then
@@ -1612,8 +1614,8 @@ test_demos()
 #
 test_sql_demos()
 {
-  local wdir=`pwd`
-  local tmpdir=`mktemp -d --tmpdir`
+  local wdir=$(pwd)
+  local tmpdir=$(mktemp -d --tmpdir)
   cd "$tmpdir"
   local rscript
   local errs=0
@@ -1676,7 +1678,7 @@ test_sql()
       * ) return 1;;
     esac
   done
-  shift $(($OPTIND - 1))
+  shift $((OPTIND - 1))
 
   if [ "$help_msg" ]; then
     cat >&2 <<-____EOF
@@ -1789,36 +1791,36 @@ check_html_docu()
   local errs=0
   for docdir; do
     # show errors in R code (might be knitr-specific)
-    for infile in `find "$docdir" -name '*.html'`; do
+    for infile in $(find "$docdir" -name '*.html'); do
       if grep -F '## Error' "$infile"; then
         echo "ERROR: file '$infile' contains R error message" >&2
-        errs=$(($errs + 1))
+        errs=$((errs + 1))
       fi
     done
     # check for output generated from the demo R files
-    for infile in `find "$docdir" -name '*.R'`; do
+    for infile in $(find "$docdir" -name '*.R'); do
       [ -e "${infile%.*}.Rnw" ] && continue # not a demo file
       for ext in Rmd md html; do
         if ! [ -s "${infile%.*}.$ext" ]; then
           echo "ERROR: file '${infile%.*}.$ext' is empty or missing" >&2
-          errs=$(($errs + 1))
+          errs=$((errs + 1))
         fi
       done
     done
     # check for output generated from the vignette Rnw files
-    for infile in `find "$docdir" -name '*.Rnw'`; do
+    for infile in $(find "$docdir" -name '*.Rnw'); do
       for ext in R pdf; do
         if ! [ -s "${infile%.*}.$ext" ]; then
           echo "ERROR: file '${infile%.*}.$ext' is empty or missing" >&2
-          errs=$(($errs + 1))
+          errs=$((errs + 1))
         fi
       done
     done
     # check for dead links to other packages
-    for infile in `find "$docdir" -name '*.html'`; do
+    for infile in $(find "$docdir" -name '*.html'); do
       if grep 'href="\.\./\.\./[^/]\+/html/' "$infile"; then
         echo "ERROR: file '$infile' contains dead link" >&2
-        errs=$(($errs + 1))
+        errs=$((errs + 1))
       fi
     done
   done
@@ -1889,11 +1891,11 @@ upload_to_server()
 #
 cleanup_archive_files()
 {
-  set -- `find "$BUILT_PACKAGES" -type l -exec readlink -e \{\} +`
+  set -- $(find "$BUILT_PACKAGES" -type l -exec readlink -e \{\} +)
   local infile
   local linked
   local have
-  for infile in `find "$BUILT_PACKAGES" -type f -exec readlink -e \{\} +`; do
+  for infile in $(find "$BUILT_PACKAGES" -type f -exec readlink -e \{\} +); do
     have=
     for linked; do
       if [ "$linked" = "$infile" ]; then
@@ -1915,7 +1917,7 @@ cleanup_archive_files()
 # mode indicator as (optional) first argument.
 #
 if [ $# -gt 0 ] && [ "${1%%-*}" ]; then
-  RUNNING_MODE=`echo "$1" | awk '{print tolower($0)}' -`
+  RUNNING_MODE=$(echo "$1" | awk '{print tolower($0)}' -)
   shift
 else
   RUNNING_MODE=help
@@ -1930,7 +1932,7 @@ case $RUNNING_MODE in
     exit $?
   ;;
   ascii )
-    [ $# -eq 0 ] && set -- `find . -type f -iname '*.Rnw'`
+    [ $# -eq 0 ] && set -- $(find . -type f -iname '*.Rnw')
     show_lines_with_forbidden_characters "$@"
     exit $?
   ;;
@@ -2076,7 +2078,7 @@ ____EOF
     exit 1
   ;;
   html )
-    OPM_SQLITE_DB=`pwd`/$MISC_DIR/$DEFAULT_DBNAME.db
+    OPM_SQLITE_DB=$(pwd)/$MISC_DIR/$DEFAULT_DBNAME.db
     export OPM_SQLITE_DB
     update_html_startpage "$HTML_STARTPAGE" &&
       generate_html_docu pkgutils opm opmdata opmextra &&
@@ -2105,7 +2107,7 @@ ____EOF
     :
   ;;
   pdf )
-    [ $# -eq 0 ] && set -- `find graphics -type f -iname '*.pdf'`
+    [ $# -eq 0 ] && set -- $(find graphics -type f -iname '*.pdf')
     reduce_pdf_size "$@"
     exit $?
   ;;
@@ -2143,12 +2145,12 @@ ____EOF
     exit $?
   ;;
   sql1 )
-    set -- "$@" -- `find opm_in -type f -iname '*.sql' -exec ls \{\} +`
+    set -- "$@" -- $(find opm_in -type f -iname '*.sql' -exec ls \{\} +)
     test_sql "$@"
     exit $?
   ;;
   sql2 )
-    set -- "$@" -- `find opm_in -type f -iname '*.sql' -exec ls \{\} +`
+    set -- "$@" -- $(find opm_in -type f -iname '*.sql' -exec ls \{\} +)
     test_sql "$@" && test_sql_demos
     exit $?
   ;;
@@ -2195,9 +2197,9 @@ esac
 
 # Get the 'docu.R' script.
 #
-DOCU=`find_docu_script || :`
+DOCU=$(find_docu_script || :)
 if [ "$DOCU" ]; then
-  echo "Using script '$DOCU' (`stat -c %y "$DOCU"`)..." >&2
+  echo "Using script '$DOCU' ($(stat -c %y "$DOCU"))..." >&2
   echo >&2
   [ "$RUNNING_MODE" = docu ] && exit 0
 else
