@@ -1612,8 +1612,9 @@ As the metadata can be nested, the latter would search for an element called \co
 
 In the example the combination of species and strain is used, yielding four distinct colours.
 If \code{include} is not used, the colours are assigned per plate.
-Several predefined colour palettes are available in \pkg{opm} (accessible \textit{via} \code{select\_colors}) with a maximum of 24 distinct colours.
-If more colours were needed, the user should set up a larger colour vector and pass it as the argument \code{col} to \code{xy\_plot} or preferably use \code{opm\_opt(colours = ...)}.
+Several predefined colour palettes are available in \pkg{opm} (accessible \textit{via} \code{select\_colors}) with a maximum of 67 distinct colours.
+If a distinct colour vector was needed, the user should set up a larger colour vector and pass it as the argument \code{col} to \code{xy\_plot} or preferably use \code{opm\_opt(colours = ...)}.
+Note that an empty \code{opm\_opt("colours")} value, in conjunction with most plotting functions, triggers the automated selection of a colour vector supposed to be optimal for the resulting set of levels to be distinguished.
 
 The plotting of fewer sub-panels (see Figure~\ref{fig:xy_plot_2}) works as described above; the only difference is in the manipulation of the data set (note that the order of wells is changed in the plotted object, but not in the plot):
 

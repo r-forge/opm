@@ -385,13 +385,17 @@ create_test_templates()
       ' | while read codefile item; do
         testfile=${codefile%/R/*}/$TEST_SUBDIR/test_${codefile##*/R/}
         if [ "$item" ]; then
-          echo "## $item" >> "$testfile"
-          echo "## UNTESTED" >> "$testfile"
-          echo "" >> "$testfile"
+          {
+            echo "## $item"
+            echo "## UNTESTED"
+            echo ""
+          } >> "$testfile"
         else
           mkdir -p "${testfile%/*}"
-          echo "library(testthat)" >> "$testfile"
-          echo "" >> "$testfile"
+          {
+            echo "library(testthat)"
+            echo ""
+          } >> "$testfile"
         fi
       done
   done
