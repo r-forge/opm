@@ -562,8 +562,8 @@ setMethod("map_values", c("data.frame", "missing"), function(object,
 }, sealed = SEALED)
 
 setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
-  wanted <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
-  wanted <- names(object)[wanted]
+  can.map <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
+  wanted <- names(object)[can.map]
   if (!length(mapping)) {
     mapping <- vector("list", length(wanted))
     mapping[] <- list(structure(.Data = character(), names = character()))
@@ -574,6 +574,7 @@ setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
     stop("cannot accept unnamed list as 'mapping' argument")
   if (pos <- match(".", names(mapping), 0L)) { # mapping of column names
     names(object) <- map_values(names(object), unlist(mapping[[pos]]))
+    wanted <- names(object)[can.map]
     mapping <- mapping[-pos]
   }
   if (pos <- match("_", names(mapping), 0L)) { # addition of columns
@@ -588,16 +589,29 @@ setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
   } else {
     delete <- NULL
   }
+  if (pos <- match("/", names(mapping), 0L)) { # deletion of columns
+    remove <- mapping[[pos]] # must refer to new column names
+    mapping <- mapping[-pos]
+  } else {
+    remove <- NULL
+  }
+  if (length(remove)) { # actually delete columns
+    pos <- match(remove, colnames(object), 0L)
+    pos <- -pos[pos > 0L]
+    can.map <- can.map[pos]
+    object <- object[, pos, drop = FALSE]
+    wanted <- names(object)[can.map]
+  }
   if (!all(pos <- match(wanted, names(mapping), 0L)))
     stop("column name '", wanted[!pos][[1L]], "' missing in mapping")
-  for (i in seq_along(wanted))
+  for (i in seq_along(wanted)) # map remaining columns
     object[, wanted[[i]]] <- map_values(object[, wanted[[i]]],
       unlist(mapping[[pos[[i]]]]))
-  if (length(delete))
+  if (length(delete)) # actually delete rows
     for (name in names(delete))
       if (any(pos <- object[, name] %in% delete[[name]]))
         object <- object[!pos, , drop = FALSE]
-  if (length(add))
+  if (length(add)) # add columns with constant default value
     object <- cbind(object, as.data.frame(add))
   object
 }, sealed = SEALED)

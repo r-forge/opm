@@ -60,10 +60,13 @@
   special. \code{.} must refer to a named character vector
   and is used for mapping the column names of
   \code{object}. \code{_}, containing a named list, is used
-  for adding columns. \code{-} pointing to a character
-  vector provides a set of columns to delete. Behaviour is
-  special if \code{mapping} is an empty list; in that case,
-  a template for a real mapping list is generated.  }
+  for adding columns. \code{/} pointing to a character
+  vector provides a set of columns to delete. \code{-}
+  provides a named list for deleting rows; the names are
+  the names of the columns and the values the values within
+  that column that indicate the rows to delete. Behaviour
+  is special when \code{mapping} is an empty list; in that
+  case, a template for a real mapping list is generated.  }
 
   When mapping names, a mapping function that takes a
   character vector as first argument, or character vector
