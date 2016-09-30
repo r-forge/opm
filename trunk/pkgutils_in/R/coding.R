@@ -1860,7 +1860,8 @@ set <- function(name, expr, template = "%s.Rda", env = parent.frame(),
 #'
 #' ## formula method
 #' x <- mytable(a, b, if (c1 > 15 | c2 == NULL) c1 else c2) ~
-#'   b < 69 & a %in% c("x", "y")
+#'   b < 69 & a %in% {"x"
+#'     "y"}
 #' (y <- sql(x))
 #' stopifnot(is.character(y), length(y) == 1L)
 #'
