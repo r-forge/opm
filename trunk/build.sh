@@ -414,11 +414,11 @@ check_test_contexts()
     BEGIN {
       FS = "\""
       problems = 0
-      map["kmeans"]="k-means"
-      map["splinefit"]="spline-fit"
-      map["io"]="I/O"
-      map["dbio"]="database I/O"
-      map["rd"]="Rd"
+      map["kmeans"] = "k-means"
+      map["splinefit"] = "spline-fit"
+      map["io"] = "I/O"
+      map["dbio"] = "database I/O"
+      map["rd"] = "Rd"
     }
     $1 == "context(" {
       basename = FILENAME
