@@ -458,6 +458,8 @@ setMethod("update", "DBTABLES", function(object, start, drop = TRUE) {
 
 #= c DBTABLES-methods
 
+setGeneric("c")
+
 setMethod("c", "DBTABLES", function(x, ..., recursive = FALSE) {
   if (recursive)
     x <- update(x, NULL, TRUE)
