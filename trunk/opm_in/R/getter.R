@@ -7,13 +7,15 @@
 #
 
 
+
 #' Stored measurements
 #'
 #' Return the measurements, optionally only from selected wells and with or
-#' without the time points, or only the time points.
+#' without the time points, or only the time points. Alternatively, selected
+#' measurements of interest from a larger matrix of mode \sQuote{character}.
 #'
 #' @param object \code{\link{OPM}}, \code{\link{OPMS}} or \code{\link{MOPMX}}
-#'   object.
+#'   object; for \code{measurements}, also a matrix of mode \sQuote{character}.
 #' @param i Optional character or numeric vector with name(s) or position(s) of
 #'   well(s). Wells are originally named \sQuote{A01} to \sQuote{H12} but might
 #'   have been subset beforehand. \code{i} can also be a formula, allowing for
@@ -36,6 +38,21 @@
 #'     \item{size}{Integer scalar: the number of time points.}
 #'     \item{summary}{Display a summary.}
 #'   }
+#' @param wanted Empty or character vector used by the matrix method for
+#'   selecting columns. If of length one, used as a regular expression in that
+#'   context. If empty, the methods selects the columns that can be interpreted
+#'   as numeric throughout.
+#' @param transposed Logical scalar. For the matrix method, indicating whether
+#'   the matrix shall be transposed prior to further processing.
+#' @param col.names Used by the matrix method. Empty or scalar indicating the
+#'   position of the column names within the matrix (which is assumed to not yet
+#'   contain proper column names).
+#' @param row.names Used by the matrix method. Empty or scalar indicating the
+#'   position of the row names within the matrix (which is assumed to not yet
+#'   contain proper row names).
+#' @param check.names Logical scalar. Used by the matrix method to indicate
+#'   whether row and column names should be treated with \code{make.names}.
+#' @param stringsAsFactors Logical scalar used by the matrix method.
 #' @param ... Optional arguments passed between the methods.
 #' @return
 #'   \code{measurements} returns a numeric matrix with column names indicating
@@ -45,6 +62,10 @@
 #'   substrate names). It is possible to select wells, but the time points are
 #'   always included as first column (in contrast to \code{well}). The \code{i}
 #'   argument refers only to the remaining matrix.
+#'
+#'   The matrix measurements returns a data frame containing the selected rows
+#'   and columns only. This is intended as a helper method for inputting
+#'   irregular data.
 #'
 #'   Do not confuse \code{well} with \code{\link{wells}}. \code{well} yields a
 #'   numeric matrix or vector, depending on \code{i} and \code{drop}. It will
@@ -123,6 +144,49 @@ setMethod("measurements", "OPM", function(object, i, logt0 = FALSE) {
       result[which.min(result[, 1L]), -1L], `-`)
   }
   result
+}, sealed = SEALED)
+
+setMethod("measurements", "matrix", function(object, wanted = NULL,
+    transposed = TRUE, col.names = 1L, row.names = NULL, check.names = TRUE,
+    stringsAsFactors = default.stringsAsFactors()) {
+  if (typeof(object) != "character")
+    stop(sprintf("expected matrix of mode 'character', got '%s'",
+      typeof(object)))
+  if (transposed)
+    object <- t(object)
+  if (length(col.names)) {
+    colnames(object) <- object[col.names, ]
+    object <- object[-col.names, , drop = FALSE]
+  } else {
+    colnames(object) <- make.names(seq_len(ncol(object)))
+  }
+  if (length(row.names)) {
+    rownames(object) <- object[, row.names]
+    if (check.names)
+      rownames(object) <- make.names(rownames(object), TRUE)
+    object <- object[, -row.names, drop = FALSE]
+  }
+  if (length(wanted)) {
+    if (is.character(wanted) && length(wanted) == 1L) {
+      if (check.names > 1L) {
+        colnames(object) <- make.names(colnames(object), TRUE)
+        check.names <- FALSE
+      }
+      wanted <- grepl(wanted, colnames(object), FALSE, TRUE)
+    }
+    object <- as.data.frame(object[, wanted, drop = FALSE])
+    object[] <- lapply(object, type.convert, "NA", !stringsAsFactors)
+  } else {
+    old.opt <- options(warn = -1L)
+    on.exit(options(old.opt))
+    storage.mode(object) <- "double"
+    isna <- is.na(object)
+    object <- as.data.frame(object[!apply(isna, 1L, all),
+      !apply(isna, 2L, all), drop = FALSE])
+  }
+  if (check.names)
+    colnames(object) <- make.names(colnames(object), TRUE)
+  object
 }, sealed = SEALED)
 
 #= well measurements
