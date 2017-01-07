@@ -152,6 +152,7 @@ setMethod("measurements", "matrix", function(object, wanted = NULL,
   if (typeof(object) != "character")
     stop(sprintf("expected matrix of mode 'character', got '%s'",
       typeof(object)))
+  LL(transposed, check.names, stringsAsFactors)
   if (transposed)
     object <- t(object)
   if (length(col.names)) {
