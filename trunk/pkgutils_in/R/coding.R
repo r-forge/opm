@@ -16,7 +16,7 @@
 #'   \code{cond} if \code{cond} is a logical vector, or the single argument of
 #'   \code{cond} if it is (the name of) a function.
 #' @param msg When empty or missing, an error message is constructed
-#'   automatically in the case of failure. Otherwise either are \code{sprintf}
+#'   automatically in the case of failure. Otherwise either a \code{sprintf}
 #'   template to be applied to the failing elements of \code{orig}, or a
 #'   character scalar directly providing the error message.
 #' @param quiet Logical scalar determining the type of output in case of success
@@ -1298,33 +1298,38 @@ setMethod("map_values", c("data.frame", "missing"), function(object,
 }, sealed = SEALED)
 
 setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
+
   can.map <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
-  wanted <- names(object)[can.map]
-  if (!length(mapping)) {
-    mapping <- vector("list", length(wanted))
+
+  if (!length(mapping)) { # template-ceation mode
+    mapping <- vector("list", sum(can.map))
     mapping[] <- list(structure(.Data = character(), names = character()))
-    names(mapping) <- wanted
+    names(mapping) <- names(object)[can.map]
     return(mapping)
   }
+
   if (is.null(names(mapping)))
-    stop("cannot accept unnamed list as 'mapping' argument")
+    stop("unnamed list used as 'mapping' argument")
+
   if (pos <- match(".", names(mapping), 0L)) { # mapping of column names
     names(object) <- map_values(names(object), unlist(mapping[[pos]]))
-    wanted <- names(object)[can.map]
     mapping <- mapping[-pos]
   }
+
   if (pos <- match("_", names(mapping), 0L)) { # addition of columns
     add <- mapping[[pos]]
     mapping <- mapping[-pos]
   } else {
     add <- NULL
   }
+
   if (pos <- match("-", names(mapping), 0L)) { # deletion of rows
     delete <- mapping[[pos]] # must refer to new column names
     mapping <- mapping[-pos]
   } else {
     delete <- NULL
   }
+
   if (pos <- match("/", names(mapping), 0L)) { # deletion of columns
     remove <- mapping[[pos]] # must refer to new column names
     mapping <- mapping[-pos]
@@ -1336,20 +1341,25 @@ setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
     pos <- -pos[pos > 0L]
     can.map <- can.map[pos]
     object <- object[, pos, drop = FALSE]
-    wanted <- names(object)[can.map]
   }
-  if (!all(pos <- match(wanted, names(mapping), 0L)))
-    stop("column name '", wanted[!pos][[1L]], "' missing in mapping")
+
+  wanted <- names(object)[can.map]
+  pos <- match(wanted, names(mapping), 0L)
+  assert(pos > 0L, wanted, "column name '%s' missing in mapping", FALSE)
+
   for (i in seq_along(wanted)) # map remaining columns
     object[, wanted[[i]]] <- map_values(object[, wanted[[i]]],
       unlist(mapping[[pos[[i]]]]))
+
   if (length(delete)) # actually delete rows
     for (name in names(delete))
       if (any(pos <- object[, name] %in% delete[[name]]))
         object <- object[!pos, , drop = FALSE]
   if (length(add)) # add columns with constant default value
     object <- cbind(object, as.data.frame(add))
+
   object
+
 }, sealed = SEALED)
 
 #-------------------------------------------------------------------------------
