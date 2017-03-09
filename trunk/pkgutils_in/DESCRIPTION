@@ -1,6 +1,6 @@
 Package: pkgutils
-Version: 0.7.65
-Date: 2017-02-17
+Version: 0.7.66
+Date: 2017-03-08
 Title: Utilities for Creating R Packages
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
