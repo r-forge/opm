@@ -1627,7 +1627,9 @@ test_sql_demos()
   export OPM_SQLITE_DB
   for rscript in "$wdir"/*_in/demo/*.R; do
     [ -s "$rscript" ] || continue
-    echo "${rscript##*/}" | grep -q 'SQL\|ODBC' - || continue
+    ## RODBC disabled for the time being
+    #echo "${rscript##*/}" | grep -q 'SQL\|ODBC' - || continue
+    echo "${rscript##*/}" | grep -q SQL - || continue
     echo "TESTING ${rscript##*/}..."
     if R CMD BATCH "$rscript"; then
       echo "	<<<SUCCESS>>>"
@@ -2229,6 +2231,10 @@ if [ "$RUNNING_MODE" = method ]; then
         foreign["sparseMatrix"]++
       }
       $7 in foreign {
+        print "(" $0 ")"
+        next
+      }
+      $NF == "sealed" { # not an error for now
         print "(" $0 ")"
         next
       }
