@@ -17,7 +17,10 @@ BUG_MSG <- "a bug -- this should not happen"
 # programming but set it to TRUE when building the package. The line contains a
 # special comment used by pkgutils and should not be changed.
 #
-SEALED <- FALSE #|| SEALED <- TRUE
+# SEALED <- FALSE #|| SEALED <- TRUE
+
+# Needed due to a probably bug in the 2017 R versions.
+SEALED <- FALSE
 
 
 ################################################################################

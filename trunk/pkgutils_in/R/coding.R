@@ -1299,6 +1299,14 @@ setMethod("map_values", c("data.frame", "missing"), function(object,
 
 setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
 
+  do_merge <- function(x, join) {
+    join_them <- function(a, b) {
+      ifelse(is.na(a) | !nzchar(a), b,
+        ifelse(is.na(b) | !nzchar(b), a, paste0(a, join, b)))
+    }
+    Reduce(join_them, lapply(x, as.character))
+  }
+
   can.map <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
 
   # template-ceation mode
@@ -1312,10 +1320,32 @@ setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
   if (is.null(names(mapping)))
     stop("unnamed list used as 'mapping' argument")
 
+  # separator for merging columns
+  if (pos <- match("+", names(mapping), 0L)) {
+    join <- unlist(mapping[[pos]], TRUE, FALSE)
+    mapping <- mapping[-pos]
+  } else {
+    join <- "; "
+  }
+
   # mapping of column names
   if (pos <- match(".", names(mapping), 0L)) {
     names(object) <- map_values(names(object), unlist(mapping[[pos]]))
     mapping <- mapping[-pos]
+  }
+
+  # merging columns with the same name
+  if (anyDuplicated.default(names(object))) {
+    pos <- split.default(seq_along(object), names(object))
+    pos <- pos[lengths(pos) > 1L]
+    remove <- NULL
+    for (wanted in pos) {
+      remove <- c(remove, wanted[-1L])
+      object[, wanted[[1L]]] <- do_merge(object[, wanted, drop = FALSE], join)
+    }
+    object <- object[, -remove, drop = FALSE]
+    # must be calculated anew because of possible conversions to character
+    can.map <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
   }
 
   # addition of columns
@@ -1351,7 +1381,7 @@ setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
   # mapping of columns
   wanted <- names(object)[can.map]
   assert(match(names(mapping), wanted, 0L) > 0L, names(mapping),
-    "column '%s' present in mapping does not exist", NA)
+    "column '%s' present in mapping does not exist or is not 'character'", NA)
   pos <- match(wanted, names(mapping), 0L)
   wanted <- wanted[assert(pos > 0L, wanted,
     "column '%s' exists but is not present in mapping", NA)]

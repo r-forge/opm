@@ -21,9 +21,9 @@
 
   \item{msg}{When empty or missing, an error message is
   constructed automatically in the case of failure.
-  Otherwise either are \code{sprintf} template to be
-  applied to the failing elements of \code{orig}, or a
-  character scalar directly providing the error message.}
+  Otherwise either a \code{sprintf} template to be applied
+  to the failing elements of \code{orig}, or a character
+  scalar directly providing the error message.}
 
   \item{quiet}{Logical scalar determining the type of
   output in case of success (i.e., all values of
