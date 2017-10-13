@@ -562,58 +562,114 @@ setMethod("map_values", c("data.frame", "missing"), function(object,
 }, sealed = SEALED)
 
 setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
+
+  do_merge <- function(x, join) {
+    join_them <- function(a, b) {
+      ifelse(is.na(a) | !nzchar(a), b,
+        ifelse(is.na(b) | !nzchar(b), a, paste0(a, join, b)))
+    }
+    Reduce(join_them, lapply(x, as.character))
+  }
+
   can.map <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
-  wanted <- names(object)[can.map]
+
+  # template-ceation mode
   if (!length(mapping)) {
-    mapping <- vector("list", length(wanted))
+    mapping <- vector("list", sum(can.map))
     mapping[] <- list(structure(.Data = character(), names = character()))
-    names(mapping) <- wanted
+    names(mapping) <- names(object)[can.map]
     return(mapping)
   }
+
   if (is.null(names(mapping)))
-    stop("cannot accept unnamed list as 'mapping' argument")
-  if (pos <- match(".", names(mapping), 0L)) { # mapping of column names
+    stop("unnamed list used as 'mapping' argument")
+
+  # separator for merging columns
+  if (pos <- match("+", names(mapping), 0L)) {
+    join <- unlist(mapping[[pos]], TRUE, FALSE)
+    mapping <- mapping[-pos]
+  } else {
+    join <- "; "
+  }
+
+  # mapping of column names
+  if (pos <- match(".", names(mapping), 0L)) {
     names(object) <- map_values(names(object), unlist(mapping[[pos]]))
-    wanted <- names(object)[can.map]
     mapping <- mapping[-pos]
   }
-  if (pos <- match("_", names(mapping), 0L)) { # addition of columns
+
+  # merging columns with the same name
+  if (anyDuplicated.default(names(object))) {
+    pos <- split.default(seq_along(object), names(object))
+    pos <- pos[lengths(pos) > 1L]
+    remove <- NULL
+    for (wanted in pos) {
+      remove <- c(remove, wanted[-1L])
+      object[, wanted[[1L]]] <- do_merge(object[, wanted, drop = FALSE], join)
+    }
+    object <- object[, -remove, drop = FALSE]
+    # must be calculated anew because of possible conversions to character
+    can.map <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
+  }
+
+  # addition of columns
+  if (pos <- match("_", names(mapping), 0L)) {
     add <- mapping[[pos]]
     mapping <- mapping[-pos]
   } else {
     add <- NULL
   }
-  if (pos <- match("-", names(mapping), 0L)) { # deletion of rows
+
+  # deletion of rows
+  if (pos <- match("-", names(mapping), 0L)) {
     delete <- mapping[[pos]] # must refer to new column names
     mapping <- mapping[-pos]
   } else {
     delete <- NULL
   }
-  if (pos <- match("/", names(mapping), 0L)) { # deletion of columns
+
+  # deletion of columns
+  if (pos <- match("/", names(mapping), 0L)) {
     remove <- mapping[[pos]] # must refer to new column names
     mapping <- mapping[-pos]
   } else {
     remove <- NULL
   }
   if (length(remove)) { # actually delete columns
-    pos <- match(remove, colnames(object), 0L)
-    pos <- -pos[pos > 0L]
-    can.map <- can.map[pos]
+    pos <- match(remove, names(object), 0L)
+    pos <- -pos[pos > 0L] # silently skip columns that do not exist anyway
     object <- object[, pos, drop = FALSE]
-    wanted <- names(object)[can.map]
+    can.map <- can.map[pos] # must fit to 'object'
   }
-  if (!all(pos <- match(wanted, names(mapping), 0L)))
-    stop("column name '", wanted[!pos][[1L]], "' missing in mapping")
+
+  # mapping of columns
+  wanted <- names(object)[can.map]
+  assert(match(names(mapping), wanted, 0L) > 0L, names(mapping),
+    "column '%s' present in mapping does not exist or is not 'character'", NA)
+  pos <- match(wanted, names(mapping), 0L)
+  wanted <- wanted[assert(pos > 0L, wanted,
+    "column '%s' exists but is not present in mapping", NA)]
+  pos <- pos[pos > 0L]
   for (i in seq_along(wanted)) # map remaining columns
     object[, wanted[[i]]] <- map_values(object[, wanted[[i]]],
       unlist(mapping[[pos[[i]]]]))
-  if (length(delete)) # actually delete rows
-    for (name in names(delete))
-      if (any(pos <- object[, name] %in% delete[[name]]))
-        object <- object[!pos, , drop = FALSE]
+
+  # deletion of rows based on certain values in certain columns
+  delete <- delete[assert(match(names(delete), names(object), 0L) > 0L,
+    names(delete),
+    "column '%s' to be used for deleting rows does not exist", NA)]
+  for (name in names(delete)) # actually delete rows
+    if (any(pos <- object[, name] %in% delete[[name]]))
+      object <- object[!pos, , drop = FALSE]
+
+  # addition to columns if they do not yet exist
+  add <- add[assert(match(names(add), names(object), 0L) == 0L,
+    names(add), "column '%s' to add already exists", NA)]
   if (length(add)) # add columns with constant default value
     object <- cbind(object, as.data.frame(add))
+
   object
+
 }, sealed = SEALED)
 
 setMethod("map_values", c("array", "character"), function(object, mapping,

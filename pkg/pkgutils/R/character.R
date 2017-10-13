@@ -140,7 +140,8 @@ map_filenames.character <- function(x, out.ext, append = "", out.dir = ".",
     if (ngrp == 1L)
       return(cbind(files))
     if (length(files) %% ngrp)
-      stop("need number of file names divisible by ", ngrp)
+      stop("need number of file names divisible by ", ngrp,
+        " but got ", length(files))
     case(how,
       ext = do_split(files, ngrp),
       rext = do_split(files, ngrp)[, seq.int(ngrp, 1L), drop = FALSE],

@@ -76,7 +76,7 @@ read_sheets <- function(file, header, na.strings) {
   read_ods <- function(file, header, na.strings) {
     sheets <- readODS::ods_sheets(file)
     sapply(X = sheets, FUN = readODS::read_ods, path = file, na = na.strings,
-      col_names = header, formula_as_formula = TRUE, simplify = FALSE)
+      col_names = header, formula_as_formula = FALSE, simplify = FALSE)
   }
   read_xls <- function(file, header) {
     wb <- XLConnect::loadWorkbook(file)
@@ -95,6 +95,8 @@ read_sheets <- function(file, header, na.strings) {
 
 
 process_spreadsheets <- function(files, options) {
+  old.java.opt <- options(java.parameters = "-Xmx4g")
+  on.exit(options(old.java.opt))
   files <- pkgutils::map_filenames(files, output_extension(options), "SHEET_%s")
   for (i in seq_len(nrow(files))) {
     x <- read_sheets(files[i, 1L], !options$bald, options$prune)
