@@ -85,7 +85,7 @@
 }
 \details{
   The list method of \code{flatten} is based on
-  \url{http://stackoverflow.com/questions/8139677/} with
+  \url{https://stackoverflow.com/questions/8139677/} with
   some slight improvements.
 }
 \examples{

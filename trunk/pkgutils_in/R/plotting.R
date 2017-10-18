@@ -64,7 +64,7 @@
 #'   moderate size, and that the resulting vector could as well be used in
 #'   reverse order (see the examples).
 #'
-#' @references \url{http://en.wikipedia.org/wiki/Paper_size}
+#' @references \url{https://en.wikipedia.org/wiki/Paper_size}
 #'
 #' @family plotting-functions
 #' @seealso grDevices::pdf grDevices::col2rg
