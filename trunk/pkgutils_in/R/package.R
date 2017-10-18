@@ -278,7 +278,7 @@ is_pkg_dir.character <- function(x) {
 #'
 #' @details Windows users might need to install \pkg{Rtools} for
 #'   \code{run_R_CMD} to work, see
-#'   \url{http://cran.r-project.org/bin/windows/Rtools/}.
+#'   \url{https://cran.r-project.org/bin/windows/Rtools/}.
 #'
 #'   \code{copy_pkg_files} copies package files after installation. This is
 #'   mainly intended for script files, which should often be placed in a

@@ -571,7 +571,7 @@ setMethod("unnest", "character", function(object, sep, fixed = TRUE, ...,
 #'   \code{collect} methods yield a data frame or a matrix.
 #' @family coding-functions
 #' @details The list method of \code{flatten} is based on
-#'   \url{http://stackoverflow.com/questions/8139677/} with some slight
+#'   \url{https://stackoverflow.com/questions/8139677/} with some slight
 #'   improvements.
 #' @seealso base::unlist base::as.data.frame base::rbind
 #' @keywords manip

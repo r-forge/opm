@@ -142,7 +142,7 @@ y <- c("lightgrey", "black", "white", "darkgrey")
 stopifnot(identical(x, y) || identical(x, rev(y)))
 }
 \references{
-  \url{http://en.wikipedia.org/wiki/Paper_size}
+  \url{https://en.wikipedia.org/wiki/Paper_size}
 }
 \seealso{
   grDevices::pdf grDevices::col2rg

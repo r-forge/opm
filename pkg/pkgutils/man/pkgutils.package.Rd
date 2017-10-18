@@ -30,7 +30,8 @@
   \sQuote{--help} switch) for details. The scripts are
   expected to run at least on UNIX-like operating systems.
   Windows users might need to install \pkg{Rtools}, see
-  \url{http://cran.r-project.org/bin/windows/Rtools/}.  } }
+  \url{https://cran.r-project.org/bin/windows/Rtools/}.  }
+  }
 }
 \keyword{package}
 
