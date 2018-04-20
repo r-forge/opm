@@ -160,7 +160,7 @@ export_gs_location()
   local exe
   local suffix
   for bindir in /usr/bin /usr/local/bin "$HOME"/bin; do
-    for exe in gs-916 gs-910 gs-906; do
+    for exe in gs-916 gs-910 gs-906 gs; do
       for suffix in '' -linux_x86_64; do
         if [ -x "$bindir/${exe}$suffix" ]; then
           R_GSCMD=$bindir/${exe}$suffix

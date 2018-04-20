@@ -48,7 +48,7 @@ do_read <- function(infile, opt) {
   x <- read.table(file = infile, sep = opt$separator, check.names = opt$names,
     strip.white = !opt$keep, header = !opt$bald, na.strings = opt$prune,
     stringsAsFactors = FALSE, fileEncoding = opt$encoding, fill = TRUE,
-    comment.char = "", quote = "\"")
+    comment.char = "", quote = opt$quote)
   if (any(dup <- duplicated.data.frame(x))) {
     warning("removing ", sum(dup), " duplicate row(s)")
     x <- x[!dup, , drop = FALSE]
@@ -499,7 +499,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Make entries in join column unique [default: %default]",
     default = FALSE),
 
-  # Q
+  optparse::make_option(opt_str = c("-Q", "--quote"), type = "character",
+    help = "Input quoting character [default: '%default']",
+    default = "\"", metavar = "CHAR"),
 
   optparse::make_option(opt_str = c("-r", "--rows"), action = "store_true",
     help = "Merge each row horizontally, file by file [default: %default]",
