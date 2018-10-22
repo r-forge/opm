@@ -28,11 +28,9 @@ options(warn = 1L)
 
 do_write <- function(x, opt, file = "") {
   if (is.data.frame(x) || is.matrix(x))
-    write.table(x = x, file = file, sep = if (nzchar(opt$separator))
-        opt$separator
-      else
-        "\t", row.names = FALSE, na = opt$prune,
-      quote = !opt$unquoted, col.names = !opt$bald || opt$`make-header`)
+    write.table(x = x, file = file, sep = opt$`output-separator`,
+      row.names = FALSE, na = opt$prune, quote = !opt$unquoted,
+      col.names = !opt$bald || opt$`make-header`)
   else if (is.list(x) && !is.null(names(x)) &&
       all(vapply(x, is.data.frame, NA)))
     mapply(FUN = do_write, x = x, file = names(x), MoreArgs = list(opt = opt),
@@ -487,7 +485,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = paste("Do not split arguments of '-x' and '-y' at ','",
       "[default: %default]"), default = FALSE),
 
-  # O
+  optparse::make_option(opt_str = c("-O", "--output-separator"),
+    help = "Field separator for output CSV files [default: '%default']",
+    type = "character", metavar = "SEP", default = "\t"),
 
   optparse::make_option(opt_str = c("-p", "--prune"), type = "character",
     help = "Value to prune by treating as NA [default: '%default']",
@@ -510,7 +510,7 @@ option.parser <- optparse::OptionParser(option_list = list(
   # R
 
   optparse::make_option(opt_str = c("-s", "--separator"), type = "character",
-    help = "Field separator in CSV files [default: '%default']",
+    help = "Field separator in input CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
 
   optparse::make_option(opt_str = c("-S", "--spreadsheets"),
