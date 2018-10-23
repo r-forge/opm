@@ -2084,13 +2084,13 @@ ____EOF
     exit 1
   ;;
   html )
-    OPM_SQLITE_DB=$(pwd)/$MISC_DIR/$DEFAULT_DBNAME.db
-    export OPM_SQLITE_DB
-    update_html_startpage "$HTML_STARTPAGE" &&
-      generate_html_docu pkgutils opm opmdata opmextra &&
-        check_html_docu pkgutils_doc opm_doc opmdata_doc opmextra_doc &&
-          upload_to_server "$HTML_STARTPAGE" "$HTML_LINKED_FILES" \
-            pkgutils_doc opm_doc opmdata_doc opmextra_doc
+#    OPM_SQLITE_DB=$(pwd)/$MISC_DIR/$DEFAULT_DBNAME.db
+#    export OPM_SQLITE_DB
+#    update_html_startpage "$HTML_STARTPAGE" &&
+#      generate_html_docu pkgutils opm opmdata opmextra &&
+#        check_html_docu pkgutils_doc opm_doc opmdata_doc opmextra_doc &&
+#          upload_to_server "$HTML_STARTPAGE" "$HTML_LINKED_FILES" \
+#            pkgutils_doc opm_doc opmdata_doc opmextra_doc
     exit $?
   ;;
   index )
