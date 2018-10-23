@@ -339,7 +339,7 @@ safe_labels <- function(x, format, enclose = TRUE, pad = FALSE,
 #' @references Swofford, D. L. 2002 \emph{PAUP*: Phylogenetic Analysis Using
 #'   Parsimony (*and Other Methods), Version 4.0 b10}. Sunderland, Mass.:
 #'   Sinauer Associates [the PAUP* program].
-#' @references \url{http://ijs.sgmjournals.org/} [IJSEM journal]
+#' @references \url{http://ijs.microbiologyresearch.org/} [IJSEM journal]
 #' @references \url{http://tidy.sourceforge.net/} [HTML Tidy]
 #'
 #' @examples
