@@ -28,11 +28,9 @@ options(warn = 1L)
 
 do_write <- function(x, opt, file = "") {
   if (is.data.frame(x) || is.matrix(x))
-    write.table(x = x, file = file, sep = if (nzchar(opt$separator))
-        opt$separator
-      else
-        "\t", row.names = FALSE, na = opt$prune,
-      quote = !opt$unquoted, col.names = !opt$bald || opt$`make-header`)
+    write.table(x = x, file = file, sep = opt$`output-separator`,
+      row.names = FALSE, na = opt$prune, quote = !opt$unquoted,
+      col.names = !opt$bald || opt$`make-header`)
   else if (is.list(x) && !is.null(names(x)) &&
       all(vapply(x, is.data.frame, NA)))
     mapply(FUN = do_write, x = x, file = names(x), MoreArgs = list(opt = opt),
@@ -48,7 +46,7 @@ do_read <- function(infile, opt) {
   x <- read.table(file = infile, sep = opt$separator, check.names = opt$names,
     strip.white = !opt$keep, header = !opt$bald, na.strings = opt$prune,
     stringsAsFactors = FALSE, fileEncoding = opt$encoding, fill = TRUE,
-    comment.char = "", quote = "\"")
+    comment.char = "", quote = opt$quote)
   if (any(dup <- duplicated.data.frame(x))) {
     warning("removing ", sum(dup), " duplicate row(s)")
     x <- x[!dup, , drop = FALSE]
@@ -487,7 +485,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = paste("Do not split arguments of '-x' and '-y' at ','",
       "[default: %default]"), default = FALSE),
 
-  # O
+  optparse::make_option(opt_str = c("-O", "--output-separator"),
+    help = "Field separator for output CSV files [default: '%default']",
+    type = "character", metavar = "SEP", default = "\t"),
 
   optparse::make_option(opt_str = c("-p", "--prune"), type = "character",
     help = "Value to prune by treating as NA [default: '%default']",
@@ -499,7 +499,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Make entries in join column unique [default: %default]",
     default = FALSE),
 
-  # Q
+  optparse::make_option(opt_str = c("-Q", "--quote"), type = "character",
+    help = "Input quoting character [default: '%default']",
+    default = "\"", metavar = "CHAR"),
 
   optparse::make_option(opt_str = c("-r", "--rows"), action = "store_true",
     help = "Merge each row horizontally, file by file [default: %default]",
@@ -508,7 +510,7 @@ option.parser <- optparse::OptionParser(option_list = list(
   # R
 
   optparse::make_option(opt_str = c("-s", "--separator"), type = "character",
-    help = "Field separator in CSV files [default: '%default']",
+    help = "Field separator in input CSV files [default: '%default']",
     metavar = "SEP", default = "\t"),
 
   optparse::make_option(opt_str = c("-S", "--spreadsheets"),
