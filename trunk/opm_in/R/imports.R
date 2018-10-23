@@ -39,7 +39,8 @@ NULL
 #'
 NULL
 
-#' @import methods grofit mgcv nlme pkgutils DBI
+## 'grofit' removed because not available from CRAN anymore
+#' @import methods mgcv nlme pkgutils DBI
 #'
 NULL
 

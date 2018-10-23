@@ -127,7 +127,8 @@ set_spline_options <- function(type = c("tp.spline",
 #'     \pkg{mgcv} and smoothing splines via \code{smooth.spline}) to
 #'     \acronym{PM} data. Recommended.}
 #'     \item{grofit}{The \code{grofit} function in the eponymous package, with
-#'     spline fitting as default.}
+#'     spline fitting as default. This is \strong{defunct} because the package
+#'     was removed from \acronym{CRAN}.}
 #'     \item{opm-fast}{The native, faster parameter estimation implemented in
 #'     the matrix method. This will only yield two of the four parameters, the
 #'     area under the curve and the maximum height. The area under the curve is
@@ -284,21 +285,21 @@ setMethod("do_aggr", "OPM", function(object, boot = 0L, verbose = FALSE,
   }
 
   # Add our own changes of the default
-  make_grofit_control <- function(verbose, boot, add) {
-    result <- grofit.control()
-    orig.class <- class(result)
-    result <- insert(unclass(result), interactive = FALSE,
-      suppress.messages = !verbose, fit.opt = "s", nboot.gc = boot,
-      .force = TRUE)
-    result <- insert(result, as.list(add), .force = TRUE)
-    class(result) <- orig.class
-    result
-  }
+  # make_grofit_control <- function(verbose, boot, add) {
+  #   result <- grofit.control()
+  #   orig.class <- class(result)
+  #   result <- insert(unclass(result), interactive = FALSE,
+  #     suppress.messages = !verbose, fit.opt = "s", nboot.gc = boot,
+  #     .force = TRUE)
+  #   result <- insert(result, as.list(add), .force = TRUE)
+  #   class(result) <- orig.class
+  #   result
+  # }
 
-  run_grofit <- function(time, data, control) {
-    extract_curve_params(grofit(time = time, data = data,
-      ec50 = FALSE, control = control))
-  }
+  # run_grofit <- function(time, data, control) {
+  #   extract_curve_params(grofit(time = time, data = data,
+  #     ec50 = FALSE, control = control))
+  # }
 
   run_mgcv <- function(x, y, data, options, boot) {
     mod <- fit_spline(y = y, x = x, data = data, options = options)
@@ -347,16 +348,17 @@ setMethod("do_aggr", "OPM", function(object, boot = 0L, verbose = FALSE,
     case(method <- match.arg(method, KNOWN_METHODS$aggregation),
 
       grofit = {
-        control <- make_grofit_control(verbose, boot, add = options)
-        grofit.time <- to_grofit_time(object)
-        grofit.data <- to_grofit_data(object, logt0)
-        result <- mclapply(X = as.list(seq_len(nrow(grofit.data))),
-          FUN = function(row) {
-            run_grofit(grofit.time[row, , drop = FALSE],
-              grofit.data[row, , drop = FALSE], control)
-          }, mc.cores = cores)
-        result <- do.call(cbind, result)
-        attr(result, OPTIONS) <- unclass(control)
+        stop("'grofit' is not currently available")
+        # control <- make_grofit_control(verbose, boot, add = options)
+        # grofit.time <- to_grofit_time(object)
+        # grofit.data <- to_grofit_data(object, logt0)
+        # result <- mclapply(X = as.list(seq_len(nrow(grofit.data))),
+        #   FUN = function(row) {
+        #     run_grofit(grofit.time[row, , drop = FALSE],
+        #       grofit.data[row, , drop = FALSE], control)
+        #   }, mc.cores = cores)
+        # result <- do.call(cbind, result)
+        # attr(result, OPTIONS) <- unclass(control)
       },
 
       `opm-fast` = {
