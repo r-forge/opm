@@ -600,6 +600,7 @@ setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
 
   # merging columns with the same name
   if (anyDuplicated.default(names(object))) {
+    last <- ncol(object)
     pos <- split.default(seq_along(object), names(object))
     pos <- pos[lengths(pos) > 1L]
     remove <- NULL
@@ -610,6 +611,9 @@ setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
     object <- object[, -remove, drop = FALSE]
     # must be calculated anew because of possible conversions to character
     can.map <- vapply(object, is.character, NA) | vapply(object, is.factor, NA)
+    if (ncol(object) < last)
+      message(sprintf("reduced table by merging from %i to %i column(s)",
+        last, ncol(object)))
   }
 
   # addition of columns
@@ -636,16 +640,28 @@ setMethod("map_values", c("data.frame", "list"), function(object, mapping) {
     remove <- NULL
   }
   if (length(remove)) { # actually delete columns
+    last <- ncol(object)
     pos <- match(remove, names(object), 0L)
     pos <- -pos[pos > 0L] # silently skip columns that do not exist anyway
-    object <- object[, pos, drop = FALSE]
-    can.map <- can.map[pos] # must fit to 'object'
+    if (length(pos)) {
+      object <- object[, pos, drop = FALSE]
+      can.map <- can.map[pos] # must fit to 'object'
+    }
+    if (ncol(object) < last)
+      message(sprintf("reduced table by deletion from %i to %i column(s)",
+        last, ncol(object)))
   }
 
   # mapping of columns
+  pos <- match(names(mapping), names(object), 0L) > 0L
+  assert(pos, names(mapping),
+    "column '%s' present in mapping does not exist", NA)
+  if (!all(pos))
+    warning("available columns are: ",
+      paste0(sprintf("'%s'", names(object)), collapse = ", "))
   wanted <- names(object)[can.map]
-  assert(match(names(mapping), wanted, 0L) > 0L, names(mapping),
-    "column '%s' present in mapping does not exist or is not 'character'", NA)
+  assert(match(names(mapping)[pos], wanted, 0L) > 0L, names(mapping)[pos],
+    "column '%s' present in mapping is not 'character'", NA)
   pos <- match(wanted, names(mapping), 0L)
   wanted <- wanted[assert(pos > 0L, wanted,
     "column '%s' exists but is not present in mapping", NA)]
