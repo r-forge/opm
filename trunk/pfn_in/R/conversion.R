@@ -15,6 +15,11 @@
 #' @param lower Logical vector of length 1 that indicates whether file and
 #'   directory names should also be converted to lowercase characters. Has only
 #'   an effect if \code{paths} is a character vector.
+#' @param directories Logical vector of length 1 that indicates whether
+#'   directory names should also be modified when not portable. Has only an
+#'   effect if \code{paths} is a character vector. If \code{FALSE}, only files
+#'   are checked and potentially renamed. Directories, if any, are nevertheless
+#'   traversed recursively.
 #' @param enforce Numeric vector of length 1 that indicates under which
 #'   circumstances renaming of files should be attempted. Has only an effect if
 #'   \code{paths} is a data frame. Possible values are:
@@ -63,6 +68,8 @@
 #' @family conversion-functions
 #' @seealso base::file.rename
 #' @keywords utilities
+#' @author Markus Goeker, with contributions by Heike Freese and Johannes
+#'   Sikorski
 #' @references
 #' \url{http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html}
 #' @references
@@ -87,7 +94,8 @@
 #'   sanitize(sanitize(c("ugly directory", "../bad folder")))
 #' }
 #'
-sanitize <- function(paths = getwd(), lower = FALSE, enforce = 0L) {
+sanitize <- function(paths = getwd(), lower = FALSE,
+    directories = TRUE, enforce = 0L) {
 
   if (is.data.frame(paths)) {
 
@@ -116,7 +124,7 @@ sanitize <- function(paths = getwd(), lower = FALSE, enforce = 0L) {
       NULL
     } else {
       ok <- !nzchar(paths[, "Problem"])
-      e <- file.rename(paths[ok, "From"], paths[ok, "To"])
+      e <- !file.rename(paths[ok, "From"], paths[ok, "To"])
       if (any(e))
         paths[ok, "Problem"][e] <- "attempt failed"
     }
@@ -130,22 +138,34 @@ sanitize <- function(paths = getwd(), lower = FALSE, enforce = 0L) {
   suggest_renaming <- function(path, lower) {
     path <- sort.int(path, NULL, NA, TRUE)
     base <- basename(path)
-    rename <- !grepl("^[A-Za-z0-9._-]+$", base, FALSE, TRUE)
+    rename <- if (lower)
+        rep_len(TRUE, length(base))
+      else
+        !grepl("^[A-Za-z0-9._-]+$", base, FALSE, TRUE)
     structure(.Data = file.path(dirname(path[rename]),
       new_name(base[rename], lower)), .Names = path[rename])
   }
+
+  if (!missing(paths))
+    stopifnot(is.character(paths))
+  if (!missing(lower))
+    stopifnot(is.logical(lower), length(lower) == 1L)
+  if (!missing(directories))
+    stopifnot(is.logical(directories), length(directories) == 1L)
 
   paths <- sort.int(unique.default(normalizePath(paths)), NULL, NA, TRUE)
   isdir <- file.info(paths, extra_cols = FALSE)[, "isdir"]
 
   result <- c(
     suggest_renaming(paths[!isdir], lower),
-    # here running list.files through lapply is faster than calling it directly
+    # running list.files through lapply is faster than calling it directly
     lapply(lapply(X = paths[isdir], FUN = list.files, recursive = TRUE,
       full.names = TRUE, all.files = TRUE), suggest_renaming, lower),
-    lapply(lapply(X = paths[isdir], FUN = list.dirs),
-      suggest_renaming, lower),
-    suggest_renaming(remove_dot_dirs(paths[isdir]), lower),
+    if (directories) c(
+      lapply(lapply(X = paths[isdir], FUN = list.dirs),
+        suggest_renaming, lower),
+      suggest_renaming(remove_dot_dirs(paths[isdir]), lower)
+    ),
     recursive = TRUE
   )
 
