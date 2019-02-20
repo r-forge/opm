@@ -1,0 +1,24 @@
+Package: pfn
+Version: 0.1.4
+Date: 2019-02-20
+Title: Create Portable File Names
+Author: Markus Goeker <markus.goeker@dsmz.de>
+Maintainer: Markus Goeker <markus.goeker@dsmz.de>
+Depends:
+    R (>= 3.1.0)
+Imports:
+    stringi
+Suggests:
+    testthat
+Description: A simple utility for renaming files or directories to
+    generate names that are portable across file systems but still
+    informative.
+License: GPL (>= 2)
+URL: https://www.dsmz.de/
+Collate:
+    'imports.R'
+    'constants.R'
+    'auxiliary.R'
+    'conversion.R'
+LazyData: yes
+LazyDataCompression: bzip2
