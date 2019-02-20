@@ -1,5 +1,5 @@
 Package: pfn
-Version: 0.0.1
+Version: 0.0.3
 Date: 2019-02-20
 Title: Create Portable File Names
 Author: Markus Goeker <markus.goeker@dsmz.de>
@@ -14,4 +14,4 @@ Collate: 'imports.R' 'conversion.R'
 LazyData: yes
 LazyDataCompression: bzip2
 NeedsCompilation: no
-Packaged: 2019-02-17 19:42:30 UTC; goeker
+Packaged: 2019-02-18 22:34:30 UTC; goeker
