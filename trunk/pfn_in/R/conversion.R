@@ -23,10 +23,13 @@
 #'     \item{0}{Rename files unless the target is duplicated in the \sQuote{To}
 #'     column of the \code{paths} data frame or already exists in the file
 #'     system.}
-#'     \item{1}{Rename files; overwrite existing files, if any, but care of
-#'     duplicates in the \sQuote{To} column of the \code{paths} data frame.}
+#'     \item{1}{Rename files; overwrite existing files, if any, but take care of
+#'     duplicates in the \sQuote{To} column of the \code{paths} data frame. That
+#'     is, do not rename files if the target occurs a second time.}
 #'     \item{2}{Rename files; overwrite existing files and overwrite duplicates
-#'     in the \sQuote{To} column of the \code{paths} data frame, if any.}
+#'     in the \sQuote{To} column of the \code{paths} data frame, if any. This
+#'     may cause loss of data and should only be applied if the lost files
+#'     are superfluous.}
 #'   }
 #' @return Data frame with three columns \sQuote{From}, \sQuote{To} and
 #'   \sQuote{Problem}, which contain character vectors.
@@ -48,11 +51,12 @@
 #'   Here \sQuote{Portable Filename} is used as defined by the \emph{Open Group}
 #'   (see \sQuote{References} section), i.e. only \acronym{ASCII} letters,
 #'   numbers, period, hyphen-minus and underscore are permitted. To create
-#'   portable but reasonably nice looking names, an attempt is made to replace
-#'   characters with accents by their counterparts that lack an accent. Some
-#'   modifications from the \code{sanity.pl} script (see \sQuote{References}
-#'   section) are also applied. All remaining special characters get removed by
-#'   underscores. For further details see the code.
+#'   portable but reasonably informative names, an attempt is made to replace
+#'   non-Latin characters by their Latin counterparts and these by their
+#'   \acronym{ASCII} counterparts. Some modifications from the \code{sanity.pl}
+#'   script (see \sQuote{References} section) are also applied. All remaining
+#'   special characters get removed by underscores. For further details see the
+#'   code.
 #' @note Renaming files or directories may fail for various reasons. See the
 #'   documentation of \code{file.rename} for details.
 #' @export
@@ -61,6 +65,8 @@
 #' @keywords utilities
 #' @references
 #' \url{http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html}
+#' @references
+#' \url{https://en.wikipedia.org/wiki/ASCII}
 #' @references
 #' \url{https://github.com/splitbrain/sanity/blob/master/sanity.pl}
 #' @examples
@@ -119,16 +125,50 @@ sanitize <- function(paths = getwd(), lower = FALSE, enforce = 0L) {
 
   }
 
-  # mainly German umlauts and "scharf S"
-  ONE_TO_TWO <- c(
+  # fixed-string replacements, usually one character to many characters
+  REPLACEMENT <- c(
+    # German umlauts
     "\xc3\xa4" = "ae",
-    "\xc3\xb6" = "oe",
-    "\xc3\xbc" = "ue",
     "\xc3\x84" = "AE",
+    "\xc3\xb6" = "oe",
     "\xc3\x96" = "OE",
+    "\xc3\xbc" = "ue",
     "\xc3\x9c" = "UE",
-    "\xc3\x9f" = "ss",
-    "\xe1\xba\x9e" = "SS"
+    # Scandinavian (1)
+    "\xc3\x98" = "OE",
+    "\xc3\xb8" = "oe",
+    # German "scharf S"
+    # "\xc3\x9f" = "ss",
+    # "\xe1\xba\x9e" = "SS",
+    # # Scandinavian (2)
+    # "\xc3\xa6" = "ae",
+    # "\xc3\x86" = "AE",
+    # "\xc3\x90" = "D",
+    # "\xc3\xb0" = "d",
+    # # French
+    # "\xc5\x93" = "oe",
+    # "\xc5\x92" = "OE",
+    # # Polish
+    # "\xc5\x82" = "l",
+    # "\xc5\x81" = "L",
+    # # Turkish
+    # "\xc4\xb1" = "i",
+    # # dashes
+    # "\xe2\x80\x92" = "-",
+    # "\xe2\x80\x93" = "-",
+    # "\xe2\x80\x94" = "-",
+    # "\xe2\x80\x95" = "-"
+    # from https://github.com/splitbrain/sanity/blob/master/sanity.pl
+    "&" = "_and_",
+    "@" = "_at_",
+    # some additions; "big" supposed to mean "important"
+    "?" = "_maybe_",
+    "!" = "_big_",
+    "*" = "_star_",
+    "$" = "_dollar_",
+    "%" = "_percent_",
+    "+" = "_plus_",
+    "#" = "_no_"
   )
 
   # Create portable file names. Try rescuing meaningful special characters.
@@ -136,33 +176,34 @@ sanitize <- function(paths = getwd(), lower = FALSE, enforce = 0L) {
   new_name <- function(x, lower) {
 
     # rescue German umlauts etc. before removing accents
-    for (from in names(ONE_TO_TWO))
-      x <- gsub(from, ONE_TO_TWO[[from]], x, FALSE, FALSE, TRUE)
+    for (from in names(REPLACEMENT))
+      x <- gsub(from, REPLACEMENT[[from]], x, FALSE, FALSE, TRUE)
 
     # remove all accents (http://userguide.icu-project.org/transforms/general)
-    x <- stri_trans_general(x, "NFD; [:Nonspacing Mark:] Remove; NFC")
-
-    # from https://github.com/splitbrain/sanity/blob/master/sanity.pl
-    x <- gsub("&", "_and_", x, FALSE, FALSE, TRUE)
-    x <- gsub("@", "_at_", x, FALSE, FALSE, TRUE)
-    x <- gsub("['\"`\\*]", "", x, FALSE, TRUE)
-    x <- gsub("..", ".", x, FALSE, FALSE, TRUE)
-
-    # replace a (subjective) selection of dashes by hyphens
-    x <- gsub("[\xe2\x80\x92\xe2\x80\x93\xe2\x80\x94\xe2\x80\x95]",
-      "-", x, FALSE, TRUE)
+    # this is supposed to also correctly replace ligatures and German scharf-S
+    # as well as French, Polish, Turkish and Scandinavian special characters,
+    # among others; for exceptions see above
+    x <- stri_trans_general(x, "Any-Latin; Latin-ASCII")
 
     # replace remaining disallowed characters by underscores
-    x <- gsub("[^A-Za-z0-9._-]", "_", x, FALSE, TRUE)
+    x <- gsub("[^A-Za-z0-9._-]+", "_", x, FALSE, TRUE)
 
-    # replace dashes and dots surrounded by underscores
+    # remove leading hyphens (possible confusion with command-line options),
+    # leading periods and leading underscores; same for trailing characters
+    x <- sub("^[._-]+", "", x, FALSE, TRUE)
+    x <- sub("[._-]+$", "", x, FALSE, TRUE)
+
+    # reduce runs of underscores to single underscore; same for periods
+    # and hyphens
+    x <- gsub("_{2,}", "_", x, FALSE, TRUE)
+    x <- gsub("-{2,}", "-", x, FALSE, TRUE)
+    x <- gsub("\\.{2,}", ".", x, FALSE, TRUE)
+
+    # replace dashes and periods surrounded by underscores
     for (from in c("_-_", "-_", "_-"))
       x <- gsub(from, "-", x, FALSE, FALSE, TRUE)
     for (from in c("_._", "._", "_."))
       x <- gsub(from, ".", x, FALSE, FALSE, TRUE)
-
-    # remove leading hyphens (possible confusion with command-line options)
-    x <- sub("^-+", "", x, FALSE, TRUE)
 
     if (lower)
       tolower(x)
