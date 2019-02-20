@@ -1984,6 +1984,11 @@ case $RUNNING_MODE in
     extract_examples "$@"
     exit $?
   ;;
+  ffull|fnorm )
+    PKG_DIR=pfn_in
+    RUNNING_MODE=${RUNNING_MODE#f}
+    CHECK_R_TESTS=
+  ;;
   forget )
     remove_R_session_files
     exit $?

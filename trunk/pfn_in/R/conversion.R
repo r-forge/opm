@@ -98,17 +98,16 @@
 #'   sanitize(sanitize(c("ugly directory", "../bad folder")))
 #' }
 #'
-sanitize <- function(paths = getwd(), lower = FALSE,
-    directories = TRUE, enforce = 0L) {
+sanitize <- function(paths = getwd(), lower = FALSE, directories = TRUE,
+    enforce = 0L) {
 
   if (is.data.frame(paths)) {
 
     stopifnot(is.character(paths[, "From"]), is.character(paths[, "To"]),
       !anyNA(paths), !anyDuplicated.default(paths[, "From"]),
       # an attempt to assess whether the original ordering is still present
-      !is.unsorted(attr(paths, "row.names")), is.character(paths[, "Problem"]))
-    if (!missing(enforce))
-      stopifnot(is.numeric(enforce), length(enforce) == 1L)
+      !is.unsorted(attr(paths, "row.names")), is.character(paths[, "Problem"]),
+      is.numeric(enforce), length(enforce) == 1L)
 
     if (enforce < 2L) {
       ok <- !nzchar(paths[, "Problem"])
@@ -150,12 +149,8 @@ sanitize <- function(paths = getwd(), lower = FALSE,
       new_name(base[rename], lower)), .Names = path[rename])
   }
 
-  if (!missing(paths))
-    stopifnot(is.character(paths))
-  if (!missing(lower))
-    stopifnot(is.logical(lower), length(lower) == 1L)
-  if (!missing(directories))
-    stopifnot(is.logical(directories), length(directories) == 1L)
+  stopifnot(is.character(paths), is.logical(lower), length(lower) == 1L,
+    is.logical(directories), length(directories) == 1L)
 
   paths <- sort.int(unique.default(normalizePath(paths)), NULL, NA, TRUE)
   isdir <- file.info(paths, extra_cols = FALSE)[, "isdir"]
@@ -175,6 +170,10 @@ sanitize <- function(paths = getwd(), lower = FALSE,
 
   if (is.null(names(result))) # if the result is empty
     names(result) <- rep_len("", length(result))
+
+  different <- names(result) != result
+  if (!all(different)) # can happen if lower=TRUE
+    result <- result[different]
 
   data.frame(From = names(result), To = unname(result),
     Problem = rep_len("", length(result)), stringsAsFactors = FALSE)
