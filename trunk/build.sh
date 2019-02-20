@@ -1975,9 +1975,10 @@ case $RUNNING_MODE in
   ;;
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
-      remove_dirs_carefully pkgutils opm opmdata opmextra opmdata2 validate &&
+      remove_dirs_carefully pkgutils opm opmdata opmextra opmdata2 \
+        validate pfn &&
       remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmdata2_doc \
-        opmextra_doc validate_doc
+        opmextra_doc validate_doc pfn_doc
     exit $?
   ;;
   example )
@@ -1987,7 +1988,7 @@ case $RUNNING_MODE in
   ffull|fnorm )
     PKG_DIR=pfn_in
     RUNNING_MODE=${RUNNING_MODE#f}
-    CHECK_R_TESTS=
+    CHECK_R_TESTS=yes
   ;;
   forget )
     remove_R_session_files
