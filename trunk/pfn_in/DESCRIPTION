@@ -16,4 +16,4 @@ Collate: 'imports.R' 'constants.R' 'auxiliary.R' 'conversion.R'
 LazyData: yes
 LazyDataCompression: bzip2
 NeedsCompilation: no
-Packaged: 2019-02-19 21:26:57 UTC; goeker
+Packaged: 2019-02-19 22:06:44 UTC; goeker

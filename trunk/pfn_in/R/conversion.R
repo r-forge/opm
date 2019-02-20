@@ -14,7 +14,11 @@
 #'   data frame as generate by a previous call of this function.
 #' @param lower Logical vector of length 1 that indicates whether file and
 #'   directory names should also be converted to lowercase characters. Has only
-#'   an effect if \code{paths} is a character vector.
+#'   an effect if \code{paths} is a character vector. If \code{TRUE}, this
+#'   causes all file names to be assessed and runs of underscores, dots or
+#'   hyphens in all file names be replaced by a single such character. If
+#'   \code{FALSE}, file names that contain only portable characters will be
+#'   skipped.
 #' @param directories Logical vector of length 1 that indicates whether
 #'   directory names should also be modified when not portable. Has only an
 #'   effect if \code{paths} is a character vector. If \code{FALSE}, only files
@@ -138,7 +142,7 @@ sanitize <- function(paths = getwd(), lower = FALSE,
   suggest_renaming <- function(path, lower) {
     path <- sort.int(path, NULL, NA, TRUE)
     base <- basename(path)
-    rename <- if (lower)
+    rename <- if (lower) # must examine everything
         rep_len(TRUE, length(base))
       else
         !grepl("^[A-Za-z0-9._-]+$", base, FALSE, TRUE)
