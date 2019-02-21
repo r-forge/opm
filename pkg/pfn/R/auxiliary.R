@@ -40,3 +40,16 @@ new_name <- function(x, lower) {
     x
 }
 
+remove_dot_dirs <- function(x) x[!is.element(x, c(".", ".."))]
+
+suggest_renaming <- function(path, lower) {
+  path <- sort.int(path, NULL, NA, TRUE)
+  base <- basename(path)
+  rename <- if (lower) # must examine everything
+      rep_len(TRUE, length(base))
+    else
+      !grepl("^[A-Za-z0-9._-]+$", base, FALSE, TRUE)
+  structure(.Data = file.path(dirname(path[rename]),
+    new_name(base[rename], lower)), .Names = path[rename])
+}
+

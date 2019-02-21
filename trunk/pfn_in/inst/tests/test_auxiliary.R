@@ -102,3 +102,17 @@ test_that("conversion of compound file names works", {
 
 })
 
+
+## remove_dot_dirs
+## UNTESTED
+
+
+## suggest_renaming
+test_that("suggesting new names works", {
+
+  empty <- structure(.Data = character(), .Names = character())
+  expect_equal(suggest_renaming(LETTERS, FALSE), empty)
+  expect_equal(length(suggest_renaming(LETTERS, TRUE)), length(LETTERS))
+
+})
+
