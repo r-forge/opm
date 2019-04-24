@@ -44,7 +44,7 @@
   To use the data frame method to update a column, say,
   \code{"x"} that is also used to select rows, include
   \code{"x"} in the \code{where} argument and
-  \code{"new.x"} in the \code{update} argument.
+  \code{"new.x"} in the \code{set} argument.
 }
 \examples{
 ## formula method
