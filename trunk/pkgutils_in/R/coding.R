@@ -1924,7 +1924,7 @@ set <- function(name, expr, template = "%s.Rda", env = parent.frame(),
 #'
 #'   To use the data frame method to update a column, say, \code{"x"} that is
 #'   also used to select rows, include \code{"x"} in the \code{where} argument
-#'   and \code{"new.x"} in the \code{update} argument.
+#'   and \code{"new.x"} in the \code{set} argument.
 #' @export
 #' @family coding-functions
 #' @keywords character database
@@ -2013,7 +2013,7 @@ sql.data.frame <- function(x, where, table, set = setdiff(colnames(x), where),
   map <- create_map(colnames(x))
 
   sprintf("UPDATE %s SET %s WHERE %s;", dquote(table),
-    join(x[, set, drop = FALSE], TRUE),
+    join(map_names(x[, set, drop = FALSE], map), TRUE),
     join(map_names(x[, where, drop = FALSE], map), FALSE))
 
 }

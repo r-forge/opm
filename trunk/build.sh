@@ -96,6 +96,10 @@ WHITELIST_VIGNETTE=$MISC_DIR/whitelist-vignette.txt
 #
 FINAL_DIR=../pkg
 
+# Stricter R settings for checking.
+#
+export _R_CHECK_LENGTH_1_CONDITION_=true
+
 
 ################################################################################
 ################################################################################

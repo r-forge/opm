@@ -1055,7 +1055,7 @@ sql.data.frame <- function(x, where, table, set = setdiff(colnames(x), where),
   map <- create_map(colnames(x))
 
   sprintf("UPDATE %s SET %s WHERE %s;", dquote(table),
-    join(x[, set, drop = FALSE], TRUE),
+    join(map_names(x[, set, drop = FALSE], map), TRUE),
     join(map_names(x[, where, drop = FALSE], map), FALSE))
 
 }
