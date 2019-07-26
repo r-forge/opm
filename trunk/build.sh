@@ -2196,9 +2196,10 @@ ____EOF
     CHECK_R_TESTS=yes
   ;;
   www )
-    update_html_startpage "$HTML_STARTPAGE" && check_linked_version &&
-      upload_to_server "$HTML_STARTPAGE" "$HTML_LINKED_FILES" \
-      "$HELPER_SCRIPTS/install_opm.R" "$BUILT_PACKAGES"/*_latest.tar.gz
+    update_html_startpage "$HTML_STARTPAGE" &&
+      upload_to_server "$HTML_STARTPAGE" "$HTML_LINKED_FILES" &&
+        check_linked_version && upload_to_server \
+          "$HELPER_SCRIPTS/install_opm.R" "$BUILT_PACKAGES"/*_latest.tar.gz
     exit $?
   ;;
   * )
