@@ -178,6 +178,7 @@ setMethod("measurements", "matrix", function(object, wanted = NULL,
     object <- as.data.frame(object[, wanted, drop = FALSE])
     object[] <- lapply(object, type.convert, "NA", !stringsAsFactors)
   } else {
+    # select all rows and columns that yield at least one number
     old.opt <- options(warn = -1L)
     on.exit(options(old.opt))
     storage.mode(object) <- "double"
