@@ -35,6 +35,11 @@ do_write <- function(x, opt, file = "") {
       all(vapply(x, is.data.frame, NA)))
     mapply(FUN = do_write, x = x, file = names(x), MoreArgs = list(opt = opt),
       SIMPLIFY = FALSE, USE.NAMES = FALSE)
+  else if (is.character(x))
+    if (opt$unquoted)
+      write(x = x, file = file)
+    else
+      write(x = yaml::as.yaml(x), file = file)
   else
     write(x = yaml::as.yaml(x), file = file)
 }
@@ -242,6 +247,42 @@ narrow <- function(x, opt) {
 }
 
 
+compact_table <- function(x, opt) {
+  empty <- function(x) if (is.character(x)) is.na(x) | !nzchar(x) else is.na(x)
+  space <- function(x) {
+    x <- sub("^\\s+", "", x, FALSE, TRUE)
+    x <- sub("\\s+$", "", x, FALSE, TRUE)
+    gsub("\\s{2,}", " ", x, FALSE, TRUE)
+  }
+  problem <- do.call(cbind, lapply(x, empty))
+  N <- ncol(x)
+  groups <- !apply(problem, 1L, any)
+  groups <- split(seq_len(nrow(x)), pkgutils::sections(groups, TRUE))
+  for (group in groups) {
+    good <- group[[1L]]
+    bad <- group[-1L]
+    for (column in seq_len(N)) {
+      these <- x[bad, column][!problem[bad, column]]
+      if (length(these))
+        x[good, column] <- space(paste(c(x[good, column], these),
+          collapse = " "))
+    }
+  }
+  groups <- do.call(c, lapply(groups, `[`, -1L))
+  x <- x[-groups, , drop = FALSE]
+  if (opt$vertical) {
+    tmp <- x[, 1L]
+    if (ncol(x) > 1L)
+      tmp <- sprintf("%s: %s", tmp,
+        do.call(paste, args = x[, -1L, drop = FALSE]))
+    x <- paste0(tmp, collapse = "; ")
+    if (!grepl("\\.$", x, FALSE, TRUE))
+      x <- paste0(x, ".")
+  }
+  x
+}
+
+
 to_yaml <- function(files, opt) {
   dataframe_to_map <- function(x, from) {
     to_map <- function(x, from) {
@@ -291,6 +332,8 @@ process_specially <- function(files, opt) {
   if (opt$duplicates) {
     do_convert <- function(x, opt) make_combination_unique(x, opt$xcolumn,
       opt$good)
+  } else if (opt$compact) {
+    do_convert <- compact_table
   } else if (opt$rows) {
     do_convert <- merge_horizontally
   } else if (opt$vertical) {
@@ -401,7 +444,9 @@ option.parser <- optparse::OptionParser(option_list = list(
     help = "Conserve input column order, do not sort [default: %default]",
     default = FALSE),
 
-  # C
+  optparse::make_option(opt_str = c("-C", "--compact"), action = "store_true",
+    help = "Compact table with gaps by upwards moves [default: %default]",
+    default = FALSE),
 
   optparse::make_option(opt_str = c("-d", "--delete"), action = "store_true",
     help = "Delete non-matching lines of file 1 [default: %default]",
@@ -625,7 +670,7 @@ if (opt$spreadsheets) {
   process_spreadsheets(files, opt)
   quit("no", 0L)
 } else if (opt$vertical || opt$rows || opt$load || opt$widen || opt$zack ||
-    opt$duplicates || opt$fission || nzchar(opt$`map-table`)) {
+    opt$duplicates || opt$fission || opt$compact || nzchar(opt$`map-table`)) {
   process_specially(files, opt)
   quit("no", 0L)
 } else if (opt$yaml) {
