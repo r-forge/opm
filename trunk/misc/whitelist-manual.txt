@@ -1,5 +1,6 @@
 Achromobacter
 Acidovorax
+Aidan
 Amino
 BIOLOG
 Boccuto
@@ -8,10 +9,12 @@ CSV
 Calasanz
 Calinski
 Corynebacterium
+DSMZ
 Discretisation
 Discretise
 Dunnett
 EcoPlate
+Euzeby
 Filename
 Genotype
 Geodermatophilus
@@ -24,6 +27,7 @@ Montero
 OmniLog
 Original
 PDF
+Parte
 Phaeobacter
 Prepend
 Prepended
@@ -58,6 +62,8 @@ discretisation
 discretise
 discretised
 discretising
+LPSN
+lpsn
 efficiens
 encoding
 encodings
@@ -69,7 +75,9 @@ incrementing
 inhibens
 inoculum
 interpretable
+keycloak
 logfile
+dsmz
 maxima
 metadata
 metainformation
@@ -88,6 +96,7 @@ prepend
 prepended
 prepending
 preprocessing
+prokaryotes
 reproducibility
 rescaling
 stereochemistry
