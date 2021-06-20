@@ -2115,6 +2115,11 @@ ____EOF
     esac
     exit $?
   ;;
+  lfull|lnorm )
+    PKG_DIR=LPSN_in
+    RUNNING_MODE=${RUNNING_MODE#f}
+    CHECK_R_TESTS=
+  ;;
   link )
     check_linked_version
     exit $?
