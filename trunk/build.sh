@@ -1980,9 +1980,9 @@ case $RUNNING_MODE in
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
       remove_dirs_carefully pkgutils opm opmdata opmextra opmdata2 \
-        validate pfn &&
+        validate pfn LPSN &&
       remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmdata2_doc \
-        opmextra_doc validate_doc pfn_doc
+        opmextra_doc validate_doc pfn_doc LPSN_doc
     exit $?
   ;;
   example )

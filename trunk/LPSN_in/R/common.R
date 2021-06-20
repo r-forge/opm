@@ -1,3 +1,9 @@
+################################################################################
+
+
+# Non-public helper function for create_dsmz_keycloak and friends. Returns a
+# 'create_dsmz_keycloak' object.
+#
 get_dsmz_keycloak <- function(client_id, internal, classes, ...) {
   uri <- if (internal) "https://sso.dmz.dsmz.de" else "https://sso.dmz.dsmz.de"
   uri <- paste0(uri, "/auth/realms/dsmz/protocol/openid-connect/token")
@@ -12,12 +18,18 @@ get_dsmz_keycloak <- function(client_id, internal, classes, ...) {
   result
 }
 
+
+# Non-public function that initially creates a 'dsmz_keycloak' object.
+#
 create_dsmz_keycloak <- function(username, password, client_id, classes,
     internal = nzchar(Sys.getenv("DSMZ_KEYCLOAK_INTERNAL", ""))) {
   get_dsmz_keycloak(username = username, password = password, classes = classes,
     internal = internal, grant_type = "password", client_id = client_id)
 }
 
+
+# Non-public download/conversion function.
+#
 download_json <- function(base_url, endpoint, query, access_token, verbose) {
   if (!is.atomic(query))
     stop("query must be atomic vector")
@@ -37,14 +49,53 @@ download_json <- function(base_url, endpoint, query, access_token, verbose) {
       Authorization = paste("Bearer", access_token))), TRUE, FALSE, FALSE)
 }
 
+
+################################################################################
+
+
+#' Methods for \sQuote{dsmz_keycloak} objects
+#'
+#' This package uses \sQuote{dsmz_keycloak} objects for managing the access to
+#' the \acronym{API} services provided by \acronym{DSMZ}.
+#'
+#' @param object Object of class \sQuote{dsmz_keycloak}.
+#' @param x Object of class \sQuote{dsmz_keycloak}.
+#' @param ... Optional arguments passed to other methods.
+#'
+#' @export
+#' @return \code{refresh} returns a new \sQuote{dsmz_keycloak} object if
+#'   \code{object} still permits refreshing. It is supposed to do so if
+#'   \sQuote{refresh_expired} is \code{FALSE}, if otherwise an error results.
+#'   Refreshing is supposed to be necessary if \sQuote{expired} is \code{TRUE}.
+#'   Both values are given by \code{summary}, which returns a logical vector.
+#'   The \code{print} method returns \code{x}, invisibly.
+#' @details The actual usage of \sQuote{dsmz_keycloak} objects is demonstrated
+#'   by querying a \acronym{DSMZ} \acronym{API}. See the examples for the
+#'   according functions.
+#'
+#' @references \url{https://www.keycloak.org/}
+#'
+#' @family common-functions
+#' @keywords connection database print
+#' @examples
+#' ## Examples are deliberately not given here.
+#'
 refresh <- function(object, ...) UseMethod("refresh")
 
+#' @rdname refresh
+#' @method refresh dsmz_keycloak
+#' @export
+#'
 refresh.dsmz_keycloak <- function(object, ...) {
   get_dsmz_keycloak(refresh_token = get("refresh_token", object),
     client_id = get("dsmz_client_id", object), grant_type = "refresh_token",
     internal = get("dsmz_internal", object), classes = class(object), ...)
 }
 
+#' @rdname refresh
+#' @method summary dsmz_keycloak
+#' @export
+#'
 summary.dsmz_keycloak <- function(object, ...) {
   age <- get("dsmz_created_at", object)
   c(
@@ -54,8 +105,14 @@ summary.dsmz_keycloak <- function(object, ...) {
   )
 }
 
+#' @rdname refresh
+#' @method print dsmz_keycloak
+#' @export
+#'
 print.dsmz_keycloak <- function(x, ...) {
   cat(formatDL(summary(object = x, ...)), sep = "\n")
   invisible(x)
 }
 
+
+################################################################################
