@@ -60,12 +60,39 @@ create_dsmz_keycloak <- function(username, password, client_id, classes,
 download_json <- function(url, access_token, verbose) {
   if (verbose > 0L)
     message(url, "\n")
-  result <- getURLContent(url = url,
+  result <- getURL(url = url,
     httpheader = list(Accept = "application/json",
       Authorization = paste("Bearer", access_token)))
   if (verbose > 1L)
     message(result, "\n")
   fromJSON(result, TRUE, FALSE, FALSE)
+}
+
+
+# Return a status code if given and useful, if otherwise return 0L.
+#
+status_code <- function(x) {
+  result <- x$code
+  if (length(result) != 1L || is.na(result))
+    0L
+  else if (is.integer(result))
+    result
+  else if (is.double(result))
+    as.integer(result)
+  else
+    0L
+}
+
+
+# Non-public download/conversion function that calls download_json.
+#
+download_json_with_retry <- function(url, tokens, verbose) {
+  result <- download_json(url, get("access_token", tokens), verbose)
+  # we assume that 401 indicates that the access token was expired
+  if (status_code(result) != 401L)
+    return(result)
+  refresh(tokens, TRUE)
+  download_json(url, get("access_token", tokens), verbose)
 }
 
 
