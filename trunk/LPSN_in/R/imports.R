@@ -7,7 +7,7 @@
 #
 
 
-#' @importFrom RCurl curlEscape getURLContent postForm
+#' @importFrom RCurl curlEscape getURL postForm
 #'
 NULL
 

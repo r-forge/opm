@@ -102,8 +102,7 @@ open_lpsn <- function(username, password) {
 #'   hence care should be taken. It may be advisable to use \code{handler}. If
 #'   this function is given, each chunk is passed to \code{handler} in turn. The
 #'   \code{handler} function could then store the data in a database or in a
-#'   file. If \code{handler} is given, the number of its calls is returned,
-#'   invisibly.
+#'   file. If \code{handler} is given, the number of its calls is returned.
 #'
 #' @details The actual usage of \sQuote{lpsn_access} objects is demonstrated by
 #'   querying the \acronym{LPSN} \acronym{API}. This is only possible for a user
@@ -201,6 +200,10 @@ open_lpsn <- function(username, password) {
 #' stopifnot(identical(asfh, asf))
 #' ## there are of course better ways to use a handler
 #'
+#' ## (4) if nothing is found
+#' nil <- retrieve(lpsn, search = "flexible", monomial = "unknown")
+#' stopifnot(length(nil) == 0L)
+#'
 #' } else {
 #'
 #' warning("username or password missing, cannot run examples")
@@ -291,40 +294,56 @@ retrieve.lpsn_access <- function(object, query, search = "flexible",
   if (transfer && !is.function(handler))
     stop("'handler' is given but is not a function")
 
-  # store/transfer the initial chunk
+  ## conduct initial search, determine total count and react accordingly
   found <- request(object, query, search, ...)
-  result <- vector("list", found$count)
-  outcome <- fetch(object, found$results)
+  total <- c(found$count, 0L)[[1L]]
+  result <- if (transfer) 0L else vector("list", total)
+  if (!total)
+    return(result)
+
+  ## obtain and store/transfer the initial chunk
+  # obtain the initial chunk
+  if (length(found$results))
+    outcome <- fetch(object, found$results)$results
+  else # avoid call of fetch without IDs
+    outcome <- NULL
+  # store/transfer the initial chunk
   if (transfer) {
-    handler(outcome$results)
-    calls <- 1L
+    handler(outcome)
+    result <- result + 1L
   } else {
-    size <- length(outcome$results)
-    result[seq_len(size)] <- outcome$results
+    size <- length(outcome)
+    result[seq_len(size)] <- outcome
     offset <- size
   }
 
-  # obtain and store/transfer the remaining chunks, if any
+  ## obtain and store/transfer the remaining chunks, if any
   while (length(found$`next`)) {
-    refresh(object, TRUE)
+    # obtain the next chunk
     found <- download_lpsn_json(object, found$`next`, NULL)
-    outcome <- fetch(object, found$results)
+    if (length(found$results))
+      outcome <- fetch(object, found$results)$results
+    else # avoid call of fetch without IDs
+      outcome <- NULL
+    # store/transfer the chunk
     if (transfer) {
-      handler(outcome$results)
-      calls <- calls + 1L
+      handler(outcome)
+      result <- result + 1L
     } else {
-      size <- length(outcome$results)
-      result[offset + seq_len(size)] <- outcome$results
+      size <- length(outcome)
+      result[offset + seq_len(size)] <- outcome
       offset <- offset + size
     }
   }
 
+  ## done
   if (transfer)
-    return(invisible(calls))
-  if (offset < length(result)) # not sure whether this can happen
+    result
+  else if (offset < length(result)) # not sure whether this can happen
     result[seq_len(offset)] # but you never know
   else
     result
+
 }
 
 

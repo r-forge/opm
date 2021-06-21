@@ -20,6 +20,11 @@
 #'   yields the \code{API} entries (one per taxon name). \code{summary} and
 #'   \code{print} show an overview of all keys.
 #'
+#'   If querying the \code{API} yielded an error, the structure of the returned
+#'   \sQuote{lpsn_result} object is different. While a \sQuote{results} entry
+#'   should be missing, entries for status code and error message should be
+#'   present in such a case.
+#'
 #' @references \url{https://api.lpsn.dsmz.de/}
 #'
 #' @family result-functions

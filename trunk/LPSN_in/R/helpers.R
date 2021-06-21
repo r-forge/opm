@@ -15,7 +15,7 @@ download_lpsn_json <- function(object, endpoint, query) {
   verbose <- force_integer(Sys.getenv("DSMZ_API_VERBOSE", ""))
   if (internal)
     verbose <- verbose + 1L
-  result <- download_json(url, get("access_token", object), verbose)
+  result <- download_json_with_retry(url, object, verbose)
   class(result) <- "lpsn_result"
   result
 }
