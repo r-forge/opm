@@ -14,3 +14,7 @@ NULL
 #' @importFrom jsonlite fromJSON toJSON
 #'
 NULL
+
+#' @importFrom utils upgrade
+#'
+NULL
