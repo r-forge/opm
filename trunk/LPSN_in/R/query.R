@@ -25,6 +25,14 @@
 #'   The usage of the LPSN data is only permitted when in compliance with the
 #'   LPSN copyright, although this copyright is liberal, see the LPSN web page.
 #'
+#'   When downloading data from the \acronym{API}, the package responds to a
+#'   system environment variable called \sQuote{DSMZ_API_VERBOSE}. When 1, the
+#'   \acronym{URL} of each \acronym{API} request is output; when 2 or larger,
+#'   each character string returned by the \acronym{API} is output prior to
+#'   parsing it as \acronym{JSON}. Non-empty values of \sQuote{DSMZ_API_VERBOSE}
+#'   that cannot be interpreted as an integer number are treated like 1; the
+#'   empty character string is treated like 0.
+#'
 #' @references \url{https://lpsn.dsmz.de/text/copyright}
 #' @references \url{https://api.lpsn.dsmz.de/}
 #' @references \url{https://www.keycloak.org/}
@@ -285,28 +293,28 @@ retrieve.lpsn_access <- function(object, query, search = "flexible",
 
   # store/transfer the initial chunk
   found <- request(object, query, search, ...)
-  result <- vector("list", get("count", found))
-  outcome <- fetch(object, get("results", found))
+  result <- vector("list", found$count)
+  outcome <- fetch(object, found$results)
   if (transfer) {
-    handler(get("results", outcome))
+    handler(outcome$results)
     calls <- 1L
   } else {
-    size <- length(get("results", outcome))
-    result[seq_len(size)] <- get("results", outcome)
+    size <- length(outcome$results)
+    result[seq_len(size)] <- outcome$results
     offset <- size
   }
 
   # obtain and store/transfer the remaining chunks, if any
-  while (length(get("next", found))) {
+  while (length(found$`next`)) {
     refresh(object, TRUE)
-    found <- download_lpsn_json(object, get("next", found), NULL)
-    outcome <- fetch(object, get("results", found))
+    found <- download_lpsn_json(object, found$`next`, NULL)
+    outcome <- fetch(object, found$results)
     if (transfer) {
-      handler(get("results", outcome))
+      handler(outcome$results)
       calls <- calls + 1L
     } else {
-      size <- length(get("results", outcome))
-      result[offset + seq_len(size)] <- get("results", outcome)
+      size <- length(outcome$results)
+      result[offset + seq_len(size)] <- outcome$results
       offset <- offset + size
     }
   }
