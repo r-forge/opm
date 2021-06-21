@@ -12,6 +12,22 @@ assert_scalar <- function(x) {
 }
 
 
+# Non-public function that assists in interpreting system environment
+# variables.
+#
+force_integer <- function(x) {
+  if (!nzchar(x))
+    return(0L)
+  result <- type.convert(x, "", TRUE)
+  if (is.integer(result))
+    result
+  else if (is.double(result) || is.logical(result))
+    as.integer(result)
+  else
+    1L
+}
+
+
 # Non-public helper function for create_dsmz_keycloak and friends. Returns a
 # 'create_dsmz_keycloak' object.
 #
@@ -33,7 +49,7 @@ get_dsmz_keycloak <- function(client_id, internal, classes, ...) {
 # Non-public function that initially creates a 'dsmz_keycloak' object.
 #
 create_dsmz_keycloak <- function(username, password, client_id, classes,
-    internal = nzchar(Sys.getenv("DSMZ_KEYCLOAK_INTERNAL", ""))) {
+    internal = force_integer(Sys.getenv("DSMZ_KEYCLOAK_INTERNAL", ""))) {
   get_dsmz_keycloak(username = username, password = password, classes = classes,
     internal = internal, grant_type = "password", client_id = client_id)
 }
@@ -42,12 +58,14 @@ create_dsmz_keycloak <- function(username, password, client_id, classes,
 # Non-public download/conversion function.
 #
 download_json <- function(url, access_token, verbose) {
-  if (verbose)
-    message(url)
-  fromJSON(getURLContent(url = url,
+  if (verbose > 0L)
+    message(url, "\n")
+  result <- getURLContent(url = url,
     httpheader = list(Accept = "application/json",
-      Authorization = paste("Bearer", access_token))),
-    TRUE, FALSE, FALSE)
+      Authorization = paste("Bearer", access_token)))
+  if (verbose > 1L)
+    message(result, "\n")
+  fromJSON(result, TRUE, FALSE, FALSE)
 }
 
 

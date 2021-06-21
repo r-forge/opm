@@ -15,6 +15,6 @@ NULL
 #'
 NULL
 
-#' @importFrom utils upgrade
+#' @importFrom utils type.convert upgrade
 #'
 NULL
