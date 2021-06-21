@@ -15,6 +15,11 @@
 #' @details These methods yield or display basic information about the result of
 #'   the download attempt.
 #'
+#'   Note that each \sQuote{lpsn_result} object also responds to \code{`$`} and
+#'   \code{`[[`}. The most important key is probably \sQuote{results} as it
+#'   yields the \code{API} entries (one per taxon name). \code{summary} and
+#'   \code{print} show an overview of all keys.
+#'
 #' @references \url{https://api.lpsn.dsmz.de/}
 #'
 #' @family result-functions
