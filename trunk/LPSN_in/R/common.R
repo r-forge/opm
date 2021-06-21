@@ -1,6 +1,17 @@
 ################################################################################
 
 
+# Non-public function that asserts that 'x' is an atomic vector of length 1.
+#
+assert_scalar <- function(x) {
+  if (!is.atomic(x))
+    stop("value is not an atomic vector")
+  if (length(x) != 1L)
+    stop("vector is not of length 1")
+  x
+}
+
+
 # Non-public helper function for create_dsmz_keycloak and friends. Returns a
 # 'create_dsmz_keycloak' object.
 #
@@ -30,7 +41,19 @@ create_dsmz_keycloak <- function(username, password, client_id, classes,
 
 # Non-public download/conversion function.
 #
-download_json <- function(base_url, endpoint, query, access_token, verbose) {
+download_json <- function(url, access_token, verbose) {
+  if (verbose)
+    message(url)
+  fromJSON(getURLContent(url = url,
+    httpheader = list(Accept = "application/json",
+      Authorization = paste("Bearer", access_token))),
+    TRUE, FALSE, FALSE)
+}
+
+
+# Non-public conversion function.
+#
+compose_url <- function(base_url, endpoint, query) {
   if (!is.atomic(query))
     stop("query must be atomic vector")
   if (is.null(names(query))) {
@@ -41,12 +64,7 @@ download_json <- function(base_url, endpoint, query, access_token, verbose) {
     query <- paste(curlEscape(names(query)), curlEscape(query),
       sep = "=", collapse = "&")
   }
-  url <- sprintf(template, base_url, endpoint, query)
-  if (verbose)
-    message(url)
-  fromJSON(getURLContent(url = url,
-    httpheader = list(Accept = "application/json",
-      Authorization = paste("Bearer", access_token))), TRUE, FALSE, FALSE)
+  sprintf(template, base_url, endpoint, query)
 }
 
 
@@ -59,15 +77,20 @@ download_json <- function(base_url, endpoint, query, access_token, verbose) {
 #' the \acronym{API} services provided by \acronym{DSMZ}.
 #'
 #' @param object Object of class \sQuote{dsmz_keycloak}.
+#' @param self Logical vector of length 1 indicating whether \code{object}
+#'   should itself be modified or a new object returned.
 #' @param x Object of class \sQuote{dsmz_keycloak}.
 #' @param ... Optional arguments passed to other methods.
 #'
 #' @export
-#' @return \code{refresh} returns a new \sQuote{dsmz_keycloak} object if
-#'   \code{object} still permits refreshing. It is supposed to do so if
-#'   \sQuote{refresh_expired} is \code{FALSE}, if otherwise an error results.
-#'   Refreshing is supposed to be necessary if \sQuote{expired} is \code{TRUE}.
+#' @return \code{refresh} returns a new or modified \sQuote{dsmz_keycloak}
+#'   object if \code{object} still permits refreshing. It is supposed to do so
+#'   if \sQuote{refresh_expired} is \code{FALSE}, if otherwise an error results.
+#'
+#'   Refreshing is supposed to be necessary if \sQuote{expired} is \code{TRUE}
+#'   (although the local estimate may deviate from the actions of the server).
 #'   Both values are given by \code{summary}, which returns a logical vector.
+#'
 #'   The \code{print} method returns \code{x}, invisibly.
 #' @details The actual usage of \sQuote{dsmz_keycloak} objects is demonstrated
 #'   by querying a \acronym{DSMZ} \acronym{API}. See the examples for the
@@ -86,10 +109,14 @@ refresh <- function(object, ...) UseMethod("refresh")
 #' @method refresh dsmz_keycloak
 #' @export
 #'
-refresh.dsmz_keycloak <- function(object, ...) {
-  get_dsmz_keycloak(refresh_token = get("refresh_token", object),
+refresh.dsmz_keycloak <- function(object, self = TRUE, ...) {
+  result <- get_dsmz_keycloak(refresh_token = get("refresh_token", object),
     client_id = get("dsmz_client_id", object), grant_type = "refresh_token",
     internal = get("dsmz_internal", object), classes = class(object), ...)
+  if (self)
+    list2env(as.list.environment(result), object)
+  else
+    result
 }
 
 #' @rdname refresh

@@ -18,8 +18,7 @@
 #' @references \url{https://api.lpsn.dsmz.de/}
 #'
 #' @family result-functions
-#' @seealso \code{\link{advanced_search}} \code{\link{fetch}}
-#'   \code{\link{flexible_search}}
+#' @seealso \code{\link{fetch}} \code{\link{request}} \code{\link{retrieve}}
 #' @keywords print  database
 #' @rdname summary
 #' @name summary
