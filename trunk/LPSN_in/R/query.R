@@ -62,27 +62,40 @@ open_lpsn <- function(username, password) {
 #'   ignored when advanced search is chosen.
 #' @param page Integer vector of length 1. Needed because the results of
 #'   \code{request} are paginated. The first page has the number 0.
-#' @param previous Object of class \sQuote{lpsn_access}.
+#' @param handler If \code{NULL}, ignored. Otherwise a function to which each
+#'   data chunk retrieved from the \acronym{API} is transferred in turn. The
+#'   function should accept a single argument. \code{retrieve} and the handler
+#'   function may thus best be called within a dedicated enclosing function.
+#' @param previous Object of class \sQuote{lpsn_result}.
 #' @param ... For \code{fetch}, additional objects like \code{ids}. These are
 #'   mandatory if and only if \code{ids} is empty.
 #'
 #'   For \code{request} and \code{retrieve}, additional arguments to be added to
 #'   \code{query}. These are mandatory if and only if \code{query} is empty.
 #'   When given, they must be named if advanced search is chosen. In the case of
-#'   flexible search unnamed queries may just silently return nothing.
+#'   flexible search unnamed queries can be used but may just silently return
+#'   nothing.
 #'
 #'   For \code{upgrade}, optional arguments (currently ignored).
 #' @export
 #' @return The methods for \code{fetch}, \code{request} and \code{upgrade}
 #'   return an \sQuote{lpsn_result} object. In the case of \code{request} this
 #'   object contains \acronym{LPSN} record numbers. Each of them is used as a
-#'   unique identifier by the \code{API}. \code{upgrade} yields the next data
-#'   chunk of a paginated result. If there is no next one, \code{previous} is
-#'   returned, with a warning.
+#'   unique identifier by the \code{API}.
 #'
-#'   \code{fetch} yields full data entries. \code{retrieve} combines
-#'   \code{request}, \code{fetch} and if necessary \code{upgrade}. This is done
-#'   successively. The resulting list may be huge, hence care should be taken.
+#'   In contrast, \code{fetch} yields full data entries, given \acronym{LPSN}
+#'   record numbers.
+#'
+#'   \code{upgrade} yields the next data chunk of a paginated result. If there
+#'   is no next one, \code{previous} is returned, with a warning.
+#'
+#'   \code{retrieve} combines \code{request}, \code{fetch} and if necessary
+#'   \code{upgrade}. This is done successively. The resulting list may be huge,
+#'   hence care should be taken. It may be advisable to use \code{handler}. If
+#'   this function is given, each chunk is passed to \code{handler} in turn. The
+#'   \code{handler} function could then store the data in a database or in a
+#'   file. If \code{handler} is given, the number of its calls is returned,
+#'   invisibly.
 #'
 #' @details The actual usage of \sQuote{lpsn_access} objects is demonstrated by
 #'   querying the \acronym{LPSN} \acronym{API}. This is only possible for a user
@@ -96,6 +109,7 @@ open_lpsn <- function(username, password) {
 #' @references \url{https://api.lpsn.dsmz.de/}
 #'
 #' @family query-functions
+#' @seealso \code{\link{summary.lpsn_result}} \code{\link{print.lpsn_result}}
 #' @keywords connection database
 #' @examples
 #' ## Registration for LPSN is required but free and easy to accomplish.
@@ -171,6 +185,13 @@ open_lpsn <- function(username, password) {
 #' ## (b) advanced search
 #' asf <- retrieve(lpsn, search = "advanced", `taxon-name` = "Flexithrix")
 #' stopifnot(length(asf) == summary(as1)[["count"]])
+#'
+#' ## (c) try a handler
+#' asfh <- list()
+#' retrieve(lpsn, search = "advanced", `taxon-name` = "Flexithrix",
+#'   handler = function(x) asfh <<- c(asfh, x))
+#' stopifnot(identical(asfh, asf))
+#' ## there are of course better ways to use a handler
 #'
 #' } else {
 #'
@@ -255,23 +276,43 @@ retrieve <- function(object, ...) UseMethod("retrieve")
 #' @method retrieve lpsn_access
 #' @export
 #'
-retrieve.lpsn_access <- function(object, query, search = "flexible", ...) {
-  # store the initial chunk
+retrieve.lpsn_access <- function(object, query, search = "flexible",
+    handler = NULL, ...) {
+
+  transfer <- length(handler) > 0L
+  if (transfer && !is.function(handler))
+    stop("'handler' is given but is not a function")
+
+  # store/transfer the initial chunk
   found <- request(object, query, search, ...)
   result <- vector("list", get("count", found))
   outcome <- fetch(object, get("results", found))
-  size <- length(get("results", outcome))
-  result[seq_len(size)] <- get("results", outcome)
-  offset <- size
-  # obtain the remaining chunks, if any
+  if (transfer) {
+    handler(get("results", outcome))
+    calls <- 1L
+  } else {
+    size <- length(get("results", outcome))
+    result[seq_len(size)] <- get("results", outcome)
+    offset <- size
+  }
+
+  # obtain and store/transfer the remaining chunks, if any
   while (length(get("next", found))) {
     refresh(object, TRUE)
     found <- download_lpsn_json(object, get("next", found), NULL)
     outcome <- fetch(object, get("results", found))
-    size <- length(get("results", outcome))
-    result[offset + seq_len(size)] <- get("results", outcome)
-    offset <- offset + size
+    if (transfer) {
+      handler(get("results", outcome))
+      calls <- calls + 1L
+    } else {
+      size <- length(get("results", outcome))
+      result[offset + seq_len(size)] <- get("results", outcome)
+      offset <- offset + size
+    }
   }
+
+  if (transfer)
+    return(invisible(calls))
   if (offset < length(result)) # not sure whether this can happen
     result[seq_len(offset)] # but you never know
   else
