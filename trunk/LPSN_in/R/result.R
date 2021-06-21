@@ -19,7 +19,8 @@
 #'
 #' @family result-functions
 #' @seealso \code{\link{fetch}} \code{\link{request}} \code{\link{retrieve}}
-#' @keywords print  database
+#'   \code{\link{upgrade}}
+#' @keywords print database
 #' @rdname summary
 #' @name summary
 #' @aliases summary.lpsn_result summary
