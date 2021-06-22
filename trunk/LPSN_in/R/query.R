@@ -17,7 +17,7 @@
 #'   with the given password.
 #' @details The actual usage of \sQuote{lpsn_access} objects is demonstrated by
 #'   querying the \acronym{LPSN} \acronym{API}. See the examples given for the
-#'   according functions.
+#'   according functions, such as \code{\link{fetch}}.
 #'
 #'   The usage of the LPSN API requires registration, although registration is
 #'   free and easy to accomplish. See the LPSN API web page.
@@ -52,7 +52,7 @@ open_lpsn <- function(username, password) {
 ################################################################################
 
 
-#' Query the \acronym{LPSN} \acronym{API}
+#' Querying the \acronym{LPSN} \acronym{API}
 #'
 #' This package uses \sQuote{lpsn_access} objects for managing the access to the
 #' \acronym{LPSN} \acronym{API}. Given such an object, the \acronym{API} can be
@@ -75,6 +75,8 @@ open_lpsn <- function(username, password) {
 #'   function should accept a single argument. \code{retrieve} and the handler
 #'   function may thus best be called within a dedicated enclosing function.
 #' @param previous Object of class \sQuote{lpsn_result}.
+#' @param keep Logical vector of length 1 that determines the return value of
+#'   \code{upgrade} in case of failure.
 #' @param ... For \code{fetch}, additional objects like \code{ids}. These are
 #'   mandatory if and only if \code{ids} is empty.
 #'
@@ -95,14 +97,21 @@ open_lpsn <- function(username, password) {
 #'   record numbers.
 #'
 #'   \code{upgrade} yields the next data chunk of a paginated result. If there
-#'   is no next one, \code{previous} is returned, with a warning.
+#'   is no next one, if \code{keep} is \code{TRUE}, \code{previous} is returned,
+#'   with a warning; otherwise \code{NULL} is returned.
 #'
-#'   \code{retrieve} combines \code{request}, \code{fetch} and if necessary
-#'   \code{upgrade}. This is done successively. The resulting list may be huge,
-#'   hence care should be taken. It may be advisable to use \code{handler}. If
-#'   this function is given, each chunk is passed to \code{handler} in turn. The
-#'   \code{handler} function could then store the data in a database or in a
-#'   file. If \code{handler} is given, the number of its calls is returned.
+#'   \code{retrieve} combines the functionality of \code{request}, \code{fetch}
+#'   and \code{upgrade} to download all entries found in the \acronym{API},
+#'   traversing all chunks of a paginated result in turn. The resulting list (of
+#'   class \sQuote{nested_records}) may be huge, hence care should be taken. It
+#'   may be advisable to use \code{handler}. If this function is given, each
+#'   chunk is passed to \code{handler} in turn. The \code{handler} function
+#'   could then store the data in a database or in a file. If \code{handler} is
+#'   given, the number of its calls is returned.
+#'
+#'   By using \code{request}, \code{fetch} and \code{upgrade}, users can build
+#'   their own loops to download and process paginated results, as an
+#'   alternative to \code{retrieve}.
 #'
 #' @details The actual usage of \sQuote{lpsn_access} objects is demonstrated by
 #'   querying the \acronym{LPSN} \acronym{API}. This is only possible for a user
@@ -117,6 +126,7 @@ open_lpsn <- function(username, password) {
 #'
 #' @family query-functions
 #' @seealso \code{\link{summary.lpsn_result}} \code{\link{print.lpsn_result}}
+#'   \code{\link{as.data.frame}}
 #' @keywords connection database
 #' @examples
 #' ## Registration for LPSN is required but free and easy to accomplish.
@@ -126,83 +136,93 @@ open_lpsn <- function(username, password) {
 #'
 #' if (all(nzchar(credentials))) {
 #'
-#' # create the LPSN access object
+#' ## create the LPSN access object
 #' lpsn <- open_lpsn(credentials[[1L]], credentials[[2L]])
 #' print(lpsn)
-#' ## it would be frustrating if the object was already expired on creation
+#' # it would be frustrating if the object was already expired on creation
 #' stopifnot(!summary(lpsn)[c("expired", "refresh_expired")])
 #'
 #' ## fetch data, given some LPSN IDs (record numbers)
-#' ## (1) each ID given as separate argument
+#' # (1) each ID given as separate argument
 #' got1 <- fetch(lpsn, 520424, 4948, 17724)
 #' print(got1)
 #' stopifnot(summary(got1)[["count"]] == 3L)
 #'
-#' ## (2) all IDs in vector
+#' # (2) all IDs in vector
 #' got2 <- fetch(lpsn, c(520424, 4948, 17724))
 #' stopifnot(identical(got1, got2))
 #'
-#' ## (3) as above, but simplifying a list
+#' # (3) as above, but simplifying a list
 #' got3 <- fetch(lpsn, list(520424, 4948, 17724))
 #' stopifnot(identical(got1, got3))
 #'
 #' ## run flexible search
-#' ## (1) each part of the query given as separate argument
+#' # (1) each part of the query given as separate argument
 #' fs1 <- request(lpsn, search = "flexible", monomial = "Flexithrix")
 #' print(fs1)
 #' stopifnot(summary(fs1)[["count"]] >= 2L)
-#' ## Flexible search is flexible because one can query for
-#' ## all key-value pairs available in some API entry. But
-#' ## the values are matched exactly. Compare advanced
-#' ## search.
+#' # Flexible search is flexible because one can query for
+#' # all key-value pairs available in some API entry. But
+#' # the values are matched exactly. Compare advanced
+#' # search.
 #'
-#' ## (2) all parts of the query given in vector
+#' # (2) all parts of the query given in vector
 #' fs2 <- request(lpsn, c(monomial = "Flexithrix"), "flexible")
 #' stopifnot(identical(fs1, fs2))
 #'
-#' ## (3) all parts of the query given in list
-#' ## flexible search allows for nested queries
+#' # (3) all parts of the query given in list
 #' fs3 <- request(lpsn, list(monomial = "Flexithrix"), "flexible")
 #' stopifnot(identical(fs1, fs3))
+#' # flexible search also allows for nested queries
 #'
 #' ## run advanced search
-#' ## (1) each part of the query given as separate argument
+#' # (1) each part of the query given as separate argument
 #' as1 <- request(lpsn, search = "advanced", `taxon-name` = "Flexithrix")
 #' print(as1)
 #' stopifnot(summary(as1)[["count"]] >= 4L)
-#' ## Advanced search uses the equivalent of a predefined set of
-#' ## keys (or combinations thereof) to query. The values are not
-#' ## matched exactly only; case is not distinguished and substrings
-#' ## are recognized. Compare flexible search.
+#' # Advanced search uses the equivalent of a predefined set of
+#' # keys (or combinations thereof) to query. The values are not
+#' # matched exactly only; case is not distinguished and substrings
+#' # are recognized. Compare flexible search.
 #'
-#' ## (2) all parts of the query given in vector
+#' # (2) all parts of the query given in vector
 #' as2 <- request(lpsn, c(`taxon-name` = "Flexithrix"), "advanced")
 #' stopifnot(identical(as1, as2))
 #'
-#' ## (3) all parts of the query given in list
-#' ## advanced search allows for nested queries
+#' # (3) all parts of the query given in list
 #' as3 <- request(lpsn, list(`taxon-name` = "Flexithrix"), "advanced")
 #' stopifnot(identical(as1, as3))
+#' # advanced search does not permit nested queries
 #'
 #' ## run search + fetch in one step
-#' ## (a) flexible search
+#' # (a) via flexible search
 #' fsf <- retrieve(lpsn, search = "flexible", monomial = "Flexithrix")
 #' stopifnot(length(fsf) == summary(fs1)[["count"]])
+#' # it may be more convenient in R to deal with a data frame
+#' print(dim(as.data.frame(fsf)))
 #'
-#' ## (b) advanced search
+#' # (b) via advanced search
 #' asf <- retrieve(lpsn, search = "advanced", `taxon-name` = "Flexithrix")
 #' stopifnot(length(asf) == summary(as1)[["count"]])
+#' # again conversion to data frame possible
+#' print(dim(as.data.frame(asf)))
 #'
-#' ## (c) try a handler
+#' # (c) try a handler
 #' asfh <- list()
 #' retrieve(lpsn, search = "advanced", `taxon-name` = "Flexithrix",
 #'   handler = function(x) asfh <<- c(asfh, x))
-#' stopifnot(identical(asfh, asf))
-#' ## there are of course better ways to use a handler
+#' stopifnot(length(asfh) == length(asf))
+#' # there are of course better ways to use a handler
 #'
-#' ## (4) if nothing is found
+#' # (4) if nothing is found
 #' nil <- retrieve(lpsn, search = "flexible", monomial = "unknown")
 #' stopifnot(length(nil) == 0L)
+#'
+#' # (5) and now for something huge
+#' bac <- retrieve(lpsn, list(monomial = "Bacillus"))
+#' stopifnot(length(bac) > 400L)
+#' bacdf <- as.data.frame(bac)
+#' stopifnot(nrow(bac) > 400L)
 #'
 #' } else {
 #'
@@ -297,7 +317,12 @@ retrieve.lpsn_access <- function(object, query, search = "flexible",
   ## conduct initial search, determine total count and react accordingly
   found <- request(object, query, search, ...)
   total <- c(found$count, 0L)[[1L]]
-  result <- if (transfer) 0L else vector("list", total)
+  if (transfer) {
+    result <- 0L
+  } else {
+    result <- vector("list", total)
+    class(result) <- "nested_records"
+  }
   if (!total)
     return(result)
 
@@ -351,13 +376,16 @@ retrieve.lpsn_access <- function(object, query, search = "flexible",
 #' @method upgrade lpsn_access
 #' @export
 #'
-upgrade.lpsn_access <- function(object, previous, ...) {
+upgrade.lpsn_access <- function(object, previous, keep = TRUE, ...) {
   if (!inherits(previous, "lpsn_result"))
     stop("'previous' must be an 'lpsn_result' object")
-  if (length(get("next", previous)))
-    return(download_lpsn_json(object, get("next", previous), NULL))
-  warning("object 'previous' lacks a 'next' entry")
-  previous
+  if (length(previous$`next`))
+    return(download_lpsn_json(object, previous$`next`, NULL))
+  if (keep) {
+    warning("object 'previous' lacks a 'next' entry")
+    return(previous)
+  }
+  NULL
 }
 
 

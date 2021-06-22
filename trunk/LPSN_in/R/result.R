@@ -1,9 +1,12 @@
+################################################################################
 
 
 #' Methods for \sQuote{lpsn_result} objects
 #'
-#' This package uses \sQuote{lpsn_result} objects for storing the results of a
-#' query to the \acronym{LPSN} \acronym{API}.
+#' This package uses \sQuote{lpsn_result} objects for storing the direct results
+#' of querying the \acronym{LPSN} \acronym{API} and \sQuote{nested_records}
+#' objects for storing compiled results (created from \sQuote{lpsn_result}
+#' objects).
 #'
 #' @param object Object of class \sQuote{lpsn_result}.
 #' @param x Object of class \sQuote{lpsn_result}.
@@ -13,27 +16,28 @@
 #' @return The \code{summary} function returns a list or character vector.
 #'   The \code{print} method returns \code{x}, invisibly.
 #' @details These methods yield or display basic information about the result of
-#'   the download attempt.
+#'   a download attempt. For real examples of their usage see
+#'   \code{\link{fetch}} and friends.
 #'
 #'   Note that each \sQuote{lpsn_result} object also responds to \code{`$`} and
 #'   \code{`[[`}. The most important key is probably \sQuote{results} as it
 #'   yields the \code{API} entries (one per taxon name). \code{summary} and
 #'   \code{print} show an overview of all keys.
 #'
-#'   If querying the \code{API} yielded an error, the structure of the returned
+#'   When the server signals that the \code{API} query was erroneous (as opposed
+#'   to just yielding zero results), the structure of the returned
 #'   \sQuote{lpsn_result} object is different. While a \sQuote{results} entry
-#'   should be missing, entries for status code and error message should be
-#'   present in such a case.
+#'   should be missing, entries such as \sQuote{code}, \sQuote{message} and
+#'   \sQuote{title} should present in such a case and should indicate the kind
+#'   of problem.
 #'
 #' @references \url{https://api.lpsn.dsmz.de/}
 #'
 #' @family result-functions
 #' @seealso \code{\link{fetch}} \code{\link{request}} \code{\link{retrieve}}
-#'   \code{\link{upgrade}}
+#'   \code{\link{upgrade}} \code{\link{nested_records}}
 #' @keywords print database
 #' @rdname summary
-#' @name summary
-#' @aliases summary.lpsn_result summary
 #' @method summary lpsn_result
 #' @export
 #' @examples
@@ -56,11 +60,11 @@ summary.lpsn_result <- function(object, ...) {
 
 #' @rdname summary
 #' @method print lpsn_result
-#' @aliases print.lpsn_result print
 #' @export
 #'
 print.lpsn_result <- function(x, ...) {
-  cat(formatDL(unlist(summary(object = x, ...))), sep = "\n")
-  invisible(x)
+  print_summary(x, ...)
 }
 
+
+################################################################################
