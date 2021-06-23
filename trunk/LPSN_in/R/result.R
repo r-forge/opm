@@ -30,7 +30,15 @@
 #'   status code), \sQuote{message} and \sQuote{title} should be present in such
 #'   a case and should indicate the kind of problem.
 #'
+#'   The compiled \acronym{LPSN} \acronym{API} results as returned by
+#'   \code{retrieve} are of class \sQuote{records}. A dedicated
+#'   \code{as.data.frame} method can convert such objects to a data frame.
+#'
+#'   A detailed description of the content of the \acronym{API} entries is given
+#'   on the \acronym{LPSN} web site.
+#'
 #' @references \url{https://api.lpsn.dsmz.de/}
+#' @references \url{https://lpsn.dsmz.de/text/lpsn-api}
 #' @references \url{https://www.restapitutorial.com/httpstatuscodes.html}
 #'
 #' @family result-functions

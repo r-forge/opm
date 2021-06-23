@@ -14,7 +14,7 @@ print_summary <- function(x, ...) {
 
 # Non-public helper function that returns a character vector of length 1.
 #
-object_to_message <- function(x, sep = ": ", collapse = "; ") {
+any_to_message <- function(x, sep = ": ", collapse = "; ") {
   if (!is.atomic(x))
     x <- unlist(x)
   if (is.null(names(x)))
@@ -41,6 +41,8 @@ assert_scalar <- function(x) {
 # Non-public function that assists in interpreting system environment
 # variables. Assumes that 'x' is a character vector of length 1.
 #
+#' @importFrom utils type.convert
+#
 force_integer <- function(x) {
   if (!nzchar(x))
     return(0L)
@@ -58,6 +60,8 @@ force_integer <- function(x) {
 
 
 # Non-public conversion function specific for LPSN API URLs.
+#
+#' @importFrom curl curl_escape
 #
 compose_url <- function(base_url, endpoint, query) {
   if (!is.atomic(query))
@@ -80,18 +84,21 @@ compose_url <- function(base_url, endpoint, query) {
 # Non-public helper function for create_dsmz_keycloak and friends. Returns a
 # 'dsmz_keycloak' object.
 #
-get_dsmz_keycloak <- function(client_id, internal, classes, ...) {
+#' @importFrom httr POST content status_code
+#
+get_dsmz_keycloak <- function(client_id, classes, verbose, internal, ...) {
 
   url <- if (internal) "https://sso.dmz.dsmz.de" else "https://sso.dsmz.de"
   result <- POST(path = "auth/realms/dsmz/protocol/openid-connect/token",
     url = url, body = list(client_id = client_id, ...), encode = "form")
   if (status_code(result) != 200L)
-    stop(object_to_message(content(result)))
+    stop(any_to_message(content(result)))
 
   # the rest of the code just puts a convenient object together
   result <- as.environment(content(result))
   result$dsmz_created_at <- Sys.time()
   result$dsmz_client_id <- client_id
+  result$dsmz_verbose <- verbose
   result$dsmz_internal <- internal
   class(result) <- c(setdiff(classes, "dsmz_keycloak"), "dsmz_keycloak")
   result
@@ -102,9 +109,11 @@ get_dsmz_keycloak <- function(client_id, internal, classes, ...) {
 # Non-public function that initially creates a 'dsmz_keycloak' object.
 #
 create_dsmz_keycloak <- function(username, password, client_id, classes,
-    internal = force_integer(Sys.getenv("DSMZ_KEYCLOAK_INTERNAL", ""))) {
-  get_dsmz_keycloak(username = username, password = password, classes = classes,
-    internal = internal, grant_type = "password", client_id = client_id)
+    verbose = force_integer(Sys.getenv("DSMZ_API_VERBOSE")),
+    internal = force_integer(Sys.getenv("DSMZ_KEYCLOAK_INTERNAL"))) {
+  get_dsmz_keycloak(username = username, password = password,
+    grant_type = "password", client_id = client_id,
+    classes = classes, verbose = verbose, internal = internal)
 }
 
 
@@ -113,6 +122,8 @@ create_dsmz_keycloak <- function(username, password, client_id, classes,
 
 # Non-public download/conversion function. One needs to call 'content' to obtain
 # the JSON (already converted to an R object).
+#
+#' @importFrom httr GET add_headers
 #
 download_json <- function(url, access_token, verbose) {
   if (verbose > 0L)
@@ -125,16 +136,20 @@ download_json <- function(url, access_token, verbose) {
 # Non-public download/conversion function that calls download_json. A single
 # retry is attempted if the access token is probably expired.
 #
-download_json_with_retry <- function(url, tokens, verbose) {
-  result <- download_json(url, get("access_token", tokens), verbose)
+#' @importFrom httr content status_code
+#
+download_json_with_retry <- function(url, tokens) {
+  result <- download_json(url, get("access_token", tokens),
+    get("dsmz_verbose", tokens))
   # one could also check that the "message" entry is "Expired token" but the
   # exact spelling of messages may be unstable
   if (status_code(result) == 401L) {
     refresh(tokens, TRUE)
-    result <- download_json(url, get("access_token", tokens), verbose)
+    result <- download_json(url, get("access_token", tokens),
+      get("dsmz_verbose", tokens))
   }
   if (status_code(result) != 200L)
-    warning(object_to_message(content(result)))
+    warning(any_to_message(content(result)))
   content(result)
 }
 
@@ -167,7 +182,18 @@ download_json_with_retry <- function(url, tokens, verbose) {
 #'   by querying a \acronym{DSMZ} \acronym{API}. See the examples for the
 #'   according functions.
 #'
+#'   When generating a \sQuote{dsmz_keycloak} object, the package responds to a
+#'   system environment variable called \sQuote{DSMZ_API_VERBOSE}. Its primary
+#'   interpretation is as an integer number. Non-empty values of
+#'   \sQuote{DSMZ_API_VERBOSE} that cannot be interpreted as an integer number
+#'   are treated like 1; the empty character string is treated like 0.
+#'
+#'   When downloading data from the \acronym{API}, a verbosity of 1 means that
+#'   the \acronym{URL} of each \acronym{API} request is output; when 2 or
+#'   larger, more intermediary results may be shown.
+#'
 #' @references \url{https://www.keycloak.org/}
+#' @references \url{https://www.dsmz.de/privacy-statement}
 #'
 #' @family common-functions
 #' @keywords connection database print
@@ -183,7 +209,8 @@ refresh <- function(object, ...) UseMethod("refresh")
 refresh.dsmz_keycloak <- function(object, self = TRUE, ...) {
   result <- get_dsmz_keycloak(refresh_token = get("refresh_token", object),
     client_id = get("dsmz_client_id", object), grant_type = "refresh_token",
-    internal = get("dsmz_internal", object), classes = class(object), ...)
+    classes = class(object), verbose = get("dsmz_verbose", object),
+    internal = get("dsmz_internal", object), ...)
   if (self)
     list2env(as.list.environment(result), object)
   else

@@ -1,6 +1,26 @@
 ################################################################################
 
 
+# Non-public function that does the LPSN-specific download work.
+#
+download_lpsn_json <- function(object, endpoint, query) {
+  internal <- get("dsmz_internal", object)
+  url <- if (length(query))
+      compose_url(if (internal)
+          "http://api.pnu-dev.dsmz.local"
+        else
+          "https://api.lpsn.dsmz.de", endpoint, query)
+    else
+      endpoint # here we assume that the full URL is already given
+  result <- download_json_with_retry(url, object)
+  class(result) <- "lpsn_result"
+  result
+}
+
+
+################################################################################
+
+
 #' Creating \sQuote{lpsn_access} objects
 #'
 #' This package uses \sQuote{lpsn_access} objects for managing the access to the
@@ -27,14 +47,8 @@
 #'   with the \acronym{LPSN} copyright, although this copyright is liberal, see
 #'   the \acronym{LPSN} web page.
 #'
-#'   When downloading data from the \acronym{API}, the package responds to a
-#'   system environment variable called \sQuote{DSMZ_API_VERBOSE}. When 1, the
-#'   \acronym{URL} of each \acronym{API} request is output; when 2 or larger,
-#'   more intermediary results may be shown. Non-empty values of
-#'   \sQuote{DSMZ_API_VERBOSE} that cannot be interpreted as an integer number
-#'   are treated like 1; the empty character string is treated like 0.
-#'
 #' @references \url{https://lpsn.dsmz.de/text/copyright}
+#' @references \url{https://lpsn.dsmz.de/mailinglist/subscribe}
 #' @references \url{https://api.lpsn.dsmz.de/}
 #' @references \url{https://www.keycloak.org/}
 #'
@@ -92,7 +106,7 @@ open_lpsn <- function(username, password) {
 #'   nothing.
 #'
 #'   For \code{upgrade}, optional arguments (currently ignored).
-#' @export
+#'
 #' @return The methods for \code{fetch}, \code{request} and \code{upgrade}
 #'   return an \sQuote{lpsn_result} object. In the case of \code{request} this
 #'   object contains \acronym{LPSN} record numbers. Each of them is used as a
@@ -127,13 +141,19 @@ open_lpsn <- function(username, password) {
 #'   facilities may be augmented in the future without the need for changes to
 #'   this client.
 #'
+#'   Forthcoming changes to the \acronym{LPSN} \acronym{API} are announced on
+#'   the \acronym{LPSN} mailing list. Regular users of the \acronym{API} are
+#'   advised to subscribe to this list.
+#'
 #' @references \url{https://api.lpsn.dsmz.de/}
 #' @references \url{https://lpsn.dsmz.de/text/copyright}
+#' @references \url{https://lpsn.dsmz.de/mailinglist/subscribe}
 #'
 #' @family query-functions
 #' @seealso \code{\link{summary.lpsn_result}} \code{\link{print.lpsn_result}}
 #'   \code{\link{as.data.frame}}
 #' @keywords connection database
+#' @export
 #' @examples
 #' ## Registration for LPSN is required but free and easy to accomplish.
 #' ## In real applications username and password could of course also be stored
@@ -231,6 +251,11 @@ open_lpsn <- function(username, password) {
 #' bacdf <- as.data.frame(bac)
 #' stopifnot(nrow(bac) > 400L)
 #'
+#' ## and finally a refresh, whether needed or not
+#' refresh(lpsn, TRUE)
+#' # this is also done internally and automatically
+#' # in some situations when apparently needed
+#'
 #' } else {
 #'
 #' warning("username or password missing, cannot run examples")
@@ -264,6 +289,7 @@ fetch.lpsn_access <- function(object, ids, ...) {
 #'
 request <- function(object, ...) UseMethod("request")
 
+#' @importFrom jsonlite toJSON
 #' @rdname fetch
 #' @method request lpsn_access
 #' @export
@@ -383,6 +409,7 @@ retrieve.lpsn_access <- function(object, query, search = "flexible",
 }
 
 
+#' @importFrom utils upgrade
 #' @rdname fetch
 #' @method upgrade lpsn_access
 #' @export
