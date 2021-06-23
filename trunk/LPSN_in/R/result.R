@@ -4,9 +4,8 @@
 #' Methods for \sQuote{lpsn_result} objects
 #'
 #' This package uses \sQuote{lpsn_result} objects for storing the direct results
-#' of querying the \acronym{LPSN} \acronym{API} and \sQuote{nested_records}
-#' objects for storing compiled results (created from \sQuote{lpsn_result}
-#' objects).
+#' of querying the \acronym{LPSN} \acronym{API} and \sQuote{records} objects for
+#' storing compiled results (created from \sQuote{lpsn_result} objects).
 #'
 #' @param object Object of class \sQuote{lpsn_result}.
 #' @param x Object of class \sQuote{lpsn_result}.
@@ -27,15 +26,16 @@
 #'   When the server signals that the \code{API} query was erroneous (as opposed
 #'   to just yielding zero results), the structure of the returned
 #'   \sQuote{lpsn_result} object is different. While a \sQuote{results} entry
-#'   should be missing, entries such as \sQuote{code}, \sQuote{message} and
-#'   \sQuote{title} should present in such a case and should indicate the kind
-#'   of problem.
+#'   should be missing, entries such as \sQuote{code} (giving the \acronym{HTTP}
+#'   status code), \sQuote{message} and \sQuote{title} should be present in such
+#'   a case and should indicate the kind of problem.
 #'
 #' @references \url{https://api.lpsn.dsmz.de/}
+#' @references \url{https://www.restapitutorial.com/httpstatuscodes.html}
 #'
 #' @family result-functions
 #' @seealso \code{\link{fetch}} \code{\link{request}} \code{\link{retrieve}}
-#'   \code{\link{upgrade}} \code{\link{nested_records}}
+#'   \code{\link{upgrade}} \code{\link{records}}
 #' @keywords print database
 #' @rdname summary
 #' @method summary lpsn_result

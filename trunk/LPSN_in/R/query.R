@@ -19,19 +19,20 @@
 #'   querying the \acronym{LPSN} \acronym{API}. See the examples given for the
 #'   according functions, such as \code{\link{fetch}}.
 #'
-#'   The usage of the LPSN API requires registration, although registration is
-#'   free and easy to accomplish. See the LPSN API web page.
+#'   The usage of the \acronym{LPSN} \acronym{API} requires registration,
+#'   although registration is free and easy to accomplish. See the
+#'   \acronym{LPSN} \acronym{API} web page.
 #'
-#'   The usage of the LPSN data is only permitted when in compliance with the
-#'   LPSN copyright, although this copyright is liberal, see the LPSN web page.
+#'   The usage of the \acronym{LPSN} data is only permitted when in compliance
+#'   with the \acronym{LPSN} copyright, although this copyright is liberal, see
+#'   the \acronym{LPSN} web page.
 #'
 #'   When downloading data from the \acronym{API}, the package responds to a
 #'   system environment variable called \sQuote{DSMZ_API_VERBOSE}. When 1, the
 #'   \acronym{URL} of each \acronym{API} request is output; when 2 or larger,
-#'   each character string returned by the \acronym{API} is output prior to
-#'   parsing it as \acronym{JSON}. Non-empty values of \sQuote{DSMZ_API_VERBOSE}
-#'   that cannot be interpreted as an integer number are treated like 1; the
-#'   empty character string is treated like 0.
+#'   more intermediary results may be shown. Non-empty values of
+#'   \sQuote{DSMZ_API_VERBOSE} that cannot be interpreted as an integer number
+#'   are treated like 1; the empty character string is treated like 0.
 #'
 #' @references \url{https://lpsn.dsmz.de/text/copyright}
 #' @references \url{https://api.lpsn.dsmz.de/}
@@ -55,8 +56,10 @@ open_lpsn <- function(username, password) {
 #' Querying the \acronym{LPSN} \acronym{API}
 #'
 #' This package uses \sQuote{lpsn_access} objects for managing the access to the
-#' \acronym{LPSN} \acronym{API}. Given such an object, the \acronym{API} can be
-#' queried.
+#' \acronym{LPSN} \acronym{API}. Once such an object has been created by
+#' applying \code{\link{open_lpsn}}, the \acronym{API} can be queried. The data
+#' are subject to the \acronym{LPSN} copyright (which is liberal, see the
+#' \acronym{LPSN} web site).
 #'
 #' @param object Object of class \sQuote{lpsn_access}.
 #' @param ids Numeric vector or list containing such vectors. If empty,
@@ -103,11 +106,11 @@ open_lpsn <- function(username, password) {
 #'   \code{retrieve} combines the functionality of \code{request}, \code{fetch}
 #'   and \code{upgrade} to download all entries found in the \acronym{API},
 #'   traversing all chunks of a paginated result in turn. The resulting list (of
-#'   class \sQuote{nested_records}) may be huge, hence care should be taken. It
-#'   may be advisable to use \code{handler}. If this function is given, each
-#'   chunk is passed to \code{handler} in turn. The \code{handler} function
-#'   could then store the data in a database or in a file. If \code{handler} is
-#'   given, the number of its calls is returned.
+#'   class \sQuote{records}) may be huge, hence care should be taken. It may be
+#'   advisable to use \code{handler}. If this function is given, each chunk is
+#'   passed to \code{handler} in turn. The \code{handler} function could then
+#'   store the data in a database or in a file. If \code{handler} is given, the
+#'   number of its calls is returned.
 #'
 #'   By using \code{request}, \code{fetch} and \code{upgrade}, users can build
 #'   their own loops to download and process paginated results, as an
@@ -123,6 +126,7 @@ open_lpsn <- function(username, password) {
 #'   this client.
 #'
 #' @references \url{https://api.lpsn.dsmz.de/}
+#' @references \url{https://lpsn.dsmz.de/text/copyright}
 #'
 #' @family query-functions
 #' @seealso \code{\link{summary.lpsn_result}} \code{\link{print.lpsn_result}}
@@ -321,7 +325,7 @@ retrieve.lpsn_access <- function(object, query, search = "flexible",
     result <- 0L
   } else {
     result <- vector("list", total)
-    class(result) <- "nested_records"
+    class(result) <- "records"
   }
   if (!total)
     return(result)
