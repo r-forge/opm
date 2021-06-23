@@ -2116,6 +2116,12 @@ ____EOF
     exit $?
   ;;
   lfull|lnorm )
+    if [ ${DSMZ_API_PASSWORD:+x} ] && [ ${DSMZ_API_USER:+x} ]; then
+      true
+    else
+      echo "need \$DSMZ_API_USER and \$DSMZ_API_PASSWORD system variables" >&2
+      exit 1
+    fi
     PKG_DIR=LPSN_in
     RUNNING_MODE=${RUNNING_MODE#f}
     CHECK_R_TESTS=

@@ -1,11 +1,11 @@
 Package: LPSN
-Version: 0.7.0
-Date: 2021-06-22
+Version: 0.8.0
+Date: 2021-06-23
 Title: LPSN API Client
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
-Depends: R (>= 4.0.0)
-Imports: RCurl (>= 1.98-1.3), jsonlite (>= 1.7.0), utils (>= 4.0.0)
+Depends: R (>= 3.0.0)
+Imports: utils, curl (>= 3.0.0), jsonlite (>= 1.7.0), httr (>= 1.4.0)
 Description: R client for the Application Programming Interface (API)
         of the List of Prokaryotic Names with Standing in Nomenclature
         (LPSN) hosted at the Leibniz Institute DSMZ - German Collection

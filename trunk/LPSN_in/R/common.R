@@ -12,6 +12,21 @@ print_summary <- function(x, ...) {
 ################################################################################
 
 
+# Non-public helper function that returns a character vector of length 1.
+#
+object_to_message <- function(x, sep = ": ", collapse = "; ") {
+  if (!is.atomic(x))
+    x <- unlist(x)
+  if (is.null(names(x)))
+    paste0(x, collapse = collapse)
+  else
+    paste(names(x), x, sep = sep, collapse = collapse)
+}
+
+
+################################################################################
+
+
 # Non-public function that asserts that 'x' is an atomic vector of length 1.
 #
 assert_scalar <- function(x) {
@@ -24,7 +39,7 @@ assert_scalar <- function(x) {
 
 
 # Non-public function that assists in interpreting system environment
-# variables.
+# variables. Assumes that 'x' is a character vector of length 1.
 #
 force_integer <- function(x) {
   if (!nzchar(x))
@@ -39,25 +54,10 @@ force_integer <- function(x) {
 }
 
 
-# Return a status code if given and useful, if otherwise return 0L.
-#
-status_code <- function(x, key = "code") {
-  result <- x[[key]]
-  if (length(result) != 1L || is.na(result))
-    0L
-  else if (is.integer(result))
-    result
-  else if (is.double(result) || is.logical(result))
-    as.integer(result)
-  else
-    0L
-}
-
-
 ################################################################################
 
 
-# Non-public conversion function.
+# Non-public conversion function specific for LPSN API URLs.
 #
 compose_url <- function(base_url, endpoint, query) {
   if (!is.atomic(query))
@@ -67,7 +67,7 @@ compose_url <- function(base_url, endpoint, query) {
     query <- paste0(query, collapse = ";")
   } else {
     template <- "%s/%s?%s"
-    query <- paste(curlEscape(names(query)), curlEscape(query),
+    query <- paste(curl_escape(names(query)), curl_escape(query),
       sep = "=", collapse = "&")
   }
   sprintf(template, base_url, endpoint, query)
@@ -78,20 +78,24 @@ compose_url <- function(base_url, endpoint, query) {
 
 
 # Non-public helper function for create_dsmz_keycloak and friends. Returns a
-# 'create_dsmz_keycloak' object.
+# 'dsmz_keycloak' object.
 #
 get_dsmz_keycloak <- function(client_id, internal, classes, ...) {
-  uri <- if (internal) "https://sso.dmz.dsmz.de" else "https://sso.dsmz.de"
-  uri <- paste0(uri, "/auth/realms/dsmz/protocol/openid-connect/token")
-  # this line is supposed to result in an error in case of unauthorized access
-  result <- postForm(uri = uri, client_id = client_id, style = "post", ...)
+
+  url <- if (internal) "https://sso.dmz.dsmz.de" else "https://sso.dsmz.de"
+  result <- POST(path = "auth/realms/dsmz/protocol/openid-connect/token",
+    url = url, body = list(client_id = client_id, ...), encode = "form")
+  if (status_code(result) != 200L)
+    stop(object_to_message(content(result)))
+
   # the rest of the code just puts a convenient object together
-  result <- as.environment(fromJSON(result, FALSE))
+  result <- as.environment(content(result))
   result$dsmz_created_at <- Sys.time()
   result$dsmz_client_id <- client_id
   result$dsmz_internal <- internal
   class(result) <- c(setdiff(classes, "dsmz_keycloak"), "dsmz_keycloak")
   result
+
 }
 
 
@@ -107,29 +111,31 @@ create_dsmz_keycloak <- function(username, password, client_id, classes,
 ################################################################################
 
 
-# Non-public download/conversion function.
+# Non-public download/conversion function. One needs to call 'content' to obtain
+# the JSON (already converted to an R object).
 #
 download_json <- function(url, access_token, verbose) {
   if (verbose > 0L)
     message(url, "\n")
-  result <- getURL(url = url,
-    httpheader = list(Accept = "application/json",
-      Authorization = paste("Bearer", access_token)))
-  if (verbose > 1L)
-    message(result, "\n")
-  fromJSON(result, TRUE, FALSE, FALSE)
+  GET(url = url, add_headers(Accept = "application/json",
+    Authorization = paste("Bearer", access_token)))
 }
 
 
-# Non-public download/conversion function that calls download_json.
+# Non-public download/conversion function that calls download_json. A single
+# retry is attempted if the access token is probably expired.
 #
 download_json_with_retry <- function(url, tokens, verbose) {
   result <- download_json(url, get("access_token", tokens), verbose)
-  # we assume that 401 indicates that the access token was expired
-  if (status_code(result) != 401L)
-    return(result)
-  refresh(tokens, TRUE)
-  download_json(url, get("access_token", tokens), verbose)
+  # one could also check that the "message" entry is "Expired token" but the
+  # exact spelling of messages may be unstable
+  if (status_code(result) == 401L) {
+    refresh(tokens, TRUE)
+    result <- download_json(url, get("access_token", tokens), verbose)
+  }
+  if (status_code(result) != 200L)
+    warning(object_to_message(content(result)))
+  content(result)
 }
 
 
@@ -212,12 +218,12 @@ print.dsmz_keycloak <- function(x, ...) {
 #' Methods for nested lists
 #'
 #' Calls to a \acronym{JSON}-based \acronym{API} may yield nested lists whose
-#' conversion to a data frame may not be straightforward. The
-#' \sQuote{nested_records} class of objects can assist in such conversions.
+#' conversion to a data frame may not be straightforward. The \sQuote{records}
+#' class of objects can assist in such conversions.
 #'
-#' @param object List or object of class \sQuote{nested_records} (which is a
-#'   special kind of list).
-#' @param x Object of class \sQuote{nested_records}.
+#' @param object List or object of class \sQuote{records} (which is a special
+#'   kind of list).
+#' @param x Object of class \sQuote{records}.
 #' @param row.names \code{NULL} or a character vector with row names for the
 #'   data frame.
 #' @param optional Logical vector of length 1 indicating whether creation of
@@ -230,44 +236,43 @@ print.dsmz_keycloak <- function(x, ...) {
 #'
 #' @export
 #' @return The \code{as.data.frame} method creates a data frame from a list of
-#'   class \sQuote{nested_records}. The \code{nested_records} method creates on
-#'   object of that class if the given object passes the tests (see the
-#'   examples). The other methods yield or display basic information about a
-#'   \sQuote{nested_records} object.
+#'   class \sQuote{records}. The \code{records} method creates on object of that
+#'   class if the given object passes the tests (see the examples). The other
+#'   methods yield or display basic information about a \sQuote{records} object.
 #'
 #' @family common-functions
 #' @keywords list manip print
 #' @examples
-#' print(nested_records(list()))
+#' print(records(list()))
 #'
-#' x <- nested_records(list(list(A = 1, B = 2)))
+#' x <- records(list(list(A = 1, B = 2)))
 #' print(x)
 #'
 #' # the list elements must be lists
-#' x <- try(nested_records(list(A = 1, B = 2)))
+#' x <- try(records(list(A = 1, B = 2)))
 #' stopifnot(inherits(x, "try-error"))
 #'
 #' # the list elements must be named lists
-#' x <- try(nested_records(list(list(1, 2))))
+#' x <- try(records(list(list(1, 2))))
 #' stopifnot(inherits(x, "try-error"))
 #'
 #' # resulting data frame columns can be lists
-#' x <- nested_records(list(list(A = -1, B = 2), list(B = 3:4)))
+#' x <- records(list(list(A = -1, B = 2), list(B = 3:4)))
 #' print(x)
 #' print(as.data.frame(x))
 #'
 #' # missing keys yield missing data (NA values)
-#' x <- nested_records(list(list(A = 1, B = 2), list(C = 3, D = 4)))
+#' x <- records(list(list(A = 1, B = 2), list(C = 3, D = 4)))
 #' print(x)
 #' print(as.data.frame(x))
 #'
-nested_records <- function(object, ...) UseMethod("nested_records")
+records <- function(object, ...) UseMethod("records")
 
-#' @rdname nested_records
-#' @method nested_records list
+#' @rdname records
+#' @method records list
 #' @export
 #'
-nested_records.list <- function(object, ...) {
+records.list <- function(object, ...) {
   bad <- sum(!vapply(object, is.list, NA))
   if (bad > 1L)
     stop(bad, " list elements are not themselves lists")
@@ -278,15 +283,15 @@ nested_records.list <- function(object, ...) {
     stop(bad, " list elements do not have names")
   else if (bad > 0L)
     stop("1 list element does not have names")
-  class(object) <- "nested_records"
+  class(object) <- "records"
   object
 }
 
-#' @rdname nested_records
-#' @method as.data.frame nested_records
+#' @rdname records
+#' @method as.data.frame records
 #' @export
 #'
-as.data.frame.nested_records <- function(x, row.names = NULL,
+as.data.frame.records <- function(x, row.names = NULL,
     optional = TRUE, ...) {
   rectangle <- function(x, syntactic) {
     keys <- unique.default(unlist(lapply(x, names), FALSE, FALSE))
@@ -312,11 +317,11 @@ as.data.frame.nested_records <- function(x, row.names = NULL,
 }
 
 
-#' @rdname nested_records
-#' @method summary nested_records
+#' @rdname records
+#' @method summary records
 #' @export
 #'
-summary.nested_records <- function(object, ...) {
+summary.records <- function(object, ...) {
   total <- length(object)
   span <- if (total) range(lengths(object)) else rep_len(NA_integer_, 2L)
   list(
@@ -328,11 +333,11 @@ summary.nested_records <- function(object, ...) {
 }
 
 
-#' @rdname nested_records
-#' @method print nested_records
+#' @rdname records
+#' @method print records
 #' @export
 #'
-print.nested_records <- function(x, ...) {
+print.records <- function(x, ...) {
   print_summary(x, ...)
 }
 
