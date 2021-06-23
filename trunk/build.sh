@@ -2123,7 +2123,7 @@ ____EOF
       exit 1
     fi
     PKG_DIR=LPSN_in
-    RUNNING_MODE=${RUNNING_MODE#f}
+    RUNNING_MODE=${RUNNING_MODE#l}
     CHECK_R_TESTS=
   ;;
   link )

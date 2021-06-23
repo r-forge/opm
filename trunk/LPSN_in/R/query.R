@@ -73,10 +73,12 @@ open_lpsn <- function(username, password) {
 #'   ignored when advanced search is chosen.
 #' @param page Integer vector of length 1. Needed because the results of
 #'   \code{request} are paginated. The first page has the number 0.
-#' @param handler If \code{NULL}, ignored. Otherwise a function to which each
-#'   data chunk retrieved from the \acronym{API} is transferred in turn. The
-#'   function should accept a single argument. \code{retrieve} and the handler
-#'   function may thus best be called within a dedicated enclosing function.
+#' @param handler If empty, ignored. Otherwise a function to which each data
+#'   chunk retrieved from the \acronym{API} is transferred in turn. The function
+#'   should accept a single argument. \code{retrieve} and the handler function
+#'   may thus best be called within a dedicated enclosing function.
+#' @param sleep A waiting period in seconds between successive \acronym{API}
+#'   requests, if any.
 #' @param previous Object of class \sQuote{lpsn_result}.
 #' @param keep Logical vector of length 1 that determines the return value of
 #'   \code{upgrade} in case of failure.
@@ -223,7 +225,8 @@ open_lpsn <- function(username, password) {
 #' stopifnot(length(nil) == 0L)
 #'
 #' # (5) and now for something huge
-#' bac <- retrieve(lpsn, list(monomial = "Bacillus"))
+#' bac <- retrieve(lpsn, list(monomial = "Bacillus"),
+#'   sleep = 0.1) # just for the sake of testing
 #' stopifnot(length(bac) > 400L)
 #' bacdf <- as.data.frame(bac)
 #' stopifnot(nrow(bac) > 400L)
@@ -312,7 +315,7 @@ retrieve <- function(object, ...) UseMethod("retrieve")
 #' @export
 #'
 retrieve.lpsn_access <- function(object, query, search = "flexible",
-    handler = NULL, ...) {
+    handler = NULL, sleep = 0.5, ...) {
 
   transfer <- length(handler) > 0L
   if (transfer && !is.function(handler))
@@ -346,8 +349,12 @@ retrieve.lpsn_access <- function(object, query, search = "flexible",
     offset <- size
   }
 
+  if (assert_scalar(sleep) < 0.1)
+    sleep <- 0.1
+
   ## obtain and store/transfer the remaining chunks, if any
   while (length(found$`next`)) {
+    Sys.sleep(sleep)
     # obtain the next chunk
     found <- download_lpsn_json(object, found$`next`, NULL)
     if (length(found$results))
