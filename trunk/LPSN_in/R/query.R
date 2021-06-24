@@ -249,7 +249,7 @@ open_lpsn <- function(username, password) {
 #'   sleep = 0.1) # just for the sake of testing
 #' stopifnot(length(bac) > 400L)
 #' bacdf <- as.data.frame(bac)
-#' stopifnot(nrow(bac) > 400L)
+#' stopifnot(nrow(bacdf) > 400L)
 #'
 #' ## and finally a refresh, whether needed or not
 #' refresh(lpsn, TRUE)

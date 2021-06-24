@@ -131,6 +131,11 @@
   \acronym{API} web site. These search facilities may be
   augmented in the future without the need for changes to
   this client.
+
+  Forthcoming changes to the \acronym{LPSN} \acronym{API}
+  are announced on the \acronym{LPSN} mailing list. Regular
+  users of the \acronym{API} are advised to subscribe to
+  this list.
 }
 \examples{
 ## Registration for LPSN is required but free and easy to accomplish.
@@ -227,7 +232,12 @@ bac <- retrieve(lpsn, list(monomial = "Bacillus"),
   sleep = 0.1) # just for the sake of testing
 stopifnot(length(bac) > 400L)
 bacdf <- as.data.frame(bac)
-stopifnot(nrow(bac) > 400L)
+stopifnot(nrow(bacdf) > 400L)
+
+## and finally a refresh, whether needed or not
+refresh(lpsn, TRUE)
+# this is also done internally and automatically
+# in some situations when apparently needed
 
 } else {
 
@@ -239,6 +249,8 @@ warning("username or password missing, cannot run examples")
   \url{https://api.lpsn.dsmz.de/}
 
   \url{https://lpsn.dsmz.de/text/copyright}
+
+  \url{https://lpsn.dsmz.de/mailinglist/subscribe}
 }
 \seealso{
   \code{\link{summary.lpsn_result}}

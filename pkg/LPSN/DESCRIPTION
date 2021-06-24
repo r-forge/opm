@@ -1,6 +1,6 @@
 Package: LPSN
-Version: 0.9.0
-Date: 2021-06-23
+Version: 0.10.0
+Date: 2021-06-24
 Title: LPSN API Client
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
@@ -26,10 +26,9 @@ Description: R client for the Application Programming Interface (API)
     copyright (which is liberal, see the LPSN web page).
 License: GPL-3
 URL: https://api.lpsn.dsmz.de/
+MailingList: https://lpsn.dsmz.de/mailinglist/subscribe
 Collate:
-    'imports.R'
     'common.R'
-    'helpers.R'
     'query.R'
     'result.R'
 LazyData: yes
