@@ -45,12 +45,23 @@
   \acronym{HTTP} status code), \sQuote{message} and
   \sQuote{title} should be present in such a case and
   should indicate the kind of problem.
+
+  The compiled \acronym{LPSN} \acronym{API} results as
+  returned by \code{retrieve} are of class
+  \sQuote{records}. A dedicated \code{as.data.frame} method
+  can convert such objects to a data frame.
+
+  A detailed description of the content of the
+  \acronym{API} entries is given on the \acronym{LPSN} web
+  site.
 }
 \examples{
 ## Examples are deliberately not given here.
 }
 \references{
   \url{https://api.lpsn.dsmz.de/}
+
+  \url{https://lpsn.dsmz.de/text/lpsn-api}
 
   \url{https://www.restapitutorial.com/httpstatuscodes.html}
 }

@@ -49,12 +49,27 @@
   The actual usage of \sQuote{dsmz_keycloak} objects is
   demonstrated by querying a \acronym{DSMZ} \acronym{API}.
   See the examples for the according functions.
+
+  When generating a \sQuote{dsmz_keycloak} object, the
+  package responds to a system environment variable called
+  \sQuote{DSMZ_API_VERBOSE}. Its primary interpretation is
+  as an integer number. Non-empty values of
+  \sQuote{DSMZ_API_VERBOSE} that cannot be interpreted as
+  an integer number are treated like 1; the empty character
+  string is treated like 0.
+
+  When downloading data from the \acronym{API}, a verbosity
+  of 1 means that the \acronym{URL} of each \acronym{API}
+  request is output; when 2 or larger, more intermediary
+  results may be shown.
 }
 \examples{
 ## Examples are deliberately not given here.
 }
 \references{
   \url{https://www.keycloak.org/}
+
+  \url{https://www.dsmz.de/privacy-statement}
 }
 \seealso{
   Other common-functions:

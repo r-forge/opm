@@ -92,7 +92,7 @@ get_dsmz_keycloak <- function(client_id, classes, verbose, internal, ...) {
   result <- POST(path = "auth/realms/dsmz/protocol/openid-connect/token",
     url = url, body = list(client_id = client_id, ...), encode = "form")
   if (status_code(result) != 200L)
-    stop(any_to_message(content(result)))
+    stop("[Keycloak] ", any_to_message(content(result)))
 
   # the rest of the code just puts a convenient object together
   result <- as.environment(content(result))
@@ -149,7 +149,7 @@ download_json_with_retry <- function(url, tokens) {
       get("dsmz_verbose", tokens))
   }
   if (status_code(result) != 200L)
-    warning(any_to_message(content(result)))
+    warning("[API] ", any_to_message(content(result)))
   content(result)
 }
 
@@ -318,8 +318,7 @@ records.list <- function(object, ...) {
 #' @method as.data.frame records
 #' @export
 #'
-as.data.frame.records <- function(x, row.names = NULL,
-    optional = TRUE, ...) {
+as.data.frame.records <- function(x, row.names = NULL, optional = TRUE, ...) {
   rectangle <- function(x, syntactic) {
     keys <- unique.default(unlist(lapply(x, names), FALSE, FALSE))
     if (syntactic)
@@ -332,8 +331,8 @@ as.data.frame.records <- function(x, row.names = NULL,
     x[size > 1L] <- lapply(x[size > 1L], list)
     x
   }
-  result <- as.data.frame(x = rectangle(x, !optional), row.names = row.names,
-    optional = TRUE, make.names = FALSE, ..., stringsAsFactors = FALSE)
+  result <- as.data.frame(x = rectangle(x, !optional),
+    row.names = row.names, optional = TRUE, ...)
   if (optional)
     for (i in seq_along(x))
       result[i, names(x[[i]])] <- all_length_one(x[[i]])

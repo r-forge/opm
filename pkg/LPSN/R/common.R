@@ -3,7 +3,7 @@ print_summary <- function(x, ...) {
   invisible(x)
 }
 
-object_to_message <- function(x, sep = ": ", collapse = "; ") {
+any_to_message <- function(x, sep = ": ", collapse = "; ") {
   if (!is.atomic(x))
     x <- unlist(x)
   if (is.null(names(x)))
@@ -46,18 +46,19 @@ compose_url <- function(base_url, endpoint, query) {
   sprintf(template, base_url, endpoint, query)
 }
 
-get_dsmz_keycloak <- function(client_id, internal, classes, ...) {
+get_dsmz_keycloak <- function(client_id, classes, verbose, internal, ...) {
 
   url <- if (internal) "https://sso.dmz.dsmz.de" else "https://sso.dsmz.de"
   result <- POST(path = "auth/realms/dsmz/protocol/openid-connect/token",
     url = url, body = list(client_id = client_id, ...), encode = "form")
   if (status_code(result) != 200L)
-    stop(object_to_message(content(result)))
+    stop("[Keycloak] ", any_to_message(content(result)))
 
   # the rest of the code just puts a convenient object together
   result <- as.environment(content(result))
   result$dsmz_created_at <- Sys.time()
   result$dsmz_client_id <- client_id
+  result$dsmz_verbose <- verbose
   result$dsmz_internal <- internal
   class(result) <- c(setdiff(classes, "dsmz_keycloak"), "dsmz_keycloak")
   result
@@ -65,9 +66,11 @@ get_dsmz_keycloak <- function(client_id, internal, classes, ...) {
 }
 
 create_dsmz_keycloak <- function(username, password, client_id, classes,
-    internal = force_integer(Sys.getenv("DSMZ_KEYCLOAK_INTERNAL", ""))) {
-  get_dsmz_keycloak(username = username, password = password, classes = classes,
-    internal = internal, grant_type = "password", client_id = client_id)
+    verbose = force_integer(Sys.getenv("DSMZ_API_VERBOSE")),
+    internal = force_integer(Sys.getenv("DSMZ_KEYCLOAK_INTERNAL"))) {
+  get_dsmz_keycloak(username = username, password = password,
+    grant_type = "password", client_id = client_id,
+    classes = classes, verbose = verbose, internal = internal)
 }
 
 download_json <- function(url, access_token, verbose) {
@@ -77,16 +80,18 @@ download_json <- function(url, access_token, verbose) {
     Authorization = paste("Bearer", access_token)))
 }
 
-download_json_with_retry <- function(url, tokens, verbose) {
-  result <- download_json(url, get("access_token", tokens), verbose)
+download_json_with_retry <- function(url, tokens) {
+  result <- download_json(url, get("access_token", tokens),
+    get("dsmz_verbose", tokens))
   # one could also check that the "message" entry is "Expired token" but the
   # exact spelling of messages may be unstable
   if (status_code(result) == 401L) {
     refresh(tokens, TRUE)
-    result <- download_json(url, get("access_token", tokens), verbose)
+    result <- download_json(url, get("access_token", tokens),
+      get("dsmz_verbose", tokens))
   }
   if (status_code(result) != 200L)
-    warning(object_to_message(content(result)))
+    warning("[API] ", any_to_message(content(result)))
   content(result)
 }
 
@@ -95,7 +100,8 @@ refresh <- function(object, ...) UseMethod("refresh")
 refresh.dsmz_keycloak <- function(object, self = TRUE, ...) {
   result <- get_dsmz_keycloak(refresh_token = get("refresh_token", object),
     client_id = get("dsmz_client_id", object), grant_type = "refresh_token",
-    internal = get("dsmz_internal", object), classes = class(object), ...)
+    classes = class(object), verbose = get("dsmz_verbose", object),
+    internal = get("dsmz_internal", object), ...)
   if (self)
     list2env(as.list.environment(result), object)
   else
@@ -132,8 +138,7 @@ records.list <- function(object, ...) {
   object
 }
 
-as.data.frame.records <- function(x, row.names = NULL,
-    optional = TRUE, ...) {
+as.data.frame.records <- function(x, row.names = NULL, optional = TRUE, ...) {
   rectangle <- function(x, syntactic) {
     keys <- unique.default(unlist(lapply(x, names), FALSE, FALSE))
     if (syntactic)
@@ -146,8 +151,8 @@ as.data.frame.records <- function(x, row.names = NULL,
     x[size > 1L] <- lapply(x[size > 1L], list)
     x
   }
-  result <- as.data.frame(x = rectangle(x, !optional), row.names = row.names,
-    optional = TRUE, make.names = FALSE, ..., stringsAsFactors = FALSE)
+  result <- as.data.frame(x = rectangle(x, !optional),
+    row.names = row.names, optional = TRUE, ...)
   if (optional)
     for (i in seq_along(x))
       result[i, names(x[[i]])] <- all_length_one(x[[i]])
