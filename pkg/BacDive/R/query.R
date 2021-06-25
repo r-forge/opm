@@ -8,7 +8,7 @@ download_bacdive_json <- function(object, endpoint, query) {
     else
       endpoint # here we assume that the full URL is already given
   result <- download_json_with_retry(url, object)
-  class(result) <- "bacdive_result"
+  class(result) <- c("bacdive_result", "dsmz_result")
   result
 }
 

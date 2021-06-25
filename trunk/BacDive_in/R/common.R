@@ -246,15 +246,17 @@ print.dsmz_keycloak <- function(x, ...) {
 ################################################################################
 
 
-#' Methods for nested lists
+#' Methods for nested lists and \sQuote{dsmz_result} objects
 #'
 #' Calls to a \acronym{JSON}-based \acronym{API} may yield nested lists whose
 #' conversion to a data frame may not be straightforward. The \sQuote{records}
 #' class of objects can assist in such conversions.
 #'
 #' @param object List or object of class \sQuote{records} (which is a special
-#'   kind of list).
-#' @param x Object of class \sQuote{records}.
+#'   kind of list), or a list or other object to be converted to a
+#'   \sQuote{records} object.
+#' @param x Object of class \sQuote{records} or other object that can be
+#'   converted to such an object.
 #' @param row.names \code{NULL} or a character vector with row names for the
 #'   data frame.
 #' @param optional Logical vector of length 1 indicating whether creation of
@@ -267,12 +269,38 @@ print.dsmz_keycloak <- function(x, ...) {
 #'
 #' @export
 #' @return The \code{as.data.frame} method creates a data frame from a list of
-#'   class \sQuote{records}. The \code{records} method creates on object of that
+#'   class \sQuote{records}. The \code{records} method creates an object of that
 #'   class if the given object passes the tests (see the examples). The other
 #'   methods yield or display basic information about a \sQuote{records} object.
 #'
+#'   The \code{summary} function returns a list or character vector. The
+#'   \code{print} method returns \code{x}, invisibly.
+#'
+#' @details
+#'   This package uses \sQuote{dsmz_result} objects for storing the direct
+#'   results of querying the \acronym{API} and \sQuote{records} objects for
+#'   storing compiled results (created from \sQuote{dsmz_result} objects).
+#'
+#'   Note that each \sQuote{dsmz_result} object also responds to \code{`$`}
+#'   and \code{`[[`}. The most important key is probably \sQuote{results} as it
+#'   yields the \code{API} entries (one per taxon name). \code{summary} and
+#'   \code{print} show an overview of all keys.
+#'
+#'   When the server signals that the \code{API} query was erroneous (as opposed
+#'   to just yielding zero results), the structure of the returned
+#'   \sQuote{dsmz_result} object is different. While a \sQuote{results} entry
+#'   should be missing, entries such as \sQuote{code} (giving the \acronym{HTTP}
+#'   status code), \sQuote{message} and \sQuote{title} should be present in such
+#'   a case and should indicate the kind of problem.
+#'
+#'   The compiled \acronym{API} results as returned by \code{retrieve} are of
+#'   class \sQuote{records}. A dedicated \code{as.data.frame} method can convert
+#'   such objects to a data frame.
+#'
+#' @references \url{https://www.restapitutorial.com/httpstatuscodes.html}
+#'
 #' @family common-functions
-#' @keywords list manip print
+#' @keywords list manip print database
 #' @examples
 #' print(records(list()))
 #'
@@ -319,6 +347,24 @@ records.list <- function(object, ...) {
 }
 
 #' @rdname records
+#' @method records dsmz_result
+#' @export
+#'
+records.dsmz_result <- function(object, ...) {
+  convert_outcome <- function(x) {
+    # empty in case of error or just no outcome
+    if (!length(x))
+      return(list())
+    # if IDs were received
+    if (all(lengths(x) == 1L) && all(vapply(x, is.numeric, NA)))
+      return(lapply(x, function(e) list(ID = e)))
+    x
+  }
+  records(convert_outcome(object$results), ...)
+}
+
+
+#' @rdname records
 #' @method as.data.frame records
 #' @export
 #'
@@ -346,6 +392,15 @@ as.data.frame.records <- function(x, row.names = NULL, optional = TRUE, ...) {
   result
 }
 
+#' @rdname records
+#' @method as.data.frame dsmz_result
+#' @export
+#'
+as.data.frame.dsmz_result <- function(x, row.names = NULL,
+    optional = TRUE, ...) {
+  as.data.frame(records(x), row.names, optional, ...)
+}
+
 
 #' @rdname records
 #' @method summary records
@@ -362,12 +417,39 @@ summary.records <- function(object, ...) {
   )
 }
 
+#' @rdname records
+#' @method summary dsmz_result
+#' @export
+#'
+summary.dsmz_result <- function(object, ...) {
+  c(
+    list(
+      class = paste0(class(object), collapse = " < "),
+      parts = paste0(names(object), collapse = ", ")
+    ),
+    lapply(object, function(x)
+      if (is.numeric(x) && length(x) == 1L)
+        x
+      else
+        length(x) > 0L
+    )
+  )
+}
+
 
 #' @rdname records
 #' @method print records
 #' @export
 #'
 print.records <- function(x, ...) {
+  print_summary(x, ...)
+}
+
+#' @rdname records
+#' @method print dsmz_result
+#' @export
+#'
+print.dsmz_result <- function(x, ...) {
   print_summary(x, ...)
 }
 

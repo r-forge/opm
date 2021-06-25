@@ -142,6 +142,19 @@ records.list <- function(object, ...) {
   object
 }
 
+records.dsmz_result <- function(object, ...) {
+  convert_outcome <- function(x) {
+    # empty in case of error or just no outcome
+    if (!length(x))
+      return(list())
+    # if IDs were received
+    if (all(lengths(x) == 1L) && all(vapply(x, is.numeric, NA)))
+      return(lapply(x, function(e) list(ID = e)))
+    x
+  }
+  records(convert_outcome(object$results), ...)
+}
+
 as.data.frame.records <- function(x, row.names = NULL, optional = TRUE, ...) {
   rectangle <- function(x, syntactic) {
     keys <- unique.default(unlist(lapply(x, names), FALSE, FALSE))
@@ -166,6 +179,11 @@ as.data.frame.records <- function(x, row.names = NULL, optional = TRUE, ...) {
   result
 }
 
+as.data.frame.dsmz_result <- function(x, row.names = NULL,
+    optional = TRUE, ...) {
+  as.data.frame(records(x), row.names, optional, ...)
+}
+
 summary.records <- function(object, ...) {
   total <- length(object)
   span <- if (total) range(lengths(object)) else rep_len(NA_integer_, 2L)
@@ -177,7 +195,26 @@ summary.records <- function(object, ...) {
   )
 }
 
+summary.dsmz_result <- function(object, ...) {
+  c(
+    list(
+      class = paste0(class(object), collapse = " < "),
+      parts = paste0(names(object), collapse = ", ")
+    ),
+    lapply(object, function(x)
+      if (is.numeric(x) && length(x) == 1L)
+        x
+      else
+        length(x) > 0L
+    )
+  )
+}
+
 print.records <- function(x, ...) {
+  print_summary(x, ...)
+}
+
+print.dsmz_result <- function(x, ...) {
   print_summary(x, ...)
 }
 
