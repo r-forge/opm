@@ -7,7 +7,7 @@ download_bacdive_json <- function(object, endpoint, query) {
   internal <- get("dsmz_internal", object)
   url <- if (length(query))
       compose_url(if (internal)
-          "http://api.bacdive-dev.dsmz.local/"
+          "http://api.bacdive-dev.dsmz.local"
         else
           "https://api.bacdive.dsmz.de", endpoint, query)
     else
@@ -194,6 +194,55 @@ open_bacdive <- function(username, password) {
 #' gen1 <- request(bacdive, "GCA_006094295", "genome")
 #' print(gen1)
 #' stopifnot(summary(gen1)[["count"]] == 1L)
+#'
+#' ## search for taxon names
+#' # (1) given as length-1 character vector
+#' bac1 <- request(bacdive,
+#'   "Bacillus subtilis subsp. subtilis", "taxon")
+#' stopifnot(summary(bac1)[["count"]] > 200L)
+#'
+#' # (2) given separately in character vector
+#' bac2 <- request(bacdive,
+#'   c("Bacillus", "subtilis", "subtilis"), "taxon")
+#' stopifnot(identical(bac2, bac1))
+#'
+#' ## run search + fetch in one step
+#' # (a) simple example for taxon names
+#' bg1 <- retrieve(bacdive,
+#'   "Bacillus subtilis subsp. subtilis",
+#'   "taxon", NULL, 0.1)
+#' stopifnot(summary(bac1)[["count"]] == length(bg1))
+#' # conversion to data frame
+#' bg1d <- as.data.frame(bg1)
+#' stopifnot(is.data.frame(bg1d),
+#'   length(bg1) == nrow(bg1d))
+#'
+#' # (b) something big
+#' bg2 <- retrieve(bacdive,
+#'   "Bacillus", "taxon", NULL, 0.1)
+#' stopifnot(length(bg2) > 1000L,
+#'   identical(class(bg2), class(bg1)))
+#'
+#' # (c) try a handler
+#' bg2h <- list()
+#' retrieve(bacdive, "Bacillus", "taxon",
+#'   function(x) bg2h <<- c(bg2h, x))
+#' stopifnot(length(bg2h) == length(bg2))
+#' # there are of course better ways to use a handler
+#'
+#' # (d) if nothing is found
+#' nil <- retrieve(bacdive, "Thiscannotbefound", "taxon")
+#' stopifnot(length(nil) == 0L,
+#'   identical(class(nil), class(bg1)))
+#' # conversion to data frame
+#' nild <- as.data.frame(nil)
+#' stopifnot(is.data.frame(nild),
+#'   length(nil) == nrow(nild))
+#'
+#' ## and finally a refresh, whether needed or not
+#' refresh(bacdive, TRUE)
+#' # this is also done internally and automatically
+#' # in some situations when apparently needed
 #'
 #' } else {
 #'
