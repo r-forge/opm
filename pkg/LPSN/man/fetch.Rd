@@ -3,7 +3,6 @@
 \alias{fetch.lpsn_access}
 \alias{request}
 \alias{request.lpsn_access}
-\alias{retrieve}
 \alias{retrieve.lpsn_access}
 \alias{upgrade.lpsn_access}
 \title{Querying the \acronym{LPSN} \acronym{API}}
@@ -18,10 +17,8 @@
     search = c("flexible", "advanced"), not = FALSE,
     page = 0L, ...)
 
-  retrieve(object, ...)
-
   \method{retrieve}{lpsn_access} (object, query,
-    search = "flexible", handler = NULL, sleep = 0.5, ...)
+    search = "flexible", ...)
 
   \method{upgrade}{lpsn_access} (object, previous,
     keep = TRUE, ...)
@@ -53,16 +50,6 @@
   the results of \code{request} are paginated. The first
   page has the number 0.}
 
-  \item{handler}{If empty, ignored. Otherwise a function to
-  which each data chunk retrieved from the \acronym{API} is
-  transferred in turn. The function should accept a single
-  argument. \code{retrieve} and the handler function may
-  thus best be called within a dedicated enclosing
-  function.}
-
-  \item{sleep}{A waiting period in seconds between
-  successive \acronym{API} requests, if any.}
-
   \item{previous}{Object of class \sQuote{lpsn_result}.}
 
   \item{keep}{Logical vector of length 1 that determines
@@ -77,7 +64,9 @@
   mandatory if and only if \code{query} is empty.  When
   given, they must be named if advanced search is chosen.
   In the case of flexible search unnamed queries can be
-  used but may just silently return nothing.
+  used but may just silently return nothing. Also note the
+  possibility to use \code{handler} and \code{sleep} as
+  arguments for \code{retrieve} (see the parent method).
 
   For \code{upgrade}, optional arguments (currently
   ignored).}
@@ -97,17 +86,9 @@
   \code{TRUE}, \code{previous} is returned, with a warning;
   otherwise \code{NULL} is returned.
 
-  \code{retrieve} combines the functionality of
-  \code{request}, \code{fetch} and \code{upgrade} to
-  download all entries found in the \acronym{API},
-  traversing all chunks of a paginated result in turn. The
-  resulting list (of class \sQuote{records}) may be huge,
-  hence care should be taken. It may be advisable to use
-  \code{handler}. If this function is given, each chunk is
-  passed to \code{handler} in turn. The \code{handler}
-  function could then store the data in a database or in a
-  file. If \code{handler} is given, the number of its calls
-  is returned.
+  For \code{retrieve}, see the documentation of the parent
+  method. Note particularly the possibility to use
+  \code{handler} and \code{sleep} as arguments.
 
   By using \code{request}, \code{fetch} and \code{upgrade},
   users can build their own loops to download and process
@@ -156,17 +137,21 @@ stopifnot(!summary(lpsn)[c("expired", "refresh_expired")])
 
 ## fetch data, given some LPSN IDs (record numbers)
 # (1) each ID given as separate argument
-got1 <- fetch(lpsn, 520424, 4948, 17724)
-print(got1)
-stopifnot(summary(got1)[["count"]] == 3L)
+id1 <- fetch(lpsn, 520424, 4948, 17724)
+print(id1)
+stopifnot(summary(id1)[["count"]] == 3L)
+# conversion to data frame is possible
+id1d <- as.data.frame(id1)
+head(id1d)
+stopifnot(is.data.frame(id1d), nrow(id1d) == 3L)
 
 # (2) all IDs in vector
-got2 <- fetch(lpsn, c(520424, 4948, 17724))
-stopifnot(identical(got1, got2))
+id2 <- fetch(lpsn, c(520424, 4948, 17724))
+stopifnot(identical(id1, id2))
 
 # (3) as above, but simplifying a list
-got3 <- fetch(lpsn, list(520424, 4948, 17724))
-stopifnot(identical(got1, got3))
+id3 <- fetch(lpsn, list(520424, 4948, 17724))
+stopifnot(identical(id1, id3))
 
 ## run flexible search
 # (1) each part of the query given as separate argument
@@ -177,6 +162,12 @@ stopifnot(summary(fs1)[["count"]] >= 2L)
 # all key-value pairs available in some API entry. But
 # the values are matched exactly. Compare advanced
 # search.
+
+# conversion to data frame is possible but may here not contain all
+# data if the API outcome was paginated; see 'retrieve' below
+fs1d <- as.data.frame(fs1)
+head(fs1d)
+stopifnot(is.data.frame(fs1d), dim(fs1d) > 0L)
 
 # (2) all parts of the query given in vector
 fs2 <- request(lpsn, c(monomial = "Flexithrix"), "flexible")
@@ -196,6 +187,12 @@ stopifnot(summary(as1)[["count"]] >= 4L)
 # keys (or combinations thereof) to query. The values are not
 # matched exactly only; case is not distinguished and substrings
 # are recognized. Compare flexible search.
+
+# conversion to data frame is possible but may here not contain all
+# data if the API outcome was paginated; see 'retrieve' below
+as1d <- as.data.frame(as1)
+head(as1d)
+stopifnot(is.data.frame(as1d), dim(as1d) > 0L)
 
 # (2) all parts of the query given in vector
 as2 <- request(lpsn, c(`taxon-name` = "Flexithrix"), "advanced")
@@ -267,13 +264,15 @@ warning("username or password missing, cannot run examples")
   \url{https://lpsn.dsmz.de/text/copyright}
 
   \url{https://lpsn.dsmz.de/mailinglist/subscribe}
+
+  \url{https://lpsn.dsmz.de/text/lpsn-api}
 }
 \seealso{
-  \code{\link{summary.lpsn_result}}
-  \code{\link{print.lpsn_result}}
+  \code{\link{summary.dsmz_result}} \code{\link{retrieve}}
+  \code{\link{print.dsmz_result}}
   \code{\link{as.data.frame}}
 
-  Other query-functions: \code{\link{open_lpsn}}
+  Other query.functions: \code{\link{open_lpsn}}
 }
 \keyword{connection}
 \keyword{database}

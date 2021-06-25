@@ -1,15 +1,13 @@
+base_url <- function(internal) {
+  if (internal)
+    "http://api.pnu-dev.dsmz.local"
+  else
+    "https://api.lpsn.dsmz.de"
+}
+
 download_lpsn_json <- function(object, endpoint, query) {
-  internal <- get("dsmz_internal", object)
-  url <- if (length(query))
-      compose_url(if (internal)
-          "http://api.pnu-dev.dsmz.local"
-        else
-          "https://api.lpsn.dsmz.de", endpoint, query)
-    else
-      endpoint # here we assume that the full URL is already given
-  result <- download_json_with_retry(url, object)
-  class(result) <- "lpsn_result"
-  result
+  download_any_json(object, endpoint, query,
+    c("lpsn_result", "dsmz_result"))
 }
 
 open_lpsn <- function(username, password) {
@@ -74,74 +72,8 @@ request.lpsn_access <- function(object, query,
   )
 }
 
-retrieve <- function(object, ...) UseMethod("retrieve")
-
-retrieve.lpsn_access <- function(object, query, search = "flexible",
-    handler = NULL, sleep = 0.5, ...) {
-
-  transfer <- length(handler) > 0L
-  if (transfer && !is.function(handler))
-    stop("'handler' is given but is not a function")
-
-  ## conduct initial search, determine total count and react accordingly
-  found <- request(object, query, search, ...)
-  total <- c(found$count, 0L)[[1L]]
-  if (transfer) {
-    result <- 0L
-  } else {
-    result <- vector("list", total)
-    class(result) <- "records"
-  }
-  if (!total)
-    return(result)
-
-  ## obtain and store/transfer the initial chunk
-  # obtain the initial chunk
-  if (length(found$results))
-    outcome <- fetch(object, found$results)$results
-  else # avoid call of fetch without IDs
-    outcome <- NULL
-  # store/transfer the initial chunk
-  if (transfer) {
-    handler(outcome)
-    result <- result + 1L
-  } else {
-    size <- length(outcome)
-    result[seq_len(size)] <- outcome
-    offset <- size
-  }
-
-  if (assert_scalar(sleep) < 0.1)
-    sleep <- 0.1
-
-  ## obtain and store/transfer the remaining chunks, if any
-  while (length(found$`next`)) {
-    Sys.sleep(sleep)
-    # obtain the next chunk
-    found <- download_lpsn_json(object, found$`next`, NULL)
-    if (length(found$results))
-      outcome <- fetch(object, found$results)$results
-    else # avoid call of fetch without IDs
-      outcome <- NULL
-    # store/transfer the chunk
-    if (transfer) {
-      handler(outcome)
-      result <- result + 1L
-    } else {
-      size <- length(outcome)
-      result[offset + seq_len(size)] <- outcome
-      offset <- offset + size
-    }
-  }
-
-  ## done
-  if (transfer)
-    result
-  else if (offset < length(result)) # not sure whether this can happen
-    result[seq_len(offset)] # but you never know
-  else
-    result
-
+retrieve.lpsn_access <- function(object, query, search = "flexible", ...) {
+  NextMethod()
 }
 
 upgrade.lpsn_access <- function(object, previous, keep = TRUE, ...) {
