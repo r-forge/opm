@@ -60,7 +60,9 @@
   mandatory if and only if \code{query} is empty.  When
   given, they must be named if advanced search is chosen.
   In the case of flexible search unnamed queries can be
-  used but may just silently return nothing.
+  used but may just silently return nothing. Also note the
+  possibility to use \code{handler} and \code{sleep} as
+  arguments for \code{retrieve} (see the parent method).
 
   For \code{upgrade}, optional arguments (currently
   ignored).}
@@ -205,7 +207,7 @@ stopifnot(is.data.frame(bg1d),
 
 # (b) something big
 bg2 <- retrieve(object = bacdive, query = "Bacillus",
-  search = "taxon", handler = NULL, sleep = 0.1)
+  search = "taxon", sleep = 0.1)
 stopifnot(length(bg2) > 1000L,
   identical(class(bg2), class(bg1)))
 
@@ -219,7 +221,7 @@ stopifnot(length(bg2h) == length(bg2))
 
 # (d) if nothing is found
 nil <- retrieve(object = bacdive,
-  query = "Thiscannotbefound", search = "taxon")
+  query = "Thiscannotbefound")
 stopifnot(length(nil) == 0L,
   identical(class(nil), class(bg1)))
 # conversion to data frame

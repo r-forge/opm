@@ -18,8 +18,8 @@
 
   retrieve(object, ...)
 
-  \method{retrieve}{dsmz_keycloak} (object, query, search,
-    handler = NULL, sleep = 0.5, ...)
+  \method{retrieve}{dsmz_keycloak} (object, ...,
+    handler = NULL, sleep = 0.5)
 }
 \arguments{
   \item{object}{Object of class \sQuote{dsmz_keycloak}.}
@@ -29,12 +29,6 @@
   returned.}
 
   \item{x}{Object of class \sQuote{dsmz_keycloak}.}
-
-  \item{query}{Passed the appropriate \code{request}
-  method.}
-
-  \item{search}{Passed the appropriate \code{request}
-  method.}
 
   \item{handler}{If empty, ignored. Otherwise a function to
   which each data chunk retrieved from the \acronym{API} is

@@ -1,20 +1,20 @@
 ################################################################################
 
 
-# Non-public function that does the BacDive-specific download work.
+# Non-public function that helps in doing the BacDive-specific download work.
+#
+base_url <- function(internal) {
+  if (internal)
+    "http://api.bacdive-dev.dsmz.local"
+  else
+    "https://api.bacdive.dsmz.de"
+}
+
+# Non-public function that does the LPSN-specific download work.
 #
 download_bacdive_json <- function(object, endpoint, query) {
-  internal <- get("dsmz_internal", object)
-  url <- if (length(query))
-      compose_url(if (internal)
-          "http://api.bacdive-dev.dsmz.local"
-        else
-          "https://api.bacdive.dsmz.de", endpoint, query)
-    else
-      endpoint # here we assume that the full URL is already given
-  result <- download_json_with_retry(url, object)
-  class(result) <- c("bacdive_result", "dsmz_result")
-  result
+  download_any_json(object, endpoint, query,
+    c("bacdive_result", "dsmz_result"))
 }
 
 
@@ -97,7 +97,8 @@ open_bacdive <- function(username, password) {
 #'   \code{query}. These are mandatory if and only if \code{query} is empty.
 #'   When given, they must be named if advanced search is chosen. In the case of
 #'   flexible search unnamed queries can be used but may just silently return
-#'   nothing.
+#'   nothing. Also note the possibility to use \code{handler} and \code{sleep}
+#'   as arguments for \code{retrieve} (see the parent method).
 #'
 #'   For \code{upgrade}, optional arguments (currently ignored).
 #'
@@ -234,7 +235,7 @@ open_bacdive <- function(username, password) {
 #'
 #' # (b) something big
 #' bg2 <- retrieve(object = bacdive, query = "Bacillus",
-#'   search = "taxon", handler = NULL, sleep = 0.1)
+#'   search = "taxon", sleep = 0.1)
 #' stopifnot(length(bg2) > 1000L,
 #'   identical(class(bg2), class(bg1)))
 #'
@@ -248,7 +249,7 @@ open_bacdive <- function(username, password) {
 #'
 #' # (d) if nothing is found
 #' nil <- retrieve(object = bacdive,
-#'   query = "Thiscannotbefound", search = "taxon")
+#'   query = "Thiscannotbefound")
 #' stopifnot(length(nil) == 0L,
 #'   identical(class(nil), class(bg1)))
 #' # conversion to data frame

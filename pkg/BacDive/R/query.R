@@ -1,15 +1,13 @@
+base_url <- function(internal) {
+  if (internal)
+    "http://api.bacdive-dev.dsmz.local"
+  else
+    "https://api.bacdive.dsmz.de"
+}
+
 download_bacdive_json <- function(object, endpoint, query) {
-  internal <- get("dsmz_internal", object)
-  url <- if (length(query))
-      compose_url(if (internal)
-          "http://api.bacdive-dev.dsmz.local"
-        else
-          "https://api.bacdive.dsmz.de", endpoint, query)
-    else
-      endpoint # here we assume that the full URL is already given
-  result <- download_json_with_retry(url, object)
-  class(result) <- c("bacdive_result", "dsmz_result")
-  result
+  download_any_json(object, endpoint, query,
+    c("bacdive_result", "dsmz_result"))
 }
 
 open_bacdive <- function(username, password) {

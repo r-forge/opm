@@ -113,12 +113,18 @@ stopifnot(inherits(x, "try-error"))
 # resulting data frame columns can be lists
 x <- records(list(list(A = -1, B = 2), list(B = 3:4)))
 print(x)
-print(as.data.frame(x))
+y <- as.data.frame(x)
+print(y)
+stopifnot(is.data.frame(y), anyNA(y),
+  "list" \%in\% sapply(y, class), dim(y) == c(2L, 2L))
 
 # missing keys yield missing data (NA values)
 x <- records(list(list(A = 1, B = 2), list(C = 3, D = 4)))
 print(x)
-print(as.data.frame(x))
+y <- as.data.frame(x)
+print(y)
+stopifnot(is.data.frame(y), anyNA(y),
+  dim(y) == c(2L, 4L))
 }
 \references{
   \url{https://www.restapitutorial.com/httpstatuscodes.html}
