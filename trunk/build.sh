@@ -1954,7 +1954,7 @@ case $RUNNING_MODE in
       exit 1
     fi
     PKG_DIR=BacDive_in
-    RUNNING_MODE=${RUNNING_MODE#l}
+    RUNNING_MODE=${RUNNING_MODE#b}
     CHECK_R_TESTS=
   ;;
   clean )
