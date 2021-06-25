@@ -158,6 +158,20 @@ download_json_with_retry <- function(url, tokens) {
 }
 
 
+# Non-public download/conversion function that calls download_json_with_retry.
+#
+download_any_json <- function(object, endpoint, query, classes,
+    base = base_url(get("dsmz_internal", object))) {
+  url <- if (length(query))
+      compose_url(base, endpoint, query)
+    else
+      endpoint # here we assume that the full URL is already given
+  result <- download_json_with_retry(url, object)
+  class(result) <- classes
+  result
+}
+
+
 ################################################################################
 
 
@@ -170,8 +184,6 @@ download_json_with_retry <- function(url, tokens) {
 #' @param self Logical vector of length 1 indicating whether \code{object}
 #'   should itself be modified or a new object returned.
 #' @param x Object of class \sQuote{dsmz_keycloak}.
-#' @param query Passed the appropriate \code{request} method.
-#' @param search Passed the appropriate \code{request} method.
 #' @param handler If empty, ignored. Otherwise a function to which each data
 #'   chunk retrieved from the \acronym{API} is transferred in turn. The function
 #'   should accept a single argument. \code{retrieve} and the handler function
@@ -269,15 +281,15 @@ retrieve <- function(object, ...) UseMethod("retrieve")
 #' @method retrieve dsmz_keycloak
 #' @export
 #'
-retrieve.dsmz_keycloak <- function(object, query, search,
-    handler = NULL, sleep = 0.5, ...) {
+retrieve.dsmz_keycloak <- function(object, ...,
+    handler = NULL, sleep = 0.5) {
 
   transfer <- length(handler) > 0L
   if (transfer && !is.function(handler))
     stop("'handler' is given but is not a function")
 
   ## conduct initial search, determine total count and react accordingly
-  found <- request(object, query, search, ...)
+  found <- request(object, ...)
   total <- c(found$count, 0L)[[1L]]
   if (transfer) {
     result <- 0L
@@ -311,7 +323,7 @@ retrieve.dsmz_keycloak <- function(object, query, search,
   while (length(found$`next`)) {
     Sys.sleep(sleep)
     # obtain the next chunk
-    found <- download_bacdive_json(object, found$`next`, NULL)
+    found <- download_any_json(object, found$`next`, NULL, class(found))
     if (length(found$results))
       outcome <- fetch(object, found$results)$results
     else # avoid call of fetch without IDs
@@ -412,12 +424,18 @@ retrieve.dsmz_keycloak <- function(object, query, search,
 #' # resulting data frame columns can be lists
 #' x <- records(list(list(A = -1, B = 2), list(B = 3:4)))
 #' print(x)
-#' print(as.data.frame(x))
+#' y <- as.data.frame(x)
+#' print(y)
+#' stopifnot(is.data.frame(y), anyNA(y),
+#'   "list" %in% sapply(y, class), dim(y) == c(2L, 2L))
 #'
 #' # missing keys yield missing data (NA values)
 #' x <- records(list(list(A = 1, B = 2), list(C = 3, D = 4)))
 #' print(x)
-#' print(as.data.frame(x))
+#' y <- as.data.frame(x)
+#' print(y)
+#' stopifnot(is.data.frame(y), anyNA(y),
+#'   dim(y) == c(2L, 4L))
 #'
 records <- function(object, ...) UseMethod("records")
 

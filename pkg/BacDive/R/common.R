@@ -99,6 +99,17 @@ download_json_with_retry <- function(url, tokens) {
   content(result)
 }
 
+download_any_json <- function(object, endpoint, query, classes,
+    base = base_url(get("dsmz_internal", object))) {
+  url <- if (length(query))
+      compose_url(base, endpoint, query)
+    else
+      endpoint # here we assume that the full URL is already given
+  result <- download_json_with_retry(url, object)
+  class(result) <- classes
+  result
+}
+
 refresh <- function(object, ...) UseMethod("refresh")
 
 refresh.dsmz_keycloak <- function(object, self = TRUE, ...) {
@@ -127,15 +138,15 @@ print.dsmz_keycloak <- function(x, ...) {
 
 retrieve <- function(object, ...) UseMethod("retrieve")
 
-retrieve.dsmz_keycloak <- function(object, query, search,
-    handler = NULL, sleep = 0.5, ...) {
+retrieve.dsmz_keycloak <- function(object, ...,
+    handler = NULL, sleep = 0.5) {
 
   transfer <- length(handler) > 0L
   if (transfer && !is.function(handler))
     stop("'handler' is given but is not a function")
 
   ## conduct initial search, determine total count and react accordingly
-  found <- request(object, query, search, ...)
+  found <- request(object, ...)
   total <- c(found$count, 0L)[[1L]]
   if (transfer) {
     result <- 0L
@@ -169,7 +180,7 @@ retrieve.dsmz_keycloak <- function(object, query, search,
   while (length(found$`next`)) {
     Sys.sleep(sleep)
     # obtain the next chunk
-    found <- download_bacdive_json(object, found$`next`, NULL)
+    found <- download_any_json(object, found$`next`, NULL, class(found))
     if (length(found$results))
       outcome <- fetch(object, found$results)$results
     else # avoid call of fetch without IDs

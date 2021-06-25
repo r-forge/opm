@@ -1,20 +1,20 @@
 ################################################################################
 
 
+# Non-public function that helps in doing the LPSN-specific download work.
+#
+base_url <- function(internal) {
+  if (internal)
+    "http://api.pnu-dev.dsmz.local"
+  else
+    "https://api.lpsn.dsmz.de"
+}
+
 # Non-public function that does the LPSN-specific download work.
 #
 download_lpsn_json <- function(object, endpoint, query) {
-  internal <- get("dsmz_internal", object)
-  url <- if (length(query))
-      compose_url(if (internal)
-          "http://api.pnu-dev.dsmz.local"
-        else
-          "https://api.lpsn.dsmz.de", endpoint, query)
-    else
-      endpoint # here we assume that the full URL is already given
-  result <- download_json_with_retry(url, object)
-  class(result) <- c("lpsn_result", "dsmz_result")
-  result
+  download_any_json(object, endpoint, query,
+    c("lpsn_result", "dsmz_result"))
 }
 
 
@@ -90,12 +90,6 @@ open_lpsn <- function(username, password) {
 #'   ignored when advanced search is chosen.
 #' @param page Integer vector of length 1. Needed because the results of
 #'   \code{request} are paginated. The first page has the number 0.
-#' @param handler If empty, ignored. Otherwise a function to which each data
-#'   chunk retrieved from the \acronym{API} is transferred in turn. The function
-#'   should accept a single argument. \code{retrieve} and the handler function
-#'   may thus best be called within a dedicated enclosing function.
-#' @param sleep A waiting period in seconds between successive \acronym{API}
-#'   requests, if any.
 #' @param previous Object of class \sQuote{lpsn_result}.
 #' @param keep Logical vector of length 1 that determines the return value of
 #'   \code{upgrade} in case of failure.
@@ -106,7 +100,8 @@ open_lpsn <- function(username, password) {
 #'   \code{query}. These are mandatory if and only if \code{query} is empty.
 #'   When given, they must be named if advanced search is chosen. In the case of
 #'   flexible search unnamed queries can be used but may just silently return
-#'   nothing.
+#'   nothing. Also note the possibility to use \code{handler} and \code{sleep}
+#'   as arguments for \code{retrieve} (see the parent method).
 #'
 #'   For \code{upgrade}, optional arguments (currently ignored).
 #'
@@ -122,14 +117,9 @@ open_lpsn <- function(username, password) {
 #'   is no next one, if \code{keep} is \code{TRUE}, \code{previous} is returned,
 #'   with a warning; otherwise \code{NULL} is returned.
 #'
-#'   \code{retrieve} combines the functionality of \code{request}, \code{fetch}
-#'   and \code{upgrade} to download all entries found in the \acronym{API},
-#'   traversing all chunks of a paginated result in turn. The resulting list (of
-#'   class \sQuote{records}) may be huge, hence care should be taken. It may be
-#'   advisable to use \code{handler}. If this function is given, each chunk is
-#'   passed to \code{handler} in turn. The \code{handler} function could then
-#'   store the data in a database or in a file. If \code{handler} is given, the
-#'   number of its calls is returned.
+#'   For \code{retrieve}, see the documentation of the parent method. Note
+#'   particularly the possibility to use \code{handler} and \code{sleep} as
+#'   arguments.
 #'
 #'   By using \code{request}, \code{fetch} and \code{upgrade}, users can build
 #'   their own loops to download and process paginated results, as an
@@ -151,10 +141,11 @@ open_lpsn <- function(username, password) {
 #' @references \url{https://api.lpsn.dsmz.de/}
 #' @references \url{https://lpsn.dsmz.de/text/copyright}
 #' @references \url{https://lpsn.dsmz.de/mailinglist/subscribe}
+#' @references \url{https://lpsn.dsmz.de/text/lpsn-api}
 #'
 #' @family query-functions
-#' @seealso \code{\link{summary.lpsn_result}} \code{\link{print.lpsn_result}}
-#'   \code{\link{as.data.frame}}
+#' @seealso \code{\link{summary.dsmz_result}} \code{\link{retrieve}}
+#'   \code{\link{print.dsmz_result}} \code{\link{as.data.frame}}
 #' @keywords connection database
 #' @export
 #' @examples
@@ -364,80 +355,11 @@ request.lpsn_access <- function(object, query,
 }
 
 #' @rdname fetch
-#' @export
-#'
-retrieve <- function(object, ...) UseMethod("retrieve")
-
-#' @rdname fetch
 #' @method retrieve lpsn_access
 #' @export
 #'
-retrieve.lpsn_access <- function(object, query, search = "flexible",
-    handler = NULL, sleep = 0.5, ...) {
-
-  transfer <- length(handler) > 0L
-  if (transfer && !is.function(handler))
-    stop("'handler' is given but is not a function")
-
-  ## conduct initial search, determine total count and react accordingly
-  found <- request(object, query, search, ...)
-  total <- c(found$count, 0L)[[1L]]
-  if (transfer) {
-    result <- 0L
-  } else {
-    result <- vector("list", total)
-    class(result) <- "records"
-  }
-  if (!total)
-    return(result)
-
-  ## obtain and store/transfer the initial chunk
-  # obtain the initial chunk
-  if (length(found$results))
-    outcome <- fetch(object, found$results)$results
-  else # avoid call of fetch without IDs
-    outcome <- NULL
-  # store/transfer the initial chunk
-  if (transfer) {
-    handler(outcome)
-    result <- result + 1L
-  } else {
-    size <- length(outcome)
-    result[seq_len(size)] <- outcome
-    offset <- size
-  }
-
-  if (assert_scalar(sleep) < 0.1)
-    sleep <- 0.1
-
-  ## obtain and store/transfer the remaining chunks, if any
-  while (length(found$`next`)) {
-    Sys.sleep(sleep)
-    # obtain the next chunk
-    found <- download_lpsn_json(object, found$`next`, NULL)
-    if (length(found$results))
-      outcome <- fetch(object, found$results)$results
-    else # avoid call of fetch without IDs
-      outcome <- NULL
-    # store/transfer the chunk
-    if (transfer) {
-      handler(outcome)
-      result <- result + 1L
-    } else {
-      size <- length(outcome)
-      result[offset + seq_len(size)] <- outcome
-      offset <- offset + size
-    }
-  }
-
-  ## done
-  if (transfer)
-    result
-  else if (offset < length(result)) # not sure whether this can happen
-    result[seq_len(offset)] # but you never know
-  else
-    result
-
+retrieve.lpsn_access <- function(object, query, search = "flexible", ...) {
+  NextMethod()
 }
 
 
