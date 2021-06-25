@@ -52,7 +52,7 @@
 \seealso{
   \code{\link{refresh}}
 
-  Other query-functions: \code{\link{fetch}},
+  Other query.functions: \code{\link{fetch}},
     \code{\link{request}},
     \code{\link{retrieve}},
     \code{\link{upgrade.bacdive_access}}

@@ -151,38 +151,59 @@ stopifnot(!summary(bacdive)[c("expired", "refresh_expired")])
 
 ## fetch data, given some BacDive IDs
 # (1) each ID given as separate argument
-got1 <- fetch(bacdive, 624, 6583, 24493)
-print(got1)
-stopifnot(summary(got1)[["count"]] == 3L)
+id1 <- fetch(bacdive, 624, 6583, 24493)
+print(id1)
+stopifnot(summary(id1)[["count"]] == 3L)
+# conversion to data frame is possible
+id1d <- as.data.frame(id1)
+head(id1d)
+stopifnot(is.data.frame(id1d), nrow(id1d) == 3L)
 
 # (2) all IDs in vector
-got2 <- fetch(bacdive, c(624, 6583, 24493))
-stopifnot(identical(got1, got2))
+id2 <- fetch(bacdive, c(624, 6583, 24493))
+stopifnot(identical(id1, id2))
 
 # (3) as above, but simplifying a list
-got3 <- fetch(bacdive, list(624, 6583, 24493))
-stopifnot(identical(got1, got3))
+id3 <- fetch(bacdive, list(624, 6583, 24493))
+stopifnot(identical(id1, id3))
 
 ## search for culture collection numbers
 ccn1 <- request(bacdive, "DSM 26640", "deposit")
 print(ccn1)
 stopifnot(summary(ccn1)[["count"]] == 1L)
+# conversion to data frame is possible
+ccn1d <- as.data.frame(ccn1)
+head(ccn1d)
+stopifnot(is.data.frame(ccn1d), nrow(ccn1d) == 1L)
 
 ## search for 16S accession numbers
 ssu1 <- request(bacdive, "AF000162", "16S")
 print(ssu1)
 stopifnot(summary(ssu1)[["count"]] == 1L)
+# conversion to data frame is possible
+ssu1d <- as.data.frame(ssu1)
+head(ssu1d)
+stopifnot(is.data.frame(ssu1d), nrow(ssu1d) == 1L)
 
 ## search for genome accession numbers
 gen1 <- request(bacdive, "GCA_006094295", "genome")
 print(gen1)
 stopifnot(summary(gen1)[["count"]] == 1L)
+# conversion to data frame is possible
+gen1d <- as.data.frame(gen1)
+head(gen1d)
+stopifnot(is.data.frame(gen1d), nrow(gen1d) == 1L)
 
 ## search for taxon names
 # (1) given as length-1 character vector
 bac1 <- request(bacdive,
   "Bacillus subtilis subsp. subtilis", "taxon")
 stopifnot(summary(bac1)[["count"]] > 200L)
+# conversion to data frame is possible but does not yield all
+# entries if the result has a non-empty 'next' component
+bac1d <- as.data.frame(bac1)
+head(bac1d)
+stopifnot(is.data.frame(bac1d))
 
 # (2) given separately in character vector
 bac2 <- request(bacdive,
@@ -195,8 +216,10 @@ bg1 <- retrieve(bacdive,
   "Bacillus subtilis subsp. subtilis",
   "taxon", NULL, 0.1)
 stopifnot(summary(bac1)[["count"]] == length(bg1))
-# conversion to data frame
+# conversion to data frame, here supposed to contain
+# all entries
 bg1d <- as.data.frame(bg1)
+head(bg1d)
 stopifnot(is.data.frame(bg1d),
   length(bg1) == nrow(bg1d))
 
@@ -219,6 +242,7 @@ stopifnot(length(nil) == 0L,
   identical(class(nil), class(bg1)))
 # conversion to data frame
 nild <- as.data.frame(nil)
+head(nild)
 stopifnot(is.data.frame(nild),
   length(nil) == nrow(nild))
 
@@ -241,11 +265,11 @@ warning("username or password missing, cannot run examples")
   \url{https://bacdive.dsmz.de/mailinglist}
 }
 \seealso{
-  \code{\link{summary.bacdive_result}}
-  \code{\link{print.bacdive_result}}
+  \code{\link{summary.dsmz_result}}
+  \code{\link{print.dsmz_result}}
   \code{\link{as.data.frame}}
 
-  Other query-functions: \code{\link{open_bacdive}}
+  Other query.functions: \code{\link{open_bacdive}}
 }
 \keyword{connection}
 \keyword{database}

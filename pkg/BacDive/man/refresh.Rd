@@ -72,9 +72,12 @@
   \url{https://www.dsmz.de/privacy-statement}
 }
 \seealso{
-  Other common-functions:
+  Other common.functions:
+  \code{\link{as.data.frame.dsmz_result}},
   \code{\link{as.data.frame.records}},
+  \code{\link{print.dsmz_result}},
   \code{\link{print.records}}, \code{\link{records}},
+      \code{\link{summary.dsmz_result}},
   \code{\link{summary.records}}
 }
 \keyword{connection}

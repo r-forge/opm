@@ -13,7 +13,7 @@ download_lpsn_json <- function(object, endpoint, query) {
     else
       endpoint # here we assume that the full URL is already given
   result <- download_json_with_retry(url, object)
-  class(result) <- "lpsn_result"
+  class(result) <- c("lpsn_result", "dsmz_result")
   result
 }
 
@@ -173,17 +173,21 @@ open_lpsn <- function(username, password) {
 #'
 #' ## fetch data, given some LPSN IDs (record numbers)
 #' # (1) each ID given as separate argument
-#' got1 <- fetch(lpsn, 520424, 4948, 17724)
-#' print(got1)
-#' stopifnot(summary(got1)[["count"]] == 3L)
+#' id1 <- fetch(lpsn, 520424, 4948, 17724)
+#' print(id1)
+#' stopifnot(summary(id1)[["count"]] == 3L)
+#' # conversion to data frame is possible
+#' id1d <- as.data.frame(id1)
+#' head(id1d)
+#' stopifnot(is.data.frame(id1d), nrow(id1d) == 3L)
 #'
 #' # (2) all IDs in vector
-#' got2 <- fetch(lpsn, c(520424, 4948, 17724))
-#' stopifnot(identical(got1, got2))
+#' id2 <- fetch(lpsn, c(520424, 4948, 17724))
+#' stopifnot(identical(id1, id2))
 #'
 #' # (3) as above, but simplifying a list
-#' got3 <- fetch(lpsn, list(520424, 4948, 17724))
-#' stopifnot(identical(got1, got3))
+#' id3 <- fetch(lpsn, list(520424, 4948, 17724))
+#' stopifnot(identical(id1, id3))
 #'
 #' ## run flexible search
 #' # (1) each part of the query given as separate argument
@@ -194,6 +198,12 @@ open_lpsn <- function(username, password) {
 #' # all key-value pairs available in some API entry. But
 #' # the values are matched exactly. Compare advanced
 #' # search.
+#'
+#' # conversion to data frame is possible but may here not contain all
+#' # data if the API outcome was paginated; see 'retrieve' below
+#' fs1d <- as.data.frame(fs1)
+#' head(fs1d)
+#' stopifnot(is.data.frame(fs1d), dim(fs1d) > 0L)
 #'
 #' # (2) all parts of the query given in vector
 #' fs2 <- request(lpsn, c(monomial = "Flexithrix"), "flexible")
@@ -213,6 +223,12 @@ open_lpsn <- function(username, password) {
 #' # keys (or combinations thereof) to query. The values are not
 #' # matched exactly only; case is not distinguished and substrings
 #' # are recognized. Compare flexible search.
+#'
+#' # conversion to data frame is possible but may here not contain all
+#' # data if the API outcome was paginated; see 'retrieve' below
+#' as1d <- as.data.frame(as1)
+#' head(as1d)
+#' stopifnot(is.data.frame(as1d), dim(as1d) > 0L)
 #'
 #' # (2) all parts of the query given in vector
 #' as2 <- request(lpsn, c(`taxon-name` = "Flexithrix"), "advanced")
