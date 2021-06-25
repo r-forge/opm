@@ -3,7 +3,6 @@
 \alias{fetch.bacdive_access}
 \alias{request}
 \alias{request.bacdive_access}
-\alias{retrieve}
 \alias{retrieve.bacdive_access}
 \alias{upgrade.bacdive_access}
 \title{Querying the \acronym{BacDive} \acronym{API}}
@@ -15,14 +14,11 @@
   request(object, ...)
 
   \method{request}{bacdive_access} (object, query,
-    search = c("taxonomy", "taxon", "deposit", "culturecollectionno", "16S", "sequence_16s",
-    "genome", "sequence_genome"),
+    search = c("taxon", "deposit", "16S", "genome"),
     page = 0L, ...)
 
-  retrieve(object, ...)
-
   \method{retrieve}{bacdive_access} (object, query,
-    search = "flexible", handler = NULL, sleep = 0.5, ...)
+    search = "taxon", ...)
 
   \method{upgrade}{bacdive_access} (object, previous,
     keep = TRUE, ...)
@@ -41,22 +37,14 @@
 
   \item{search}{Character vector of length 1 determining
   which search method to apply to the query, i.e. which
-  \acronym{API} endpoint to use. Each endpoint has two
-  aliases. Processed by \code{match.arg}.}
+  \acronym{API} endpoint to use. Each endpoint has one
+  \code{search} equivalent. Processed by \code{match.arg}.
+  The \code{search} argument is passed from \code{request}
+  to \code{retrieve}.}
 
   \item{page}{Integer vector of length 1. Needed because
   the results of \code{request} are paginated. The first
   page has the number 0.}
-
-  \item{handler}{If empty, ignored. Otherwise a function to
-  which each data chunk retrieved from the \acronym{API} is
-  transferred in turn. The function should accept a single
-  argument. \code{retrieve} and the handler function may
-  thus best be called within a dedicated enclosing
-  function.}
-
-  \item{sleep}{A waiting period in seconds between
-  successive \acronym{API} requests, if any.}
 
   \item{previous}{Object of class \sQuote{bacdive_result}.}
 
@@ -92,17 +80,9 @@
   \code{TRUE}, \code{previous} is returned, with a warning;
   otherwise \code{NULL} is returned.
 
-  \code{retrieve} combines the functionality of
-  \code{request}, \code{fetch} and \code{upgrade} to
-  download all entries found in the \acronym{API},
-  traversing all chunks of a paginated result in turn. The
-  resulting list (of class \sQuote{records}) may be huge,
-  hence care should be taken. It may be advisable to use
-  \code{handler}. If this function is given, each chunk is
-  passed to \code{handler} in turn. The \code{handler}
-  function could then store the data in a database or in a
-  file. If \code{handler} is given, the number of its calls
-  is returned.
+  For \code{retrieve}, see the documentation of the parent
+  method. Note particularly the possibility to use
+  \code{handler} and \code{sleep} as arguments.
 
   By using \code{request}, \code{fetch} and \code{upgrade},
   users can build their own loops to download and process
@@ -212,9 +192,9 @@ stopifnot(identical(bac2, bac1))
 
 ## run search + fetch in one step
 # (a) simple example for taxon names
-bg1 <- retrieve(bacdive,
-  "Bacillus subtilis subsp. subtilis",
-  "taxon", NULL, 0.1)
+bg1 <- retrieve(object = bacdive,
+  query = "Bacillus subtilis subsp. subtilis",
+  search = "taxon", handler = NULL, sleep = 0.1)
 stopifnot(summary(bac1)[["count"]] == length(bg1))
 # conversion to data frame, here supposed to contain
 # all entries
@@ -224,20 +204,22 @@ stopifnot(is.data.frame(bg1d),
   length(bg1) == nrow(bg1d))
 
 # (b) something big
-bg2 <- retrieve(bacdive,
-  "Bacillus", "taxon", NULL, 0.1)
+bg2 <- retrieve(object = bacdive, query = "Bacillus",
+  search = "taxon", handler = NULL, sleep = 0.1)
 stopifnot(length(bg2) > 1000L,
   identical(class(bg2), class(bg1)))
 
 # (c) try a handler
 bg2h <- list()
-retrieve(bacdive, "Bacillus", "taxon",
-  function(x) bg2h <<- c(bg2h, x))
+retrieve(object = bacdive, query = "Bacillus",
+  search = "taxon", sleep = 0.1,
+  handler = function(x) bg2h <<- c(bg2h, x))
 stopifnot(length(bg2h) == length(bg2))
 # there are of course better ways to use a handler
 
 # (d) if nothing is found
-nil <- retrieve(bacdive, "Thiscannotbefound", "taxon")
+nil <- retrieve(object = bacdive,
+  query = "Thiscannotbefound", search = "taxon")
 stopifnot(length(nil) == 0L,
   identical(class(nil), class(bg1)))
 # conversion to data frame
@@ -265,7 +247,7 @@ warning("username or password missing, cannot run examples")
   \url{https://bacdive.dsmz.de/mailinglist}
 }
 \seealso{
-  \code{\link{summary.dsmz_result}}
+  \code{\link{summary.dsmz_result}} \code{\link{retrieve}}
   \code{\link{print.dsmz_result}}
   \code{\link{as.data.frame}}
 

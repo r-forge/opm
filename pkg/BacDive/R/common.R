@@ -125,6 +125,76 @@ print.dsmz_keycloak <- function(x, ...) {
   print_summary(x)
 }
 
+retrieve <- function(object, ...) UseMethod("retrieve")
+
+retrieve.dsmz_keycloak <- function(object, query, search,
+    handler = NULL, sleep = 0.5, ...) {
+
+  transfer <- length(handler) > 0L
+  if (transfer && !is.function(handler))
+    stop("'handler' is given but is not a function")
+
+  ## conduct initial search, determine total count and react accordingly
+  found <- request(object, query, search, ...)
+  total <- c(found$count, 0L)[[1L]]
+  if (transfer) {
+    result <- 0L
+  } else {
+    result <- vector("list", total)
+    class(result) <- "records"
+  }
+  if (!total)
+    return(result)
+
+  ## obtain and store/transfer the initial chunk
+  # obtain the initial chunk
+  if (length(found$results))
+    outcome <- fetch(object, found$results)$results
+  else # avoid call of fetch without IDs
+    outcome <- NULL
+  # store/transfer the initial chunk
+  if (transfer) {
+    handler(outcome)
+    result <- result + 1L
+  } else {
+    size <- length(outcome)
+    result[seq_len(size)] <- outcome
+    offset <- size
+  }
+
+  if (assert_scalar(sleep) < 0.1)
+    sleep <- 0.1
+
+  ## obtain and store/transfer the remaining chunks, if any
+  while (length(found$`next`)) {
+    Sys.sleep(sleep)
+    # obtain the next chunk
+    found <- download_bacdive_json(object, found$`next`, NULL)
+    if (length(found$results))
+      outcome <- fetch(object, found$results)$results
+    else # avoid call of fetch without IDs
+      outcome <- NULL
+    # store/transfer the chunk
+    if (transfer) {
+      handler(outcome)
+      result <- result + 1L
+    } else {
+      size <- length(outcome)
+      result[offset + seq_len(size)] <- outcome
+      offset <- offset + size
+    }
+  }
+
+  ## done
+  if (transfer)
+    result
+  else if (offset < length(result)) # not sure whether this can happen
+    result[seq_len(offset)] # but you never know
+  else
+    result
+
+}
+
 records <- function(object, ...) UseMethod("records")
 
 records.list <- function(object, ...) {

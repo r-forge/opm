@@ -54,8 +54,8 @@
 
   Other query.functions: \code{\link{fetch}},
     \code{\link{request}},
-    \code{\link{retrieve}},
-    \code{\link{upgrade.bacdive_access}}
+    \code{\link{retrieve.bacdive_access}},
+  \code{\link{upgrade.bacdive_access}}
 }
 \keyword{connection}
 \keyword{database}

@@ -170,6 +170,14 @@ download_json_with_retry <- function(url, tokens) {
 #' @param self Logical vector of length 1 indicating whether \code{object}
 #'   should itself be modified or a new object returned.
 #' @param x Object of class \sQuote{dsmz_keycloak}.
+#' @param query Passed the appropriate \code{request} method.
+#' @param search Passed the appropriate \code{request} method.
+#' @param handler If empty, ignored. Otherwise a function to which each data
+#'   chunk retrieved from the \acronym{API} is transferred in turn. The function
+#'   should accept a single argument. \code{retrieve} and the handler function
+#'   may thus best be called within a dedicated enclosing function.
+#' @param sleep A waiting period in seconds between successive \acronym{API}
+#'   requests, if any.
 #' @param ... Optional arguments passed to other methods.
 #'
 #' @export
@@ -182,6 +190,16 @@ download_json_with_retry <- function(url, tokens) {
 #'   Both values are given by \code{summary}, which returns a logical vector.
 #'
 #'   The \code{print} method returns \code{x}, invisibly.
+#'
+#'   \code{retrieve} combines the functionality of \code{request}, \code{fetch}
+#'   and \code{upgrade} to download all entries found in the \acronym{API},
+#'   traversing all chunks of a paginated result in turn. The resulting list (of
+#'   class \sQuote{records}) may be huge, hence care should be taken. It may be
+#'   advisable to use \code{handler}. If this function is given, each chunk is
+#'   passed to \code{handler} in turn. The \code{handler} function could then
+#'   store the data in a database or in a file. If \code{handler} is given, the
+#'   number of its calls is returned.
+#'
 #' @details The actual usage of \sQuote{dsmz_keycloak} objects is demonstrated
 #'   by querying a \acronym{DSMZ} \acronym{API}. See the examples for the
 #'   according functions.
@@ -242,6 +260,82 @@ print.dsmz_keycloak <- function(x, ...) {
   print_summary(x)
 }
 
+#' @rdname refresh
+#' @export
+#'
+retrieve <- function(object, ...) UseMethod("retrieve")
+
+#' @rdname refresh
+#' @method retrieve dsmz_keycloak
+#' @export
+#'
+retrieve.dsmz_keycloak <- function(object, query, search,
+    handler = NULL, sleep = 0.5, ...) {
+
+  transfer <- length(handler) > 0L
+  if (transfer && !is.function(handler))
+    stop("'handler' is given but is not a function")
+
+  ## conduct initial search, determine total count and react accordingly
+  found <- request(object, query, search, ...)
+  total <- c(found$count, 0L)[[1L]]
+  if (transfer) {
+    result <- 0L
+  } else {
+    result <- vector("list", total)
+    class(result) <- "records"
+  }
+  if (!total)
+    return(result)
+
+  ## obtain and store/transfer the initial chunk
+  # obtain the initial chunk
+  if (length(found$results))
+    outcome <- fetch(object, found$results)$results
+  else # avoid call of fetch without IDs
+    outcome <- NULL
+  # store/transfer the initial chunk
+  if (transfer) {
+    handler(outcome)
+    result <- result + 1L
+  } else {
+    size <- length(outcome)
+    result[seq_len(size)] <- outcome
+    offset <- size
+  }
+
+  if (assert_scalar(sleep) < 0.1)
+    sleep <- 0.1
+
+  ## obtain and store/transfer the remaining chunks, if any
+  while (length(found$`next`)) {
+    Sys.sleep(sleep)
+    # obtain the next chunk
+    found <- download_bacdive_json(object, found$`next`, NULL)
+    if (length(found$results))
+      outcome <- fetch(object, found$results)$results
+    else # avoid call of fetch without IDs
+      outcome <- NULL
+    # store/transfer the chunk
+    if (transfer) {
+      handler(outcome)
+      result <- result + 1L
+    } else {
+      size <- length(outcome)
+      result[offset + seq_len(size)] <- outcome
+      offset <- offset + size
+    }
+  }
+
+  ## done
+  if (transfer)
+    result
+  else if (offset < length(result)) # not sure whether this can happen
+    result[seq_len(offset)] # but you never know
+  else
+    result
+
+}
 
 ################################################################################
 

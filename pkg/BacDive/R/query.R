@@ -38,12 +38,7 @@ fetch.bacdive_access <- function(object, ids, ...) {
 request <- function(object, ...) UseMethod("request")
 
 request.bacdive_access <- function(object, query,
-    search = c(
-      "taxonomy", "taxon",
-      "deposit", "culturecollectionno",
-      "16S", "sequence_16s",
-      "genome", "sequence_genome"
-      ), page = 0L, ...) {
+    search = c("taxon", "deposit", "16S", "genome"), page = 0L, ...) {
 
   taxon_query <- function(x) {
     x <- unlist(strsplit(x, "\\W+", FALSE, TRUE), FALSE, FALSE)
@@ -71,20 +66,17 @@ request.bacdive_access <- function(object, query,
       query <- c(page = assert_scalar(page))
     },
 
-    deposit =,
-    culturecollectionno = {
+    deposit = {
       endpoint <- "culturecollectionno"
       query <- c(assert_scalar(query), page = assert_scalar(page))
     },
 
-    `16S` =,
-    sequence_16s = {
+    `16S` = {
       endpoint <- "sequence_16s"
       query <- c(assert_scalar(query), page = assert_scalar(page))
     },
 
-    genome =,
-    sequence_genome = {
+    genome = {
       endpoint <- "sequence_genome"
       query <- c(assert_scalar(query), page = assert_scalar(page))
     },
@@ -96,79 +88,13 @@ request.bacdive_access <- function(object, query,
 
 }
 
-retrieve <- function(object, ...) UseMethod("retrieve")
-
-retrieve.bacdive_access <- function(object, query, search = "flexible",
-    handler = NULL, sleep = 0.5, ...) {
-
-  transfer <- length(handler) > 0L
-  if (transfer && !is.function(handler))
-    stop("'handler' is given but is not a function")
-
-  ## conduct initial search, determine total count and react accordingly
-  found <- request(object, query, search, ...)
-  total <- c(found$count, 0L)[[1L]]
-  if (transfer) {
-    result <- 0L
-  } else {
-    result <- vector("list", total)
-    class(result) <- "records"
-  }
-  if (!total)
-    return(result)
-
-  ## obtain and store/transfer the initial chunk
-  # obtain the initial chunk
-  if (length(found$results))
-    outcome <- fetch(object, found$results)$results
-  else # avoid call of fetch without IDs
-    outcome <- NULL
-  # store/transfer the initial chunk
-  if (transfer) {
-    handler(outcome)
-    result <- result + 1L
-  } else {
-    size <- length(outcome)
-    result[seq_len(size)] <- outcome
-    offset <- size
-  }
-
-  if (assert_scalar(sleep) < 0.1)
-    sleep <- 0.1
-
-  ## obtain and store/transfer the remaining chunks, if any
-  while (length(found$`next`)) {
-    Sys.sleep(sleep)
-    # obtain the next chunk
-    found <- download_bacdive_json(object, found$`next`, NULL)
-    if (length(found$results))
-      outcome <- fetch(object, found$results)$results
-    else # avoid call of fetch without IDs
-      outcome <- NULL
-    # store/transfer the chunk
-    if (transfer) {
-      handler(outcome)
-      result <- result + 1L
-    } else {
-      size <- length(outcome)
-      result[offset + seq_len(size)] <- outcome
-      offset <- offset + size
-    }
-  }
-
-  ## done
-  if (transfer)
-    result
-  else if (offset < length(result)) # not sure whether this can happen
-    result[seq_len(offset)] # but you never know
-  else
-    result
-
+retrieve.bacdive_access <- function(object, query, search = "taxon", ...) {
+  NextMethod()
 }
 
 upgrade.bacdive_access <- function(object, previous, keep = TRUE, ...) {
   if (!inherits(previous, "bacdive_result"))
-    stop("'previous' must be an 'bacdive_result' object")
+    stop("'previous' must be a 'bacdive_result' object")
   if (length(previous$`next`))
     return(download_bacdive_json(object, previous$`next`, NULL))
   if (keep) {
