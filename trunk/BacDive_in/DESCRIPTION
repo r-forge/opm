@@ -1,5 +1,5 @@
 Package: BacDive
-Version: 0.2.0
+Version: 0.3.0
 Date: 2021-06-25
 Title: BacDive API Client
 Author: Markus Goeker <markus.goeker@dsmz.de>
@@ -10,11 +10,13 @@ Description: R client for the Application Programming Interface (API)
         of the BacDive database hosted at the Leibniz Institute DSMZ -
         German Collection of Microorganisms and Cell Cultures. BacDive
         is the largest known database for standardised bacterial
-        phenotypic information. While the usage of the BacDive API
-        requires registration, registration is free and easy to
-        accomplish. The usage of the BacDive data is only permitted
-        when in compliance with the BacDive terms and conditions (see
-        the BacDive web page).
+        phenotypic information. Phenotypic data are mobilised from
+        collections (e.g. CABI, CCUG, CIP, DSMZ) and enriched with data
+        from published species descriptions. While the usage of the
+        BacDive API requires registration, registration is free and
+        easy to accomplish. The usage of the BacDive data is only
+        permitted when in compliance with the BacDive terms and
+        conditions (see the BacDive web page).
 License: GPL-3
 URL: https://api.bacdive.dsmz.de/
 MailingList: https://bacdive.dsmz.de/mailinglist

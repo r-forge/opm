@@ -16,7 +16,7 @@
 }
 \value{
   The \code{summary} function returns a list or character
-  vector.  The \code{print} method returns \code{x},
+  vector. The \code{print} method returns \code{x},
   invisibly.
 }
 \description{

@@ -5,6 +5,9 @@ Amino
 BIOLOG
 Boccuto
 Buddruhs
+CABI
+CCUG
+CIP
 CSV
 Calasanz
 Calinski
@@ -21,6 +24,7 @@ Geodermatophilus
 Harabasz
 Hennig
 LIMS
+LPSN
 Metadata
 MicroStation
 Montero
@@ -63,8 +67,7 @@ discretisation
 discretise
 discretised
 discretising
-LPSN
-lpsn
+dsmz
 efficiens
 encoding
 encodings
@@ -78,7 +81,7 @@ inoculum
 interpretable
 keycloak
 logfile
-dsmz
+lpsn
 maxima
 metadata
 metainformation

@@ -1,6 +1,6 @@
 Package: LPSN
-Version: 0.10.0
-Date: 2021-06-24
+Version: 0.11.0
+Date: 2021-06-25
 Title: LPSN API Client
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
@@ -31,5 +31,3 @@ Collate:
     'common.R'
     'query.R'
     'result.R'
-LazyData: yes
-LazyDataCompression: bzip2
