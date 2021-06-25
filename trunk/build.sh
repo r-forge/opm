@@ -1946,6 +1946,17 @@ case $RUNNING_MODE in
     show_lines_with_forbidden_characters "$@"
     exit $?
   ;;
+  bfull|bnorm )
+    if [ ${DSMZ_API_PASSWORD:+x} ] && [ ${DSMZ_API_USER:+x} ]; then
+      true
+    else
+      echo "need \$DSMZ_API_USER and \$DSMZ_API_PASSWORD system variables" >&2
+      exit 1
+    fi
+    PKG_DIR=BacDive_in
+    RUNNING_MODE=${RUNNING_MODE#l}
+    CHECK_R_TESTS=
+  ;;
   clean )
     cleanup_archive_files
     exit $?
@@ -1980,9 +1991,9 @@ case $RUNNING_MODE in
   erase )
     remove_generated_graphics && remove_R_CMD_check_dirs &&
       remove_dirs_carefully pkgutils opm opmdata opmextra opmdata2 \
-        validate pfn LPSN &&
+        validate pfn LPSN BacDive &&
       remove_dirs_carefully pkgutils_doc opm_doc opmdata_doc opmdata2_doc \
-        opmextra_doc validate_doc pfn_doc LPSN_doc
+        opmextra_doc validate_doc pfn_doc LPSN_doc BacDive_doc
     exit $?
   ;;
   example )
