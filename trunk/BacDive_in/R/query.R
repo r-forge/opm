@@ -83,15 +83,10 @@ open_bacdive <- function(username, password) {
 #'   \code{query} depends on the \code{search} argument.
 #' @param search Character vector of length 1 determining which search method to
 #'   apply to the query, i.e. which \acronym{API} endpoint to use. Each endpoint
-#'   has two aliases. Processed by \code{match.arg}.
+#'   has one \code{search} equivalent. Processed by \code{match.arg}. The
+#'   \code{search} argument is passed from \code{request} to \code{retrieve}.
 #' @param page Integer vector of length 1. Needed because the results of
 #'   \code{request} are paginated. The first page has the number 0.
-#' @param handler If empty, ignored. Otherwise a function to which each data
-#'   chunk retrieved from the \acronym{API} is transferred in turn. The function
-#'   should accept a single argument. \code{retrieve} and the handler function
-#'   may thus best be called within a dedicated enclosing function.
-#' @param sleep A waiting period in seconds between successive \acronym{API}
-#'   requests, if any.
 #' @param previous Object of class \sQuote{bacdive_result}.
 #' @param keep Logical vector of length 1 that determines the return value of
 #'   \code{upgrade} in case of failure.
@@ -118,14 +113,9 @@ open_bacdive <- function(username, password) {
 #'   is no next one, if \code{keep} is \code{TRUE}, \code{previous} is returned,
 #'   with a warning; otherwise \code{NULL} is returned.
 #'
-#'   \code{retrieve} combines the functionality of \code{request}, \code{fetch}
-#'   and \code{upgrade} to download all entries found in the \acronym{API},
-#'   traversing all chunks of a paginated result in turn. The resulting list (of
-#'   class \sQuote{records}) may be huge, hence care should be taken. It may be
-#'   advisable to use \code{handler}. If this function is given, each chunk is
-#'   passed to \code{handler} in turn. The \code{handler} function could then
-#'   store the data in a database or in a file. If \code{handler} is given, the
-#'   number of its calls is returned.
+#'   For \code{retrieve}, see the documentation of the parent method. Note
+#'   particularly the possibility to use \code{handler} and \code{sleep} as
+#'   arguments.
 #'
 #'   By using \code{request}, \code{fetch} and \code{upgrade}, users can build
 #'   their own loops to download and process paginated results, as an
@@ -150,7 +140,7 @@ open_bacdive <- function(username, password) {
 #' @references \url{https://bacdive.dsmz.de/mailinglist}
 #'
 #' @family query-functions
-#' @seealso \code{\link{summary.dsmz_result}}
+#' @seealso \code{\link{summary.dsmz_result}} \code{\link{retrieve}}
 #'   \code{\link{print.dsmz_result}} \code{\link{as.data.frame}}
 #' @keywords connection database
 #' @export
@@ -231,9 +221,9 @@ open_bacdive <- function(username, password) {
 #'
 #' ## run search + fetch in one step
 #' # (a) simple example for taxon names
-#' bg1 <- retrieve(bacdive,
-#'   "Bacillus subtilis subsp. subtilis",
-#'   "taxon", NULL, 0.1)
+#' bg1 <- retrieve(object = bacdive,
+#'   query = "Bacillus subtilis subsp. subtilis",
+#'   search = "taxon", handler = NULL, sleep = 0.1)
 #' stopifnot(summary(bac1)[["count"]] == length(bg1))
 #' # conversion to data frame, here supposed to contain
 #' # all entries
@@ -243,20 +233,22 @@ open_bacdive <- function(username, password) {
 #'   length(bg1) == nrow(bg1d))
 #'
 #' # (b) something big
-#' bg2 <- retrieve(bacdive,
-#'   "Bacillus", "taxon", NULL, 0.1)
+#' bg2 <- retrieve(object = bacdive, query = "Bacillus",
+#'   search = "taxon", handler = NULL, sleep = 0.1)
 #' stopifnot(length(bg2) > 1000L,
 #'   identical(class(bg2), class(bg1)))
 #'
 #' # (c) try a handler
 #' bg2h <- list()
-#' retrieve(bacdive, "Bacillus", "taxon",
-#'   function(x) bg2h <<- c(bg2h, x))
+#' retrieve(object = bacdive, query = "Bacillus",
+#'   search = "taxon", sleep = 0.1,
+#'   handler = function(x) bg2h <<- c(bg2h, x))
 #' stopifnot(length(bg2h) == length(bg2))
 #' # there are of course better ways to use a handler
 #'
 #' # (d) if nothing is found
-#' nil <- retrieve(bacdive, "Thiscannotbefound", "taxon")
+#' nil <- retrieve(object = bacdive,
+#'   query = "Thiscannotbefound", search = "taxon")
 #' stopifnot(length(nil) == 0L,
 #'   identical(class(nil), class(bg1)))
 #' # conversion to data frame
@@ -309,12 +301,7 @@ request <- function(object, ...) UseMethod("request")
 #' @export
 #'
 request.bacdive_access <- function(object, query,
-    search = c(
-      "taxonomy", "taxon",
-      "deposit", "culturecollectionno",
-      "16S", "sequence_16s",
-      "genome", "sequence_genome"
-      ), page = 0L, ...) {
+    search = c("taxon", "deposit", "16S", "genome"), page = 0L, ...) {
 
   taxon_query <- function(x) {
     x <- unlist(strsplit(x, "\\W+", FALSE, TRUE), FALSE, FALSE)
@@ -342,20 +329,17 @@ request.bacdive_access <- function(object, query,
       query <- c(page = assert_scalar(page))
     },
 
-    deposit =,
-    culturecollectionno = {
+    deposit = {
       endpoint <- "culturecollectionno"
       query <- c(assert_scalar(query), page = assert_scalar(page))
     },
 
-    `16S` =,
-    sequence_16s = {
+    `16S` = {
       endpoint <- "sequence_16s"
       query <- c(assert_scalar(query), page = assert_scalar(page))
     },
 
-    genome =,
-    sequence_genome = {
+    genome = {
       endpoint <- "sequence_genome"
       query <- c(assert_scalar(query), page = assert_scalar(page))
     },
@@ -367,81 +351,14 @@ request.bacdive_access <- function(object, query,
 
 }
 
-#' @rdname fetch
-#' @export
-#'
-retrieve <- function(object, ...) UseMethod("retrieve")
+
 
 #' @rdname fetch
 #' @method retrieve bacdive_access
 #' @export
 #'
-retrieve.bacdive_access <- function(object, query, search = "flexible",
-    handler = NULL, sleep = 0.5, ...) {
-
-  transfer <- length(handler) > 0L
-  if (transfer && !is.function(handler))
-    stop("'handler' is given but is not a function")
-
-  ## conduct initial search, determine total count and react accordingly
-  found <- request(object, query, search, ...)
-  total <- c(found$count, 0L)[[1L]]
-  if (transfer) {
-    result <- 0L
-  } else {
-    result <- vector("list", total)
-    class(result) <- "records"
-  }
-  if (!total)
-    return(result)
-
-  ## obtain and store/transfer the initial chunk
-  # obtain the initial chunk
-  if (length(found$results))
-    outcome <- fetch(object, found$results)$results
-  else # avoid call of fetch without IDs
-    outcome <- NULL
-  # store/transfer the initial chunk
-  if (transfer) {
-    handler(outcome)
-    result <- result + 1L
-  } else {
-    size <- length(outcome)
-    result[seq_len(size)] <- outcome
-    offset <- size
-  }
-
-  if (assert_scalar(sleep) < 0.1)
-    sleep <- 0.1
-
-  ## obtain and store/transfer the remaining chunks, if any
-  while (length(found$`next`)) {
-    Sys.sleep(sleep)
-    # obtain the next chunk
-    found <- download_bacdive_json(object, found$`next`, NULL)
-    if (length(found$results))
-      outcome <- fetch(object, found$results)$results
-    else # avoid call of fetch without IDs
-      outcome <- NULL
-    # store/transfer the chunk
-    if (transfer) {
-      handler(outcome)
-      result <- result + 1L
-    } else {
-      size <- length(outcome)
-      result[offset + seq_len(size)] <- outcome
-      offset <- offset + size
-    }
-  }
-
-  ## done
-  if (transfer)
-    result
-  else if (offset < length(result)) # not sure whether this can happen
-    result[seq_len(offset)] # but you never know
-  else
-    result
-
+retrieve.bacdive_access <- function(object, query, search = "taxon", ...) {
+  NextMethod()
 }
 
 
@@ -452,7 +369,7 @@ retrieve.bacdive_access <- function(object, query, search = "flexible",
 #'
 upgrade.bacdive_access <- function(object, previous, keep = TRUE, ...) {
   if (!inherits(previous, "bacdive_result"))
-    stop("'previous' must be an 'bacdive_result' object")
+    stop("'previous' must be a 'bacdive_result' object")
   if (length(previous$`next`))
     return(download_bacdive_json(object, previous$`next`, NULL))
   if (keep) {

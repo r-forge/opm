@@ -2,6 +2,8 @@
 \alias{print.dsmz_keycloak}
 \alias{refresh}
 \alias{refresh.dsmz_keycloak}
+\alias{retrieve}
+\alias{retrieve.dsmz_keycloak}
 \alias{summary.dsmz_keycloak}
 \title{Methods for \sQuote{dsmz_keycloak} objects}
 \usage{
@@ -13,6 +15,11 @@
   \method{summary}{dsmz_keycloak} (object, ...)
 
   \method{print}{dsmz_keycloak} (x, ...)
+
+  retrieve(object, ...)
+
+  \method{retrieve}{dsmz_keycloak} (object, query, search,
+    handler = NULL, sleep = 0.5, ...)
 }
 \arguments{
   \item{object}{Object of class \sQuote{dsmz_keycloak}.}
@@ -22,6 +29,22 @@
   returned.}
 
   \item{x}{Object of class \sQuote{dsmz_keycloak}.}
+
+  \item{query}{Passed the appropriate \code{request}
+  method.}
+
+  \item{search}{Passed the appropriate \code{request}
+  method.}
+
+  \item{handler}{If empty, ignored. Otherwise a function to
+  which each data chunk retrieved from the \acronym{API} is
+  transferred in turn. The function should accept a single
+  argument. \code{retrieve} and the handler function may
+  thus best be called within a dedicated enclosing
+  function.}
+
+  \item{sleep}{A waiting period in seconds between
+  successive \acronym{API} requests, if any.}
 
   \item{...}{Optional arguments passed to other methods.}
 }
@@ -39,6 +62,18 @@
   logical vector.
 
   The \code{print} method returns \code{x}, invisibly.
+
+  \code{retrieve} combines the functionality of
+  \code{request}, \code{fetch} and \code{upgrade} to
+  download all entries found in the \acronym{API},
+  traversing all chunks of a paginated result in turn. The
+  resulting list (of class \sQuote{records}) may be huge,
+  hence care should be taken. It may be advisable to use
+  \code{handler}. If this function is given, each chunk is
+  passed to \code{handler} in turn. The \code{handler}
+  function could then store the data in a database or in a
+  file. If \code{handler} is given, the number of its calls
+  is returned.
 }
 \description{
   This package uses \sQuote{dsmz_keycloak} objects for

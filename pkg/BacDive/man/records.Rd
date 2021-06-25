@@ -126,6 +126,7 @@ print(as.data.frame(x))
 \seealso{
   Other common.functions:
   \code{\link{print.dsmz_keycloak}}, \code{\link{refresh}},
+    \code{\link{retrieve}},
     \code{\link{summary.dsmz_keycloak}}
 }
 \keyword{database}
