@@ -146,8 +146,8 @@ open_bacdive <- function(username, password) {
 #'   advised to subscribe to this list.
 #'
 #' @references \url{https://api.bacdive.dsmz.de/}
-#' @references \url{https://bacdive.dsmz.de/text/copyright}
-#' @references \url{https://bacdive.dsmz.de/mailinglist/subscribe}
+#' @references \url{https://bacdive.dsmz.de/about}
+#' @references \url{https://bacdive.dsmz.de/mailinglist}
 #'
 #' @family query-functions
 #' @seealso \code{\link{summary.bacdive_result}}
