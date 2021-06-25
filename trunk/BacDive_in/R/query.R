@@ -79,9 +79,11 @@ open_bacdive <- function(username, password) {
 #' @param ids Numeric vector or list containing such vectors. If empty,
 #'   \code{...} must contain at least one \code{ID}.
 #' @param query Atomic vector or list containing such vectors or lists. If
-#'   empty, \code{...} must yield a non-empty query.
+#'   empty, \code{...} must yield a non-empty query. The conversion of
+#'   \code{query} depends on the \code{search} argument.
 #' @param search Character vector of length 1 determining which search method to
-#'   apply to the query. Processed by \code{match.arg}.
+#'   apply to the query, i.e. which \acronym{API} endpoint to use. Each endpoint
+#'   has two aliases. Processed by \code{match.arg}.
 #' @param page Integer vector of length 1. Needed because the results of
 #'   \code{request} are paginated. The first page has the number 0.
 #' @param handler If empty, ignored. Otherwise a function to which each data

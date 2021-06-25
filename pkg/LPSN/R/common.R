@@ -38,6 +38,10 @@ compose_url <- function(base_url, endpoint, query) {
   if (is.null(names(query))) {
     template <- "%s/%s/%s"
     query <- paste0(query, collapse = ";")
+  } else if (identical(names(query), c("", "page"))) {
+    template <- "%s/%s/%s"
+    query <- sprintf("%s?page=%s",
+      curl_escape(query[[1L]]), curl_escape(query[[2L]]))
   } else {
     template <- "%s/%s?%s"
     query <- paste(curl_escape(names(query)), curl_escape(query),

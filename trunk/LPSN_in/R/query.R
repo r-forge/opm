@@ -79,9 +79,12 @@ open_lpsn <- function(username, password) {
 #' @param ids Numeric vector or list containing such vectors. If empty,
 #'   \code{...} must contain at least one \code{ID}.
 #' @param query Atomic vector or list containing such vectors or lists. If
-#'   empty, \code{...} must yield a non-empty query.
+#'   empty, \code{...} must yield a non-empty query. The conversion of
+#'   \code{query} depends on the \code{search} argument, which determines the
+#'   \acronym{API} endpoint to be used.
 #' @param search Character vector of length 1 determining which search method to
-#'   apply to the query. Processed by \code{match.arg}.
+#'   apply to the query, i.e. which \acronym{API} endpoint to use. Processed by
+#'   \code{match.arg}.
 #' @param not Logical vector of length 1. In the case of \code{request} and
 #'   flexible search, this negates the query if \code{TRUE}. The argument is
 #'   ignored when advanced search is chosen.

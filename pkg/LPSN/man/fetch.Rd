@@ -35,10 +35,13 @@
 
   \item{query}{Atomic vector or list containing such
   vectors or lists. If empty, \code{...} must yield a
-  non-empty query.}
+  non-empty query. The conversion of \code{query} depends
+  on the \code{search} argument, which determines the
+  \acronym{API} endpoint to be used.}
 
   \item{search}{Character vector of length 1 determining
-  which search method to apply to the query. Processed by
+  which search method to apply to the query, i.e. which
+  \acronym{API} endpoint to use. Processed by
   \code{match.arg}.}
 
   \item{not}{Logical vector of length 1. In the case of
@@ -208,13 +211,18 @@ stopifnot(identical(as1, as3))
 fsf <- retrieve(lpsn, search = "flexible", monomial = "Flexithrix")
 stopifnot(length(fsf) == summary(fs1)[["count"]])
 # it may be more convenient in R to deal with a data frame
-print(dim(as.data.frame(fsf)))
+fsfd <- as.data.frame(fsf)
+stopifnot(is.data.frame(fsfd), nrow(fsfd) == length(fsf))
+print(dim(fsfd))
 
 # (b) via advanced search
 asf <- retrieve(lpsn, search = "advanced", `taxon-name` = "Flexithrix")
-stopifnot(length(asf) == summary(as1)[["count"]])
+stopifnot(length(asf) == summary(as1)[["count"]],
+  identical(class(asf), class(fsf)))
 # again conversion to data frame possible
-print(dim(as.data.frame(asf)))
+asfd <- as.data.frame(asf)
+stopifnot(is.data.frame(asfd), nrow(asfd) == length(asf))
+print(dim(asfd))
 
 # (c) try a handler
 asfh <- list()
@@ -225,14 +233,22 @@ stopifnot(length(asfh) == length(asf))
 
 # (4) if nothing is found
 nil <- retrieve(lpsn, search = "flexible", monomial = "unknown")
-stopifnot(length(nil) == 0L)
+stopifnot(length(nil) == 0L,
+  identical(class(nil), class(fsf)))
+# again conversion to data frame possible
+nild <- as.data.frame(nil)
+stopifnot(is.data.frame(nild), nrow(nild) == length(nil))
+print(dim(nild))
 
 # (5) and now for something huge
 bac <- retrieve(lpsn, list(monomial = "Bacillus"),
   sleep = 0.1) # just for the sake of testing
-stopifnot(length(bac) > 400L)
+stopifnot(length(bac) > 400L,
+  identical(class(bac), class(fsf)))
+# again conversion to data frame possible
 bacdf <- as.data.frame(bac)
-stopifnot(nrow(bacdf) > 400L)
+stopifnot(is.data.frame(bacdf),
+  nrow(bacdf) == length(bac))
 
 ## and finally a refresh, whether needed or not
 refresh(lpsn, TRUE)
