@@ -99,6 +99,17 @@ download_json_with_retry <- function(url, tokens) {
   content(result)
 }
 
+download_any_json <- function(object, endpoint, query, classes,
+    base = base_url(get("dsmz_internal", object))) {
+  url <- if (length(query))
+      compose_url(base, endpoint, query)
+    else
+      endpoint # here we assume that the full URL is already given
+  result <- download_json_with_retry(url, object)
+  class(result) <- classes
+  result
+}
+
 refresh <- function(object, ...) UseMethod("refresh")
 
 refresh.dsmz_keycloak <- function(object, self = TRUE, ...) {
@@ -125,6 +136,76 @@ print.dsmz_keycloak <- function(x, ...) {
   print_summary(x)
 }
 
+retrieve <- function(object, ...) UseMethod("retrieve")
+
+retrieve.dsmz_keycloak <- function(object, ...,
+    handler = NULL, sleep = 0.5) {
+
+  transfer <- length(handler) > 0L
+  if (transfer && !is.function(handler))
+    stop("'handler' is given but is not a function")
+
+  ## conduct initial search, determine total count and react accordingly
+  found <- request(object, ...)
+  total <- c(found$count, 0L)[[1L]]
+  if (transfer) {
+    result <- 0L
+  } else {
+    result <- vector("list", total)
+    class(result) <- "records"
+  }
+  if (!total)
+    return(result)
+
+  ## obtain and store/transfer the initial chunk
+  # obtain the initial chunk
+  if (length(found$results))
+    outcome <- fetch(object, found$results)$results
+  else # avoid call of fetch without IDs
+    outcome <- NULL
+  # store/transfer the initial chunk
+  if (transfer) {
+    handler(outcome)
+    result <- result + 1L
+  } else {
+    size <- length(outcome)
+    result[seq_len(size)] <- outcome
+    offset <- size
+  }
+
+  if (assert_scalar(sleep) < 0.1)
+    sleep <- 0.1
+
+  ## obtain and store/transfer the remaining chunks, if any
+  while (length(found$`next`)) {
+    Sys.sleep(sleep)
+    # obtain the next chunk
+    found <- download_any_json(object, found$`next`, NULL, class(found))
+    if (length(found$results))
+      outcome <- fetch(object, found$results)$results
+    else # avoid call of fetch without IDs
+      outcome <- NULL
+    # store/transfer the chunk
+    if (transfer) {
+      handler(outcome)
+      result <- result + 1L
+    } else {
+      size <- length(outcome)
+      result[offset + seq_len(size)] <- outcome
+      offset <- offset + size
+    }
+  }
+
+  ## done
+  if (transfer)
+    result
+  else if (offset < length(result)) # not sure whether this can happen
+    result[seq_len(offset)] # but you never know
+  else
+    result
+
+}
+
 records <- function(object, ...) UseMethod("records")
 
 records.list <- function(object, ...) {
@@ -140,6 +221,19 @@ records.list <- function(object, ...) {
     stop("1 list element does not have names")
   class(object) <- "records"
   object
+}
+
+records.dsmz_result <- function(object, ...) {
+  convert_outcome <- function(x) {
+    # empty in case of error or just no outcome
+    if (!length(x))
+      return(list())
+    # if IDs were received
+    if (all(lengths(x) == 1L) && all(vapply(x, is.numeric, NA)))
+      return(lapply(x, function(e) list(ID = e)))
+    x
+  }
+  records(convert_outcome(object$results), ...)
 }
 
 as.data.frame.records <- function(x, row.names = NULL, optional = TRUE, ...) {
@@ -166,6 +260,11 @@ as.data.frame.records <- function(x, row.names = NULL, optional = TRUE, ...) {
   result
 }
 
+as.data.frame.dsmz_result <- function(x, row.names = NULL,
+    optional = TRUE, ...) {
+  as.data.frame(records(x), row.names, optional, ...)
+}
+
 summary.records <- function(object, ...) {
   total <- length(object)
   span <- if (total) range(lengths(object)) else rep_len(NA_integer_, 2L)
@@ -177,7 +276,26 @@ summary.records <- function(object, ...) {
   )
 }
 
+summary.dsmz_result <- function(object, ...) {
+  c(
+    list(
+      class = paste0(class(object), collapse = " < "),
+      parts = paste0(names(object), collapse = ", ")
+    ),
+    lapply(object, function(x)
+      if (is.numeric(x) && length(x) == 1L)
+        x
+      else
+        length(x) > 0L
+    )
+  )
+}
+
 print.records <- function(x, ...) {
+  print_summary(x, ...)
+}
+
+print.dsmz_result <- function(x, ...) {
   print_summary(x, ...)
 }
 
