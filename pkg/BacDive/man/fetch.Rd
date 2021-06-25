@@ -236,9 +236,9 @@ warning("username or password missing, cannot run examples")
 \references{
   \url{https://api.bacdive.dsmz.de/}
 
-  \url{https://bacdive.dsmz.de/text/copyright}
+  \url{https://bacdive.dsmz.de/about}
 
-  \url{https://bacdive.dsmz.de/mailinglist/subscribe}
+  \url{https://bacdive.dsmz.de/mailinglist}
 }
 \seealso{
   \code{\link{summary.bacdive_result}}
