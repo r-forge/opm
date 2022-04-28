@@ -1,7 +1,7 @@
 Package: BacDive
-Version: 0.7.1
+Version: 0.8.0
 Date: 2022-04-28
-Title: BacDive API Client
+Title: API Client for BacDive
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
 Depends: R (>= 3.0.0)
