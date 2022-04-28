@@ -48,7 +48,7 @@ download_bacdive_json <- function(object, endpoint, query) {
 #'   \acronym{BacDive} web page.
 #'
 #' @references \url{https://bacdive.dsmz.de/about}
-#' @references \url{https://bacdive.dsmz.de/mailinglist}
+#' @references \url{https://bacdive.dsmz.de/mailinglist/subscribe}
 #' @references \url{https://api.bacdive.dsmz.de/}
 #' @references \url{https://www.keycloak.org/}
 #'
@@ -138,7 +138,7 @@ open_bacdive <- function(username, password) {
 #'
 #' @references \url{https://api.bacdive.dsmz.de/}
 #' @references \url{https://bacdive.dsmz.de/about}
-#' @references \url{https://bacdive.dsmz.de/mailinglist}
+#' @references \url{https://bacdive.dsmz.de/mailinglist/subscribe}
 #'
 #' @family query-functions
 #' @seealso \code{\link{summary.dsmz_result}} \code{\link{retrieve}}

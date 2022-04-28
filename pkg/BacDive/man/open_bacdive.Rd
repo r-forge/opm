@@ -43,7 +43,7 @@
 \references{
   \url{https://bacdive.dsmz.de/about}
 
-  \url{https://bacdive.dsmz.de/mailinglist}
+  \url{https://bacdive.dsmz.de/mailinglist/subscribe}
 
   \url{https://api.bacdive.dsmz.de/}
 

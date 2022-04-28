@@ -269,7 +269,7 @@ warning("username or password missing, cannot run examples")
 
   \url{https://bacdive.dsmz.de/about}
 
-  \url{https://bacdive.dsmz.de/mailinglist}
+  \url{https://bacdive.dsmz.de/mailinglist/subscribe}
 }
 \seealso{
   \code{\link{summary.dsmz_result}} \code{\link{retrieve}}
