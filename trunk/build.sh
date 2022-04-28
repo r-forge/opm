@@ -1919,6 +1919,24 @@ cleanup_archive_files()
 
 
 ################################################################################
+
+
+# Searches for the R script command-line switch that disables tests.
+#
+tests_disabled()
+{
+  local arg
+  for arg; do
+    case $arg in
+      -u|--unsafe ) return 0;;
+      * ) true;;
+    esac
+  done
+  return 1
+}
+
+
+################################################################################
 ################################################################################
 
 
@@ -1947,7 +1965,9 @@ case $RUNNING_MODE in
     exit $?
   ;;
   bfull|bnorm )
-    if [ ${DSMZ_API_PASSWORD:+x} ] && [ ${DSMZ_API_USER:+x} ]; then
+    if tests_disabled "$@"; then
+      true
+    elif [ ${DSMZ_API_PASSWORD:+x} ] && [ ${DSMZ_API_USER:+x} ]; then
       true
     else
       echo "need \$DSMZ_API_USER and \$DSMZ_API_PASSWORD system variables" >&2
@@ -2127,7 +2147,9 @@ ____EOF
     exit $?
   ;;
   lfull|lnorm )
-    if [ ${DSMZ_API_PASSWORD:+x} ] && [ ${DSMZ_API_USER:+x} ]; then
+    if tests_disabled "$@"; then
+      true
+    elif [ ${DSMZ_API_PASSWORD:+x} ] && [ ${DSMZ_API_USER:+x} ]; then
       true
     else
       echo "need \$DSMZ_API_USER and \$DSMZ_API_PASSWORD system variables" >&2
