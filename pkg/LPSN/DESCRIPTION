@@ -30,4 +30,3 @@ MailingList: https://lpsn.dsmz.de/mailinglist/subscribe
 Collate:
     'common.R'
     'query.R'
-    'result.R'

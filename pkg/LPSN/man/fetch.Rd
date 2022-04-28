@@ -287,7 +287,7 @@ warning("username or password missing, cannot run examples")
   \code{\link{print.dsmz_result}}
   \code{\link{as.data.frame}}
 
-  Other query-functions: \code{\link{open_lpsn}}
+  Other query.functions: \code{\link{open_lpsn}}
 }
 \keyword{connection}
 \keyword{database}

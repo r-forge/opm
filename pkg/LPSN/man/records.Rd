@@ -132,7 +132,7 @@ stopifnot(is.data.frame(y), anyNA(y),
   \url{https://www.restapitutorial.com/httpstatuscodes.html}
 }
 \seealso{
-  Other common-functions:
+  Other common.functions:
   \code{\link{print.dsmz_keycloak}}, \code{\link{refresh}},
     \code{\link{retrieve}},
     \code{\link{summary.dsmz_keycloak}}
