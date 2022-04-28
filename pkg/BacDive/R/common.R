@@ -197,12 +197,15 @@ retrieve.dsmz_keycloak <- function(object, ...,
   }
 
   ## done
-  if (transfer)
+  if (transfer) {
     result
-  else if (offset < length(result)) # not sure whether this can happen
-    result[seq_len(offset)] # but you never know
-  else
+  } else if (offset < length(result)) {
+    small <- result[seq_len(offset)]
+    class(small) <- "records"
+    small
+  } else {
     result
+  }
 
 }
 

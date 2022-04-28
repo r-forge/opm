@@ -129,13 +129,19 @@ if (all(nzchar(credentials))) {
 bacdive <- open_bacdive(credentials[[1L]], credentials[[2L]])
 print(bacdive)
 # it would be frustrating if the object was already expired on creation
-stopifnot(!summary(bacdive)[c("expired", "refresh_expired")])
+stopifnot(
+  inherits(bacdive, "bacdive_access"),
+  !summary(bacdive)[c("expired", "refresh_expired")]
+)
 
 ## fetch data, given some BacDive IDs
 # (1) each ID given as separate argument
 id1 <- fetch(bacdive, 624, 6583, 24493)
 print(id1)
-stopifnot(summary(id1)[["count"]] == 3L)
+stopifnot(
+  inherits(id1, "bacdive_result"),
+  summary(id1)[["count"]] == 3L
+)
 # conversion to data frame is possible
 id1d <- as.data.frame(id1)
 head(id1d)
@@ -152,7 +158,10 @@ stopifnot(identical(id1, id3))
 ## search for culture collection numbers
 ccn1 <- request(bacdive, "DSM 26640", "deposit")
 print(ccn1)
-stopifnot(summary(ccn1)[["count"]] == 1L)
+stopifnot(
+  inherits(ccn1, "bacdive_result"),
+  summary(ccn1)[["count"]] == 1L
+)
 # conversion to data frame is possible
 ccn1d <- as.data.frame(ccn1)
 head(ccn1d)
@@ -161,7 +170,10 @@ stopifnot(is.data.frame(ccn1d), nrow(ccn1d) == 1L)
 ## search for 16S accession numbers
 ssu1 <- request(bacdive, "AF000162", "16S")
 print(ssu1)
-stopifnot(summary(ssu1)[["count"]] == 1L)
+stopifnot(
+  inherits(ssu1, "bacdive_result"),
+  summary(ssu1)[["count"]] == 1L
+)
 # conversion to data frame is possible
 ssu1d <- as.data.frame(ssu1)
 head(ssu1d)
@@ -170,7 +182,10 @@ stopifnot(is.data.frame(ssu1d), nrow(ssu1d) == 1L)
 ## search for genome accession numbers
 gen1 <- request(bacdive, "GCA_006094295", "genome")
 print(gen1)
-stopifnot(summary(gen1)[["count"]] == 1L)
+stopifnot(
+  inherits(gen1, "bacdive_result"),
+  summary(gen1)[["count"]] == 1L
+)
 # conversion to data frame is possible
 gen1d <- as.data.frame(gen1)
 head(gen1d)
@@ -180,7 +195,10 @@ stopifnot(is.data.frame(gen1d), nrow(gen1d) == 1L)
 # (1) given as length-1 character vector
 bac1 <- request(bacdive,
   "Bacillus subtilis subsp. subtilis", "taxon")
-stopifnot(summary(bac1)[["count"]] > 200L)
+stopifnot(
+  inherits(bac1, "bacdive_result"),
+  summary(bac1)[["count"]] > 200L
+)
 # conversion to data frame is possible but does not yield all
 # entries if the result has a non-empty 'next' component
 bac1d <- as.data.frame(bac1)
@@ -197,7 +215,10 @@ stopifnot(identical(bac2, bac1))
 bg1 <- retrieve(object = bacdive,
   query = "Bacillus subtilis subsp. subtilis",
   search = "taxon", handler = NULL, sleep = 0.1)
-stopifnot(summary(bac1)[["count"]] == length(bg1))
+stopifnot(
+  inherits(bg1, "records"),
+  summary(bac1)[["count"]] >= length(bg1)
+)
 # conversion to data frame, here supposed to contain
 # all entries
 bg1d <- as.data.frame(bg1)
@@ -208,8 +229,10 @@ stopifnot(is.data.frame(bg1d),
 # (b) something big
 bg2 <- retrieve(object = bacdive, query = "Bacillus",
   search = "taxon", sleep = 0.1)
-stopifnot(length(bg2) > 1000L,
-  identical(class(bg2), class(bg1)))
+stopifnot(
+  inherits(bg2, "records"),
+  length(bg2) > 1000L
+)
 
 # (c) try a handler
 bg2h <- list()
@@ -223,7 +246,7 @@ stopifnot(length(bg2h) == length(bg2))
 nil <- retrieve(object = bacdive,
   query = "Thiscannotbefound")
 stopifnot(length(nil) == 0L,
-  identical(class(nil), class(bg1)))
+  inherits(nil, "records"))
 # conversion to data frame
 nild <- as.data.frame(nil)
 head(nild)

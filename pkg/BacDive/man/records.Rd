@@ -112,6 +112,7 @@ stopifnot(inherits(x, "try-error"))
 
 # resulting data frame columns can be lists
 x <- records(list(list(A = -1, B = 2), list(B = 3:4)))
+stopifnot(inherits(x, "records"))
 print(x)
 y <- as.data.frame(x)
 print(y)
@@ -120,6 +121,7 @@ stopifnot(is.data.frame(y), anyNA(y),
 
 # missing keys yield missing data (NA values)
 x <- records(list(list(A = 1, B = 2), list(C = 3, D = 4)))
+stopifnot(inherits(x, "records"))
 print(x)
 y <- as.data.frame(x)
 print(y)

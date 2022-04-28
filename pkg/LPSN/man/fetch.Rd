@@ -133,13 +133,19 @@ if (all(nzchar(credentials))) {
 lpsn <- open_lpsn(credentials[[1L]], credentials[[2L]])
 print(lpsn)
 # it would be frustrating if the object was already expired on creation
-stopifnot(!summary(lpsn)[c("expired", "refresh_expired")])
+stopifnot(
+  inherits(lpsn, "lpsn_access"),
+  !summary(lpsn)[c("expired", "refresh_expired")]
+)
 
 ## fetch data, given some LPSN IDs (record numbers)
 # (1) each ID given as separate argument
 id1 <- fetch(lpsn, 520424, 4948, 17724)
 print(id1)
-stopifnot(summary(id1)[["count"]] == 3L)
+stopifnot(
+  inherits(id1, "lpsn_result"),
+  summary(id1)[["count"]] == 3L
+)
 # conversion to data frame is possible
 id1d <- as.data.frame(id1)
 head(id1d)
@@ -157,7 +163,10 @@ stopifnot(identical(id1, id3))
 # (1) each part of the query given as separate argument
 fs1 <- request(lpsn, search = "flexible", monomial = "Flexithrix")
 print(fs1)
-stopifnot(summary(fs1)[["count"]] >= 2L)
+stopifnot(
+  inherits(fs1, "lpsn_result"),
+  summary(fs1)[["count"]] >= 2L
+)
 # Flexible search is flexible because one can query for
 # all key-value pairs available in some API entry. But
 # the values are matched exactly. Compare advanced
@@ -182,7 +191,10 @@ stopifnot(identical(fs1, fs3))
 # (1) each part of the query given as separate argument
 as1 <- request(lpsn, search = "advanced", `taxon-name` = "Flexithrix")
 print(as1)
-stopifnot(summary(as1)[["count"]] >= 4L)
+stopifnot(
+  inherits(as1, "lpsn_result"),
+  summary(as1)[["count"]] >= 4L
+)
 # Advanced search uses the equivalent of a predefined set of
 # keys (or combinations thereof) to query. The values are not
 # matched exactly only; case is not distinguished and substrings
@@ -206,7 +218,10 @@ stopifnot(identical(as1, as3))
 ## run search + fetch in one step
 # (a) via flexible search
 fsf <- retrieve(lpsn, search = "flexible", monomial = "Flexithrix")
-stopifnot(length(fsf) == summary(fs1)[["count"]])
+stopifnot(
+  inherits(fsf, "records"),
+  length(fsf) == summary(fs1)[["count"]]
+)
 # it may be more convenient in R to deal with a data frame
 fsfd <- as.data.frame(fsf)
 stopifnot(is.data.frame(fsfd), nrow(fsfd) == length(fsf))
@@ -272,7 +287,7 @@ warning("username or password missing, cannot run examples")
   \code{\link{print.dsmz_result}}
   \code{\link{as.data.frame}}
 
-  Other query.functions: \code{\link{open_lpsn}}
+  Other query-functions: \code{\link{open_lpsn}}
 }
 \keyword{connection}
 \keyword{database}

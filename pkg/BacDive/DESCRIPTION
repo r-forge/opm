@@ -1,6 +1,6 @@
 Package: BacDive
-Version: 0.6.0
-Date: 2021-06-26
+Version: 0.7
+Date: 2022-04-28
 Title: BacDive API Client
 Author: Markus Goeker <markus.goeker@dsmz.de>
 Maintainer: Markus Goeker <markus.goeker@dsmz.de>
