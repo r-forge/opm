@@ -59,7 +59,7 @@ force_integer <- function(x) {
 ################################################################################
 
 
-# Non-public conversion function specific for LPSN API URLs.
+# Non-public conversion function specific for DSMZ API URLs.
 #
 #' @importFrom curl curl_escape
 #

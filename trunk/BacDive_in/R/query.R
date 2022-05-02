@@ -10,7 +10,7 @@ base_url <- function(internal) {
     "https://api.bacdive.dsmz.de"
 }
 
-# Non-public function that does the LPSN-specific download work.
+# Non-public function that does the BacDive-specific download work.
 #
 download_bacdive_json <- function(object, endpoint, query) {
   download_any_json(object, endpoint, query,
