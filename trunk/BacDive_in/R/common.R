@@ -50,10 +50,23 @@ compose_url <- function(base_url, endpoint, query) {
   sprintf(template, base_url, endpoint, query)
 }
 
+
+################################################################################
+
+# Non-public download/conversion function. One needs to call 'content' to obtain
+# the JSON (already converted to an R object).
+#
+#' @importFrom httr GET add_headers
+#
 download_json <- function(url) {
   GET(url = url)
 }
 
+# Non-public download/conversion function that calls download_json. A single
+# retry is attempted if the access token is probably expired.
+#
+#' @importFrom httr content status_code
+#
 download_json_with_retry <- function(url) {
   result <- download_json(url)
   # one could also check that the "message" entry is "Expired token" but the
@@ -63,6 +76,8 @@ download_json_with_retry <- function(url) {
   content(result)
 }
 
+# Non-public download/conversion function that calls download_json_with_retry.
+#
 download_any_json <- function(object, endpoint, query, classes,
     base = base_url(get("dsmz_internal", object))) {
   url <- if (length(query))
@@ -74,8 +89,56 @@ download_any_json <- function(object, endpoint, query, classes,
   result
 }
 
+#' Methods for \sQuote{open_bacdive} objects
+#'
+#' This package uses \sQuote{open_bacdive} objects for managing the access to
+#' the \acronym{API} services provided by \acronym{DSMZ}.
+#'
+#' @param object Object of class \sQuote{open_bacdive}.
+#' @param self Logical vector of length 1 indicating whether \code{object}
+#'   should itself be modified or a new object returned.
+#' @param x Object of class \sQuote{dopen_bacdive}.
+#' @param handler If empty, ignored. Otherwise a function to which each data
+#'   chunk retrieved from the \acronym{API} is transferred in turn. The function
+#'   should accept a single argument. \code{retrieve} and the handler function
+#'   may thus best be called within a dedicated enclosing function.
+#' @param sleep A waiting period in seconds between successive \acronym{API}
+#'   requests, if any.
+#' @param ... Optional arguments passed to other methods.
+#'
+#' @export
+#' @return 
+#'
+#'   \code{retrieve} combines the functionality of \code{request}, \code{fetch}
+#'   and \code{upgrade} to download all entries found in the \acronym{API},
+#'   traversing all chunks of a paginated result in turn. The resulting list (of
+#'   class \sQuote{records}) may be huge, hence care should be taken. It may be
+#'   advisable to use \code{handler}. If this function is given, each chunk is
+#'   passed to \code{handler} in turn. The \code{handler} function could then
+#'   store the data in a database or in a file. If \code{handler} is given, the
+#'   number of its calls is returned.
+#'
+#' @details The actual usage of \sQuote{dopen_bacdive} objects is demonstrated
+#'   by querying a \acronym{DSMZ} \acronym{API}. See the examples for the
+#'   according functions.
+#'
+#' @references \url{https://www.dsmz.de/privacy-statement}
+#'
+#' @family common-functions
+#' @keywords connection database print
+#' @examples
+#' ## Examples are deliberately not given here.
+#'
+
+#' @rdname retrieve
+#' @export
+#'
 retrieve <- function(object, ...) UseMethod("retrieve")
 
+#' @rdname retrieve
+#' @method retrieve dsmz
+#' @export
+#'
 retrieve.dsmz <- function(object, ...,
     handler = NULL, sleep = 0.5) {
 
@@ -177,6 +240,10 @@ records.dsmz_result <- function(object, ...) {
   records(convert_outcome(object$results), ...)
 }
 
+#' @rdname records
+#' @method as.data.frame records
+#' @export
+#'
 as.data.frame.records <- function(x, row.names = NULL, optional = TRUE, ...) {
   rectangle <- function(x, syntactic) {
     keys <- unique.default(unlist(lapply(x, names), FALSE, FALSE))
@@ -206,6 +273,10 @@ as.data.frame.dsmz_result <- function(x, row.names = NULL,
   as.data.frame(records(x), row.names, optional, ...)
 }
 
+#' @rdname records
+#' @method summary records
+#' @export
+#'
 summary.records <- function(object, ...) {
   total <- length(object)
   span <- if (total) range(lengths(object)) else rep_len(NA_integer_, 2L)
@@ -232,6 +303,10 @@ summary.dsmz_result <- function(object, ...) {
   )
 }
 
+#' @rdname records
+#' @method print records
+#' @export
+#'
 print.records <- function(x, ...) {
   print_summary(x, ...)
 }
@@ -240,3 +315,4 @@ print.dsmz_result <- function(x, ...) {
   print_summary(x, ...)
 }
 
+################################################################################
