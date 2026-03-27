@@ -1,8 +1,8 @@
 base_url <- function(internal) {
   if (internal)
-    "http://api.bacdive-dev.dsmz.local"
+    "http://api.bacdive-dev.dsmz.local/v2"
   else
-    "https://api.bacdive.dsmz.de"
+    "https://api.bacdive.dsmz.de/v2"
 }
 
 download_bacdive_json <- function(object, endpoint, query) {
@@ -10,9 +10,11 @@ download_bacdive_json <- function(object, endpoint, query) {
     c("bacdive_result", "dsmz_result"))
 }
 
-open_bacdive <- function(username, password) {
-  create_dsmz_keycloak(assert_scalar(username), assert_scalar(password),
-    "api.bacdive.public", "bacdive_access")
+open_bacdive <- function(username=NULL, password=NULL) {
+  result <- new.env()
+  result$dsmz_internal <- FALSE
+  class(result) = c("bacdive_access","dsmz")
+  result
 }
 
 fetch <- function(object, ...) UseMethod("fetch")
@@ -30,7 +32,7 @@ fetch.bacdive_access <- function(object, ids, ...) {
     stop("non-integer ID given")
   if (anyDuplicated.default(ids))
     ids <- unique.default(ids)
-  download_bacdive_json(object, "fetch", ids)
+  download_bacdive_json(object, "v2/fetch", ids)
 }
 
 request <- function(object, ...) UseMethod("request")

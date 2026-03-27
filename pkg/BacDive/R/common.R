@@ -50,50 +50,14 @@ compose_url <- function(base_url, endpoint, query) {
   sprintf(template, base_url, endpoint, query)
 }
 
-get_dsmz_keycloak <- function(client_id, classes, verbose, internal, ...) {
-
-  url <- if (internal) "https://sso.dmz.dsmz.de" else "https://sso.dsmz.de"
-  result <- POST(path = "auth/realms/dsmz/protocol/openid-connect/token",
-    url = url, body = list(client_id = client_id, ...), encode = "form")
-  if (status_code(result) != 200L)
-    stop("[Keycloak] ", any_to_message(content(result)))
-
-  # the rest of the code just puts a convenient object together
-  result <- as.environment(content(result))
-  result$dsmz_created_at <- Sys.time()
-  result$dsmz_client_id <- client_id
-  result$dsmz_verbose <- verbose
-  result$dsmz_internal <- internal
-  class(result) <- c(setdiff(classes, "dsmz_keycloak"), "dsmz_keycloak")
-  result
-
+download_json <- function(url) {
+  GET(url = url)
 }
 
-create_dsmz_keycloak <- function(username, password, client_id, classes,
-    verbose = force_integer(Sys.getenv("DSMZ_API_VERBOSE")),
-    internal = force_integer(Sys.getenv("DSMZ_KEYCLOAK_INTERNAL"))) {
-  get_dsmz_keycloak(username = username, password = password,
-    grant_type = "password", client_id = client_id,
-    classes = classes, verbose = verbose, internal = internal)
-}
-
-download_json <- function(url, access_token, verbose) {
-  if (verbose > 0L)
-    message(url, "\n")
-  GET(url = url, add_headers(Accept = "application/json",
-    Authorization = paste("Bearer", access_token)))
-}
-
-download_json_with_retry <- function(url, tokens) {
-  result <- download_json(url, get("access_token", tokens),
-    get("dsmz_verbose", tokens))
+download_json_with_retry <- function(url) {
+  result <- download_json(url)
   # one could also check that the "message" entry is "Expired token" but the
   # exact spelling of messages may be unstable
-  if (status_code(result) == 401L) {
-    refresh(tokens, TRUE)
-    result <- download_json(url, get("access_token", tokens),
-      get("dsmz_verbose", tokens))
-  }
   if (status_code(result) != 200L)
     warning("[API] ", any_to_message(content(result)))
   content(result)
@@ -105,40 +69,14 @@ download_any_json <- function(object, endpoint, query, classes,
       compose_url(base, endpoint, query)
     else
       endpoint # here we assume that the full URL is already given
-  result <- download_json_with_retry(url, object)
+  result <- download_json_with_retry(url)
   class(result) <- classes
   result
 }
 
-refresh <- function(object, ...) UseMethod("refresh")
-
-refresh.dsmz_keycloak <- function(object, self = TRUE, ...) {
-  result <- get_dsmz_keycloak(refresh_token = get("refresh_token", object),
-    client_id = get("dsmz_client_id", object), grant_type = "refresh_token",
-    classes = class(object), verbose = get("dsmz_verbose", object),
-    internal = get("dsmz_internal", object), ...)
-  if (self)
-    list2env(as.list.environment(result), object)
-  else
-    result
-}
-
-summary.dsmz_keycloak <- function(object, ...) {
-  age <- get("dsmz_created_at", object)
-  c(
-    vapply(class(object), nzchar, NA), # a trick to keep the names
-    mapply(function(key) age + get(key, object) < Sys.time(),
-      c(expired = "expires_in", refresh_expired = "refresh_expires_in"))
-  )
-}
-
-print.dsmz_keycloak <- function(x, ...) {
-  print_summary(x)
-}
-
 retrieve <- function(object, ...) UseMethod("retrieve")
 
-retrieve.dsmz_keycloak <- function(object, ...,
+retrieve.dsmz <- function(object, ...,
     handler = NULL, sleep = 0.5) {
 
   transfer <- length(handler) > 0L
