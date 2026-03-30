@@ -9,7 +9,7 @@
   \item{password}{Character vector of length 1.}
 }
 \value{
-  I\code{open_bacdive} returns a new \sQuote{bacdive_access}
+  \code{open_bacdive} returns a new \sQuote{bacdive_access}
   object
 }
 \description{
@@ -36,8 +36,12 @@
   \url{https://www.keycloak.org/}
 }
 \seealso{
-  \code{\link{refresh}} Other res: \code{\link{retrieve}},
-  }
+  \code{\link{refresh}} Other
+  query-functions: \code{\link{fetch}},
+  \code{\link{request}},
+    \code{\link{retrieve.bacdive_access}},
+  \code{\link{upgrade.bacdive_access}}
+}
 \keyword{connection}
 \keyword{database}
 

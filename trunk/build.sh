@@ -1967,11 +1967,6 @@ case $RUNNING_MODE in
   bfull|bnorm )
     if tests_disabled "$@"; then
       true
-    elif [ ${DSMZ_API_PASSWORD:+x} ] && [ ${DSMZ_API_USER:+x} ]; then
-      true
-    else
-      echo "need \$DSMZ_API_USER and \$DSMZ_API_PASSWORD system variables" >&2
-      exit 1
     fi
     PKG_DIR=BacDive_in
     RUNNING_MODE=${RUNNING_MODE#b}
