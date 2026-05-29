@@ -304,7 +304,7 @@ fetch.bacdive_access <- function(object, ids, ...) {
     stop("non-integer ID given")
   if (anyDuplicated.default(ids))
     ids <- unique.default(ids)
-  download_bacdive_json(object, "v2/fetch", ids)
+  download_bacdive_json(object, "fetch", ids)
 }
 
 #' @rdname fetch
